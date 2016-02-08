@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # This file is part of UDPipe <http://github.com/ufal/udpipe/>.
 #
@@ -11,6 +11,7 @@
 
 git -C ../src/unilib clone --depth=1 --branch=stable https://github.com/ufal/unilib
 mv ../src/unilib/unilib/unilib/* ../src/unilib/
+mv ../src/unilib/unilib/{AUTHORS,CHANGES,LICENSE,README} ../src/unilib/
 rm -rf ../src/unilib/unilib/
 sed '
   s/^namespace unilib {/namespace udpipe {\n&/

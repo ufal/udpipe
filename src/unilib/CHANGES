@@ -1,0 +1,36 @@
+Version 3.1.0 [29 Jun 2015]
+---------------------------
+- Update Unicode to 8.0.0.
+
+
+Version 3.0.1 [06 Mar 2015]
+---------------------------
+- Move version::current from header to object file.
+
+
+Version 3.0.0 [26 Feb 2015]
+---------------------------
+- Start using Semantic Versioning http://semver.org/.
+- Use t2t_docsys http://github.com/ufal/t2t_docsys as documentation system.
+- Renamed the utf{8,16}::{string,buffer}_decoder_helper helper classes to
+  utf{8,16}::{string,buffer}_decoder.
+- Add version structure.
+- Fix compilation on Visual C++ 2013.
+
+
+Version 2.1 [22 Dec 2014]
+-------------------------
+- Changed license to MPL 2.0.
+
+
+Version 2.0 [22 Jul 2014]
+-------------------------
+- Updated Unicode to 7.0.0.
+- Changed license to 3-clause BSD.
+- Added ustrip with combining mark stripping.
+
+
+Version 1.0 [12 May 2014]
+-------------------------
+- Initial public release.
+- Unicode 6.3.
