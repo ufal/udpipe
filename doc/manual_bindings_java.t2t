@@ -1,0 +1,13 @@
+Java UDPipe Bindings
+====================
+
+== Installation ==[java_installation]
+%!include: manual_bindings_java_install.t2t
+
+
+== Java Bindings API ==[java_bindings_api]
+%!include: manual_bindings_java_api.t2t
+
+
+== C++ Bindings API ==[cpp_bindings_api]
+%!include: manual_bindings_api.t2t

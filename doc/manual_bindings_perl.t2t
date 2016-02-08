@@ -1,0 +1,13 @@
+Perl UDPipe Bindings
+====================
+
+== Installation ==[perl_installation]
+%!include: manual_bindings_perl_install.t2t
+
+
+== Perl Bindings API ==[perl_bindings_api]
+%!include: manual_bindings_perl_api.t2t
+
+
+== C++ Bindings API ==[cpp_bindings_api]
+%!include: manual_bindings_api.t2t

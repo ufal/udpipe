@@ -1,0 +1,6 @@
+UDPipe
+======
+
+To use this model, you need UDPipe, an open-source tool for tokenization,
+tagging, lemmatization and parsing of CoNLL-U files. Please visit the UDPipe
+website http://ufal.mff.cuni.cz/udpipe for more information.

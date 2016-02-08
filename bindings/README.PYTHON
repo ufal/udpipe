@@ -1,0 +1,38 @@
+Python UDPipe Bindings
+======================
+
+Installation
+============
+
+The Python bindings are available as ufal.udpipe package on PyPI.
+
+To compile Python bindings manually, run make in the bindings/python directory,
+optionally with options descriged in UDPipe Installation. Both Python 2.6+ and
+Python 3+ are supported.
+
+Path to the include headers of the required Python version must be specified in
+the PYTHON_INCLUDE variable using
+  make PYTHON_INCLUDE=path_to_Python_includes
+
+
+Python Bindings API
+===================
+
+UDPipe library bindings is available in the ufal.udpipe
+(http://pypi.python.org/pypi/ufal.udpipe) module.
+
+The bindings is a straightforward conversion of the C++ bindings API. In Python
+2, strings can be both unicode and UTF-8 encoded str, and the library always
+produces unicode. In Python 3, strings must be only str.
+
+
+C++ Bindings API
+================
+
+
+Helper Structures
+-----------------
+
+
+Main Classes
+------------

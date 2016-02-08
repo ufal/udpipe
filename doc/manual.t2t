@@ -1,0 +1,118 @@
+UDPipe
+Version 0.9.0-devel
+
+= Introduction =[introduction]
+
+%!include: manual_about.t2t
+
+
+= Online =[online]
+
+%!include: manual_online.t2t
+
+
+= Release =[release]
+
+== Download ==[download]
+
+UDPipe releases are available on [GitHub http://github.com/ufal/udpipe], either as
+a pre-compiled binary package, or source code only. The binary package contains Linux,
+Windows and OS X binaries, Java bindings binary, C# bindings binary, and source
+code of UDPipe and all language bindings). While the binary
+packages do not contain compiled Python or Perl bindings, packages for those
+languages are available in standard package repositories, i.e. on PyPI and CPAN.
+
+- [Latest release http://github.com/ufal/udpipe/releases/latest]
+- [All releases http://github.com/ufal/udpipe/releases], [Changelog https://github.com/ufal/udpipe/blob/master/CHANGES]
+
+
+=== Language Models ===[language_models]
+
+To use UDpipe, a language model is needed. The language models are available
+from [LINDAT/CLARIN http://www.lindat.cz] infrastructure and described further
+in the
+%web% [UDPipe User's Manual udpipe/users-manual].
+%manual% [UDPipe User's Manual #users_manual].
+Currently the following language models are available:
+
+- Universal Dependencies 1.2 Models: [udpipe-ud1.2-TODO TODO] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
+
+
+== License ==[license]
+
+UDPipe is an open-source project and is freely available for non-commercial
+purposes. The library is distributed under
+[Mozilla Public License 2.0 http://www.mozilla.org/MPL/2.0/] and the associated models and data
+under [CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/], although
+for some models the original data used to create the model may impose
+additional licensing conditions.
+
+If you use this tool for scientific work, please give credit to us by
+referencing [Straka et al. 2016 #bibtex_for_referencing] and
+[UDPipe website http://ufal.mff.cuni.cz/udpipe].
+
+== Platforms and Requirements ==[platforms_and_requirements]
+
+UDpipe is available as a standalone tool and as a library for Linux/Windows/OS
+X. It does not require any additional libraries. As any supervised machine
+learning tool, it needs trained linguistic models.
+
+
+= UDPipe Installation =[instalation]
+
+%web% [UDPipe Installation on separate page. udpipe/install]
+%manual% %!include: manual_install.t2t
+
+
+= UDPipe User's Manual =[users_manual]
+
+%web% [UDPipe User's Manual on separate page. udpipe/users-manual]
+%manual% %!include: manual_user.t2t
+
+
+= UDPipe API Reference =[api_reference]
+
+%web% [UDPipe API Reference on separate page. udpipe/api-reference]
+%manual% %!include: manual_api_reference.t2t
+
+
+= Contact =[contact]
+
+Authors:
+- [Milan Straka http://ufal.mff.cuni.cz/milan-straka], straka@ufal.mff.cuni.cz
+
+
+[UDPipe website http://ufal.mff.cuni.cz/udpipe].
+
+[UDPipe LINDAT/CLARIN entry TODO].
+
+
+= Acknowledgements =[udpipe_acknowledgements]
+
+This work has been using language resources developed and/or stored and/or distributed by the LINDAT/CLARIN project of the Ministry of Education of the Czech Republic (project //LM2010013//).
+
+%web% Acknowledgements for individual language models are listed in [UDPipe User's Manual page udpipe/users-manual].
+%manual% Acknowledgements for individual language models are listed in [UDPipe User's Manual #users_manual].
+
+
+== Publications ==[publications]
+
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// To appear at LREC 2016.
+-
+
+== Bibtex for Referencing ==[bibtex_for_referencing]
+
+```
+@InProceedings{udpipe:2016,
+  author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
+  title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
+  booktitle = {To appear at LREC 2016.},
+  month     = {May},
+  year      = {2016},
+}
+```
+
+== Permanent Identifier ==[permanent_identifier]
+
+If you prefer to reference UDPipe by a permanent identifier (PID),
+you can use ``TODO``.

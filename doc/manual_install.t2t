@@ -1,0 +1,77 @@
+UDPipe Installation
+===================
+
+UDPipe releases are available on [GitHub http://github.com/ufal/udpipe], either as
+a pre-compiled binary package, or source code only. The binary package contains Linux,
+Windows and OS X binaries, Java bindings binary, C# bindings binary, and source
+code of UDPipe and all language bindings. While the binary
+packages do not contain compiled Python or Perl bindings, packages for those
+languages are available in standard package repositories, i.e. on PyPI and CPAN.
+
+To use UDPipe, a language model is needed.
+[Here is a list of available language models http://ufal.mff.cuni.cz/udpipe#language_models].
+
+If you want to compile UDPipe manually, sources are available on on
+[GitHub http://github.com/ufal/udpipe], both in the
+[pre-compiled binary package releases http://github.com/ufal/udpipe/releases]
+and in the repository itself.
+
+
+== Requirements ==[requirements]
+
+- ``G++ 4.7`` or newer, ``clang 3.2`` or newer, Visual C++ 2015 or newer
+- ``make``
+- ``SWIG 2.0.5`` or newer for language bindings other than ``C++``
+
+
+== Compilation ==[compilation]
+
+To compile UDPipe, run ``make`` in the ``src`` directory.
+
+Make targets and options:
+- ``exe``: compile the binaries (default)
+- ``server``: compile the REST server
+- ``lib``: compile the static library
+- ``BITS=32`` or ``BITS=64``: compile for specified 32-bit or 64-bit architecture instead of the default one
+- ``mode=RELEASE``: create release build which statically links the C++ runtime and uses LTO
+- ``mode=DEBUG``: create debug build
+- ``mode=PROFILE``: create profile build
+
+
+=== Platforms ===[compilation_platforms]
+
+Platform can be selected using one of the following options:
+- ``PLATFORM=linux``, ``PLATFORM=linux-gcc``: gcc compiler on Linux operating system, default on Linux
+- ``PLATFORM=linux-clang``: clang compiler on Linux, must be selected manually
+- ``PLATFORM=osx``, ``PLATFORM=osx-clang``: clang compiler on OS X, default on OS X; ``BITS=32+64`` enables multiarch build
+- ``PLATFORM=win``, ``PLATFORM=win-gcc``: gcc compiler on Windows (TDM-GCC is well tested), default on Windows
+- ``PLATFORM=win-vs``: Visual C++ 2015 compiler on Windows, must be selected manually; note that the
+  ``cl.exe`` compiler must be already present in ``PATH`` and corresponding ``BITS=32`` or ``BITS=64``
+  must be specified
+
+
+Either POSIX shell or Windows CMD can be used as shell, it is detected automatically.
+
+=== Further Details ===[compilation_further_details]
+
+UDPipe uses [C++ BuilTem system http://github.com/ufal/cpp_builtem],
+please refer to its manual if interested in all supported options.
+
+
+== Other language bindings ==[other_language_bindings]
+
+
+=== C# ===[csharp_installation]
+%!include: manual_bindings_csharp_install.t2t
+
+
+=== Java ===[java_installation]
+%!include: manual_bindings_java_install.t2t
+
+
+=== Perl ===[perl_installation]
+%!include: manual_bindings_perl_install.t2t
+
+
+=== Python ===[python_installation]
+%!include: manual_bindings_python_install.t2t

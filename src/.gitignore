@@ -1,0 +1,4 @@
+/.build/
+libudpipe.*
+*.exe
+*.swp

@@ -1,0 +1,718 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content="http://txt2tags.org">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>UDPipe</title>
+</head>
+<body>
+
+<div class="header" id="header">
+<h1>UDPipe</h1>
+<h2>Version 0.9.0-devel</h2>
+</div>
+
+<div class="toc">
+
+  <ol>
+  <li><a href="#introduction">Introduction</a>
+  </li>
+  <li><a href="#online">Online</a>
+    <ul>
+    <li><a href="#online_demo">2.1. Online Demo</a>
+    </li>
+    <li><a href="#web_service">2.2. Web Service</a>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#release">Release</a>
+    <ul>
+    <li><a href="#download">3.1. Download</a>
+      <ul>
+      <li><a href="#language_models">3.1.1. Language Models</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#license">3.2. License</a>
+    </li>
+    <li><a href="#platforms_and_requirements">3.3. Platforms and Requirements</a>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#instalation">UDPipe Installation</a>
+    <ul>
+    <li><a href="#requirements">4.1. Requirements</a>
+    </li>
+    <li><a href="#compilation">4.2. Compilation</a>
+      <ul>
+      <li><a href="#compilation_platforms">4.2.1. Platforms</a>
+      </li>
+      <li><a href="#compilation_further_details">4.2.2. Further Details</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#other_language_bindings">4.3. Other language bindings</a>
+      <ul>
+      <li><a href="#csharp_installation">4.3.1. C#</a>
+      </li>
+      <li><a href="#java_installation">4.3.2. Java</a>
+      </li>
+      <li><a href="#perl_installation">4.3.3. Perl</a>
+      </li>
+      <li><a href="#python_installation">4.3.4. Python</a>
+      </li>
+      </ul>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#users_manual">UDPipe User's Manual</a>
+    <ul>
+    <li><a href="#universal_dependencies_12_models">5.1. Universal Dependencies 1.2 Models</a>
+      <ul>
+      <li><a href="#universal_dependencies_12_models_download">5.1.1. Download</a>
+      </li>
+      <li><a href="#universal_dependencies_12_models_acknowledgements">5.1.2. Acknowledgements</a>
+      </li>
+      <li><a href="#universal_dependencies_12_models_description">5.1.3. Model Description</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#run_udpipe">5.2. Running UDPipe</a>
+    </li>
+    <li><a href="#udpipe_server">5.3. Running the UDPipe REST Server</a>
+    </li>
+    <li><a href="#model_training">5.4. Training UDPipe Models</a>
+      <ul>
+      <li><a href="#udpipe_accuracy">5.4.1. Measuring Model Accuracy</a>
+      </li>
+      </ul>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#api_reference">UDPipe API Reference</a>
+    <ul>
+    <li><a href="#versioning">6.1. UDPipe Versioning</a>
+    </li>
+    <li><a href="#version">6.2. Class version</a>
+      <ul>
+      <li><a href="#version_current">6.2.1. version::current</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#cpp_bindings_api">6.3. C++ Bindings API</a>
+      <ul>
+      <li><a href="#bindings_helper_structures">6.3.1. Helper Structures</a>
+      </li>
+      <li><a href="#bindings_main_classes">6.3.2. Main Classes</a>
+      </li>
+      </ul>
+    </li>
+    <li><a href="#csharp_bindings">6.4. C# Bindings</a>
+    </li>
+    <li><a href="#java_bindings">6.5. Java Bindings</a>
+    </li>
+    <li><a href="#perl_bindings">6.6. Perl Bindings</a>
+    </li>
+    <li><a href="#python_bindings">6.7. Python Bindings</a>
+    </li>
+    </ul>
+  </li>
+  <li><a href="#contact">Contact</a>
+  </li>
+  <li><a href="#udpipe_acknowledgements">Acknowledgements</a>
+    <ul>
+    <li><a href="#publications">8.1. Publications</a>
+    </li>
+    <li><a href="#bibtex_for_referencing">8.2. Bibtex for Referencing</a>
+    </li>
+    <li><a href="#permanent_identifier">8.3. Permanent Identifier</a>
+    </li>
+    </ul>
+  </li>
+  </ol>
+
+</div>
+<div class="body" ID="body">
+
+<a id="introduction" name="introduction"></a>
+<h1>1. Introduction</h1>
+
+<p>
+UDPipe is an trainable pipeline for tokenization, tagging, lemmatization and
+parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
+only annotated data in CoNLL-U format. (Nevertheless, to train the tokenizer,
+either the `SpaceAfter` feature must be present, or at least some plain text
+must be available; also morphological analyzer and lemmatizer can be improved
+if morphological dictionary is provided.) Trained models are provided for
+nearly all UD treebanks.  UDPipe is available as a binary, as a library for
+C++, Python, Perl, Java, C#, and as a web service.
+</p>
+<p>
+UDPipe is a free software under
+<a href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License 2.0</a> and the linguistic models
+are free for non-commercial use and distributed under
+<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a> license, although for some
+models the original data used to create the model may impose additional
+licensing conditions. UDPipe is versioned using <a href="http://semver.org/">Semantic Versioning</a>.
+</p>
+<p>
+Copyright 2016 by Institute of Formal and Applied Linguistics, Faculty of
+Mathematics and Physics, Charles University in Prague, Czech Republic.
+</p>
+
+<a id="online" name="online"></a>
+<h1>2. Online</h1>
+
+<a id="online_demo" name="online_demo"></a>
+<h2>2.1. Online Demo</h2>
+
+<p>
+<a href="http://lindat.mff.cuni.cz/services/udpipe/">Online demo</a> is available as
+one of <a href="http://lindat.mff.cuni.cz/services/">LINDAT/CLARIN services</a>.
+</p>
+
+<a id="web_service" name="web_service"></a>
+<h2>2.2. Web Service</h2>
+
+<p>
+<a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">Web service</a> is also
+available as one of <a href="http://lindat.mff.cuni.cz/services/">LINDAT/CLARIN services</a>.
+</p>
+
+<a id="release" name="release"></a>
+<h1>3. Release</h1>
+
+<a id="download" name="download"></a>
+<h2>3.1. Download</h2>
+
+<p>
+UDPipe releases are available on <a href="http://github.com/ufal/udpipe">GitHub</a>, either as
+a pre-compiled binary package, or source code only. The binary package contains Linux,
+Windows and OS X binaries, Java bindings binary, C# bindings binary, and source
+code of UDPipe and all language bindings). While the binary
+packages do not contain compiled Python or Perl bindings, packages for those
+languages are available in standard package repositories, i.e. on PyPI and CPAN.
+</p>
+
+<ul>
+<li><a href="http://github.com/ufal/udpipe/releases/latest">Latest release</a>
+</li>
+<li><a href="http://github.com/ufal/udpipe/releases">All releases</a>, <a href="https://github.com/ufal/udpipe/blob/master/CHANGES">Changelog</a>
+</li>
+</ul>
+
+<a id="language_models" name="language_models"></a>
+<h3>3.1.1. Language Models</h3>
+
+<p>
+To use UDpipe, a language model is needed. The language models are available
+from <a href="http://www.lindat.cz">LINDAT/CLARIN</a> infrastructure and described further
+in the
+<a href="#users_manual">UDPipe User's Manual</a>.
+Currently the following language models are available:
+</p>
+
+<ul>
+<li>Universal Dependencies 1.2 Models: <a href="TODO">udpipe-ud1.2-TODO</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">documentation</a>)
+</li>
+</ul>
+
+<a id="license" name="license"></a>
+<h2>3.2. License</h2>
+
+<p>
+UDPipe is an open-source project and is freely available for non-commercial
+purposes. The library is distributed under
+<a href="http://www.mozilla.org/MPL/2.0/">Mozilla Public License 2.0</a> and the associated models and data
+under <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>, although
+for some models the original data used to create the model may impose
+additional licensing conditions.
+</p>
+<p>
+If you use this tool for scientific work, please give credit to us by
+referencing <a href="#bibtex_for_referencing">Straka et al. 2016</a> and
+<a href="http://ufal.mff.cuni.cz/udpipe">UDPipe website</a>.
+</p>
+
+<a id="platforms_and_requirements" name="platforms_and_requirements"></a>
+<h2>3.3. Platforms and Requirements</h2>
+
+<p>
+UDpipe is available as a standalone tool and as a library for Linux/Windows/OS
+X. It does not require any additional libraries. As any supervised machine
+learning tool, it needs trained linguistic models.
+</p>
+
+<a id="instalation" name="instalation"></a>
+<h1>4. UDPipe Installation</h1>
+
+<p>
+UDPipe releases are available on <a href="http://github.com/ufal/udpipe">GitHub</a>, either as
+a pre-compiled binary package, or source code only. The binary package contains Linux,
+Windows and OS X binaries, Java bindings binary, C# bindings binary, and source
+code of UDPipe and all language bindings. While the binary
+packages do not contain compiled Python or Perl bindings, packages for those
+languages are available in standard package repositories, i.e. on PyPI and CPAN.
+</p>
+<p>
+To use UDPipe, a language model is needed.
+<a href="http://ufal.mff.cuni.cz/udpipe#language_models">Here is a list of available language models</a>.
+</p>
+<p>
+If you want to compile UDPipe manually, sources are available on on
+<a href="http://github.com/ufal/udpipe">GitHub</a>, both in the
+<a href="http://github.com/ufal/udpipe/releases">pre-compiled binary package releases</a>
+and in the repository itself.
+</p>
+
+<a id="requirements" name="requirements"></a>
+<h2>4.1. Requirements</h2>
+
+<ul>
+<li><code>G++ 4.7</code> or newer, <code>clang 3.2</code> or newer, Visual C++ 2015 or newer
+</li>
+<li><code>make</code>
+</li>
+<li><code>SWIG 2.0.5</code> or newer for language bindings other than <code>C++</code>
+</li>
+</ul>
+
+<a id="compilation" name="compilation"></a>
+<h2>4.2. Compilation</h2>
+
+<p>
+To compile UDPipe, run <code>make</code> in the <code>src</code> directory.
+</p>
+<p style="margin-bottom:0">
+Make targets and options:
+</p>
+<ul style="margin-top:0">
+<li><code>exe</code>: compile the binaries (default)
+</li>
+<li><code>server</code>: compile the REST server
+</li>
+<li><code>lib</code>: compile the static library
+</li>
+<li><code>BITS=32</code> or <code>BITS=64</code>: compile for specified 32-bit or 64-bit architecture instead of the default one
+</li>
+<li><code>mode=RELEASE</code>: create release build which statically links the C++ runtime and uses LTO
+</li>
+<li><code>mode=DEBUG</code>: create debug build
+</li>
+<li><code>mode=PROFILE</code>: create profile build
+</li>
+</ul>
+
+<a id="compilation_platforms" name="compilation_platforms"></a>
+<h3>4.2.1. Platforms</h3>
+
+<p style="margin-bottom:0">
+Platform can be selected using one of the following options:
+</p>
+<ul style="margin-top:0">
+<li><code>PLATFORM=linux</code>, <code>PLATFORM=linux-gcc</code>: gcc compiler on Linux operating system, default on Linux
+</li>
+<li><code>PLATFORM=linux-clang</code>: clang compiler on Linux, must be selected manually
+</li>
+<li><code>PLATFORM=osx</code>, <code>PLATFORM=osx-clang</code>: clang compiler on OS X, default on OS X; <code>BITS=32+64</code> enables multiarch build
+</li>
+<li><code>PLATFORM=win</code>, <code>PLATFORM=win-gcc</code>: gcc compiler on Windows (TDM-GCC is well tested), default on Windows
+</li>
+<li><code>PLATFORM=win-vs</code>: Visual C++ 2015 compiler on Windows, must be selected manually; note that the
+  <code>cl.exe</code> compiler must be already present in <code>PATH</code> and corresponding <code>BITS=32</code> or <code>BITS=64</code>
+  must be specified
+</li>
+</ul>
+
+<p>
+Either POSIX shell or Windows CMD can be used as shell, it is detected automatically.
+</p>
+
+<a id="compilation_further_details" name="compilation_further_details"></a>
+<h3>4.2.2. Further Details</h3>
+
+<p>
+UDPipe uses <a href="http://github.com/ufal/cpp_builtem">C++ BuilTem system</a>,
+please refer to its manual if interested in all supported options.
+</p>
+
+<a id="other_language_bindings" name="other_language_bindings"></a>
+<h2>4.3. Other language bindings</h2>
+
+<a id="csharp_installation" name="csharp_installation"></a>
+<h3>4.3.1. C#</h3>
+
+<p>
+Binary C# bindings are available in UDPipe binary packages.
+</p>
+<p>
+To compile C# bindings manually, run <code>make</code> in the <code>bindings/csharp</code>
+directory, optionally with the options descriged in UDPipe Installation.
+</p>
+
+<a id="java_installation" name="java_installation"></a>
+<h3>4.3.2. Java</h3>
+
+<p>
+Binary Java bindings are available in UDPipe binary packages.
+</p>
+<p>
+To compile Java bindings manually, run <code>make</code> in the <code>bindings/java</code>
+directory, optionally with the options descriged in UDPipe Installation.
+Java 6 and newer is supported.
+</p>
+<p style="margin-bottom:0">
+The Java installation specified in the environment variable <code>JAVA_HOME</code> is
+used.  If the environment variable does not exist, the <code>JAVA_HOME</code> can be
+specified using
+</p>
+<pre style="margin-top:0">
+make JAVA_HOME=path_to_Java_installation
+</pre>
+
+<a id="perl_installation" name="perl_installation"></a>
+<h3>4.3.3. Perl</h3>
+
+<p>
+The Perl bindings are available as <code>Ufal-UDPipe</code> package on CPAN.
+</p>
+<p>
+To compile Perl bindings manually, run <code>make</code> in the <code>bindings/perl</code>
+directory, optionally with the options descriged in UDPipe Installation.
+Perl 5.10 and later is supported.
+</p>
+<p style="margin-bottom:0">
+Path to the include headers of the required Perl version must be specified
+in the <code>PERL_INCLUDE</code> variable using
+</p>
+<pre style="margin-top:0">
+make PERL_INCLUDE=path_to_Perl_includes
+</pre>
+
+<a id="python_installation" name="python_installation"></a>
+<h3>4.3.4. Python</h3>
+
+<p>
+The Python bindings are available as <code>ufal.udpipe</code> package on PyPI.
+</p>
+<p>
+To compile Python bindings manually, run <code>make</code> in the <code>bindings/python</code>
+directory, optionally with options descriged in UDPipe Installation. Both
+Python 2.6+ and Python 3+ are supported.
+</p>
+<p style="margin-bottom:0">
+Path to the include headers of the required Python version must be specified
+in the <code>PYTHON_INCLUDE</code> variable using
+</p>
+<pre style="margin-top:0">
+make PYTHON_INCLUDE=path_to_Python_includes
+</pre>
+
+<a id="users_manual" name="users_manual"></a>
+<h1>5. UDPipe User's Manual</h1>
+
+<p>
+TODO
+</p>
+<p>
+Like any supervised machine learning tool, UDPipe needs a trained linguistic model.
+This section describes the available language models and also the commandline
+tools and interfaces.
+</p>
+
+<a id="universal_dependencies_12_models" name="universal_dependencies_12_models"></a>
+<h2>5.1. Universal Dependencies 1.2 Models</h2>
+
+<p>
+Universal Dependencies 1.2 Models are distributed under the
+<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a> licence.
+The models are based solely on
+<a href="http://hdl.handle.net/11234/1-1548">Universal Dependencies 1.2</a> treebanks.
+The models work in UDPipe version 1.0.
+</p>
+<p>
+Universal Dependencies 1.2 Models are versioned according to the date released
+in the format <code>YYMMDD</code>, where <code>YY</code>, <code>MM</code> and <code>DD</code> are two-digit
+representation of year, month and day, respectively. The latest version is TODO.
+</p>
+
+<a id="universal_dependencies_12_models_download" name="universal_dependencies_12_models_download"></a>
+<h3>5.1.1. Download</h3>
+
+<p>
+The latest version TODO of the Czech MorphoDiTa models can be downloaded
+from <a href="TODO">LINDAT/CLARIN repository</a>.
+</p>
+
+<a id="universal_dependencies_12_models_acknowledgements" name="universal_dependencies_12_models_acknowledgements"></a>
+<h3>5.1.2. Acknowledgements</h3>
+
+<p>
+This work has been using language resources developed and/or stored and/or
+distributed by the LINDAT/CLARIN project of the Ministry of Education of the
+Czech Republic (project <i>LM2010013</i>).
+</p>
+<p>
+The models were trained on <a href="http://hdl.handle.net/11234/1-1548">Universal Dependencies 1.2</a> treebanks.
+</p>
+
+<a id="universal_dependencies_12_models_publications" name="universal_dependencies_12_models_publications"></a>
+<h4>5.1.2.1. Publications</h4>
+
+<ul>
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> To appear at LREC 2016.
+</li>
+</ul>
+
+<a id="universal_dependencies_12_models_description" name="universal_dependencies_12_models_description"></a>
+<h3>5.1.3. Model Description</h3>
+
+<p>
+TODO
+</p>
+
+<a id="run_udpipe" name="run_udpipe"></a>
+<h2>5.2. Running UDPipe</h2>
+
+<p>
+TODO
+</p>
+
+<a id="udpipe_server" name="udpipe_server"></a>
+<h2>5.3. Running the UDPipe REST Server</h2>
+
+<p>
+TODO
+</p>
+
+<a id="model_training" name="model_training"></a>
+<h2>5.4. Training UDPipe Models</h2>
+
+<p>
+TODO
+</p>
+
+<a id="udpipe_accuracy" name="udpipe_accuracy"></a>
+<h3>5.4.1. Measuring Model Accuracy</h3>
+
+<p>
+TODO
+</p>
+
+<a id="api_reference" name="api_reference"></a>
+<h1>6. UDPipe API Reference</h1>
+
+<p>
+The UDPipe API is defined in header <code>udpipe.h</code> and resides in
+<code>ufal::udpipe</code> namespace. The API allows only using existing models,
+for custom model creation you have to use the <code>train_parser</code> binary.
+</p>
+<p>
+The strings used in the UDPipe API are always UTF-8 encoded (except from
+file paths, whose encoding is system dependent).
+</p>
+
+<a id="versioning" name="versioning"></a>
+<h2>6.1. UDPipe Versioning</h2>
+
+<p>
+UDPipe is versioned using <a href="http://semver.org/">Semantic Versioning</a>.
+Therefore, a version consists of three numbers <i>major.minor.patch</i>, optionally
+followed by a hyphen and pre-release version info, with the following semantics:
+</p>
+
+<ul>
+<li>Stable versions have no pre-release version info, development have non-empty
+  pre-release version info.
+</li>
+<li>Two versions with the same <i>major.minor</i> have the same API with the same
+  behaviour, apart from bugs. Therefore, if only <i>patch</i> is increased, the
+  new version is only a bug-fix release.
+</li>
+<li>If two versions <i>v</i> and <i>u</i> have the same <i>major</i>, but <i>minor(v)</i> is
+  greater than <i>minor(u)</i>, version <i>v</i> contains only additions to the API.
+  In other words, the API of <i>u</i> is all present in <i>v</i> with the same
+  behaviour (once again apart from bugs). It is therefore safe to upgrade to
+  a newer UDPipe version with the same <i>major</i>.
+</li>
+<li>If two versions differ in <i>major</i>, their API may differ in any way.
+</li>
+</ul>
+
+<p>
+Models created by UDPipe have the same behaviour in all UDPipe
+versions with same <i>major</i>, apart from obvious bugfixes. On the other hand,
+models created from the same data by different <i>major.minor</i> UDPipe
+versions may have different behaviour.
+</p>
+
+<a id="version" name="version"></a>
+<h2>6.2. Class version</h2>
+
+<pre>
+class version {
+ public:
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  std::string prerelease;
+
+  static <A HREF="#version">version</A> <A HREF="#version_current">current</A>();
+};
+</pre>
+
+<p>
+The <a href="#version"><code>version</code></a> class represents UDPipe version.
+See <a href="#versioning">UDPipe Versioning</a> for more information.
+</p>
+
+<a id="version_current" name="version_current"></a>
+<h3>6.2.1. version::current</h3>
+
+<pre>
+static <A HREF="#version">version</A> current();
+</pre>
+
+<p>
+Returns current UDPipe version.
+</p>
+
+<a id="cpp_bindings_api" name="cpp_bindings_api"></a>
+<h2>6.3. C++ Bindings API</h2>
+
+<p>
+Bindings for other languages than C++ are created using SWIG from the C++
+bindings API, which is a slightly modified version of the native C++ API.
+Main changes are replacement of <a href="#string_piece"><code>string_piece</code></a> type by native
+strings and removal of methods using <code>istream</code>. Here is the C++ bindings API
+declaration:
+</p>
+
+<a id="bindings_helper_structures" name="bindings_helper_structures"></a>
+<h3>6.3.1. Helper Structures</h3>
+
+<a id="bindings_main_classes" name="bindings_main_classes"></a>
+<h3>6.3.2. Main Classes</h3>
+
+<a id="csharp_bindings" name="csharp_bindings"></a>
+<h2>6.4. C# Bindings</h2>
+
+<p>
+UDPipe library bindings is available in the <code>Ufal.UDPipe</code> namespace.
+</p>
+<p>
+The bindings is a straightforward conversion of the <code>C++</code> bindings API.
+The bindings requires native C++ library <code>libudpipe_csharp</code> (called
+<code>udpipe_csharp</code> on Windows).
+</p>
+
+<a id="java_bindings" name="java_bindings"></a>
+<h2>6.5. Java Bindings</h2>
+
+<p>
+UDPipe library bindings is available in the <code>cz.cuni.mff.ufal.udpipe</code>
+package.
+</p>
+<p>
+The bindings is a straightforward conversion of the <code>C++</code> bindings API.
+TODO: Vectors do not have native Java interface, see
+<code>cz.cuni.mff.ufal.udpipe.Children</code> class for reference. Also, class members
+are accessible and modifiable using using <code>getField</code> and <code>setField</code>
+wrappers.
+</p>
+<p>
+The bindings require native C++ library <code>libudpipe_java</code> (called
+<code>udpipe_java</code> on Windows). If the library is found in the current
+directory, it is used, otherwise standard library search process is used.
+</p>
+
+<a id="perl_bindings" name="perl_bindings"></a>
+<h2>6.6. Perl Bindings</h2>
+
+<p>
+UDPipe library bindings is available in the
+<a href="http://search.cpan.org/~straka/Ufal-UDPipe/"><code>Ufal::UDPipe</code></a> package.
+The classes can be imported into the current namespace using the <code>:all</code>
+export tag.
+</p>
+<p>
+The bindings is a straightforward conversion of the <code>C++</code> bindings API.
+TODO: Vectors do not have native Perl interface, see <code>Ufal::UDPipe::Children</code> for
+reference. Static methods and enumerations are available only through the
+module, not through object instance.
+</p>
+
+<a id="python_bindings" name="python_bindings"></a>
+<h2>6.7. Python Bindings</h2>
+
+<p>
+UDPipe library bindings is available in the
+<a href="http://pypi.python.org/pypi/ufal.udpipe"><code>ufal.udpipe</code></a> module.
+</p>
+<p>
+The bindings is a straightforward conversion of the <code>C++</code> bindings API.
+In Python 2, strings can be both <code>unicode</code> and UTF-8 encoded <code>str</code>, and the
+library always produces <code>unicode</code>. In Python 3, strings must be only <code>str</code>.
+</p>
+
+<a id="contact" name="contact"></a>
+<h1>7. Contact</h1>
+
+<p style="margin-bottom:0">
+Authors:
+</p>
+<ul style="margin-top:0">
+<li><a href="http://ufal.mff.cuni.cz/milan-straka">Milan Straka</a>, <a href="mailto:straka@ufal.mff.cuni.cz">straka@ufal.mff.cuni.cz</a>
+</li>
+</ul>
+
+<p>
+<a href="http://ufal.mff.cuni.cz/udpipe">UDPipe website</a>.
+</p>
+<p>
+<a href="TODO">UDPipe LINDAT/CLARIN entry</a>.
+</p>
+
+<a id="udpipe_acknowledgements" name="udpipe_acknowledgements"></a>
+<h1>8. Acknowledgements</h1>
+
+<p>
+This work has been using language resources developed and/or stored and/or distributed by the LINDAT/CLARIN project of the Ministry of Education of the Czech Republic (project <i>LM2010013</i>).
+</p>
+<p>
+Acknowledgements for individual language models are listed in <a href="#users_manual">UDPipe User's Manual</a>.
+</p>
+
+<a id="publications" name="publications"></a>
+<h2>8.1. Publications</h2>
+
+<ul>
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> To appear at LREC 2016.
+</li>
+</ul>
+
+<a id="bibtex_for_referencing" name="bibtex_for_referencing"></a>
+<h2>8.2. Bibtex for Referencing</h2>
+
+<pre>
+@InProceedings{udpipe:2016,
+  author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
+  title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
+  booktitle = {To appear at LREC 2016.},
+  month     = {May},
+  year      = {2016},
+}
+</pre>
+
+<a id="permanent_identifier" name="permanent_identifier"></a>
+<h2>8.3. Permanent Identifier</h2>
+
+<p>
+If you prefer to reference UDPipe by a permanent identifier (PID),
+you can use <code>TODO</code>.
+</p>
+</div>
+
+<!-- html code generated by txt2tags 2.6 (http://txt2tags.org) -->
+<!-- cmdline: txt2tags -t html -\-toc -\-enum-title -o manual.html -C t2t_docsys/t2t_docsys_manual.conf manual.t2t -->
+</body></html>

@@ -1,0 +1,13 @@
+# This file is part of UniLib <http://github.com/ufal/unilib/>.
+#
+# Copyright 2014 Institute of Formal and Applied Linguistics, Faculty of
+# Mathematics and Physics, Charles University in Prague, Czech Republic.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+UNILIB_VERSION := 3.1.0
+UNILIB_UNICODE_VERSION := 8.0.0
+
+UNILIB_OBJECTS := unicode uninorms unistrip utf8 utf16 version

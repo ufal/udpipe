@@ -1,0 +1,83 @@
+UDPipe API Reference
+====================
+
+The UDPipe API is defined in header ``udpipe.h`` and resides in
+``ufal::udpipe`` namespace. The API allows only using existing models,
+for custom model creation you have to use the ``train_parser`` binary.
+
+The strings used in the UDPipe API are always UTF-8 encoded (except from
+file paths, whose encoding is system dependent).
+
+
+== UDPipe Versioning ==[versioning]
+
+UDPipe is versioned using [Semantic Versioning http://semver.org/].
+Therefore, a version consists of three numbers //major.minor.patch//, optionally
+followed by a hyphen and pre-release version info, with the following semantics:
+
+- Stable versions have no pre-release version info, development have non-empty
+  pre-release version info.
+- Two versions with the same //major.minor// have the same API with the same
+  behaviour, apart from bugs. Therefore, if only //patch// is increased, the
+  new version is only a bug-fix release.
+- If two versions //v// and //u// have the same //major//, but //minor(v)// is
+  greater than //minor(u)//, version //v// contains only additions to the API.
+  In other words, the API of //u// is all present in //v// with the same
+  behaviour (once again apart from bugs). It is therefore safe to upgrade to
+  a newer UDPipe version with the same //major//.
+- If two versions differ in //major//, their API may differ in any way.
+
+
+Models created by UDPipe have the same behaviour in all UDPipe
+versions with same //major//, apart from obvious bugfixes. On the other hand,
+models created from the same data by different //major.minor// UDPipe
+versions may have different behaviour.
+
+
+== Class version ==[version]
+```
+class version {
+ public:
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  std::string prerelease;
+
+  static [version #version] [current #version_current]();
+};
+```
+
+The [``version`` #version] class represents UDPipe version.
+See [UDPipe Versioning #versioning] for more information.
+
+=== version::current ===[version_current]
+``` static [version #version] current();
+
+Returns current UDPipe version.
+
+
+== C++ Bindings API ==[cpp_bindings_api]
+
+Bindings for other languages than C++ are created using SWIG from the C++
+bindings API, which is a slightly modified version of the native C++ API.
+Main changes are replacement of [``string_piece`` #string_piece] type by native
+strings and removal of methods using ``istream``. Here is the C++ bindings API
+declaration:
+
+%!include: manual_bindings_api.t2t
+
+== C# Bindings ==[csharp_bindings]
+
+%!include: manual_bindings_csharp_api.t2t
+
+== Java Bindings ==[java_bindings]
+
+%!include: manual_bindings_java_api.t2t
+
+== Perl Bindings ==[perl_bindings]
+
+%!include: manual_bindings_perl_api.t2t
+
+== Python Bindings ==[python_bindings]
+
+%!include: manual_bindings_python_api.t2t

@@ -1,0 +1,13 @@
+Python UDPipe Bindings
+======================
+
+== Installation ==[python_installation]
+%!include: manual_bindings_python_install.t2t
+
+
+== Python Bindings API ==[python_bindings_api]
+%!include: manual_bindings_python_api.t2t
+
+
+== C++ Bindings API ==[cpp_bindings_api]
+%!include: manual_bindings_api.t2t

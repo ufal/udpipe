@@ -1,0 +1,13 @@
+C# UDPipe Bindings
+==================
+
+== Installation ==[csharp_installation]
+%!include: manual_bindings_csharp_install.t2t
+
+
+== C# Bindings API ==[csharp_bindings_api]
+%!include: manual_bindings_csharp_api.t2t
+
+
+== C++ Bindings API ==[cpp_bindings_api]
+%!include: manual_bindings_api.t2t

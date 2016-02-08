@@ -1,0 +1,122 @@
+UDPipe Installation
+===================
+
+UDPipe releases are available on GitHub (http://github.com/ufal/udpipe), either
+as a pre-compiled binary package, or source code only. The binary package
+contains Linux, Windows and OS X binaries, Java bindings binary, C# bindings
+binary, and source code of UDPipe and all language bindings. While the binary
+packages do not contain compiled Python or Perl bindings, packages for those
+languages are available in standard package repositories, i.e. on PyPI and CPAN.
+
+To use UDPipe, a language model is needed. Here is a list of available language
+models (http://ufal.mff.cuni.cz/udpipe#language_models).
+
+If you want to compile UDPipe manually, sources are available on on GitHub
+(http://github.com/ufal/udpipe), both in the pre-compiled binary package
+releases (http://github.com/ufal/udpipe/releases) and in the repository itself.
+
+
+Requirements
+============
+
+- G++ 4.7 or newer, clang 3.2 or newer, Visual C++ 2015 or newer
+- make
+- SWIG 2.0.5 or newer for language bindings other than C++
+
+
+Compilation
+===========
+
+To compile UDPipe, run make in the src directory.
+
+Make targets and options:
+- exe: compile the binaries (default)
+- server: compile the REST server
+- lib: compile the static library
+- BITS=32 or BITS=64: compile for specified 32-bit or 64-bit architecture
+  instead of the default one
+- mode=RELEASE: create release build which statically links the C++ runtime and
+  uses LTO
+- mode=DEBUG: create debug build
+- mode=PROFILE: create profile build
+
+
+Platforms
+---------
+
+Platform can be selected using one of the following options:
+- PLATFORM=linux, PLATFORM=linux-gcc: gcc compiler on Linux operating system,
+  default on Linux
+- PLATFORM=linux-clang: clang compiler on Linux, must be selected manually
+- PLATFORM=osx, PLATFORM=osx-clang: clang compiler on OS X, default on OS X;
+  BITS=32+64 enables multiarch build
+- PLATFORM=win, PLATFORM=win-gcc: gcc compiler on Windows (TDM-GCC is well
+  tested), default on Windows
+- PLATFORM=win-vs: Visual C++ 2015 compiler on Windows, must be selected
+  manually; note that the cl.exe compiler must be already present in PATH and
+  corresponding BITS=32 or BITS=64 must be specified
+
+Either POSIX shell or Windows CMD can be used as shell, it is detected
+automatically.
+
+
+Further Details
+---------------
+
+UDPipe uses C++ BuilTem system (http://github.com/ufal/cpp_builtem), please
+refer to its manual if interested in all supported options.
+
+
+Other language bindings
+=======================
+
+
+C#
+--
+
+Binary C# bindings are available in UDPipe binary packages.
+
+To compile C# bindings manually, run make in the bindings/csharp directory,
+optionally with the options descriged in UDPipe Installation.
+
+
+Java
+----
+
+Binary Java bindings are available in UDPipe binary packages.
+
+To compile Java bindings manually, run make in the bindings/java directory,
+optionally with the options descriged in UDPipe Installation. Java 6 and newer
+is supported.
+
+The Java installation specified in the environment variable JAVA_HOME is used.
+If the environment variable does not exist, the JAVA_HOME can be specified using
+  make JAVA_HOME=path_to_Java_installation
+
+
+Perl
+----
+
+The Perl bindings are available as Ufal-UDPipe package on CPAN.
+
+To compile Perl bindings manually, run make in the bindings/perl directory,
+optionally with the options descriged in UDPipe Installation. Perl 5.10 and
+later is supported.
+
+Path to the include headers of the required Perl version must be specified in
+the PERL_INCLUDE variable using
+  make PERL_INCLUDE=path_to_Perl_includes
+
+
+Python
+------
+
+The Python bindings are available as ufal.udpipe package on PyPI.
+
+To compile Python bindings manually, run make in the bindings/python directory,
+optionally with options descriged in UDPipe Installation. Both Python 2.6+ and
+Python 3+ are supported.
+
+Path to the include headers of the required Python version must be specified in
+the PYTHON_INCLUDE variable using
+  make PYTHON_INCLUDE=path_to_Python_includes

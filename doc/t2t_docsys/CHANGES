@@ -1,0 +1,58 @@
+Version 2.6.7 [26 Feb 2015]
+---------------------------
+- Fix bug in t2t_docsys_html_addlevel.conf.
+- Further differences against txt2tags version 2.6:
+  - Check that all title anchors are unique.
+
+
+Version 2.6.6 [12 Jan 2015]
+---------------------------
+- Use lowercase version of utf-8 encoding name.
+
+
+Version 2.6.5 [12 Jan 2015]
+---------------------------
+- Fix bug introduced in 2.6.4 in HTML and TeX generation.
+
+
+Version 2.6.4 [12 Jan 2015]
+---------------------------
+- Further differences against txt2tags version 2.6:
+  - Support python3.
+  - Make utf-8 encoding default.
+
+
+Version 2.6.3 [10 Jan 2015]
+---------------------------
+- Document t2t_docsys using itself.
+- Further differences against txt2tags version 2.6:
+  - Two or more spaces at end of line denote line break.
+
+
+Version 2.6.2 [9 Jan 2015]
+--------------------------
+- Use uppercase for Makefile variables.
+- Further differences against txt2tags version 2.6:
+  - Add simple GitHub Flavoured Markdown support.
+
+
+Version 2.6.1 [8 Jan 2015]
+--------------------------
+- Further differences against txt2tags version 2.6:
+  - Remove spaces at end of line.
+  - Honour empty/nonempty line between para/list and para/verb.
+  - html: Use lowercase and HTML5 friendly tags.
+
+
+Version 2.6.0 [7 Jan 2015]
+--------------------------
+- Initial public release.
+- Differences against txt2tags version 2.6:
+  - txt: Reflow paragraphs to 80 columns.
+  - txt: Do not use tabs to indicate heading level.
+  - txt: Use = for top-level headings and - otherwise.
+  - txt: Remove superfluous empty lines.
+  - pdf: Use lstlisting instead of verbatim, which allows
+         automatic line breaking and hyperlinks in verbatim.
+  - pdf: Add linebreak after a definition item.
+  - html,pdf: Ignore =* in headings.

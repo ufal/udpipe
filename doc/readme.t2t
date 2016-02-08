@@ -1,0 +1,11 @@
+UDPipe
+=======
+
+%!include: manual_about.t2t
+
+UDPipe website http://ufal.mff.cuni.cz/udpipe contains download links
+of both the released packages and trained models, hosts documentation and
+offers online demo.
+
+UDPipe development repository http://github.com/ufal/udpipe is hosted
+on GitHub.

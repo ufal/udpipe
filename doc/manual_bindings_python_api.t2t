@@ -1,0 +1,9 @@
+Python UDPipe Bindings
+======================
+
+UDPipe library bindings is available in the
+[``ufal.udpipe`` http://pypi.python.org/pypi/ufal.udpipe] module.
+
+The bindings is a straightforward conversion of the ``C++`` bindings API.
+In Python 2, strings can be both ``unicode`` and UTF-8 encoded ``str``, and the
+library always produces ``unicode``. In Python 3, strings must be only ``str``.
