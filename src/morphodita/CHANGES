@@ -1,0 +1,41 @@
+Version 1.9.0-devel
+-------------------
+- Use t2t_docsys http://github.com/ufal/t2t_docsys as documentation system.
+- Use C++ Builtem http://github.com/ufal/cpp_builtem as build system.
+- Add C# bindings.
+- Remove support for shared library build.
+- Change license from LGPL to MPL 2.0.
+- Use C++ iostreams instead of C stdio.
+- Start using Semantic Versioning http://semver.org/.
+- Add REST server using MicroRestD http://github.com/ufal/microrestd.
+- Add tagger::tag_analyzed method.
+
+
+Version 1.3.0 [29 Aug 14]
+-------------------------
+- Add support for OS X 10.7 and later.
+- Use UniLib instead of MorphoDiTa specific utf8 class.
+- Update Unicode in tokenizer from 6.3.0 to 7.0.0.
+- Fix English tokenizer bug #1.
+- Use PyTypeObject in Python bindings instead of proxy classes.
+
+
+Version 1.2.0 [22 Apr 14]
+-------------------------
+- Add strip_lemma_comment and strip_lemma_id tag set converters.
+
+
+Version 1.1.0 [09 Apr 14]
+-------------------------
+- Allow English negative prefix rules to overlap, allowing
+  to use also "non-" as negative prefix in additon to "non".
+- Allow passing tagger model instead of morphological model
+  to run_morpho_analyze, run_morpho_cli and run_morpho_generate
+  binaries.
+- Add "--version" option printing current version of binaries.
+- Clarify stable/development versions.
+
+
+Version 1.0.0 [07 Apr 14]
+-------------------------
+- Initial public release.

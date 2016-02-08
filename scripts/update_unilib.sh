@@ -9,6 +9,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+rm -rf ../src/unilib/*
 git -C ../src/unilib clone --depth=1 --branch=stable https://github.com/ufal/unilib
 mv ../src/unilib/unilib/unilib/* ../src/unilib/
 mv ../src/unilib/unilib/{AUTHORS,CHANGES,LICENSE,README} ../src/unilib/

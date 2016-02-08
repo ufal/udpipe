@@ -1,0 +1,20 @@
+# This file is part of UDPipe <http://github.com/ufal/udpipe/>.
+#
+# Copyright 2016 Institute of Formal and Applied Linguistics, Faculty of
+# Mathematics and Physics, Charles University in Prague, Czech Republic.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+UDPIPE_MAKEFILE_INCLUDE_CWD:=$(dir $(lastword $(MAKEFILE_LIST)))
+include $(UDPIPE_MAKEFILE_INCLUDE_CWD)morphodita/Makefile.include
+include $(UDPIPE_MAKEFILE_INCLUDE_CWD)parsito/Makefile.include
+
+UDPIPE_MORPHODITA_OBJECTS = $(addprefix morphodita/,$(filter-out unilib/% utils/%,$(MORPHODITA_OBJECTS)))
+UDPIPE_PARSITO_OBJECTS = $(addprefix parsito/,$(filter-out unilib/% utils/%,$(PARSITO_OBJECTS)))
+UDPIPE_UNILIB_OBJECTS = $(filter unilib/%,$(MORPHODITA_OBJECTS) $(PARSITO_OBJECTS))
+UDPIPE_UTILS_OBJECTS = $(filter utils/%,$(MORPHODITA_OBJECTS) $(PARSITO_OBJECTS))
+
+UDPIPE_OBJECTS = $(UDPIPE_MORPHODITA_OBJECTS) $(UDPIPE_PARSITO_OBJECTS) $(UDPIPE_UNILIB_OBJECTS) $(UDPIPE_UTILS_OBJECTS)
+UDPIPE_OBJECTS += unilib/version version/version

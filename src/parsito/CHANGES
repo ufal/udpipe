@@ -1,0 +1,12 @@
+Version 1.1.1-devel
+-------------------
+
+
+Version 1.1.0 [04 Jan 2016]
+---------------------------
+- Implement optional beam search during decoding.
+
+
+Version 1.0.0 [04 Dec 2015]
+---------------------------
+- Initial public release.

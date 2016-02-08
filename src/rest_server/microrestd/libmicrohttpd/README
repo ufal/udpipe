@@ -1,0 +1,10 @@
+Subset of libmicrohttpd sources http://www.gnu.org/software/libmicrohttpd/.
+
+The libmicrohttpd is licensed under LGPL. The libmicrohttpd license and the
+authors are in COPYING and AUTHORS files.
+
+We have performed the following changes to the libmicrohttpd:
+- code was converted to C++
+- the ufal::microrestd::libmicrohttpd namespace was added
+- we use compile-time configuration (see MHD_config.h) instead
+  of configure script

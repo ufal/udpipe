@@ -1,0 +1,27 @@
+Parsito
+=======
+
+Parsito is a fast open-source dependency parser written in C++. Parsito is based
+on greedy transition-based parsing, it has very high accuracy and achieves a
+throughput of 30K words per second. Parsito can be trained on any input data
+without feature engineering, because it utilizes artificial neural network
+classifier. Trained models for all treebanks from Universal Dependencies project
+are available (37 treebanks as of Dec 2015).
+
+Parsito is a free software under Mozilla Public License 2.0
+(http://www.mozilla.org/MPL/2.0/) and the linguistic models are free for
+non-commercial use and distributed under CC BY-NC-SA
+(http://creativecommons.org/licenses/by-nc-sa/4.0/) license, although for some
+models the original data used to create the model may impose additional
+licensing conditions. Parsito is versioned using Semantic Versioning
+(http://semver.org/).
+
+Copyright 2015 by Institute of Formal and Applied Linguistics, Faculty of
+Mathematics and Physics, Charles University in Prague, Czech Republic.
+
+Parsito website http://ufal.mff.cuni.cz/parsito contains download links of both
+the released packages and trained models, hosts documentation and offers online
+demo.
+
+Parsito development repository http://github.com/ufal/parsito is hosted on
+GitHub.

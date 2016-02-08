@@ -1,0 +1,16 @@
+Arseny Kapoulkine <arseny.kapoulkine@gmail.com>
+
+Acknowledgments
+  pugixml could not be developed without the help from many people; some of them
+  are listed in this section. If you've played a part in pugixml development and
+  you can not find yourself on this list, I'm truly sorry; please send me an
+  e-mail so I can fix this.
+
+  Thanks to Kristen Wegner for pugxml parser, which was used as a basis for
+  pugixml.
+
+  Thanks to Neville Franks for contributions to pugxml parser.
+
+  Thanks to Artyom Palvelev for suggesting a lazy gap contraction approach.
+
+  Thanks to Vyacheslav Egorov for documentation proofreading.

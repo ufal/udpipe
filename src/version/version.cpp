@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+#include "morphodita/version/version.h"
+#include "parsito/version/version.h"
 #include "unilib/version.h"
 #include "version.h"
 
@@ -26,10 +28,17 @@ string version::version_and_copyright(const string& other_libraries) {
 
   auto udpipe = version::current();
   auto unilib = unilib::version::current();
+  auto morphodita = morphodita::version::current();
+  auto parsito = parsito::version::current();
 
   info << "UDPipe version " << udpipe.major << '.' << udpipe.minor << '.' << udpipe.patch
        << (udpipe.prerelease.empty() ? "" : "-") << udpipe.prerelease
        << " (using UniLib " << unilib.major << '.' << unilib.minor << '.' << unilib.patch
+       << (unilib.prerelease.empty() ? "" : "-") << unilib.prerelease
+       << ",\nMorphoDiTa " << morphodita.major << '.' << morphodita.minor << '.' << unilib.patch
+       << (morphodita.prerelease.empty() ? "" : "-") << morphodita.prerelease
+       << ", Parsito " << parsito.major << '.' << parsito.minor << '.' << unilib.patch
+       << (parsito.prerelease.empty() ? "" : "-") << parsito.prerelease
        << (other_libraries.empty() ? "" : " and ") << other_libraries << ")\n"
           "Copyright 2016 by Institute of Formal and Applied Linguistics, Faculty of\n"
           "Mathematics and Physics, Charles University in Prague, Czech Republic.";

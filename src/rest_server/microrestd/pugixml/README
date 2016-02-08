@@ -1,0 +1,9 @@
+Pugixml sources http://pugixml.org/
+
+The pugixml is licensed under MIT. The pugixml license and the
+authors are in LICENSE and AUTHORS files.
+
+We have performed the following changes to the libmicrohttpd:
+- the ufal::microrestd namespace was added
+- name matching (nodes, attributes) was changed to ignore XML namespaces
+- XPATH and STL module were completely removed

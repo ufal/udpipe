@@ -8,7 +8,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 include ../src/Makefile.builtem
-include ../src/Makefile.lib
+include ../src/Makefile.include
 
 MERGE=$(call exe,merge_sources/merge_sources)
 
@@ -17,7 +17,7 @@ udpipe.cpp: $(MERGE) force
 	@$(call echo,>>$@,//)
 	@$(call echo,>>$@,// This file is a bundle of all sources and headers of UDPipe library.)
 	@$(call echo,>>$@,// Comments and copyrights of all individual files are kept.)
-	$(call platform_name,$(MERGE) ufal::udpipe ../src/ $(patsubst %,%.cpp,$(UDPIPE_O))) >>$@
+	$(call platform_name,$(MERGE) ufal::udpipe ../src/ $(patsubst %,%.cpp,$(UDPIPE_OBJECTS))) >>$@
 
 $(MERGE):$(call exe,%):$$(call obj,%)
 	$(call link_exe,$@,$^,$(call win_subsystem,console))

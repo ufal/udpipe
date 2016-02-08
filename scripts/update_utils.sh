@@ -9,6 +9,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+rm -rf ../src/utils/*
 git -C ../src/utils clone --depth=1 --branch=stable https://github.com/ufal/cpp_utils
 mv ../src/utils/cpp_utils/src/* ../src/utils/
 mv ../src/utils/cpp_utils/{AUTHORS,CHANGES,LICENSE,README} ../src/utils/
