@@ -23,6 +23,9 @@ matrix:
     - compiler: clang
       env: COMPILER=clang++-3.6
       addons: {apt: {packages: [clang-3.6], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.6]}}
+    - compiler: clang
+      env: COMPILER=clang++-3.7
+      addons: {apt: {packages: [clang-3.7], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.7]}}
 script:
   - CXX=$COMPILER make -C src full
   - CXX=$COMPILER make -C tests udpipe_bundle
