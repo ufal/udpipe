@@ -17,7 +17,7 @@ namespace udpipe {
 // Output CoNLL-U format
 class output_format_conllu : public output_format {
  public:
-  virtual void write_sentence(const sentence& s, string& output) const override;
+  virtual void write_sentence(const sentence& s, ostream& os) const override;
 
  private:
   static const string underscore;
@@ -26,12 +26,10 @@ class output_format_conllu : public output_format {
 
 const string output_format_conllu::underscore = "_";
 
-void output_format_conllu::write_sentence(const sentence& s, string& output) const {
-  output.clear();
-
+void output_format_conllu::write_sentence(const sentence& s, ostream& os) const {
   // Comments
   for (auto&& comment : s.comments)
-    output.append(comment).push_back('\n');
+    os << comment << '\n';
 
   // Words and multiword tokens
   size_t multiword_token = 0;
@@ -39,25 +37,25 @@ void output_format_conllu::write_sentence(const sentence& s, string& output) con
     // Multiword token if present
     if (multiword_token < s.multiword_tokens.size() &&
         i == s.multiword_tokens[multiword_token].id_first) {
-      output.append(to_string(s.multiword_tokens[multiword_token].id_first)).push_back('-');
-      output.append(to_string(s.multiword_tokens[multiword_token].id_last)).push_back('\t');
-      output.append(s.multiword_tokens[multiword_token].form).append("\t_\t_\t_\t_\t_\t_\t_\t_\n");
+      os << s.multiword_tokens[multiword_token].id_first << '-'
+         << s.multiword_tokens[multiword_token].id_last << '\t'
+         << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t_\n";
       multiword_token++;
     }
 
     // Write the word
-    output.append(to_string(i)).push_back('\t');
-    output.append(s.words[i].form).push_back('\t');
-    output.append(s.words[i].lemma).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].upostag)).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].xpostag)).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].feats)).push_back('\t');
-    output.append(s.words[i].head < 0 ? underscore : to_string(s.words[i].head)).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].deprel)).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].deps)).push_back('\t');
-    output.append(underscore_on_empty(s.words[i].misc)).push_back('\n');
+    os << i << '\t'
+       << s.words[i].form << '\t'
+       << s.words[i].lemma << '\t'
+       << underscore_on_empty(s.words[i].upostag) << '\t'
+       << underscore_on_empty(s.words[i].xpostag) << '\t'
+       << underscore_on_empty(s.words[i].feats) << '\t';
+    if (s.words[i].head < 0) os << '_'; else os << s.words[i].head; os << '\t'
+       << underscore_on_empty(s.words[i].deprel) << '\t'
+       << underscore_on_empty(s.words[i].deps) << '\t'
+       << underscore_on_empty(s.words[i].misc) << '\n';
   }
-  output.push_back('\n');
+  os << endl;
 }
 
 // Static factory methods

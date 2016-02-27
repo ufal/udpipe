@@ -10,22 +10,18 @@
 #pragma once
 
 #include "common.h"
-#include "sentence.h"
+#include "sentence/sentence.h"
 
 namespace ufal {
 namespace udpipe {
 
-class input_format {
+class tokenizer {
  public:
-  virtual ~input_format() {}
+  virtual ~tokenizer() {}
 
   virtual bool read_block(istream& is, string& block) const = 0;
   virtual void set_text(string_piece text, bool make_copy = false) = 0;
   virtual bool next_sentence(sentence& s, string& error) = 0;
-
-  // Static factory methods
-  static input_format* new_input_format(const string& name);
-  static input_format* new_conllu_input_format();
 };
 
 } // namespace udpipe

@@ -7,26 +7,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include "common.h"
-#include "sentence.h"
+#include "trainer.h"
 
 namespace ufal {
 namespace udpipe {
 
-class input_format {
- public:
-  virtual ~input_format() {}
+bool trainer::train(const string& /*data*/, const string& /*tokenizer*/, const string& /*tagger*/, const string& /*parser*/, ostream& os, string& error) {
+  error.clear();
 
-  virtual bool read_block(istream& is, string& block) const = 0;
-  virtual void set_text(string_piece text, bool make_copy = false) = 0;
-  virtual bool next_sentence(sentence& s, string& error) = 0;
+  // Save model ID
+  string id = "morphodita_parsito";
+  os.put(id.size());
+  os.write(id.c_str(), id.size());
 
-  // Static factory methods
-  static input_format* new_input_format(const string& name);
-  static input_format* new_conllu_input_format();
-};
+  // TODO train the model
+
+  return true;
+}
 
 } // namespace udpipe
 } // namespace ufal

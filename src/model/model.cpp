@@ -7,26 +7,31 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
+#include <fstream>
 
-#include "common.h"
-#include "sentence.h"
+#include "model.h"
+#include "model_morphodita_parsito.h"
 
 namespace ufal {
 namespace udpipe {
 
-class input_format {
- public:
-  virtual ~input_format() {}
+model* model::load(const char* fname) {
+  ifstream in(fname, ifstream::in | ifstream::binary);
+  if (!in.is_open()) return nullptr;
+  return load(in);
+}
 
-  virtual bool read_block(istream& is, string& block) const = 0;
-  virtual void set_text(string_piece text, bool make_copy = false) = 0;
-  virtual bool next_sentence(sentence& s, string& error) = 0;
+model* model::load(istream& is) {
+  char len;
+  if (!is.get(len)) return nullptr;
+  string name(len, ' ');
+  if (!is.read(&name[0], len)) return nullptr;
 
-  // Static factory methods
-  static input_format* new_input_format(const string& name);
-  static input_format* new_conllu_input_format();
-};
+  if (name == "morphodita_parsito") return model_morphodita_parsito::load(is);
+
+  return nullptr;
+}
 
 } // namespace udpipe
 } // namespace ufal
+

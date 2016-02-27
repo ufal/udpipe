@@ -1,5 +1,6 @@
 /.build/
 rest_server/udpipe_server
 libudpipe.*
+udpipe
 *.exe
 *.swp

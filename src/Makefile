@@ -11,7 +11,7 @@ include Makefile.builtem
 include Makefile.include
 include rest_server/microrestd/Makefile.include
 
-EXECUTABLES =
+EXECUTABLES = $(call exe,udpipe)
 SERVER = $(call exe,rest_server/udpipe_server)
 LIBRARIES = $(call lib,libudpipe)
 

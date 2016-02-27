@@ -8,38 +8,27 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "input_format.h"
+#include "utils/iostreams.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
 namespace ufal {
 namespace udpipe {
 
-const string& input_format::last_error() const {
-  return error;
-}
-
 // Input CoNLL-U format
 class input_format_conllu : public input_format {
  public:
-  virtual bool read_block(istream& in, string& block) const override;
+  virtual bool read_block(istream& is, string& block) const override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
-  virtual bool next_sentence(sentence& s) override;
+  virtual bool next_sentence(sentence& s, string& error) override;
 
  private:
   string_piece text;
   string text_copy;
 };
 
-bool input_format_conllu::read_block(istream& in, string& block) const {
-  block.clear();
-
-  string line;
-  while (getline(in, line)) {
-    block.append(line).push_back('\n');
-    if (line.empty()) break;
-  }
-
-  return !block.empty();
+bool input_format_conllu::read_block(istream& is, string& block) const {
+  return getpara(is, block);
 }
 
 void input_format_conllu::set_text(string_piece text, bool make_copy) {
@@ -50,7 +39,7 @@ void input_format_conllu::set_text(string_piece text, bool make_copy) {
   this->text = text;
 }
 
-bool input_format_conllu::next_sentence(sentence& s) {
+bool input_format_conllu::next_sentence(sentence& s, string& error) {
   error.clear();
   s.clear();
   int last_multiword_token = 0;

@@ -19,7 +19,7 @@ class output_format {
  public:
   virtual ~output_format() {}
 
-  virtual void write_sentence(const sentence& s, string& output) const = 0;
+  virtual void write_sentence(const sentence& s, ostream& os) const = 0;
 
   // Static factory methods
   static output_format* new_output_format(const string& name);
