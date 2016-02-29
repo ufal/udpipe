@@ -21,6 +21,8 @@ namespace lzma {
 
 // Types.h -- Basic types
 // 2010-10-09 : Igor Pavlov : Public domain
+#ifndef UFAL_CPPUTILS_COMPRESSOR_LZMA_TYPES_H
+#define UFAL_CPPUTILS_COMPRESSOR_LZMA_TYPES_H
 
 #define SZ_OK 0
 
@@ -156,6 +158,8 @@ struct ISzAlloc
 
 #define IAlloc_Alloc(p, size) (p)->Alloc((p), size)
 #define IAlloc_Free(p, a) (p)->Free((p), a)
+
+#endif // UFAL_CPPUTILS_COMPRESSOR_LZMA_TYPES_H
 
 // LzmaDec.h -- LZMA Decoder
 // 2009-02-07 : Igor Pavlov : Public domain
@@ -1373,9 +1377,12 @@ SRes LzmaDecode(uint8_t *dest, size_t *destLen, const uint8_t *src, size_t *srcL
 } // namespace lzma
 // End of LZMA compression library by Igor Pavlov
 
+#ifndef UFAL_CPPUTILS_COMPRESSOR_LZMA_ALLOCATOR_H
+#define UFAL_CPPUTILS_COMPRESSOR_LZMA_ALLOCATOR_H
 static void *LzmaAlloc(void* /*p*/, size_t size) { return new char[size]; }
 static void LzmaFree(void* /*p*/, void *address) { delete[] (char*) address; }
 static lzma::ISzAlloc lzmaAllocator = { LzmaAlloc, LzmaFree };
+#endif // UFAL_CPPUTILS_COMPRESSOR_LZMA_ALLOCATOR_H
 
 bool compressor::load(istream& is, binary_decoder& data) {
   uint32_t uncompressed_len, compressed_len, poor_crc;
