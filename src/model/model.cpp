@@ -34,4 +34,3 @@ model* model::load(istream& is) {
 
 } // namespace udpipe
 } // namespace ufal
-

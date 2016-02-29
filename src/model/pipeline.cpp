@@ -80,4 +80,3 @@ bool pipeline::process_tokenized(sentence& s, ostream& os, string& error) const 
 
 } // namespace udpipe
 } // namespace ufal
-

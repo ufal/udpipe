@@ -9,7 +9,6 @@
 
 #include "common.h"
 #include "model_morphodita_parsito.h"
-#include "utils/iostreams.h"
 
 namespace ufal {
 namespace udpipe {
@@ -35,7 +34,15 @@ model* model_morphodita_parsito::load(istream& /*is*/) {
 }
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
-  return getpara(is, block);
+  block.clear();
+
+  string line;
+  while (getline(is, line)) {
+    block.append(line).push_back('\n');
+    if (line.empty()) break;
+  }
+
+  return !block.empty();
 }
 
 void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
@@ -54,4 +61,3 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& /*s
 
 } // namespace udpipe
 } // namespace ufal
-

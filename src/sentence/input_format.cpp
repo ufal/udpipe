@@ -8,7 +8,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "input_format.h"
-#include "utils/iostreams.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
@@ -28,7 +27,15 @@ class input_format_conllu : public input_format {
 };
 
 bool input_format_conllu::read_block(istream& is, string& block) const {
-  return getpara(is, block);
+  block.clear();
+
+  string line;
+  while (getline(is, line)) {
+    block.append(line).push_back('\n');
+    if (line.empty()) break;
+  }
+
+  return !block.empty();
 }
 
 void input_format_conllu::set_text(string_piece text, bool make_copy) {
