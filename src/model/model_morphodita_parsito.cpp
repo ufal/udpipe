@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "model_morphodita_parsito.h"
+#include "utils/parse_int.h"
 
 namespace ufal {
 namespace udpipe {
@@ -53,11 +54,18 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
   return true;
 }
 
-bool model_morphodita_parsito::parse(sentence& s, const string& /*options*/, string& error) const {
+bool model_morphodita_parsito::parse(sentence& s, const string& options, string& error) const {
   error.clear();
 
   parser_cache* c = parser_caches.pop();
   if (!c) c = new parser_cache();
+
+  int beam_search = 1;
+  if (!named_options::parse(options, c->options, error))
+    return false;
+  if (c->options.count("beam_search"))
+    if (!parse_int(c->options["beam_search"], "beam_search", beam_search, error))
+      return false;
 
   c->tree.clear();
   for (size_t i = 1; i < s.words.size(); i++) {
@@ -70,7 +78,7 @@ bool model_morphodita_parsito::parse(sentence& s, const string& /*options*/, str
     c->tree.nodes.back().misc.assign(s.words[i].misc);
   }
 
-  parser->parse(c->tree);
+  parser->parse(c->tree, beam_search);
   for (size_t i = 1; i < s.words.size(); i++)
     s.set_head(i, c->tree.nodes[i].head, c->tree.nodes[i].deprel);
 
