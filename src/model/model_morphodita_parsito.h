@@ -11,6 +11,10 @@
 
 #include "common.h"
 #include "model.h"
+#include "morphodita/tokenizer/tokenizer.h"
+#include "morphodita/tagger/tagger.h"
+#include "parsito/parser/parser.h"
+#include "utils/threadsafe_stack.h"
 
 namespace ufal {
 namespace udpipe {
@@ -25,19 +29,32 @@ class model_morphodita_parsito : public model {
   static model* load(istream& is);
   friend class model;
 
+  unique_ptr<morphodita::tagger> tagger;
+  unique_ptr<parsito::parser> parser;
+
   class tokenizer_morphodita : public tokenizer {
    public:
-    tokenizer_morphodita(const model_morphodita_parsito* m) : m(m) {}
+    tokenizer_morphodita(const model_morphodita_parsito* m);
 
     virtual bool read_block(istream& is, string& block) const override;
     virtual void set_text(string_piece text, bool make_copy = false) override;
     virtual bool next_sentence(sentence& s, string& error) override;
 
    private:
-    const model_morphodita_parsito* m;
-    string_piece text;
-    string text_copy;
+    unique_ptr<morphodita::tokenizer> tokenizer;
+    vector<string_piece> forms;
   };
+
+  struct tagger_cache {
+    vector<string_piece> forms;
+    vector<morphodita::tagged_lemma> lemmas;
+  };
+  mutable threadsafe_stack<tagger_cache> tagger_caches;
+
+  struct parser_cache {
+    parsito::tree tree;
+  };
+  mutable threadsafe_stack<parser_cache> parser_caches;
 };
 
 } // namespace udpipe

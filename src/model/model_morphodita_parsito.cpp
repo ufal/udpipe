@@ -7,6 +7,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <algorithm>
+
 #include "common.h"
 #include "model_morphodita_parsito.h"
 
@@ -17,21 +19,83 @@ tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) co
   return new tokenizer_morphodita(this);
 }
 
-bool model_morphodita_parsito::tag(sentence& /*s*/, const string& /*options*/, string& error) const {
+bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
   error.clear();
 
-  return false;
+  tagger_cache* c = tagger_caches.pop();
+  if (!c) c = new tagger_cache();
+
+  c->forms.clear();
+  for (size_t i = 1; i < s.words.size(); i++)
+    c->forms.emplace_back(s.words[i].form.c_str(), s.words[i].form.size());
+
+  tagger->tag(c->forms, c->lemmas);
+
+  for (size_t i = 0; i < c->lemmas.size(); i++) {
+    // Lemma
+    s.words[i + 1].lemma.assign(c->lemmas[i].lemma);
+
+    // UPOSTag
+    size_t start = 0, end = min(c->lemmas[i].tag.find('|'), c->lemmas[i].tag.size());
+    s.words[i+1].upostag.assign(c->lemmas[i].tag, start, end - start);
+
+    // XPOSTag
+    start = min(end + 1, c->lemmas[i].tag.size());
+    end = min(c->lemmas[i].tag.find('|', start), c->lemmas[i].tag.size());
+    s.words[i+1].xpostag.assign(c->lemmas[i].tag, start, end - start);
+
+    // Features
+    start = min(end + 1, c->lemmas[i].tag.size());
+    s.words[i+1].feats.assign(c->lemmas[i].tag, start, c->lemmas[i].tag.size() - start);
+  }
+
+  tagger_caches.push(c);
+  return true;
 }
 
-bool model_morphodita_parsito::parse(sentence& /*s*/, const string& /*options*/, string& error) const {
+bool model_morphodita_parsito::parse(sentence& s, const string& /*options*/, string& error) const {
   error.clear();
 
-  return false;
+  parser_cache* c = parser_caches.pop();
+  if (!c) c = new parser_cache();
+
+  c->tree.clear();
+  for (size_t i = 1; i < s.words.size(); i++) {
+    c->tree.add_node(s.words[i].form);
+    c->tree.nodes.back().lemma.assign(s.words[i].lemma);
+    c->tree.nodes.back().upostag.assign(s.words[i].upostag);
+    c->tree.nodes.back().xpostag.assign(s.words[i].xpostag);
+    c->tree.nodes.back().feats.assign(s.words[i].feats);
+    c->tree.nodes.back().deps.assign(s.words[i].deps);
+    c->tree.nodes.back().misc.assign(s.words[i].misc);
+  }
+
+  parser->parse(c->tree);
+  for (size_t i = 1; i < s.words.size(); i++)
+    s.set_head(i, c->tree.nodes[i].head, c->tree.nodes[i].deprel);
+
+  parser_caches.push(c);
+  return true;
 }
 
-model* model_morphodita_parsito::load(istream& /*is*/) {
-  return nullptr;
+model* model_morphodita_parsito::load(istream& is) {
+  char version;
+  if (!is.get(version)) return nullptr;
+
+  unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito());
+  if (!m) return nullptr;
+
+  m->tagger.reset(morphodita::tagger::load(is));
+  if (!m->tagger) return nullptr;
+
+  m->parser.reset(parsito::parser::load(is));
+  if (!m->parser) return nullptr;
+
+  return m.release();
 }
+
+model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(const model_morphodita_parsito* m)
+  : tokenizer(m->tagger->new_tokenizer()) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
   block.clear();
@@ -46,15 +110,20 @@ bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, str
 }
 
 void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
-  if (make_copy) {
-    text_copy.assign(text.str, text.len);
-    text = string_piece(text_copy.c_str(), text_copy.size());
-  }
-  this->text = text;
+  tokenizer->set_text(text, make_copy);
 }
 
-bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& /*s*/, string& error) {
+bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, string& error) {
+  s.clear();
   error.clear();
+  if (tokenizer->next_sentence(&forms, nullptr)) {
+    for (size_t i = 0; i < forms.size(); i++) {
+      s.add_word(string(forms[i].str, forms[i].len));
+      if (i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len)
+        s.words.back().misc.assign("SpaceAfter=No");
+    }
+    return true;
+  }
 
   return false;
 }
