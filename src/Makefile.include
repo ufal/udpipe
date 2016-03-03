@@ -19,4 +19,5 @@ UDPIPE_UTILS_OBJECTS = $(filter utils/%,$(MORPHODITA_OBJECTS) $(PARSITO_OBJECTS)
 UDPIPE_OBJECTS = $(UDPIPE_MORPHODITA_OBJECTS) $(UDPIPE_PARSITO_OBJECTS) $(UDPIPE_UNILIB_OBJECTS) $(UDPIPE_UTILS_OBJECTS)
 UDPIPE_OBJECTS += model/model model/model_morphodita_parsito model/pipeline
 UDPIPE_OBJECTS += sentence/input_format sentence/output_format sentence/sentence
-UDPIPE_OBJECTS += trainer/trainer unilib/version utils/compressor_load utils/compressor_save version/version
+UDPIPE_OBJECTS += trainer/trainer trainer/trainer_morphodita_parsito
+UDPIPE_OBJECTS += unilib/version utils/compressor_load utils/compressor_save version/version

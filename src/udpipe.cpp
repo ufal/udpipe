@@ -25,7 +25,8 @@ int main(int argc, char* argv[]) {
   iostreams_init();
 
   options::map options;
-  if (!options::parse({{"output", options::value::any},
+  if (!options::parse({{"method", options::value{"morphodita_parsito"}},
+                       {"output", options::value::any},
                        {"parse", options::value::any},
                        {"parser", options::value::any},
                        {"tag", options::value::any},
@@ -46,7 +47,8 @@ int main(int argc, char* argv[]) {
                     "                 --tagger=tagger options, implies --tag\n"
                     "                 --parse (perform parsing)\n"
                     "                 --parser=parser options, implies --parse\n"
-                    "Training options: --tokenizer=tokenizer options\n"
+                    "Training options: --method=[morphodita_parsito] which method to use\n"
+                    "                  --tokenizer=tokenizer options\n"
                     "                  --tagger=tagger options\n"
                     "                  --parser=parser options\n"
                     "Generic options: --version\n"
@@ -72,8 +74,9 @@ int main(int argc, char* argv[]) {
 
     // Train the model
     cerr << "Training the UDPipe model." << endl;
+    string method = options.count("method") ? options["method"] : "morphodita_parsito";
     string error;
-    if (!trainer::train(data.str(), options["tokenizer"], options["tagger"], options["parser"], model, error))
+    if (!trainer::train(method, data.str(), options["tokenizer"], options["tagger"], options["parser"], model, error))
       runtime_failure("An error occurred during model training: " << error);
     cerr << "Training done." << endl;
   } else {
