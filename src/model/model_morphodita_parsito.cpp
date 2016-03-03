@@ -61,7 +61,7 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
   if (!c) c = new parser_cache();
 
   int beam_search = 1;
-  if (!named_options::parse(options, c->options, error))
+  if (!named_values::parse(options, c->options, error))
     return false;
   if (c->options.count("beam_search"))
     if (!parse_int(c->options["beam_search"], "beam_search", beam_search, error))

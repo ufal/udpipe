@@ -13,8 +13,8 @@
 #include "model.h"
 #include "morphodita/tokenizer/tokenizer.h"
 #include "morphodita/tagger/tagger.h"
-#include "named_options.h"
 #include "parsito/parser/parser.h"
+#include "utils/named_values.h"
 #include "utils/threadsafe_stack.h"
 
 namespace ufal {
@@ -54,7 +54,7 @@ class model_morphodita_parsito : public model {
 
   struct parser_cache {
     parsito::tree tree;
-    named_options::map options;
+    named_values::map options;
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 };
