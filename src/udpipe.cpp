@@ -16,6 +16,7 @@
 #include "trainer/trainer.h"
 #include "utils/iostreams.h"
 #include "utils/options.h"
+#include "utils/process_args.h"
 #include "version/version.h"
 
 using namespace ufal::udpipe;
@@ -88,46 +89,13 @@ int main(int argc, char* argv[]) {
                       options.count("parser") ? options["parser"] : options.count("parse") ? string() : "none");
 
     // Process the data
-    bool output_per_file = options.count("output") && options["output"].find("{}") != string::npos;
-    if (argc == 2 && output_per_file) runtime_failure("Cannot use output template with {} when reading standard input!");
-    ofstream output_file;
-    string para, error, input_file_root, output_file_name;
-    for (int i = 2; i < argc || i == 2; i++) {
-      // Open input file
-      ifstream input_file;
-      if (i < argc) {
-        input_file.open(argv[i]);
-        if (!input_file.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
+    process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
+      string para, error;
 
-        input_file_root.assign(argv[i]);
-        auto directory = input_file_root.find_last_of("/\\");
-        if (directory != string :: npos) input_file_root.erase(0, directory + 1);
-        auto extension = input_file_root.rfind('.');
-        if (extension != string::npos) input_file_root.erase(extension);
-      }
-      istream& input = i < argc ? input_file : cin;
-
-      // Open output file
-      if (options.count("output") && (i == 2 || output_per_file)) {
-        output_file_name.assign(options["output"]);
-        for (auto index = string::npos; (index = output_file_name.find("{}")) != string::npos; )
-          output_file_name.replace(index, 2, input_file_root);
-        output_file.open(output_file_name.c_str());
-        if (!output_file.is_open()) runtime_failure("Cannot open output file '" << output_file_name << "'!");
-      }
-      ostream& output = options.count("output") ? output_file : cout;
-
-      // Process the data
-      while (getpara(input, para))
-        if (!pipeline.process(para, output, error))
+      while (getpara(is, para))
+        if (!pipeline.process(para, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
-
-      // Close the file if needed
-      if (output_per_file) {
-        output_file.close();
-        if (!output_file) runtime_failure("Cannot close output file '" << output_file_name << "'!");
-      }
-    }
+    });
   }
 
   return 0;
