@@ -50,6 +50,55 @@ void process_args(int argi, int argc, char* argv[], T processor, U&&... processo
   }
 }
 
+// Call a given processor on specified arguments. Every argument is name of
+// input file; output is written to the file with specified name template,
+// which can contain {} for base name of the input file (without directories
+// and extension). If no input files are specified, stdin is used; if no output
+// template is specified, stdout is used.
+template <class T, class... U>
+void process_args_with_output_template(int argi, int argc, char* argv[], const string& output_template, T processor, U&&... processor_args) {
+  bool output_per_file = output_template.find("{}") != string::npos;
+  if (argi == argc && output_per_file) runtime_failure("Cannot use output template with {} when reading standard input!");
+
+  ofstream output_file;
+  string input_file_root, output_file_name;
+
+  for (int i = argi; i < argc || i == argi; i++) {
+    // Open input file
+    ifstream input_file;
+    if (i < argc) {
+      input_file.open(argv[i]);
+      if (!input_file.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
+
+      input_file_root.assign(argv[i]);
+      auto directory = input_file_root.find_last_of("/\\");
+      if (directory != string :: npos) input_file_root.erase(0, directory + 1);
+      auto extension = input_file_root.rfind('.');
+      if (extension != string::npos) input_file_root.erase(extension);
+    }
+    istream& input = i < argc ? input_file : cin;
+
+    // Open output file
+    if (!output_template.empty() && (i == argi || output_per_file)) {
+      output_file_name.assign(output_template);
+      for (auto index = string::npos; (index = output_file_name.find("{}")) != string::npos; )
+        output_file_name.replace(index, 2, input_file_root);
+      output_file.open(output_file_name.c_str());
+      if (!output_file.is_open()) runtime_failure("Cannot open output file '" << output_file_name << "'!");
+    }
+    ostream& output = !output_template.empty() ? output_file : cout;
+
+    // Process the data
+    processor(input, output, std::forward<U>(processor_args)...);
+
+    // Close the file if needed
+    if (output_per_file) {
+      output_file.close();
+      if (!output_file) runtime_failure("Cannot close output file '" << output_file_name << "'!");
+    }
+  }
+}
+
 } // namespace utils
 } // namespace udpipe
 } // namespace ufal

@@ -1,3 +1,9 @@
+Version 1.1.0 [03 Mar 2016]
+---------------------------
+- Add named_values.h class which can parse named values from a string.
+- Add process_args_with_output_template method to process_args.h.
+
+
 Version 1.0.1 [28 Feb 2016]
 ---------------------------
 - Allow compiling compressor_load and compressor_save in
