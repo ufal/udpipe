@@ -1,0 +1,74 @@
+Tag 0
+Tag 0,Tag -1
+Tag 0,TagUPos -1
+Tag 0,Tag -1,Tag -2
+Tag 0,TagUPos -1,TagUPos -2
+Tag 0,Tag -2
+Tag 0,Form 0
+Tag 0,Form 0,Form -1
+Tag 0,Form -1
+Tag 0,Form -2
+Tag 0,Form -1,Form -2
+Tag 0,Form 1
+Tag 0,Form 1,Form 2
+Tag 0,PreviousVerbTag 0
+Tag 0,PreviousVerbForm 0
+Tag 0,FollowingVerbTag 0
+Tag 0,FollowingVerbForm 0
+Tag 0,Lemma -1
+Tag 0,Form 1
+Lemma 0,Tag -1
+Tag 0,Prefix1 0
+Tag 0,Prefix2 0
+Tag 0,Prefix3 0
+Tag 0,Prefix4 0
+Tag 0,Prefix5 0
+Tag 0,Prefix6 0
+Tag 0,Prefix7 0
+Tag 0,Prefix8 0
+Tag 0,Prefix9 0
+Tag 0,Suffix1 0
+Tag 0,Suffix2 0
+Tag 0,Suffix3 0
+Tag 0,Suffix4 0
+Tag 0,Suffix5 0
+Tag 0,Suffix6 0
+Tag 0,Suffix7 0
+Tag 0,Suffix8 0
+Tag 0,Suffix9 0
+TagUPos 0
+TagUPos 0,TagUPos -1
+TagUPos 0,TagUPos -1,TagUPos -2
+TagCase 0,TagCase -1
+TagCase 0,TagCase -1,TagCase -2
+TagGender 0,TagGender -1
+TagGender 0,TagGender -1,TagGender -2
+TagUPos 0,Prefix1 0
+TagUPos 0,Prefix2 0
+TagUPos 0,Prefix3 0
+TagUPos 0,Prefix4 0
+TagUPos 0,Prefix5 0
+TagUPos 0,Prefix6 0
+TagUPos 0,Prefix7 0
+TagUPos 0,Prefix8 0
+TagUPos 0,Prefix9 0
+TagUPos 0,Suffix1 0
+TagUPos 0,Suffix2 0
+TagUPos 0,Suffix3 0
+TagUPos 0,Suffix4 0
+TagUPos 0,Suffix5 0
+TagUPos 0,Suffix6 0
+TagUPos 0,Suffix7 0
+TagUPos 0,Suffix8 0
+TagUPos 0,Suffix9 0
+Tag 0,Num 0
+Tag 0,Cap 0
+Tag 0,Dash 0
+TagNegative 0,Prefix1 0
+TagNegative 0,Prefix2 0
+TagNegative 0,Prefix3 0
+TagCase 0,Suffix1 0
+TagCase 0,Suffix2 0
+TagCase 0,Suffix3 0
+TagCase 0,Suffix4 0
+TagCase 0,Suffix5 0
