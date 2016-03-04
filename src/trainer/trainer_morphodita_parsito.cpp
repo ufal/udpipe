@@ -75,7 +75,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
         cerr << "Creating morphological dictionary from training data." << endl;
 
         // Guesser options
-        int guesser_suffix_len = 4, guesser_suffix_rules = 10, guesser_prefixes_max = 4, guesser_prefix_min_count = 5, guesser_enrich_dictionary = 4;
+        int guesser_suffix_len = 4, guesser_suffix_rules = 10, guesser_prefixes_max = 4, guesser_prefix_min_count = 10, guesser_enrich_dictionary = 4;
         if (tagger_options.count("guesser_suffix_len")) if (!parse_int(tagger_options["guesser_suffix_len"], "guesser_suffix_len", guesser_suffix_len, error)) return false;
         if (tagger_options.count("guesser_suffix_rules")) if (!parse_int(tagger_options["guesser_suffix_rules"], "guesser_suffix_rules", guesser_suffix_rules, error)) return false;
         if (tagger_options.count("guesser_prefixes_max")) if (!parse_int(tagger_options["guesser_prefixes_max"], "guesser_prefixes_max", guesser_prefixes_max, error)) return false;
