@@ -1,3 +1,9 @@
+Version 2.0.0 [04 Mar 2016]
+---------------------------
+- Rename iostreams_xml.h to xml_encoded.h.
+- Move getpara method from iostreams.h to getpara.h.
+
+
 Version 1.1.0 [03 Mar 2016]
 ---------------------------
 - Add named_values.h class which can parse named values from a string.

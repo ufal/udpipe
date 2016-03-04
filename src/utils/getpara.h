@@ -9,11 +9,6 @@
 
 #pragma once
 
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif
-
 #include "common.h"
 
 namespace ufal {
@@ -24,33 +19,25 @@ namespace utils {
 // Declarations
 //
 
-// Initialize iostream and turn off stdio synchronization.
-inline void iostreams_init();
-
-// Use binary mode on cin.
-inline void iostreams_init_binary_input();
-
-// Use binary mode on cout.
-inline void iostreams_init_binary_output();
+// Read paragraph until EOF or end line. All encountered \n are stored.
+inline istream& getpara(istream& is, string& para);
 
 //
 // Definitions
 //
 
-void iostreams_init() {
-  iostream::sync_with_stdio(false);
-}
+istream& getpara(istream& is, string& para) {
+  para.clear();
 
-void iostreams_init_binary_input() {
-#ifdef _WIN32
-  _setmode(_fileno(stdin), _O_BINARY);
-#endif
-}
+  for (string line; getline(is, line); ) {
+    para.append(line);
+    para.push_back('\n');
 
-void iostreams_init_binary_output() {
-#ifdef _WIN32
-  _setmode(_fileno(stdout), _O_BINARY);
-#endif
+    if (line.empty()) break;
+  }
+
+  if (is.eof() && !para.empty()) is.clear(istream::eofbit);
+  return is;
 }
 
 } // namespace utils
