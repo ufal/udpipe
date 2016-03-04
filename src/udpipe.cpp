@@ -14,6 +14,7 @@
 #include "model/model.h"
 #include "model/pipeline.h"
 #include "trainer/trainer.h"
+#include "utils/getpara.h"
 #include "utils/iostreams.h"
 #include "utils/options.h"
 #include "utils/process_args.h"
@@ -27,11 +28,11 @@ int main(int argc, char* argv[]) {
   options::map options;
   if (!options::parse({{"method", options::value{"morphodita_parsito"}},
                        {"output", options::value::any},
-                       {"parse", options::value::any},
+                       {"parse", options::value::none},
                        {"parser", options::value::any},
-                       {"tag", options::value::any},
+                       {"tag", options::value::none},
                        {"tagger", options::value::any},
-                       {"tokenize", options::value::any},
+                       {"tokenize", options::value::none},
                        {"tokenizer", options::value::any},
                        {"train", options::value::none},
                        {"version", options::value::none},
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
     string error;
     if (!trainer::train(method, data.str(), options["tokenizer"], options["tagger"], options["parser"], model, error))
       runtime_failure("An error occurred during model training: " << error);
-    cerr << "Training done." << endl;
+    cerr << "The trained UDPipe model was saved." << endl;
   } else {
     // Load the model
     cerr << "Loading UDPipe model: " << flush;

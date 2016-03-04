@@ -17,6 +17,8 @@ UDPIPE_UNILIB_OBJECTS = $(filter unilib/%,$(MORPHODITA_OBJECTS) $(PARSITO_OBJECT
 UDPIPE_UTILS_OBJECTS = $(filter utils/%,$(MORPHODITA_OBJECTS) $(PARSITO_OBJECTS))
 
 UDPIPE_OBJECTS = $(UDPIPE_MORPHODITA_OBJECTS) $(UDPIPE_PARSITO_OBJECTS) $(UDPIPE_UNILIB_OBJECTS) $(UDPIPE_UTILS_OBJECTS)
+UDPIPE_OBJECTS += morphodita/morpho/generic_morpho_encoder morphodita/morpho/morpho_statistical_guesser_encoder
+UDPIPE_OBJECTS += morphodita/morpho/morpho_statistical_guesser_trainer morphodita/morpho/raw_morpho_dictionary_reader
 UDPIPE_OBJECTS += model/model model/model_morphodita_parsito model/pipeline
 UDPIPE_OBJECTS += sentence/input_format sentence/output_format sentence/sentence
 UDPIPE_OBJECTS += trainer/trainer trainer/trainer_morphodita_parsito

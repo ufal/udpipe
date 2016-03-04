@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "model_morphodita_parsito.h"
+#include "utils/getpara.h"
 #include "utils/parse_int.h"
 
 namespace ufal {
@@ -23,32 +24,19 @@ tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) co
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
   error.clear();
 
+  if (!tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
+
   tagger_cache* c = tagger_caches.pop();
   if (!c) c = new tagger_cache();
 
   c->forms.clear();
   for (size_t i = 1; i < s.words.size(); i++)
-    c->forms.emplace_back(s.words[i].form.c_str(), s.words[i].form.size());
+    c->forms.emplace_back(s.words[i].form);
 
   tagger->tag(c->forms, c->lemmas);
 
-  for (size_t i = 0; i < c->lemmas.size(); i++) {
-    // Lemma
-    s.words[i + 1].lemma.assign(c->lemmas[i].lemma);
-
-    // UPOSTag
-    size_t start = 0, end = min(c->lemmas[i].tag.find('|'), c->lemmas[i].tag.size());
-    s.words[i+1].upostag.assign(c->lemmas[i].tag, start, end - start);
-
-    // XPOSTag
-    start = min(end + 1, c->lemmas[i].tag.size());
-    end = min(c->lemmas[i].tag.find('|', start), c->lemmas[i].tag.size());
-    s.words[i+1].xpostag.assign(c->lemmas[i].tag, start, end - start);
-
-    // Features
-    start = min(end + 1, c->lemmas[i].tag.size());
-    s.words[i+1].feats.assign(c->lemmas[i].tag, start, c->lemmas[i].tag.size() - start);
-  }
+  for (size_t i = 0; i < c->lemmas.size(); i++)
+    fill_word_analysis(c->lemmas[i], s.words[i+1]);
 
   tagger_caches.push(c);
   return true;
@@ -56,6 +44,8 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
 
 bool model_morphodita_parsito::parse(sentence& s, const string& options, string& error) const {
   error.clear();
+
+  if (!parser) return error.assign("No parser defined for the UDPipe model!"), false;
 
   parser_cache* c = parser_caches.pop();
   if (!c) c = new parser_cache();
@@ -93,11 +83,15 @@ model* model_morphodita_parsito::load(istream& is) {
   unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito());
   if (!m) return nullptr;
 
-  m->tagger.reset(morphodita::tagger::load(is));
-  if (!m->tagger) return nullptr;
+  char tagger;
+  if (!is.get(tagger)) return nullptr;
+  m->tagger.reset(tagger ? morphodita::tagger::load(is) : nullptr);
+  if (tagger && !m->tagger) return nullptr;
 
-  m->parser.reset(parsito::parser::load(is));
-  if (!m->parser) return nullptr;
+  char parser;
+  if (!is.get(parser)) return nullptr;
+  m->parser.reset(parser ? parsito::parser::load(is) : nullptr);
+  if (parser && !m->parser) return nullptr;
 
   return m.release();
 }
@@ -106,15 +100,7 @@ model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(const model
   : tokenizer(m->tagger->new_tokenizer()) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
-  block.clear();
-
-  string line;
-  while (getline(is, line)) {
-    block.append(line).push_back('\n');
-    if (line.empty()) break;
-  }
-
-  return !block.empty();
+  return bool(getpara(is, block));
 }
 
 void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
@@ -134,6 +120,24 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   }
 
   return false;
+}
+
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, word& word) {
+  // Lemma
+  word.lemma.assign(analysis.lemma);
+
+  // UPOSTag
+  size_t start = 0, end = min(analysis.tag.find('|'), analysis.tag.size());
+  word.upostag.assign(analysis.tag, start, end - start);
+
+  // XPOSTag
+  start = min(end + 1, analysis.tag.size());
+  end = min(analysis.tag.find('|', start), analysis.tag.size());
+  word.xpostag.assign(analysis.tag, start, end - start);
+
+  // Features
+  start = min(end + 1, analysis.tag.size());
+  word.feats.assign(analysis.tag, start, analysis.tag.size() - start);
 }
 
 } // namespace udpipe

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common.h"
+#include "sentence/word.h"
 
 namespace ufal {
 namespace udpipe {
@@ -17,6 +18,9 @@ namespace udpipe {
 class trainer_morphodita_parsito {
  public:
   static bool train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
+
+ private:
+  static const string& combine_tags(const word& w, string& combined_tag);
 };
 
 } // namespace udpipe

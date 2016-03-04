@@ -57,6 +57,9 @@ class model_morphodita_parsito : public model {
     named_values::map options;
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
+
+  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, word& word);
+  friend class trainer_morphodita_parsito;
 };
 
 } // namespace udpipe
