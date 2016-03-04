@@ -86,7 +86,7 @@ vector<elementary_feature_description> conllu_elementary_features<Map>::descript
   {"TagPerson", PER_TAG, ANY_OFFSET, TAG_PERSON, MAP_TAG_PERSON},
   {"Lemma", PER_TAG, ANY_OFFSET, LEMMA, MAP_LEMMA},
 
-  {"PreviousVerbTag", DYNAMIC, ANY_OFFSET, PREVIOUS_VERB_FORM, MAP_TAG},
+  {"PreviousVerbTag", DYNAMIC, ANY_OFFSET, PREVIOUS_VERB_TAG, MAP_TAG},
   {"PreviousVerbForm", DYNAMIC, ANY_OFFSET, PREVIOUS_VERB_FORM, MAP_FORM},
 };
 
