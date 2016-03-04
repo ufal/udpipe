@@ -50,11 +50,13 @@ void tagger_trainer<TaggerTrainer>::train(int decoding_order, int window_size, i
   vector<sentence> train_data;
 //  cerr << "Loading train data: ";
 //  cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_train, *d, use_guesser, train_data, true) << '%' << endl;
+  load_data(in_train, *d, use_guesser, train_data, true);
 
   vector<sentence> heldout_data;
   if (in_heldout) {
 //    cerr << "Loading heldout data: ";
 //    cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_heldout, *d, use_guesser, heldout_data, false) << '%' << endl;
+    load_data(in_heldout, *d, use_guesser, heldout_data, false);
   }
 
   // Encode morphological dictionary
