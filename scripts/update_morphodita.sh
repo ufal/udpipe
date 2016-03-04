@@ -23,3 +23,7 @@ perl -ple '
 
   /^#include "([^"]*)"$/ and !-f dirname($ARGV)."/$1" and !-f "../src/$1" and $_ = "#include \"morphodita/$1\"";
   ' -i ../src/morphodita/*/*
+
+# Disable all logging except for accuracy reporting during tagger training.
+sed 's#^.*\bcerr\b.*$#//&#' -i ../src/morphodita/*/*
+sed 's#^//\(.*\bcerr\b\(.*[Ii]teration\|.*accuracy\| *<< *endl\).*\)$#\1#' -i ../src/morphodita/tagger/perceptron_tagger_trainer.h

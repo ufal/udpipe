@@ -41,24 +41,24 @@ class tagger_trainer {
 // Definitions
 template <class TaggerTrainer>
 void tagger_trainer<TaggerTrainer>::train(int decoding_order, int window_size, int iterations, istream& in_morpho_dict, bool use_guesser, istream& in_feature_templates, bool prune_features, istream& in_train, istream& in_heldout, bool early_stopping, ostream& out_tagger) {
-  cerr << "Loading dictionary: ";
+//  cerr << "Loading dictionary: ";
   unique_ptr<morpho> d(morpho::load(in_morpho_dict));
   if (!d) runtime_failure("Cannot load dictionary!");
-  cerr << "done" << endl;
+//  cerr << "done" << endl;
   if (!in_morpho_dict.seekg(0, istream::beg)) runtime_failure("Cannot seek in dictionary file to the beginning!");
 
   vector<sentence> train_data;
-  cerr << "Loading train data: ";
-  cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_train, *d, use_guesser, train_data, true) << '%' << endl;
+//  cerr << "Loading train data: ";
+//  cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_train, *d, use_guesser, train_data, true) << '%' << endl;
 
   vector<sentence> heldout_data;
   if (in_heldout) {
-    cerr << "Loading heldout data: ";
-    cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_heldout, *d, use_guesser, heldout_data, false) << '%' << endl;
+//    cerr << "Loading heldout data: ";
+//    cerr << "done, matched " << fixed << setprecision(2) << 100 * load_data(in_heldout, *d, use_guesser, heldout_data, false) << '%' << endl;
   }
 
   // Encode morphological dictionary
-  cerr << "Encoding morphological dictionary." << endl;
+//  cerr << "Encoding morphological dictionary." << endl;
   out_tagger << in_morpho_dict.rdbuf();
   out_tagger.put(use_guesser);
 

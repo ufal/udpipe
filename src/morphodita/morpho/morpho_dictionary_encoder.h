@@ -149,7 +149,7 @@ void dictionary<LemmaAddinfo>::load(istream& is, int max_suffix_len) {
     sort(forms.begin(), forms.end());
     auto forms_end = unique(forms.begin(), forms.end());
     if (forms_end != forms.end()) {
-      cerr << "Warning: repeated form-tag in lemma " << lemma << '.' << endl;
+//      cerr << "Warning: repeated form-tag in lemma " << lemma << '.' << endl;
       forms.erase(forms_end, forms.end());
     }
 

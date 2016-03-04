@@ -21,15 +21,15 @@ namespace morphodita {
 void english_morpho_encoder::encode(istream& dictionary, int max_suffix_len, istream& guesser, istream& negations, ostream& out) {
   binary_encoder enc;
 
-  cerr << "Encoding dictionary." << endl;
+//  cerr << "Encoding dictionary." << endl;
   morpho_dictionary_encoder<english_lemma_addinfo>::encode(dictionary, max_suffix_len, enc);
 
-  cerr << "Encoding guesser." << endl;
+//  cerr << "Encoding guesser." << endl;
   english_morpho_guesser_encoder::encode(guesser, negations, enc);
 
-  cerr << "Compressing dictionary." << endl;
+//  cerr << "Compressing dictionary." << endl;
   if (!compressor::save(out, enc)) runtime_failure("Cannot compress and write dictionary to file!");
-  cerr << "Dictionary saved." << endl;
+//  cerr << "Dictionary saved." << endl;
 }
 
 } // namespace morphodita

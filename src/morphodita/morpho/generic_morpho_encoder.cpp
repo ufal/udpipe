@@ -31,20 +31,20 @@ void generic_morpho_encoder::encode(istream& in_dictionary, int max_suffix_len, 
   enc.add_1B(tags.symbol_tag.size());
   enc.add_data(tags.symbol_tag);
 
-  cerr << "Encoding dictionary." << endl;
+//  cerr << "Encoding dictionary." << endl;
   morpho_dictionary_encoder<generic_lemma_addinfo>::encode(in_dictionary, max_suffix_len, enc);
 
   // Load and encode statistical guesser if requested
   enc.add_1B(bool(in_statistical_guesser));
   if (in_statistical_guesser) {
-    cerr << "Encoding statistical guesser." << endl;
+//    cerr << "Encoding statistical guesser." << endl;
     morpho_statistical_guesser_encoder::encode(in_statistical_guesser, enc);
   }
 
   // done, save the dictionary
-  cerr << "Compressing dictionary." << endl;
+//  cerr << "Compressing dictionary." << endl;
   if (!compressor::save(out_morpho, enc)) runtime_failure("Cannot compress and write dictionary to file!");
-  cerr << "Dictionary saved." << endl;
+//  cerr << "Dictionary saved." << endl;
 }
 
 } // namespace morphodita

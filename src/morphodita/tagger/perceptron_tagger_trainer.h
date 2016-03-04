@@ -42,13 +42,13 @@ template <class FeatureSequences>
 void perceptron_tagger_trainer<FeatureSequences>::train(int decoding_order, int window_size, int iterations, const vector<sentence>& train, const vector<sentence>& heldout, bool early_stopping, bool prune_features, istream& in_feature_templates, ostream& out_tagger) {
   FeatureSequences features;
 
-  cerr << "Parsing feature templates..." << endl;
+//  cerr << "Parsing feature templates..." << endl;
   features.parse(window_size, in_feature_templates);
 
-  cerr << "Training tagger..." << endl;
+//  cerr << "Training tagger..." << endl;
   train_viterbi(decoding_order, window_size, iterations, train, heldout, early_stopping, prune_features, features);
 
-  cerr << "Encoding tagger..." << endl;
+//  cerr << "Encoding tagger..." << endl;
   typedef feature_sequences_optimizer<FeatureSequences> optimizer;
   typename optimizer::optimized_feature_sequences optimized_features;
   optimizer::optimize(features, optimized_features);
