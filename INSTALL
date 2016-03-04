@@ -32,6 +32,7 @@ To compile UDPipe, run make in the src directory.
 Make targets and options:
 - exe: compile the binaries (default)
 - server: compile the REST server
+- tools: compile various tools
 - lib: compile the static library
 - BITS=32 or BITS=64: compile for specified 32-bit or 64-bit architecture
   instead of the default one

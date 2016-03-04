@@ -13,14 +13,16 @@ include rest_server/microrestd/Makefile.include
 
 EXECUTABLES = $(call exe,udpipe)
 SERVER = $(call exe,rest_server/udpipe_server)
+TOOLS = $(call exe,tools/udpipe_accuracy)
 LIBRARIES = $(call lib,libudpipe)
 
-.PHONY: all exe server lib full
+.PHONY: all exe server tools lib full
 all: exe
 exe: $(EXECUTABLES)
 server: $(SERVER)
+tools: $(TOOLS)
 lib: $(LIBRARIES)
-full: exe server lib
+full: exe server tools lib
 
 # libraries
 $(call lib,libudpipe): $(call obj,$(UDPIPE_OBJECTS))
@@ -30,13 +32,13 @@ C_FLAGS += $(call include_dir,.)
 # executables
 $(call exe,rest_server/udpipe_server): LD_FLAGS+=$(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))
 $(call exe,rest_server/udpipe_server): $(call obj,rest_server/udpipe_service $(addprefix rest_server/microrestd/,$(MICRORESTD_OBJECTS) $(MICRORESTD_PUGIXML_OBJECTS)))
-$(EXECUTABLES) $(SERVER):$(call exe,%): $$(call obj,% utils/options $(UDPIPE_OBJECTS))
+$(EXECUTABLES) $(SERVER) $(TOOLS):$(call exe,%): $$(call obj,% utils/options $(UDPIPE_OBJECTS))
 	$(call link_exe,$@,$^,$(call win_subsystem,console))
 
 # cleaning
 .PHONY: clean
 clean:
-	@$(call rm,.build $(call all_exe,$(EXECUTABLES) $(SERVER)) $(call all_lib,$(LIBRARIES)))
+	@$(call rm,.build $(call all_exe,$(EXECUTABLES) $(SERVER) $(TOOLS)) $(call all_lib,$(LIBRARIES)))
 
 # dump library sources
 .PHONY: lib_sources
