@@ -18,7 +18,7 @@ namespace morphodita {
 
 class english_tokenizer : public ragel_tokenizer {
  public:
-  enum { LATEST = 1 };
+  enum { LATEST = 2 };
   english_tokenizer(unsigned version);
 
   virtual bool next_sentence(vector<token_range>& tokens) override;

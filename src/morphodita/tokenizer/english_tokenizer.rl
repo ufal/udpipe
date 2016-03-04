@@ -74,7 +74,7 @@ void english_tokenizer::split_token(vector<token_range>& tokens) {
   write data noerror nofinal;
 }%%
 
-english_tokenizer::english_tokenizer(unsigned /*version*/) : ragel_tokenizer(1) {}
+english_tokenizer::english_tokenizer(unsigned version) : ragel_tokenizer(version <= 1 ? 1 : 2) {}
 
 bool english_tokenizer::next_sentence(vector<token_range>& tokens) {
   using namespace unilib;

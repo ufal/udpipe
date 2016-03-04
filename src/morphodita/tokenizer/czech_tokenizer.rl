@@ -52,8 +52,8 @@ const unordered_set<string> czech_tokenizer::abbreviations_slovak = {
   "sv", "tel", "tj", "tzv", "ú", "u", "uh", "ul", "um", "zl", "zn",
 };
 
-czech_tokenizer::czech_tokenizer(tokenizer_language language, unsigned /*version*/, const morpho* m)
-  : ragel_tokenizer(1), m(m) {
+czech_tokenizer::czech_tokenizer(tokenizer_language language, unsigned version, const morpho* m)
+  : ragel_tokenizer(version <= 1 ? 1 : 2), m(m) {
   switch (language) {
     case CZECH:
       abbreviations = &abbreviations_czech;

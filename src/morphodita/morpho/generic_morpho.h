@@ -20,6 +20,8 @@ namespace morphodita {
 
 class generic_morpho : public morpho {
  public:
+  generic_morpho(unsigned version) : version(version) {}
+
   virtual int analyze(string_piece form, morpho::guesser_mode guesser, vector<tagged_lemma>& lemmas) const override;
   virtual int generate(string_piece lemma, const char* tag_wildcard, guesser_mode guesser, vector<tagged_lemma_forms>& forms) const;
   virtual int raw_lemma_len(string_piece lemma) const override;
@@ -31,6 +33,7 @@ class generic_morpho : public morpho {
  private:
   inline void analyze_special(string_piece form, vector<tagged_lemma>& lemmas) const;
 
+  unsigned version;
   morpho_dictionary<generic_lemma_addinfo> dictionary;
   unique_ptr<morpho_statistical_guesser> statistical_guesser;
 

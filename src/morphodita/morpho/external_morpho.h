@@ -18,6 +18,8 @@ namespace morphodita {
 
 class external_morpho : public morpho {
  public:
+  external_morpho(unsigned version) : version(version) {}
+
   virtual int analyze(string_piece form, morpho::guesser_mode guesser, vector<tagged_lemma>& lemmas) const override;
   virtual int generate(string_piece lemma, const char* tag_wildcard, guesser_mode guesser, vector<tagged_lemma_forms>& forms) const;
   virtual int raw_lemma_len(string_piece lemma) const override;
@@ -28,6 +30,8 @@ class external_morpho : public morpho {
   bool load(istream& is);
 
  private:
+  unsigned version;
+
   string unknown_tag;
 };
 

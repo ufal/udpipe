@@ -20,7 +20,7 @@ namespace morphodita {
 class czech_tokenizer : public ragel_tokenizer {
  public:
   enum tokenizer_language { CZECH = 0, SLOVAK = 1 };
-  enum { LATEST = 1 };
+  enum { LATEST = 2 };
   czech_tokenizer(tokenizer_language language, unsigned version, const morpho* m = nullptr);
 
   virtual bool next_sentence(vector<token_range>& tokens) override;

@@ -92,7 +92,7 @@ int english_morpho::raw_form_len(string_piece form) const {
 }
 
 tokenizer* english_morpho::new_tokenizer() const {
-  return new english_tokenizer(version);
+  return new english_tokenizer(version <= 2 ? 1 : 2);
 }
 
 void english_morpho::analyze_special(string_piece form, vector<tagged_lemma>& lemmas) const {

@@ -18,8 +18,8 @@ namespace morphodita {
 
 class generic_tokenizer : public ragel_tokenizer {
  public:
-  enum { LATEST = 1 };
-  generic_tokenizer(unsigned /*version*/) : ragel_tokenizer(1) {}
+  enum { LATEST = 2 };
+  generic_tokenizer(unsigned version);
 
   virtual bool next_sentence(vector<token_range>& tokens) override;
 };

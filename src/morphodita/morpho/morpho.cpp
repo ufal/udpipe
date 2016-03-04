@@ -22,7 +22,8 @@ namespace udpipe {
 namespace morphodita {
 
 morpho* morpho::load(istream& is) {
-  switch (morpho_ids::morpho_id(is.get())) {
+  morpho_id id = morpho_id(is.get());
+  switch (id) {
     case morpho_ids::CZECH:
       {
         auto res = new_unique_ptr<czech_morpho>(czech_morpho::morpho_language::CZECH, 1);
@@ -30,38 +31,30 @@ morpho* morpho::load(istream& is) {
         break;
       }
     case morpho_ids::ENGLISH_V1:
-      {
-        auto res = new_unique_ptr<english_morpho>(1);
-        if (res->load(is)) return res.release();
-        break;
-      }
     case morpho_ids::ENGLISH_V2:
-      {
-        auto res = new_unique_ptr<english_morpho>(2);
-        if (res->load(is)) return res.release();
-        break;
-      }
     case morpho_ids::ENGLISH_V3:
       {
-        auto res = new_unique_ptr<english_morpho>(3);
+        auto res = new_unique_ptr<english_morpho>(id == morpho_ids::ENGLISH_V1 ? 1 :
+                                                  id == morpho_ids::ENGLISH_V2 ? 2 :
+                                                  3);
         if (res->load(is)) return res.release();
         break;
       }
     case morpho_ids::EXTERNAL:
       {
-        auto res = new_unique_ptr<external_morpho>();
+        auto res = new_unique_ptr<external_morpho>(1);
         if (res->load(is)) return res.release();
         break;
       }
     case morpho_ids::GENERIC:
       {
-        auto res = new_unique_ptr<generic_morpho>();
+        auto res = new_unique_ptr<generic_morpho>(1);
         if (res->load(is)) return res.release();
         break;
       }
     case morpho_ids::SLOVAK_PDT:
       {
-        auto res = new_unique_ptr<czech_morpho>(czech_morpho::morpho_language::SLOVAK, 1);
+        auto res = new_unique_ptr<czech_morpho>(czech_morpho::morpho_language::SLOVAK, 3);
         if (res->load(is)) return res.release();
         break;
       }
