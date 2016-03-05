@@ -204,7 +204,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
               xpostag_ok |= sentence.words[i].xpostag == w.xpostag;
               feats_ok |= sentence.words[i].feats == w.feats;
               all_tags_ok |= sentence.words[i].upostag == w.upostag && sentence.words[i].xpostag == w.xpostag && sentence.words[i].feats == w.feats;
-              lemma_ok |= sentence.words[i].lemma == w.lemma;
+              lemma_ok |= combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) == w.lemma;
             }
             words++;
             total_analyses += analyses.size();
@@ -285,7 +285,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
             xpostag += sentence.words[i+1].xpostag == w.xpostag;
             feats += sentence.words[i+1].feats == w.feats;
             all_tags += sentence.words[i+1].upostag == w.upostag && sentence.words[i+1].xpostag == w.xpostag && sentence.words[i+1].feats == w.feats;
-            lemma += sentence.words[i+1].lemma == w.lemma;
+            lemma += combine_lemma(sentence.words[i+1].form, sentence.words[i+1].lemma, have_lemmas) == w.lemma;
           }
         }
         if (!error.empty()) return false;
