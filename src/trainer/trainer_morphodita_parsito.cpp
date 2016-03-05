@@ -249,13 +249,11 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
         input << '\n';
       }
 
-      int ho = 0;
       conllu_input_format->set_text(tagger_heldout.c_str());
       for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
         for (size_t i = 1; i < sentence.words.size(); i++)
           heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], upostag_only, combined_tag) << '\n';
         heldout_input << '\n';
-        ho += sentence.words.size() - 1;
       }
 
       stringstream tagger_description;
