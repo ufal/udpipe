@@ -104,20 +104,26 @@ void conllu_elementary_features<Map>::compute_features(const vector<string_piece
       const string& tag = analyses[i][j].tag;
       const string& lemma = analyses[i][j].lemma;
 
-      // Tag consists of several | separated parts:
+      // Tag consists of three space separated parts:
       // - first is TAG_UPOS,
       // - second is TAG_LPOS,
-      // - then there is any number of named fields in format Name=Value
+      // - then there is any number of | separated named fields in format Name=Value
       per_tag[i][j].values[TAG] = maps[MAP_TAG].value(tag.c_str(), tag.size());
       per_tag[i][j].values[TAG_UPOS] = per_tag[i][j].values[TAG_CASE] = per_tag[i][j].values[TAG_GENDER] = elementary_feature_empty;
       per_tag[i][j].values[TAG_NUMBER] = per_tag[i][j].values[TAG_NEGATIVE] = per_tag[i][j].values[TAG_PERSON] = elementary_feature_empty;
       per_tag[i][j].values[LEMMA] = j && analyses[i][j-1].lemma == lemma ? per_tag[i][j-1].values[LEMMA] :
           maps[MAP_LEMMA].value(lemma.c_str(), lemma.size());
-      for (size_t index = 0, length; index < tag.size(); index += length + 1) {
+
+      size_t index = tag.find(' ');
+      if (index == string::npos) index = tag.size();
+      per_tag[i][j].values[TAG_UPOS] = maps[MAP_TAG_UPOS].value(tag.c_str(), index);
+
+      if (index < tag.size()) index++;
+      index = tag.find(' ', index);
+      if (index < tag.size()) index++;
+      for (size_t length; index < tag.size(); index += length + 1) {
         length = tag.find('|', index);
         if (length == string::npos) length = tag.size() - index;
-
-        if (!index) per_tag[i][j].values[TAG_UPOS] = maps[MAP_TAG_UPOS].value(tag.c_str() + index, length);
 
         for (size_t equal_sign = 0; equal_sign + 1 < length; equal_sign++)
           if (tag[index + equal_sign] == '=') {
