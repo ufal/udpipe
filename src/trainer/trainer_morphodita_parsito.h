@@ -21,6 +21,7 @@ class trainer_morphodita_parsito {
 
  private:
   static const string& combine_tags(const word& w, string& combined_tag);
+  static const string& combine_lemma(const string& form, const string& lemma, bool have_lemmas);
 };
 
 } // namespace udpipe

@@ -36,7 +36,7 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
   tagger->tag(c->forms, c->lemmas);
 
   for (size_t i = 0; i < c->lemmas.size(); i++)
-    fill_word_analysis(c->lemmas[i], s.words[i+1]);
+    fill_word_analysis(c->lemmas[i], have_lemmas, s.words[i+1]);
 
   tagger_caches.push(c);
   return true;
@@ -85,6 +85,10 @@ model* model_morphodita_parsito::load(istream& is) {
 
   char tagger;
   if (!is.get(tagger)) return nullptr;
+
+  char have_lemmas = 0;
+  if (tagger) if (!is.get(have_lemmas)) return nullptr;
+  m->have_lemmas = have_lemmas;
   m->tagger.reset(tagger ? morphodita::tagger::load(is) : nullptr);
   if (tagger && !m->tagger) return nullptr;
 
@@ -122,9 +126,9 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   return false;
 }
 
-void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, word& word) {
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool have_lemmas, word& word) {
   // Lemma
-  word.lemma.assign(analysis.lemma);
+  word.lemma.assign(have_lemmas ? analysis.lemma : "_");
 
   // UPOSTag
   size_t start = 0, end = min(analysis.tag.find('|'), analysis.tag.size());

@@ -30,6 +30,7 @@ class model_morphodita_parsito : public model {
   static model* load(istream& is);
   friend class model;
 
+  bool have_lemmas;
   unique_ptr<morphodita::tagger> tagger;
   unique_ptr<parsito::parser> parser;
 
@@ -58,7 +59,7 @@ class model_morphodita_parsito : public model {
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 
-  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, word& word);
+  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool have_lemmas, word& word);
   friend class trainer_morphodita_parsito;
 };
 

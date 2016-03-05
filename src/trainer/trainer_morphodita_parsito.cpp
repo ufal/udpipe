@@ -48,10 +48,17 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
   conllu.pop_back();
   if (!error.empty()) return false;
 
+  bool have_lemmas = false;
+  for (auto&& sentence : conllu)
+    for (size_t i = 1; !have_lemmas && i < sentence.words.size(); i++)
+      if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
+        have_lemmas = true;
+
   if (tagger == "none") {
     os.put(0);
   } else {
     os.put(1);
+    os.put(have_lemmas);
 
     // Create MorphoDiTa model
     named_values::map tagger_options;
@@ -92,7 +99,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
           stringstream guesser_input;
           for (auto&& sentence : conllu) {
             for (size_t i = 1; i < sentence.words.size(); i++)
-              guesser_input << sentence.words[i].form << '\t' << sentence.words[i].lemma << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
+              guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
             guesser_input << '\n';
           }
           morphodita::morpho_statistical_guesser_trainer::train(guesser_input, guesser_suffix_len, guesser_suffix_rules, guesser_prefixes_max, guesser_prefix_min_count, guesser_description);
@@ -104,7 +111,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
           string entry;
           for (auto&& sentence : conllu)
             for (size_t i = 1; i < sentence.words.size(); i++)
-              dictionary_entries.insert(entry.assign(sentence.words[i].lemma).append("\t").append(combine_tags(sentence.words[i], combined_tag)).append("\t").append(sentence.words[i].form));
+              dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas)).append("\t").append(combine_tags(sentence.words[i], combined_tag)).append("\t").append(sentence.words[i].form));
         }
 
         morphodita::generic_morpho_encoder::tags dictionary_special_tags;
@@ -176,7 +183,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
             morpho->analyze(sentence.words[i].form, morphodita::morpho::GUESSER, analyses);
             unsigned upostag_ok = 0, xpostag_ok = 0, feats_ok = 0, all_tags_ok = 0, lemma_ok = 0;
             for (auto&& analysis : analyses) {
-              model_morphodita_parsito::fill_word_analysis(analysis, w);
+              model_morphodita_parsito::fill_word_analysis(analysis, have_lemmas, w);
               upostag_ok |= sentence.words[i].upostag == w.upostag;
               xpostag_ok |= sentence.words[i].xpostag == w.xpostag;
               feats_ok |= sentence.words[i].feats == w.feats;
@@ -221,7 +228,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
       stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
       for (auto&& sentence : conllu) {
         for (size_t i = 1; i < sentence.words.size(); i++)
-          input << sentence.words[i].form << '\t' << sentence.words[i].lemma << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
+          input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
         input << '\n';
       }
 
@@ -229,7 +236,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
       conllu_input_format->set_text(tagger_heldout.c_str());
       for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
         for (size_t i = 1; i < sentence.words.size(); i++)
-          heldout_input << sentence.words[i].form << '\t' << sentence.words[i].lemma << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
+          heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], combined_tag) << '\n';
         heldout_input << '\n';
         ho += sentence.words.size() - 1;
       }
@@ -257,7 +264,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
           tagger->tag(forms, analyses);
 
           for (size_t i = 0; i < analyses.size(); i++) {
-            model_morphodita_parsito::fill_word_analysis(analyses[i], w);
+            model_morphodita_parsito::fill_word_analysis(analyses[i], have_lemmas, w);
             words++;
             upostag += sentence.words[i+1].upostag == w.upostag;
             xpostag += sentence.words[i+1].xpostag == w.xpostag;
@@ -291,6 +298,10 @@ const string& trainer_morphodita_parsito::combine_tags(const word& w, string& co
   combined_tag.append(w.feats);
 
   return combined_tag;
+}
+
+const string& trainer_morphodita_parsito::combine_lemma(const string& form, const string& lemma, bool have_lemmas) {
+  return have_lemmas ? lemma : form;
 }
 
 } // namespace udpipe
