@@ -29,6 +29,7 @@
 #include "sentence/sentence.h"
 #include "trainer_morphodita_parsito.h"
 #include "utils/named_values.h"
+#include "utils/split.h"
 
 namespace ufal {
 namespace udpipe {
@@ -92,6 +93,15 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
         // Dictionary options
         int dictionary_suffix_len = 8;
         if (tagger_options.count("dictionary_suffix_len")) if (!parse_int(tagger_options["dictionary_suffix_len"], "dictionary_suffix_len", dictionary_suffix_len, error)) return false;
+        if (tagger_options.count("dictionary_drop_lemmas")) {
+          vector<string> lemmas;
+          split(tagger_options["dictionary_drop_lemmas"], ',', lemmas);
+          unordered_set<string> lemmas_set(lemmas.begin(), lemmas.end());
+          for (auto&& sentence : conllu)
+            for (size_t i = 1; i < sentence.words.size(); i++)
+              if (lemmas_set.count(sentence.words[i].lemma))
+                sentence.words[i].lemma = sentence.words[i].form;
+        }
 
         // Start by generating statistical guesser
         stringstream guesser_description;
