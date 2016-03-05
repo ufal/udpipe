@@ -222,6 +222,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
       const string& tagger_feature_templates = tagger_options["templates"];
       const string& tagger_heldout = tagger_options["heldout"];
       const string& tagger_accuracy = tagger_options["accuracy"];
+      if (tagger_heldout.empty()) tagger_early_stopping = 0;
 
       // Train the tagger
       cerr << "Training tagger." << endl;
