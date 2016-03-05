@@ -340,8 +340,8 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
 const string& trainer_morphodita_parsito::combine_tags(const word& w, bool upostag_only, string& combined_tag) {
   combined_tag.assign(w.upostag);
   if (!upostag_only) {
-    combined_tag.push_back(' ');
-    combined_tag.append(w.xpostag).push_back(' ');
+    combined_tag.push_back('~');
+    combined_tag.append(w.xpostag).push_back('~');
     combined_tag.append(w.feats);
   }
 

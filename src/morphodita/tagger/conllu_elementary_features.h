@@ -104,7 +104,7 @@ void conllu_elementary_features<Map>::compute_features(const vector<string_piece
       const string& tag = analyses[i][j].tag;
       const string& lemma = analyses[i][j].lemma;
 
-      // Tag consists of three space separated parts:
+      // Tag consists of three ~ separated parts:
       // - first is TAG_UPOS,
       // - second is TAG_LPOS,
       // - then there is any number of | separated named fields in format Name=Value
@@ -114,12 +114,12 @@ void conllu_elementary_features<Map>::compute_features(const vector<string_piece
       per_tag[i][j].values[LEMMA] = j && analyses[i][j-1].lemma == lemma ? per_tag[i][j-1].values[LEMMA] :
           maps[MAP_LEMMA].value(lemma.c_str(), lemma.size());
 
-      size_t index = tag.find(' ');
+      size_t index = tag.find('~');
       if (index == string::npos) index = tag.size();
       per_tag[i][j].values[TAG_UPOS] = maps[MAP_TAG_UPOS].value(tag.c_str(), index);
 
       if (index < tag.size()) index++;
-      index = tag.find(' ', index);
+      index = tag.find('~', index);
       if (index < tag.size()) index++;
       for (size_t length; index < tag.size(); index += length + 1) {
         length = tag.find('|', index);
