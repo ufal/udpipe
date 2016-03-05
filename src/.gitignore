@@ -1,5 +1,6 @@
 /.build/
 rest_server/udpipe_server
+tools/udpipe_accuracy
 libudpipe.*
 udpipe
 *.exe
