@@ -59,11 +59,13 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
     os.put(0);
   } else {
     os.put(1);
-    os.put(have_lemmas);
 
     // Create MorphoDiTa model
     named_values::map tagger_options;
     if (!named_values::parse(tagger, tagger_options, error)) return false;
+
+    if (tagger_options.count("lemmas") && !parse_int(tagger_options["lemmas"], "tagger_lemmas")) have_lemmas = 0;
+    os.put(have_lemmas);
 
     if (tagger_options.count("tagger_model")) {
       // Use specified tagger model
