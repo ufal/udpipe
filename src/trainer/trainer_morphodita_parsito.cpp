@@ -302,6 +302,36 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
     os.put(0);
   } else {
     os.put(1);
+
+    // Create Parsito model
+    named_values::map parser_options;
+    if (!named_values::parse(parser, parser_options, error)) return false;
+
+    if (parser_options.count("parser_model")) {
+      // Use specified parser model
+      cerr << "Using specified parser model." << endl;
+      os << parser_options["parser_model"];
+    } else {
+      // Parsito options
+      if (!parser_options.count("transition_system")) return error.assign("Parser option transition_system must be specified!"), false;
+      string transition_system = parser_options["transition_system"];
+      if (!parser_options.count("transition_oracle")) return error.assign("Parser option transition_oracle must be specified!"), false;
+      string transition_oracle = parser_options["transition_oracle"];
+      if (!parser_options.count("embeddings")) return error.assign("Parser option embeddings must be specified!"), false;
+      string embeddings = parser_options["embeddings"];
+      if (!parser_options.count("nodes")) return error.assign("Parser option nodes must be specified!"), false;
+      string nodes = parser_options["nodes"];
+
+      int iterations = 10, hidden_layer = 200, structured_interval = 8, batch_size = 10;
+      double learning_rate = 0.01, learning_rate_final = 0.001, l2_regularization = 0.3;
+      if (parser_options.count("iterations")) if (!parse_int(parser_options["iterations"], "iterations", iterations, error)) return false;
+      if (parser_options.count("hidden_layer")) if (!parse_int(parser_options["hidden_layer"], "hidden_layer", hidden_layer, error)) return false;
+      if (parser_options.count("structured_interval")) if (!parse_int(parser_options["structured_interval"], "structured_interval", structured_interval, error)) return false;
+      if (parser_options.count("batch_size")) if (!parse_int(parser_options["batch_size"], "batch_size", batch_size, error)) return false;
+      if (parser_options.count("learning_rate")) if (!parse_double(parser_options["learning_rate"], "learning_rate", learning_rate, error)) return false;
+      if (parser_options.count("learning_rate_final")) if (!parse_double(parser_options["learning_rate_final"], "learning_rate_final", learning_rate_final, error)) return false;
+      if (parser_options.count("l2_regularization")) if (!parse_double(parser_options["l2_regularization"], "l2_regularization", l2_regularization, error)) return false;
+    }
   }
 
   return true;
