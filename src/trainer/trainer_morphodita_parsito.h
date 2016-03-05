@@ -20,7 +20,7 @@ class trainer_morphodita_parsito {
   static bool train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
 
  private:
-  static const string& combine_tags(const word& w, string& combined_tag);
+  static const string& combine_tags(const word& w, bool upostag_only, string& combined_tag);
   static const string& combine_lemma(const string& form, const string& lemma, bool have_lemmas);
 };
 
