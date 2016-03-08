@@ -46,7 +46,7 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) const 
     // Write the word
     os << i << '\t'
        << s.words[i].form << '\t'
-       << s.words[i].lemma << '\t'
+       << underscore_on_empty(s.words[i].lemma) << '\t'
        << underscore_on_empty(s.words[i].upostag) << '\t'
        << underscore_on_empty(s.words[i].xpostag) << '\t'
        << underscore_on_empty(s.words[i].feats) << '\t';
