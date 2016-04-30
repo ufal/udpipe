@@ -49,6 +49,12 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
   conllu.pop_back();
   if (!error.empty()) return false;
 
+  // Check input data
+  for (auto&& sentence : conllu)
+    for (size_t i = 1; i < sentence.words.size(); i++)
+      if (!can_combine_tags(sentence.words[i], error))
+        return false;
+
   bool have_lemmas = false;
   for (auto&& sentence : conllu)
     for (size_t i = 1; !have_lemmas && i < sentence.words.size(); i++)
@@ -337,11 +343,36 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
   return true;
 }
 
+const string trainer_morphodita_parsito::tag_separators = "~!@#$%^&*()/";
+
+bool trainer_morphodita_parsito::can_combine_tags(const word& w, string& error) {
+  error.clear();
+
+  unsigned separator = 0;
+  while (separator < tag_separators.size() &&
+         (w.upostag.find(tag_separators[separator]) != string::npos || w.xpostag.find(tag_separators[separator]) != string::npos))
+    separator++;
+
+  if (separator >= tag_separators.size()) {
+    error.assign("Cannot find tag separating character, UPOSTAG and XPOSTAG contain all of '").append(tag_separators).append("'!");
+    return false;
+  }
+  return true;
+}
+
 const string& trainer_morphodita_parsito::combine_tags(const word& w, bool upostag_only, string& combined_tag) {
-  combined_tag.assign(w.upostag);
+  unsigned separator = 0;
+  while (separator < tag_separators.size() &&
+         (w.upostag.find(tag_separators[separator]) != string::npos || w.xpostag.find(tag_separators[separator]) != string::npos))
+    separator++;
+  if (separator >= tag_separators.size())
+    runtime_failure("Cannot find tag separating character, UPOSTAG and XPOSTAG contain all of '" << tag_separators << "'!");
+
+  combined_tag.assign(1, tag_separators[separator]);
+  combined_tag.append(w.upostag);
   if (!upostag_only) {
-    combined_tag.push_back('~');
-    combined_tag.append(w.xpostag).push_back('~');
+    combined_tag.push_back(tag_separators[separator]);
+    combined_tag.append(w.xpostag).push_back(tag_separators[separator]);
     combined_tag.append(w.feats);
   }
 

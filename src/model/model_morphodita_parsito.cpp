@@ -131,12 +131,13 @@ void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma
   word.lemma.assign(have_lemmas ? analysis.lemma : "_");
 
   // UPOSTag
-  size_t start = 0, end = min(analysis.tag.find('~'), analysis.tag.size());
+  char separator = analysis.tag[0];
+  size_t start = min(size_t(1), analysis.tag.size()), end = min(analysis.tag.find(separator, 1), analysis.tag.size());
   word.upostag.assign(analysis.tag, start, end - start);
 
   // XPOSTag
   start = min(end + 1, analysis.tag.size());
-  end = min(analysis.tag.find('~', start), analysis.tag.size());
+  end = min(analysis.tag.find(separator, start), analysis.tag.size());
   word.xpostag.assign(analysis.tag, start, end - start);
 
   // Features
