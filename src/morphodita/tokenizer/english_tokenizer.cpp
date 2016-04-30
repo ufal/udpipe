@@ -152,9 +152,9 @@ _resume:
 				break;
 
 			_mid = _lower + ((_upper-_lower) >> 1);
-			if ( ( ragel_char(chars[end - index - 1])) < *_mid )
+			if ( ( ragel_char(chars[tokens.back().start + end - index - 1])) < *_mid )
 				_upper = _mid - 1;
-			else if ( ( ragel_char(chars[end - index - 1])) > *_mid )
+			else if ( ( ragel_char(chars[tokens.back().start + end - index - 1])) > *_mid )
 				_lower = _mid + 1;
 			else {
 				_trans += (unsigned int)(_mid - _keys);
@@ -175,9 +175,9 @@ _resume:
 				break;
 
 			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
-			if ( ( ragel_char(chars[end - index - 1])) < _mid[0] )
+			if ( ( ragel_char(chars[tokens.back().start + end - index - 1])) < _mid[0] )
 				_upper = _mid - 2;
-			else if ( ( ragel_char(chars[end - index - 1])) > _mid[1] )
+			else if ( ( ragel_char(chars[tokens.back().start + end - index - 1])) > _mid[1] )
 				_lower = _mid + 2;
 			else {
 				_trans += (unsigned int)((_mid - _keys)>>1);
@@ -524,9 +524,9 @@ _eof_trans:
           split_token(tokens);
           current = te;
           do
-            if (emergency_sentence_split(tokens)) {( current)++; goto _out; }
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
           while (tokenize_url_email(tokens));
-          {( current) = (( current))-1;}
+          ( current)--;
         }}
 	break;
 	case 2:
@@ -539,32 +539,52 @@ _eof_trans:
         }}
 	break;
 	case 10:
-	{te = ( current)+1;{ if (!tokens.empty()) {( current)++; goto _out; } }}
+	{te = ( current)+1;{
+          if (!tokens.empty()) {( current)++; goto _out; }
+          current = te;
+          do
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
+          while (tokenize_url_email(tokens));
+          ( current)--;
+        }}
 	break;
 	case 11:
 	{te = ( current);( current)--;{ tokens.emplace_back(ts, te - ts);
           split_token(tokens);
           current = te;
           do
-            if (emergency_sentence_split(tokens)) {( current)++; goto _out; }
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
           while (tokenize_url_email(tokens));
-          {( current) = (( current))-1;}
+          ( current)--;
         }}
 	break;
 	case 8:
-	{te = ( current);( current)--;}
+	{te = ( current);( current)--;{
+          current = te;
+          do
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
+          while (tokenize_url_email(tokens));
+          ( current)--;
+        }}
 	break;
 	case 9:
-	{te = ( current);( current)--;{ if (!tokens.empty()) {( current)++; goto _out; } }}
+	{te = ( current);( current)--;{
+          if (!tokens.empty()) {( current)++; goto _out; }
+          current = te;
+          do
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
+          while (tokenize_url_email(tokens));
+          ( current)--;
+        }}
 	break;
 	case 1:
 	{{( current) = ((te))-1;}{ tokens.emplace_back(ts, te - ts);
           split_token(tokens);
           current = te;
           do
-            if (emergency_sentence_split(tokens)) {( current)++; goto _out; }
+            if (emergency_sentence_split(tokens)) { ( current)--; {( current)++; goto _out; } }
           while (tokenize_url_email(tokens));
-          {( current) = (( current))-1;}
+          ( current)--;
         }}
 	break;
 	}

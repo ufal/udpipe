@@ -53,9 +53,9 @@ bool generic_tokenizer::next_sentence(vector<token_range>& tokens) {
         { tokens.emplace_back(ts, te - ts);
           current = te;
           do
-            if (emergency_sentence_split(tokens)) fbreak;
+            if (emergency_sentence_split(tokens)) { fhold; fbreak; }
           while (tokenize_url_email(tokens));
-          fexec current;
+          fhold;
         };
 
       eos closing* whitespace+ >mark_whitespace opening* (u_Lu | u_Lt)
@@ -67,10 +67,24 @@ bool generic_tokenizer::next_sentence(vector<token_range>& tokens) {
           if (eos) fbreak;
         };
 
-      whitespace+ -- eol eol;
+      whitespace+ -- eol eol
+        {
+          current = te;
+          do
+            if (emergency_sentence_split(tokens)) { fhold; fbreak; }
+          while (tokenize_url_email(tokens));
+          fhold;
+        };
 
       eol eol
-        { if (!tokens.empty()) fbreak; };
+        {
+          if (!tokens.empty()) fbreak;
+          current = te;
+          do
+            if (emergency_sentence_split(tokens)) { fhold; fbreak; }
+          while (tokenize_url_email(tokens));
+          fhold;
+        };
     *|;
 
     write init;
