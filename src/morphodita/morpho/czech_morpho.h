@@ -27,7 +27,7 @@ class czech_morpho : public morpho {
   czech_morpho(morpho_language language, unsigned version) : language(language), version(version) {}
 
   virtual int analyze(string_piece form, morpho::guesser_mode guesser, vector<tagged_lemma>& lemmas) const override;
-  virtual int generate(string_piece lemma, const char* tag_wildcard, guesser_mode guesser, vector<tagged_lemma_forms>& forms) const;
+  virtual int generate(string_piece lemma, const char* tag_wildcard, guesser_mode guesser, vector<tagged_lemma_forms>& forms) const override;
   virtual int raw_lemma_len(string_piece lemma) const override;
   virtual int lemma_id_len(string_piece lemma) const override;
   virtual int raw_form_len(string_piece form) const override;
