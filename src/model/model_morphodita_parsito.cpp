@@ -18,25 +18,39 @@ namespace ufal {
 namespace udpipe {
 
 tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) const {
-  return new tokenizer_morphodita(this);
+  return tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer()) : nullptr;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
   error.clear();
 
-  if (!tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
+  if (!taggers.empty()) return error.assign("No tagger defined for the UDPipe model!"), false;
 
   tagger_cache* c = tagger_caches.pop();
   if (!c) c = new tagger_cache();
 
+  // Prepare input forms
   c->forms.clear();
   for (size_t i = 1; i < s.words.size(); i++)
     c->forms.emplace_back(s.words[i].form);
 
-  tagger->tag(c->forms, c->lemmas);
+  // Clear first
+  for (size_t i = 1; i < s.words.size(); i++) {
+    s.words[i].lemma.assign("_");
+    s.words[i].upostag.clear();
+    s.words[i].xpostag.clear();
+    s.words[i].feats.clear();
+  }
 
-  for (size_t i = 0; i < c->lemmas.size(); i++)
-    fill_word_analysis(c->lemmas[i], have_lemmas, s.words[i+1]);
+  // Fill information from the tagger models
+  for (auto&& tagger : taggers) {
+    if (!tagger.tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
+
+    tagger.tagger->tag(c->forms, c->lemmas);
+
+    for (size_t i = 0; i < c->lemmas.size(); i++)
+      fill_word_analysis(c->lemmas[i], tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats, s.words[i+1]);
+  }
 
   tagger_caches.push(c);
   return true;
@@ -83,14 +97,21 @@ model* model_morphodita_parsito::load(istream& is) {
   unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito());
   if (!m) return nullptr;
 
-  char tagger;
-  if (!is.get(tagger)) return nullptr;
+  char tokenizer;
+  if (!is.get(tokenizer)) return nullptr;
+  m->tokenizer_factory.reset(tokenizer ? morphodita::tokenizer_factory::load(is) : nullptr);
+  if (tokenizer && !m->tokenizer_factory) return nullptr;
 
-  char have_lemmas = 0;
-  if (tagger) if (!is.get(have_lemmas)) return nullptr;
-  m->have_lemmas = have_lemmas;
-  m->tagger.reset(tagger ? morphodita::tagger::load(is) : nullptr);
-  if (tagger && !m->tagger) return nullptr;
+  m->taggers.clear();
+  char taggers; if (!is.get(taggers)) return nullptr;
+  for (char i = 0; i < taggers; i++) {
+    char lemma; if (!is.get(lemma)) return nullptr;
+    char xpostag; if (!is.get(xpostag)) return nullptr;
+    char feats; if (!is.get(feats)) return nullptr;
+    morphodita::tagger* tagger = morphodita::tagger::load(is);
+    if (!tagger) return nullptr;
+    m->taggers.emplace_back(i == 0, bool(lemma), bool(xpostag), bool(feats), tagger);
+  }
 
   char parser;
   if (!is.get(parser)) return nullptr;
@@ -100,8 +121,8 @@ model* model_morphodita_parsito::load(istream& is) {
   return m.release();
 }
 
-model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(const model_morphodita_parsito* m)
-  : tokenizer(m->tagger->new_tokenizer()) {}
+model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer)
+  : tokenizer(tokenizer) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
@@ -126,19 +147,25 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   return false;
 }
 
-void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool have_lemmas, word& word) {
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, bool lemma, bool xpostag, bool feats, word& word){
   // Lemma
-  word.lemma.assign(have_lemmas ? analysis.lemma : "_");
+  if (lemma) word.lemma.assign(analysis.lemma);
+
+  if (!upostag && !xpostag && !feats) return;
 
   // UPOSTag
   char separator = analysis.tag[0];
   size_t start = min(size_t(1), analysis.tag.size()), end = min(analysis.tag.find(separator, 1), analysis.tag.size());
-  word.upostag.assign(analysis.tag, start, end - start);
+  if (upostag) word.upostag.assign(analysis.tag, start, end - start);
+
+  if (!xpostag && !feats) return;
 
   // XPOSTag
   start = min(end + 1, analysis.tag.size());
   end = min(analysis.tag.find(separator, start), analysis.tag.size());
-  word.xpostag.assign(analysis.tag, start, end - start);
+  if (xpostag) word.xpostag.assign(analysis.tag, start, end - start);
+
+  if (!feats) return;
 
   // Features
   start = min(end + 1, analysis.tag.size());

@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <sstream>
-#include <unordered_set>
 
 #include "model/model_morphodita_parsito.h"
 #include "morphodita/morpho/generic_morpho_encoder.h"
@@ -21,6 +20,9 @@
 #include "morphodita/tagger/perceptron_tagger_trainer.h"
 #include "morphodita/tagger/tagger_ids.h"
 #include "morphodita/tagger/tagger_trainer.h"
+#include "morphodita/tokenizer/tokenizer_ids.h"
+#include "morphodita/tokenizer/generic_tokenizer.h"
+#include "morphodita/tokenizer/generic_tokenizer_factory_encoder.h"
 #include "utils/options.h"
 #include "utils/parse_double.h"
 #include "utils/parse_int.h"
@@ -28,13 +30,12 @@
 #include "sentence/input_format.h"
 #include "sentence/sentence.h"
 #include "trainer_morphodita_parsito.h"
-#include "utils/named_values.h"
 #include "utils/split.h"
 
 namespace ufal {
 namespace udpipe {
 
-bool trainer_morphodita_parsito::train(const string& data, const string& /*tokenizer*/, const string& tagger, const string& parser, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
   error.clear();
 
   // Save model version info
@@ -52,300 +53,369 @@ bool trainer_morphodita_parsito::train(const string& data, const string& /*token
   // Check input data
   for (auto&& sentence : conllu)
     for (size_t i = 1; i < sentence.words.size(); i++)
-      if (!can_combine_tags(sentence.words[i], error))
+      if (!can_combine_tag(sentence.words[i], error))
         return false;
 
-  bool have_lemmas = false;
-  for (auto&& sentence : conllu)
-    for (size_t i = 1; !have_lemmas && i < sentence.words.size(); i++)
-      if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
-        have_lemmas = true;
+  if (!train_tokenizer(conllu, tokenizer, os, error)) return false;
+  if (!train_tagger(conllu, tagger, os, error)) return false;
+  if (!train_parser(conllu, parser, os, error)) return false;
 
-  if (tagger == "none") {
+  return true;
+}
+
+bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
+  if (options == "none") {
     os.put(0);
-  } else {
+  } else if (options == "generic") {
     os.put(1);
 
-    // Create MorphoDiTa model
-    named_values::map tagger_options;
-    if (!named_values::parse(tagger, tagger_options, error)) return false;
-
-    if (tagger_options.count("lemmas") && !parse_int(tagger_options["lemmas"], "tagger_lemmas")) have_lemmas = 0;
-    os.put(have_lemmas);
-
-    if (tagger_options.count("tagger_model")) {
-      // Use specified tagger model
-      cerr << "Using specified tagger model." << endl;
-      os << tagger_options["tagger_model"];
-    } else {
-      // Start by creating the morphological dictionary
-      stringstream morpho_description;
-      string combined_tag;
-
-      // Generic options
-      int upostag_only = 0;
-      if (tagger_options.count("upostag_only")) if (!parse_int(tagger_options["upostag_only"], "upostag_only", upostag_only, error)) return false;
-
-      if (tagger_options.count("dictionary_model")) {
-        // Use specified morphological dictionary
-        cerr << "Using specified morphological dictionary model." << endl;
-        morpho_description << tagger_options["dictionary_model"];
-      } else {
-        // Create the morphological dictionary and guesser from data
-        cerr << "Creating morphological dictionary from training data." << endl;
-
-        // Guesser options
-        int guesser_suffix_len = 4, guesser_suffix_rules = 10, guesser_prefixes_max = 4, guesser_prefix_min_count = 10, guesser_enrich_dictionary = 4;
-        if (tagger_options.count("guesser_suffix_len")) if (!parse_int(tagger_options["guesser_suffix_len"], "guesser_suffix_len", guesser_suffix_len, error)) return false;
-        if (tagger_options.count("guesser_suffix_rules")) if (!parse_int(tagger_options["guesser_suffix_rules"], "guesser_suffix_rules", guesser_suffix_rules, error)) return false;
-        if (tagger_options.count("guesser_prefixes_max")) if (!parse_int(tagger_options["guesser_prefixes_max"], "guesser_prefixes_max", guesser_prefixes_max, error)) return false;
-        if (tagger_options.count("guesser_prefix_min_count")) if (!parse_int(tagger_options["guesser_prefix_min_count"], "guesser_prefix_min_count", guesser_prefix_min_count, error)) return false;
-        if (tagger_options.count("guesser_enrich_dictionary")) if (!parse_int(tagger_options["guesser_enrich_dictionary"], "guesser_enrich_dictionary", guesser_enrich_dictionary, error)) return false;
-
-        // Dictionary options
-        int dictionary_suffix_len = 8;
-        if (tagger_options.count("dictionary_suffix_len")) if (!parse_int(tagger_options["dictionary_suffix_len"], "dictionary_suffix_len", dictionary_suffix_len, error)) return false;
-        if (tagger_options.count("dictionary_drop_lemmas")) {
-          vector<string> lemmas;
-          split(tagger_options["dictionary_drop_lemmas"], ',', lemmas);
-          unordered_set<string> lemmas_set(lemmas.begin(), lemmas.end());
-          for (auto&& sentence : conllu)
-            for (size_t i = 1; i < sentence.words.size(); i++)
-              if (lemmas_set.count(sentence.words[i].lemma))
-                sentence.words[i].lemma = sentence.words[i].form;
-        }
-
-        // Start by generating statistical guesser
-        stringstream guesser_description;
-        {
-          stringstream guesser_input;
-          for (auto&& sentence : conllu) {
-            for (size_t i = 1; i < sentence.words.size(); i++)
-              guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], upostag_only, combined_tag) << '\n';
-            guesser_input << '\n';
-          }
-          morphodita::morpho_statistical_guesser_trainer::train(guesser_input, guesser_suffix_len, guesser_suffix_rules, guesser_prefixes_max, guesser_prefix_min_count, guesser_description);
-        }
-
-        // Generate morphological dictionary data from the input
-        unordered_set<string> dictionary_entries;
-        {
-          string entry;
-          for (auto&& sentence : conllu)
-            for (size_t i = 1; i < sentence.words.size(); i++)
-              dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas)).append("\t").append(combine_tags(sentence.words[i], upostag_only, combined_tag)).append("\t").append(sentence.words[i].form));
-        }
-
-        morphodita::generic_morpho_encoder::tags dictionary_special_tags;
-        dictionary_special_tags.unknown_tag = "X";
-        dictionary_special_tags.number_tag = "NUM";
-        dictionary_special_tags.punctuation_tag = "PUNCT";
-        dictionary_special_tags.symbol_tag = "SYM";
-
-        // Enrich the dictionary if required
-        if (guesser_enrich_dictionary) {
-          // Create temporary morphology using only the guesser
-          stringstream empty_data, guesser_description_copy(guesser_description.str()), guesser_only_morphology;
-          guesser_only_morphology.put(morphodita::morpho_ids::GENERIC);
-          morphodita::generic_morpho_encoder::encode(empty_data, dictionary_suffix_len, dictionary_special_tags, guesser_description_copy, guesser_only_morphology);
-
-          unique_ptr<morphodita::morpho> guesser_only_morpho(morphodita::morpho::load(guesser_only_morphology));
-          if (!guesser_only_morpho) return error.assign("Cannot create temporary guesser-only morphology!"), false;
-
-          string entry;
-          unordered_set<string> analyzed_forms;
-          vector<morphodita::tagged_lemma> analyses;
-          for (auto&& sentence : conllu)
-            for (size_t i = 1; i < sentence.words.size(); i++) {
-              const auto& form = sentence.words[i].form;
-              if (!analyzed_forms.count(form)) {
-                guesser_only_morpho->analyze(form, morphodita::morpho::GUESSER, analyses);
-
-                int to_add = guesser_enrich_dictionary;
-                for (auto&& analyse : analyses) {
-                  entry.assign(analyse.lemma).push_back('\t');
-                  entry.append(analyse.tag).push_back('\t');
-                  entry.append(form);
-                  if (dictionary_entries.insert(entry).second)
-                    if (!--to_add)
-                      break;
-                }
-                analyzed_forms.insert(form);
-              }
-            }
-        }
-
-        // Create the dictionary
-        vector<string> sorted_dictionary(dictionary_entries.begin(), dictionary_entries.end());
-        sort(sorted_dictionary.begin(), sorted_dictionary.end());
-
-        stringstream morpho_input;
-        for (auto&& entry : sorted_dictionary)
-          morpho_input << entry << '\n';
-
-        morpho_description.put(morphodita::morpho_ids::GENERIC);
-        morphodita::generic_morpho_encoder::encode(morpho_input, dictionary_suffix_len, dictionary_special_tags, guesser_description, morpho_description);
-      }
-
-      // Measure dictionary accuracy if required
-      const string& dictionary_accuracy = tagger_options["dictionary_accuracy"];
-      if (!dictionary_accuracy.empty()) {
-        unique_ptr<morphodita::morpho> morpho(morphodita::morpho::load(morpho_description));
-        if (!morpho) return error.assign("Cannot create temporary morphology for evaluating accuracy!"), false;
-        morpho_description.seekg(0, ios::beg);
-
-        // Measure dictionary accuracy on given data
-        unsigned words = 0, total_analyses = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
-
-        word w;
-        vector<morphodita::tagged_lemma> analyses;
-        conllu_input_format->set_text(dictionary_accuracy.c_str());
-        for (sentence sentence; conllu_input_format->next_sentence(sentence, error); )
-          for (size_t i = 1; i < sentence.words.size(); i++) {
-            morpho->analyze(sentence.words[i].form, morphodita::morpho::GUESSER, analyses);
-            unsigned upostag_ok = 0, xpostag_ok = 0, feats_ok = 0, all_tags_ok = 0, lemma_ok = 0;
-            for (auto&& analysis : analyses) {
-              model_morphodita_parsito::fill_word_analysis(analysis, have_lemmas, w);
-              upostag_ok |= sentence.words[i].upostag == w.upostag;
-              xpostag_ok |= sentence.words[i].xpostag == w.xpostag;
-              feats_ok |= sentence.words[i].feats == w.feats;
-              all_tags_ok |= sentence.words[i].upostag == w.upostag && sentence.words[i].xpostag == w.xpostag && sentence.words[i].feats == w.feats;
-              lemma_ok |= !have_lemmas || sentence.words[i].lemma == w.lemma;
-            }
-            words++;
-            total_analyses += analyses.size();
-            upostag += upostag_ok;
-            xpostag += xpostag_ok;
-            feats += feats_ok;
-            all_tags += all_tags_ok;
-            lemma += lemma_ok;
-          }
-        if (!error.empty()) return false;
-
-        cerr << "Dictionary accuracy - forms: " << words << ", analyses per form: " << fixed << setprecision(2) << total_analyses / double(words)
-             << ", upostag: " << setprecision(1) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
-             << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
-      }
-
-      // Tagger options
-      morphodita::tagger_id tagger_id = morphodita::tagger_ids::CONLLU3;
-      if (tagger_options.count("order")) {
-        double tagger_order;
-        if (!parse_double(tagger_options["order"], "tagger_order", tagger_order, error)) return false;
-        if (tagger_order == 2) tagger_id = morphodita::tagger_ids::CONLLU2;
-        else if (tagger_order == 2.5) tagger_id = morphodita::tagger_ids::CONLLU2_3;
-        else if (tagger_order == 3) tagger_id = morphodita::tagger_ids::CONLLU3;
-        else return error.assign("The tagger_order can be only 2, 2.5 or 3, not '").append(tagger_options["order"]).append("'!"), false;
-      }
-      int tagger_iterations = 15, tagger_prune_features = 0, tagger_early_stopping = 1;
-      if (tagger_options.count("iterations")) if (!parse_int(tagger_options["iterations"], "tagger_iterations", tagger_iterations, error)) return false;
-      if (tagger_options.count("prune_features")) if (!parse_int(tagger_options["prune_features"], "tagger_prune_features", tagger_prune_features, error)) return false;
-      if (tagger_options.count("early_stopping")) if (!parse_int(tagger_options["early_stopping"], "tagger_early_stopping", tagger_early_stopping, error)) return false;
-      const string& tagger_feature_templates = tagger_options["templates"];
-      const string& tagger_heldout = tagger_options["heldout"];
-      const string& tagger_accuracy = tagger_options["accuracy"];
-      if (tagger_heldout.empty()) tagger_early_stopping = 0;
-
-      // Train the tagger
-      cerr << "Training tagger." << endl;
-      stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
-      for (auto&& sentence : conllu) {
-        for (size_t i = 1; i < sentence.words.size(); i++)
-          input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], upostag_only, combined_tag) << '\n';
-        input << '\n';
-      }
-
-      conllu_input_format->set_text(tagger_heldout.c_str());
-      for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
-        for (size_t i = 1; i < sentence.words.size(); i++)
-          heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i].form, sentence.words[i].lemma, have_lemmas) << '\t' << combine_tags(sentence.words[i], upostag_only, combined_tag) << '\n';
-        heldout_input << '\n';
-      }
-
-      stringstream tagger_description;
-      tagger_description.put(tagger_id);
-      morphodita::tagger_trainer<morphodita::perceptron_tagger_trainer<morphodita::train_feature_sequences<morphodita::conllu_elementary_features>>>::train(morphodita::tagger_ids::decoding_order(tagger_id), morphodita::tagger_ids::window_size(tagger_id), tagger_iterations, morpho_description, true, feature_templates_input, tagger_prune_features, input, heldout_input, tagger_early_stopping, tagger_description);
-
-      // Measure tagger accuracy if required
-      if (!tagger_accuracy.empty()) {
-        unique_ptr<morphodita::tagger> tagger(morphodita::tagger::load(tagger_description));
-        if (!tagger) return error.assign("Cannot create temporary tagger for evaluating accuracy!"), false;
-        tagger_description.seekg(0, ios::beg);
-
-        word w;
-        vector<string_piece> forms;
-        vector<morphodita::tagged_lemma> analyses;
-        int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
-        conllu_input_format->set_text(tagger_accuracy.c_str());
-        for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
-          forms.clear();
-          for (size_t i = 1; i < sentence.words.size(); i++)
-            forms.emplace_back(sentence.words[i].form);
-
-          tagger->tag(forms, analyses);
-
-          for (size_t i = 0; i < analyses.size(); i++) {
-            model_morphodita_parsito::fill_word_analysis(analyses[i], have_lemmas, w);
-            words++;
-            upostag += sentence.words[i+1].upostag == w.upostag;
-            xpostag += sentence.words[i+1].xpostag == w.xpostag;
-            feats += sentence.words[i+1].feats == w.feats;
-            all_tags += sentence.words[i+1].upostag == w.upostag && sentence.words[i+1].xpostag == w.xpostag && sentence.words[i+1].feats == w.feats;
-            lemma += !have_lemmas || sentence.words[i+1].lemma == w.lemma;
-          }
-        }
-        if (!error.empty()) return false;
-
-        cerr << "Tagger accuracy - forms: " << words << ", upostag: " << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
-             << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
-      }
-
-      os << tagger_description.rdbuf();
-    }
-  }
-
-  if (parser == "none") {
-    os.put(0);
+    os.put(morphodita::tokenizer_id::GENERIC);
+    morphodita::generic_tokenizer_factory_encoder::encode(morphodita::generic_tokenizer::LATEST, os);
   } else {
-    os.put(1);
+    // Tokenizer options
+    named_values::map tokenizer;
+    if (!named_values::parse(options, tokenizer, error)) return false;
 
-    // Create Parsito model
-    named_values::map parser_options;
-    if (!named_values::parse(parser, parser_options, error)) return false;
-
-    if (parser_options.count("parser_model")) {
-      // Use specified parser model
-      cerr << "Using specified parser model." << endl;
-      os << parser_options["parser_model"];
+    if (tokenizer.count("model")) {
+      // Use specified tokenizer model
+      cerr << "Using specified tokenizer model." << endl;
+      // TODO
     } else {
-      // Parsito options
-      if (!parser_options.count("transition_system")) return error.assign("Parser option transition_system must be specified!"), false;
-      string transition_system = parser_options["transition_system"];
-      if (!parser_options.count("transition_oracle")) return error.assign("Parser option transition_oracle must be specified!"), false;
-      string transition_oracle = parser_options["transition_oracle"];
-      if (!parser_options.count("embeddings")) return error.assign("Parser option embeddings must be specified!"), false;
-      string embeddings = parser_options["embeddings"];
-      if (!parser_options.count("nodes")) return error.assign("Parser option nodes must be specified!"), false;
-      string nodes = parser_options["nodes"];
-
-      int iterations = 10, hidden_layer = 200, structured_interval = 8, batch_size = 10;
-      double learning_rate = 0.01, learning_rate_final = 0.001, l2_regularization = 0.3;
-      if (parser_options.count("iterations")) if (!parse_int(parser_options["iterations"], "iterations", iterations, error)) return false;
-      if (parser_options.count("hidden_layer")) if (!parse_int(parser_options["hidden_layer"], "hidden_layer", hidden_layer, error)) return false;
-      if (parser_options.count("structured_interval")) if (!parse_int(parser_options["structured_interval"], "structured_interval", structured_interval, error)) return false;
-      if (parser_options.count("batch_size")) if (!parse_int(parser_options["batch_size"], "batch_size", batch_size, error)) return false;
-      if (parser_options.count("learning_rate")) if (!parse_double(parser_options["learning_rate"], "learning_rate", learning_rate, error)) return false;
-      if (parser_options.count("learning_rate_final")) if (!parse_double(parser_options["learning_rate_final"], "learning_rate_final", learning_rate_final, error)) return false;
-      if (parser_options.count("l2_regularization")) if (!parse_double(parser_options["l2_regularization"], "l2_regularization", l2_regularization, error)) return false;
+      error.assign("Trainable tokenizer not implemented yet!");
+      return false;
     }
   }
 
   return true;
 }
 
-const string trainer_morphodita_parsito::tag_separators = "~!@#$%^&*()/";
+bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error) {
+  if (options == "none") {
+    os.put(0);
+  } else {
+    // Parse options
+    named_values::map tagger;
+    if (!named_values::parse(options, tagger, error)) return false;
 
-bool trainer_morphodita_parsito::can_combine_tags(const word& w, string& error) {
+    if (tagger.count("model")) {
+      // Use specified tagger model
+      cerr << "Using specified tagger model." << endl;
+      // TODO
+    } else {
+      // Create MorphoDiTa model(s)
+      int models = 2; if (!option_int(tagger, "models", models, error)) return false;
+      if (models <= 0) return error.assign("Number of tagger models cannot be negative or zero!"), false;
+      if (models > 4) return error.assign("Cannot create more than four tagger models!"), false;
+
+      os.put(models);
+      for (int model = 0; model < models; model++)
+        if (!train_tagger_model(data, model, models, tagger, os, error))
+          return false;
+    }
+  }
+
+  return true;
+}
+
+bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data, unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error) {
+  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
+
+  bool have_lemma = false;
+  for (auto&& sentence : data)
+    for (size_t i = 1; !have_lemma && i < sentence.words.size(); i++)
+      if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
+        have_lemma = true;
+
+  bool use_lemma = model == 1 || models == 1; if (!option_bool_indexed(tagger, model, "use_lemma", use_lemma, error)) return false;
+  bool use_xpostag = model == 0; if (!option_bool_indexed(tagger, model, "use_xpostag", use_xpostag, error)) return false;
+  bool use_feats = model == 0; if (!option_bool_indexed(tagger, model, "use_feats", use_feats, error)) return false;
+  use_lemma = use_lemma && have_lemma;
+
+  bool provide_lemma = model == 1 || models == 1; if (!option_bool_indexed(tagger, model, "provide_lemma", provide_lemma, error)) return false;
+  bool provide_xpostag = model == 0; if (!option_bool_indexed(tagger, model, "provide_xpostag", provide_xpostag, error)) return false;
+  bool provide_feats = model == 0; if (!option_bool_indexed(tagger, model, "provide_feats", provide_feats, error)) return false;
+  os.put(char(provide_lemma && use_lemma));
+  os.put(char(provide_xpostag && use_xpostag));
+  os.put(char(provide_feats && use_feats));
+
+  // Start by creating the morphological dictionary
+  stringstream morpho_description;
+  string combined_tag;
+
+  // Generic options
+  const string& dictionary = option_str_indexed(tagger, model, "dictionary_model");
+  if (!dictionary.empty()) {
+    // Use specified morphological dictionary
+    cerr << "Using given morphological dictionary for tagger model " << model+1 << "." << endl;
+    morpho_description << dictionary;
+  } else {
+    // Create the morphological dictionary and guesser from data
+    cerr << "Creating morphological dictionary for tagger model " << model+1 << "." << endl;
+
+    // Guesser options
+    int guesser_suffix_len = 4; if (!option_int_indexed(tagger, model, "guesser_suffix_len", guesser_suffix_len, error)) return false;
+    int guesser_suffix_rules = 8; if (!option_int_indexed(tagger, model, "guesser_suffix_rules", guesser_suffix_rules, error)) return false;
+    int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int_indexed(tagger, model, "guesser_prefixes_max", guesser_prefixes_max, error)) return false;
+    int guesser_prefix_min_count = 10; if (!option_int_indexed(tagger, model, "guesser_prefix_min_count", guesser_prefix_min_count, error)) return false;
+    int guesser_enrich_dictionary = 6; if (!option_int_indexed(tagger, model, "guesser_enrich_dictionary", guesser_enrich_dictionary, error)) return false;
+
+    // Dictionary options
+    int dictionary_suffix_len = 8; if (!option_int_indexed(tagger, model, "dictionary_suffix_len", dictionary_suffix_len, error)) return false;
+    unordered_set<string> drop_lemmas;
+    if (!option_str_indexed(tagger, model, "dictionary_drop_lemmas").empty()) {
+      vector<string> lemmas;
+      split(option_str_indexed(tagger, model, "dictionary_drop_lemmas"), ',', lemmas);
+      drop_lemmas.insert(lemmas.begin(), lemmas.end());
+    }
+
+    // Start by generating statistical guesser
+    stringstream guesser_description;
+    {
+      stringstream guesser_input;
+      for (auto&& sentence : data) {
+        for (size_t i = 1; i < sentence.words.size(); i++)
+          guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, drop_lemmas) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+        guesser_input << '\n';
+      }
+      morphodita::morpho_statistical_guesser_trainer::train(guesser_input, guesser_suffix_len, guesser_suffix_rules, guesser_prefixes_max, guesser_prefix_min_count, guesser_description);
+    }
+
+    // Generate morphological dictionary data from the input
+    unordered_set<string> dictionary_entries;
+    {
+      string entry;
+      for (auto&& sentence : data)
+        for (size_t i = 1; i < sentence.words.size(); i++)
+          dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i], use_lemma, drop_lemmas)).append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag)).append("\t").append(sentence.words[i].form));
+    }
+
+    morphodita::generic_morpho_encoder::tags dictionary_special_tags;
+    dictionary_special_tags.unknown_tag = "X";
+    dictionary_special_tags.number_tag = "NUM";
+    dictionary_special_tags.punctuation_tag = "PUNCT";
+    dictionary_special_tags.symbol_tag = "SYM";
+
+    // Enrich the dictionary if required
+    if (guesser_enrich_dictionary) {
+      // Create temporary morphology using only the guesser
+      stringstream empty_data, guesser_description_copy(guesser_description.str()), guesser_only_morphology;
+      guesser_only_morphology.put(morphodita::morpho_ids::GENERIC);
+      morphodita::generic_morpho_encoder::encode(empty_data, dictionary_suffix_len, dictionary_special_tags, guesser_description_copy, guesser_only_morphology);
+
+      unique_ptr<morphodita::morpho> guesser_only_morpho(morphodita::morpho::load(guesser_only_morphology));
+      if (!guesser_only_morpho) return error.assign("Cannot create temporary guesser-only morphology!"), false;
+
+      string entry;
+      unordered_set<string> analyzed_forms;
+      vector<morphodita::tagged_lemma> analyses;
+      for (auto&& sentence : data)
+        for (size_t i = 1; i < sentence.words.size(); i++) {
+          const auto& form = sentence.words[i].form;
+          if (!analyzed_forms.count(form)) {
+            guesser_only_morpho->analyze(form, morphodita::morpho::GUESSER, analyses);
+
+            int to_add = guesser_enrich_dictionary;
+            for (auto&& analyse : analyses) {
+              entry.assign(analyse.lemma).push_back('\t');
+              entry.append(analyse.tag).push_back('\t');
+              entry.append(form);
+              if (dictionary_entries.insert(entry).second)
+                if (!--to_add)
+                  break;
+            }
+            analyzed_forms.insert(form);
+          }
+        }
+    }
+
+    // Create the dictionary
+    vector<string> sorted_dictionary(dictionary_entries.begin(), dictionary_entries.end());
+    sort(sorted_dictionary.begin(), sorted_dictionary.end());
+
+    stringstream morpho_input;
+    for (auto&& entry : sorted_dictionary)
+      morpho_input << entry << '\n';
+
+    morpho_description.put(morphodita::morpho_ids::GENERIC);
+    morphodita::generic_morpho_encoder::encode(morpho_input, dictionary_suffix_len, dictionary_special_tags, guesser_description, morpho_description);
+  }
+
+  // Measure dictionary accuracy if required
+  const string& dictionary_accuracy = option_str_indexed(tagger, model, "dictionary_accuracy");
+  if (!dictionary_accuracy.empty()) {
+    unique_ptr<morphodita::morpho> morpho(morphodita::morpho::load(morpho_description));
+    if (!morpho) return error.assign("Cannot create temporary morphology for evaluating accuracy!"), false;
+    morpho_description.seekg(0, ios::beg);
+
+    // Measure dictionary accuracy on given data
+    unsigned words = 0, total_analyses = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
+
+    word w;
+    vector<morphodita::tagged_lemma> analyses;
+    conllu_input_format->set_text(dictionary_accuracy.c_str());
+    for (sentence sentence; conllu_input_format->next_sentence(sentence, error); )
+      for (size_t i = 1; i < sentence.words.size(); i++) {
+        morpho->analyze(sentence.words[i].form, morphodita::morpho::GUESSER, analyses);
+        unsigned upostag_ok = 0, xpostag_ok = 0, feats_ok = 0, all_tags_ok = 0, lemma_ok = 0;
+        for (auto&& analysis : analyses) {
+          w.lemma.assign("_");
+          model_morphodita_parsito::fill_word_analysis(analysis, true, have_lemma, true, true, w);
+          upostag_ok |= sentence.words[i].upostag == w.upostag;
+          xpostag_ok |= sentence.words[i].xpostag == w.xpostag;
+          feats_ok |= sentence.words[i].feats == w.feats;
+          all_tags_ok |= sentence.words[i].upostag == w.upostag && sentence.words[i].xpostag == w.xpostag && sentence.words[i].feats == w.feats;
+          lemma_ok |= sentence.words[i].lemma == w.lemma;
+        }
+        words++;
+        total_analyses += analyses.size();
+        upostag += upostag_ok;
+        xpostag += xpostag_ok;
+        feats += feats_ok;
+        all_tags += all_tags_ok;
+        lemma += lemma_ok;
+      }
+    if (!error.empty()) return false;
+
+    cerr << "Dictionary accuracy for tagging model " << model+1 << " - forms: " << words
+         << ", analyses per form: " << fixed << setprecision(2) << total_analyses / double(words)
+         << ", upostag: " << setprecision(1) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
+         << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
+  }
+
+  // Tagger options
+  morphodita::tagger_id tagger_id = morphodita::tagger_ids::CONLLU3;
+  if (!option_str_indexed(tagger, model, "order").empty()) {
+    double tagger_order;
+    if (!parse_double(option_str_indexed(tagger, model, "order"), "order", tagger_order, error)) return false;
+    if (tagger_order == 2) tagger_id = morphodita::tagger_ids::CONLLU2;
+    else if (tagger_order == 2.5) tagger_id = morphodita::tagger_ids::CONLLU2_3;
+    else if (tagger_order == 3) tagger_id = morphodita::tagger_ids::CONLLU3;
+    else return error.assign("The tagger_order can be only 2, 2.5 or 3!"), false;
+  }
+  int tagger_iterations = 20; if (!option_int_indexed(tagger, model, "iterations", tagger_iterations, error)) return false;
+  bool tagger_prune_features = false; if (!option_bool_indexed(tagger, model, "prune_features", tagger_prune_features, error)) return false;
+  bool tagger_early_stopping = true; if (!option_bool_indexed(tagger, model, "early_stopping", tagger_early_stopping, error)) return false;
+  const string& tagger_feature_templates =
+      option_str_indexed(tagger, model, "templates") == "tagger" ? tagger_features_tagger :
+      option_str_indexed(tagger, model, "templates") == "lemmatizer" ? tagger_features_lemmatizer :
+      option_str_indexed(tagger, model, "templates");
+  const string& tagger_heldout = option_str_indexed(tagger, model, "heldout");
+  if (tagger_heldout.empty()) tagger_early_stopping = false;
+  const string& tagger_accuracy = option_str_indexed(tagger, model, "accuracy");
+
+  // Train the tagger
+  cerr << "Training tagger model " << model+1 << "." << endl;
+  stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
+  for (auto&& sentence : data) {
+    for (size_t i = 1; i < sentence.words.size(); i++)
+      input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+    input << '\n';
+  }
+
+  conllu_input_format->set_text(tagger_heldout.c_str());
+  for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
+    for (size_t i = 1; i < sentence.words.size(); i++)
+      heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+    heldout_input << '\n';
+  }
+
+  stringstream tagger_description;
+  tagger_description.put(tagger_id);
+  morphodita::tagger_trainer<morphodita::perceptron_tagger_trainer<morphodita::train_feature_sequences<morphodita::conllu_elementary_features>>>::train(morphodita::tagger_ids::decoding_order(tagger_id), morphodita::tagger_ids::window_size(tagger_id), tagger_iterations, morpho_description, true, feature_templates_input, tagger_prune_features, input, heldout_input, tagger_early_stopping, tagger_description);
+
+  // Measure tagger accuracy if required
+  if (!tagger_accuracy.empty()) {
+    unique_ptr<morphodita::tagger> tagger(morphodita::tagger::load(tagger_description));
+    if (!tagger) return error.assign("Cannot create temporary tagger for evaluating accuracy!"), false;
+    tagger_description.seekg(0, ios::beg);
+
+    word w;
+    vector<string_piece> forms;
+    vector<morphodita::tagged_lemma> analyses;
+    int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
+    conllu_input_format->set_text(tagger_accuracy.c_str());
+    for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
+      forms.clear();
+      for (size_t i = 1; i < sentence.words.size(); i++)
+        forms.emplace_back(sentence.words[i].form);
+
+      tagger->tag(forms, analyses);
+
+      for (size_t i = 0; i < analyses.size(); i++) {
+        w.lemma.assign("_");
+        model_morphodita_parsito::fill_word_analysis(analyses[i], true, have_lemma, true, true, w);
+        words++;
+        upostag += sentence.words[i+1].upostag == w.upostag;
+        xpostag += sentence.words[i+1].xpostag == w.xpostag;
+        feats += sentence.words[i+1].feats == w.feats;
+        all_tags += sentence.words[i+1].upostag == w.upostag && sentence.words[i+1].xpostag == w.xpostag && sentence.words[i+1].feats == w.feats;
+        lemma += sentence.words[i+1].lemma == w.lemma;
+      }
+    }
+    if (!error.empty()) return false;
+
+    cerr << "Tagger accuracy for model " << models+1 << " - forms: " << words
+         << ", upostag: " << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
+         << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
+  }
+
+  os << tagger_description.rdbuf();
+
+  return true;
+}
+
+bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
+  if (options == "none") {
+    os.put(0);
+  } else {
+    // Create Parsito model
+    named_values::map parser;
+    if (!named_values::parse(options, parser, error)) return false;
+
+    if (parser.count("model")) {
+      // Use specified parser model
+      cerr << "Using specified parser model." << endl;
+      // TODO
+    } else {
+      os.put(1);
+
+      // Parsito options
+      string transition_system = parser.count("transition_system") ? parser["transition_system"] : "projective";
+      string transition_oracle = parser.count("transition_oracle") ? parser["transition_oracle"] :
+          transition_system == "projective" ? "dynamic" :
+          transition_system == "swap" ? "static_lazy" :
+          "static";
+
+      int embedding_upostag = 20; if (!option_int(parser, "embedding_upostag", embedding_upostag, error)) return false;
+      int embedding_feats = 20; if (!option_int(parser, "embedding_feats", embedding_feats, error)) return false;
+      int embedding_xpostag = 0; if (!option_int(parser, "embedding_xpostag", embedding_xpostag, error)) return false;
+      int embedding_form = 50; if (!option_int(parser, "embedding_form", embedding_form, error)) return false;
+      int embedding_lemma = 0; if (!option_int(parser, "embedding_lemma", embedding_lemma, error)) return false;
+      int embedding_deprel = 20; if (!option_int(parser, "embedding_deprel", embedding_deprel, error)) return false;
+      string embeddings;
+      if (embedding_upostag) embeddings.append("universal_tag ").append(to_string(embedding_upostag)).append(" 1\n");
+      if (embedding_feats) embeddings.append("feats ").append(to_string(embedding_feats)).append(" 1\n");
+      if (embedding_xpostag) embeddings.append("tag ").append(to_string(embedding_xpostag)).append(" 1\n");
+      if (embedding_form) embeddings.append("form ").append(to_string(embedding_form)).append(" 1\n");
+      if (embedding_lemma) embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 1\n");
+      if (embedding_deprel) embeddings.append("deprel ").append(to_string(embedding_deprel)).append(" 1\n");
+
+      int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
+      int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
+      int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
+      int structured_interval = 8; if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
+      double learning_rate = 0.01; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
+      double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
+      double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
+
+      // Train the parser
+    }
+  }
+
+  return true;
+}
+
+bool trainer_morphodita_parsito::can_combine_tag(const word& w, string& error) {
   error.clear();
 
   unsigned separator = 0;
@@ -360,7 +430,7 @@ bool trainer_morphodita_parsito::can_combine_tags(const word& w, string& error) 
   return true;
 }
 
-const string& trainer_morphodita_parsito::combine_tags(const word& w, bool upostag_only, string& combined_tag) {
+const string& trainer_morphodita_parsito::combine_tag(const word& w, bool xpostag, bool feats, string& combined_tag) {
   unsigned separator = 0;
   while (separator < tag_separators.size() &&
          (w.upostag.find(tag_separators[separator]) != string::npos || w.xpostag.find(tag_separators[separator]) != string::npos))
@@ -370,18 +440,212 @@ const string& trainer_morphodita_parsito::combine_tags(const word& w, bool upost
 
   combined_tag.assign(1, tag_separators[separator]);
   combined_tag.append(w.upostag);
-  if (!upostag_only) {
+  if (xpostag || feats) {
     combined_tag.push_back(tag_separators[separator]);
-    combined_tag.append(w.xpostag).push_back(tag_separators[separator]);
-    combined_tag.append(w.feats);
+    if (xpostag) combined_tag.append(w.xpostag);
+    if (feats) combined_tag.push_back(tag_separators[separator]);
+    if (feats) combined_tag.append(w.feats);
   }
 
   return combined_tag;
 }
 
-const string& trainer_morphodita_parsito::combine_lemma(const string& form, const string& lemma, bool have_lemmas) {
-  return have_lemmas ? lemma : form;
+const string& trainer_morphodita_parsito::combine_lemma(const word& w, bool use_lemma, const unordered_set<string>& drop_lemmas) {
+  return use_lemma && !drop_lemmas.count(w.lemma) ? w.lemma : w.form;
 }
+
+const string& trainer_morphodita_parsito::option_str_indexed(const named_values::map& options, int model, const string& name) {
+  string indexed_name(name);
+  indexed_name.push_back('_');
+  indexed_name.push_back('1' + model);
+
+  return options.count(indexed_name) ? options.at(indexed_name) : options.count(name) ? options.at(name) : empty_string;
+}
+
+bool trainer_morphodita_parsito::option_int(const named_values::map& options, const string& name, int& value, string& error) {
+  return options.count(name) ? parse_int(options.at(name), name.c_str(), value, error) : true;
+}
+
+bool trainer_morphodita_parsito::option_int_indexed(const named_values::map& options, int model, const string& name, int& value, string& error) {
+  string indexed_name(name);
+  indexed_name.push_back('_');
+  indexed_name.push_back('1' + model);
+
+  if (options.count(indexed_name))
+    return parse_int(options.at(indexed_name), name.c_str(), value, error);
+  if (options.count(name))
+    return parse_int(options.at(name), name.c_str(), value, error);
+  return true;
+}
+
+bool trainer_morphodita_parsito::option_bool(const named_values::map& options, const string& name, bool& value, string& error) {
+  if (options.count(name)) {
+    int int_value;
+    if (!parse_int(options.at(name), name.c_str(), int_value, error))
+      return false;
+    value = int_value != 0;
+  }
+  return true;
+}
+
+bool trainer_morphodita_parsito::option_bool_indexed(const named_values::map& options, int model, const string& name, bool& value, string& error) {
+  string indexed_name(name);
+  indexed_name.push_back('_');
+  indexed_name.push_back('1' + model);
+
+  if (options.count(indexed_name) || options.count(name)) {
+    int int_value;
+    if (!parse_int(options.count(indexed_name) ? options.at(indexed_name) : options.at(name), name.c_str(), int_value, error))
+      return false;
+    value = int_value != 0;
+  }
+  return true;
+}
+
+bool trainer_morphodita_parsito::option_double(const named_values::map& options, const string& name, double& value, string& error) {
+  return options.count(name) ? parse_double(options.at(name), name.c_str(), value, error) : true;
+}
+
+const string trainer_morphodita_parsito::empty_string;
+
+const string trainer_morphodita_parsito::tag_separators = "~!@#$%^&*()/";
+
+const string trainer_morphodita_parsito::tagger_features_tagger =
+  "Tag 0\n"
+  "Tag 0,Tag -1\n"
+  "Tag 0,TagUPos -1\n"
+  "Tag 0,Tag -1,Tag -2\n"
+  "Tag 0,TagUPos -1,TagUPos -2\n"
+  "Tag 0,Tag -2\n"
+  "Tag 0,Form 0\n"
+  "Tag 0,Form 0,Form -1\n"
+  "Tag 0,Form -1\n"
+  "Tag 0,Form -2\n"
+  "Tag 0,Form -1,Form -2\n"
+  "Tag 0,Form 1\n"
+  "Tag 0,Form 1,Form 2\n"
+  "Tag 0,PreviousVerbTag 0\n"
+  "Tag 0,PreviousVerbForm 0\n"
+  "Tag 0,FollowingVerbTag 0\n"
+  "Tag 0,FollowingVerbForm 0\n"
+  "Tag 0,Lemma -1\n"
+  "Tag 0,Form 1\n"
+  "Lemma 0,Tag -1\n"
+  "Tag 0,Prefix1 0\n"
+  "Tag 0,Prefix2 0\n"
+  "Tag 0,Prefix3 0\n"
+  "Tag 0,Prefix4 0\n"
+  "Tag 0,Prefix5 0\n"
+  "Tag 0,Prefix6 0\n"
+  "Tag 0,Prefix7 0\n"
+  "Tag 0,Prefix8 0\n"
+  "Tag 0,Prefix9 0\n"
+  "Tag 0,Suffix1 0\n"
+  "Tag 0,Suffix2 0\n"
+  "Tag 0,Suffix3 0\n"
+  "Tag 0,Suffix4 0\n"
+  "Tag 0,Suffix5 0\n"
+  "Tag 0,Suffix6 0\n"
+  "Tag 0,Suffix7 0\n"
+  "Tag 0,Suffix8 0\n"
+  "Tag 0,Suffix9 0\n"
+  "TagUPos 0\n"
+  "TagUPos 0,TagUPos -1\n"
+  "TagUPos 0,TagUPos -1,TagUPos -2\n"
+  "TagCase 0,TagCase -1\n"
+  "TagCase 0,TagCase -1,TagCase -2\n"
+  "TagGender 0,TagGender -1\n"
+  "TagGender 0,TagGender -1,TagGender -2\n"
+  "TagUPos 0,Prefix1 0\n"
+  "TagUPos 0,Prefix2 0\n"
+  "TagUPos 0,Prefix3 0\n"
+  "TagUPos 0,Prefix4 0\n"
+  "TagUPos 0,Prefix5 0\n"
+  "TagUPos 0,Prefix6 0\n"
+  "TagUPos 0,Prefix7 0\n"
+  "TagUPos 0,Prefix8 0\n"
+  "TagUPos 0,Prefix9 0\n"
+  "TagUPos 0,Suffix1 0\n"
+  "TagUPos 0,Suffix2 0\n"
+  "TagUPos 0,Suffix3 0\n"
+  "TagUPos 0,Suffix4 0\n"
+  "TagUPos 0,Suffix5 0\n"
+  "TagUPos 0,Suffix6 0\n"
+  "TagUPos 0,Suffix7 0\n"
+  "TagUPos 0,Suffix8 0\n"
+  "TagUPos 0,Suffix9 0\n"
+  "Tag 0,Num 0\n"
+  "Tag 0,Cap 0\n"
+  "Tag 0,Dash 0\n"
+  "TagNegative 0,Prefix1 0\n"
+  "TagNegative 0,Prefix2 0\n"
+  "TagNegative 0,Prefix3 0\n"
+  "TagCase 0,Suffix1 0\n"
+  "TagCase 0,Suffix2 0\n"
+  "TagCase 0,Suffix3 0\n"
+  "TagCase 0,Suffix4 0\n"
+  "TagCase 0,Suffix5 0\n";
+
+const string trainer_morphodita_parsito::tagger_features_lemmatizer =
+  "Tag 0\n"
+  "Tag 0,Tag -1\n"
+  "Tag 0,Tag -1,Tag -2\n"
+  "Tag 0,Tag -2\n"
+  "Tag 0,Form 0\n"
+  "Tag 0,Form 0,Form -1\n"
+  "Tag 0,Form -1\n"
+  "Tag 0,Form -2\n"
+  "Tag 0,PreviousVerbTag 0\n"
+  "Tag 0,PreviousVerbForm 0\n"
+  "Tag 0,FollowingVerbTag 0\n"
+  "Tag 0,FollowingVerbForm 0\n"
+  "Tag 0,Lemma -1\n"
+  "Tag 0,Form 1\n"
+  "Lemma 0\n"
+  "Lemma 0,Tag -1\n"
+  "Lemma 0,Tag -1,Tag -2\n"
+  "Lemma 0,Tag -2\n"
+  "Lemma 0,Form -1\n"
+  "Lemma 0,Form -1,Form -2\n"
+  "Lemma 0,Form -2\n"
+  "Lemma 0,PreviousVerbTag 0\n"
+  "Lemma 0,PreviousVerbForm 0\n"
+  "Lemma 0,FollowingVerbTag 0\n"
+  "Lemma 0,FollowingVerbForm 0\n"
+  "Lemma 0,Form 1\n"
+  "Tag 0,Prefix1 0\n"
+  "Tag 0,Prefix2 0\n"
+  "Tag 0,Prefix3 0\n"
+  "Tag 0,Prefix4 0\n"
+  "Tag 0,Prefix5 0\n"
+  "Tag 0,Suffix1 0\n"
+  "Tag 0,Suffix2 0\n"
+  "Tag 0,Suffix3 0\n"
+  "Tag 0,Suffix4 0\n"
+  "Tag 0,Suffix5 0\n"
+  "Tag 0,Num 0\n"
+  "Tag 0,Cap 0\n"
+  "Tag 0,Dash 0\n";
+
+const string trainer_morphodita_parsito::parser_nodes =
+  "stack 0\n"
+  "stack 1\n"
+  "stack 2\n"
+  "buffer 0\n"
+  "buffer 1\n"
+  "buffer 2\n"
+  "stack 0,child 0\n"
+  "stack 0,child 1\n"
+  "stack 0,child -2\n"
+  "stack 0,child -1\n"
+  "stack 1,child 0\n"
+  "stack 1,child 1\n"
+  "stack 1,child -2\n"
+  "stack 1,child -1\n"
+  "stack 0,child 0,child 0\n"
+  "stack 0,child -1,child -1\n"
+  "stack 1,child 0,child 0\n"
+  "stack 1,child -1,child -1\n";
 
 } // namespace udpipe
 } // namespace ufal

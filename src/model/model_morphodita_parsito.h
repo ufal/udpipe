@@ -12,6 +12,7 @@
 #include "common.h"
 #include "model.h"
 #include "morphodita/tokenizer/tokenizer.h"
+#include "morphodita/tokenizer/tokenizer_factory.h"
 #include "morphodita/tagger/tagger.h"
 #include "parsito/parser/parser.h"
 #include "utils/named_values.h"
@@ -26,17 +27,23 @@ class model_morphodita_parsito : public model {
   virtual bool tag(sentence& s, const string& options, string& error) const override;
   virtual bool parse(sentence& s, const string& options, string& error) const override;
 
- private:
   static model* load(istream& is);
-  friend class model;
+ private:
 
-  bool have_lemmas;
-  unique_ptr<morphodita::tagger> tagger;
+  unique_ptr<morphodita::tokenizer_factory> tokenizer_factory;
+  struct tagger_model {
+    bool upostag, lemma, xpostag, feats;
+    unique_ptr<morphodita::tagger> tagger;
+
+    tagger_model(bool upostag, bool lemma, bool xpostag, bool feats, morphodita::tagger* tagger)
+        : upostag(upostag), lemma(lemma), xpostag(xpostag), feats(feats), tagger(tagger) {}
+  };
+  vector<tagger_model> taggers;
   unique_ptr<parsito::parser> parser;
 
   class tokenizer_morphodita : public tokenizer {
    public:
-    tokenizer_morphodita(const model_morphodita_parsito* m);
+    tokenizer_morphodita(morphodita::tokenizer* tokenizer);
 
     virtual bool read_block(istream& is, string& block) const override;
     virtual void set_text(string_piece text, bool make_copy = false) override;
@@ -59,7 +66,7 @@ class model_morphodita_parsito : public model {
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 
-  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool have_lemmas, word& word);
+  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, bool lemma, bool xpostag, bool feats, word& word);
   friend class trainer_morphodita_parsito;
 };
 
