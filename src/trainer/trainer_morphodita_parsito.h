@@ -32,12 +32,10 @@ class trainer_morphodita_parsito {
   static const string& combine_tag(const word& w, bool xpostag, bool feats, string& combined_tag);
   static const string& combine_lemma(const word& w, bool use_lemma, const unordered_set<string>& drop_lemmas = unordered_set<string>());
 
-  static const string& option_str_indexed(const named_values::map& options, int model, const string& name);
-  static bool option_int(const named_values::map& options, const string& name, int& value, string& error);
-  static bool option_int_indexed(const named_values::map& options, int model, const string& name, int& value, string& error);
-  static bool option_bool(const named_values::map& options, const string& name, bool& value, string& error);
-  static bool option_bool_indexed(const named_values::map& options, int model, const string& name, bool& value, string& error);
-  static bool option_double(const named_values::map& options, const string& name, double& value, string& error);
+  static const string& option_str(const named_values::map& options, const string& name, int model = -1);
+  static bool option_int(const named_values::map& options, const string& name, int& value, string& error, int model = -1);
+  static bool option_bool(const named_values::map& options, const string& name, bool& value, string& error, int model = -1);
+  static bool option_double(const named_values::map& options, const string& name, double& value, string& error, int model = -1);
 
   static const string empty_string;
   static const string tag_separators;

@@ -126,14 +126,14 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
       if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
         have_lemma = true;
 
-  bool use_lemma = model == 1 || models == 1; if (!option_bool_indexed(tagger, model, "use_lemma", use_lemma, error)) return false;
-  bool use_xpostag = model == 0; if (!option_bool_indexed(tagger, model, "use_xpostag", use_xpostag, error)) return false;
-  bool use_feats = model == 0; if (!option_bool_indexed(tagger, model, "use_feats", use_feats, error)) return false;
+  bool use_lemma = model == 1 || models == 1; if (!option_bool(tagger, "use_lemma", use_lemma, error, model)) return false;
+  bool use_xpostag = model == 0; if (!option_bool(tagger, "use_xpostag", use_xpostag, error, model)) return false;
+  bool use_feats = model == 0; if (!option_bool(tagger, "use_feats", use_feats, error, model)) return false;
   use_lemma = use_lemma && have_lemma;
 
-  bool provide_lemma = model == 1 || models == 1; if (!option_bool_indexed(tagger, model, "provide_lemma", provide_lemma, error)) return false;
-  bool provide_xpostag = model == 0; if (!option_bool_indexed(tagger, model, "provide_xpostag", provide_xpostag, error)) return false;
-  bool provide_feats = model == 0; if (!option_bool_indexed(tagger, model, "provide_feats", provide_feats, error)) return false;
+  bool provide_lemma = model == 1 || models == 1; if (!option_bool(tagger, "provide_lemma", provide_lemma, error, model)) return false;
+  bool provide_xpostag = model == 0; if (!option_bool(tagger, "provide_xpostag", provide_xpostag, error, model)) return false;
+  bool provide_feats = model == 0; if (!option_bool(tagger, "provide_feats", provide_feats, error, model)) return false;
   os.put(char(provide_lemma && use_lemma));
   os.put(char(provide_xpostag && use_xpostag));
   os.put(char(provide_feats && use_feats));
@@ -143,7 +143,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
   string combined_tag;
 
   // Generic options
-  const string& dictionary = option_str_indexed(tagger, model, "dictionary_model");
+  const string& dictionary = option_str(tagger, "dictionary_model", model);
   if (!dictionary.empty()) {
     // Use specified morphological dictionary
     cerr << "Using given morphological dictionary for tagger model " << model+1 << "." << endl;
@@ -153,18 +153,18 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
     cerr << "Creating morphological dictionary for tagger model " << model+1 << "." << endl;
 
     // Guesser options
-    int guesser_suffix_len = 4; if (!option_int_indexed(tagger, model, "guesser_suffix_len", guesser_suffix_len, error)) return false;
-    int guesser_suffix_rules = 8; if (!option_int_indexed(tagger, model, "guesser_suffix_rules", guesser_suffix_rules, error)) return false;
-    int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int_indexed(tagger, model, "guesser_prefixes_max", guesser_prefixes_max, error)) return false;
-    int guesser_prefix_min_count = 10; if (!option_int_indexed(tagger, model, "guesser_prefix_min_count", guesser_prefix_min_count, error)) return false;
-    int guesser_enrich_dictionary = 6; if (!option_int_indexed(tagger, model, "guesser_enrich_dictionary", guesser_enrich_dictionary, error)) return false;
+    int guesser_suffix_len = 4; if (!option_int(tagger, "guesser_suffix_len", guesser_suffix_len, error, model)) return false;
+    int guesser_suffix_rules = 8; if (!option_int(tagger, "guesser_suffix_rules", guesser_suffix_rules, error, model)) return false;
+    int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int(tagger, "guesser_prefixes_max", guesser_prefixes_max, error, model)) return false;
+    int guesser_prefix_min_count = 10; if (!option_int(tagger, "guesser_prefix_min_count", guesser_prefix_min_count, error, model)) return false;
+    int guesser_enrich_dictionary = 6; if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
 
     // Dictionary options
-    int dictionary_suffix_len = 8; if (!option_int_indexed(tagger, model, "dictionary_suffix_len", dictionary_suffix_len, error)) return false;
+    int dictionary_suffix_len = 8; if (!option_int(tagger, "dictionary_suffix_len", dictionary_suffix_len, error, model)) return false;
     unordered_set<string> drop_lemmas;
-    if (!option_str_indexed(tagger, model, "dictionary_drop_lemmas").empty()) {
+    if (!option_str(tagger, "dictionary_drop_lemmas", model).empty()) {
       vector<string> lemmas;
-      split(option_str_indexed(tagger, model, "dictionary_drop_lemmas"), ',', lemmas);
+      split(option_str(tagger, "dictionary_drop_lemmas", model), ',', lemmas);
       drop_lemmas.insert(lemmas.begin(), lemmas.end());
     }
 
@@ -241,7 +241,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
   }
 
   // Measure dictionary accuracy if required
-  const string& dictionary_accuracy = option_str_indexed(tagger, model, "dictionary_accuracy");
+  const string& dictionary_accuracy = option_str(tagger, "dictionary_accuracy", model);
   if (!dictionary_accuracy.empty()) {
     unique_ptr<morphodita::morpho> morpho(morphodita::morpho::load(morpho_description));
     if (!morpho) return error.assign("Cannot create temporary morphology for evaluating accuracy!"), false;
@@ -283,25 +283,23 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
   }
 
   // Tagger options
-  morphodita::tagger_id tagger_id = morphodita::tagger_ids::CONLLU3;
-  if (!option_str_indexed(tagger, model, "order").empty()) {
-    double tagger_order;
-    if (!parse_double(option_str_indexed(tagger, model, "order"), "order", tagger_order, error)) return false;
-    if (tagger_order == 2) tagger_id = morphodita::tagger_ids::CONLLU2;
-    else if (tagger_order == 2.5) tagger_id = morphodita::tagger_ids::CONLLU2_3;
-    else if (tagger_order == 3) tagger_id = morphodita::tagger_ids::CONLLU3;
-    else return error.assign("The tagger_order can be only 2, 2.5 or 3!"), false;
-  }
-  int tagger_iterations = 20; if (!option_int_indexed(tagger, model, "iterations", tagger_iterations, error)) return false;
-  bool tagger_prune_features = false; if (!option_bool_indexed(tagger, model, "prune_features", tagger_prune_features, error)) return false;
-  bool tagger_early_stopping = true; if (!option_bool_indexed(tagger, model, "early_stopping", tagger_early_stopping, error)) return false;
+  double tagger_order = 3; if (!option_double(tagger, "order", tagger_order, error, model)) return false;
+  morphodita::tagger_id tagger_id;
+  if (tagger_order == 2) tagger_id = morphodita::tagger_ids::CONLLU2;
+  else if (tagger_order == 2.5) tagger_id = morphodita::tagger_ids::CONLLU2_3;
+  else if (tagger_order == 3) tagger_id = morphodita::tagger_ids::CONLLU3;
+  else return error.assign("The tagger_order can be only 2, 2.5 or 3!"), false;
+
+  int tagger_iterations = 20; if (!option_int(tagger, "iterations", tagger_iterations, error, model)) return false;
+  bool tagger_prune_features = false; if (!option_bool(tagger, "prune_features", tagger_prune_features, error, model)) return false;
+  bool tagger_early_stopping = true; if (!option_bool(tagger, "early_stopping", tagger_early_stopping, error, model)) return false;
   const string& tagger_feature_templates =
-      option_str_indexed(tagger, model, "templates") == "tagger" ? tagger_features_tagger :
-      option_str_indexed(tagger, model, "templates") == "lemmatizer" ? tagger_features_lemmatizer :
-      option_str_indexed(tagger, model, "templates");
-  const string& tagger_heldout = option_str_indexed(tagger, model, "heldout");
+      option_str(tagger, "templates", model) == "tagger" ? tagger_features_tagger :
+      option_str(tagger, "templates", model) == "lemmatizer" ? tagger_features_lemmatizer :
+      option_str(tagger, "templates", model);
+  const string& tagger_heldout = option_str(tagger, "heldout", model);
   if (tagger_heldout.empty()) tagger_early_stopping = false;
-  const string& tagger_accuracy = option_str_indexed(tagger, model, "accuracy");
+  const string& tagger_accuracy = option_str(tagger, "accuracy", model);
 
   // Train the tagger
   cerr << "Training tagger model " << model+1 << "." << endl;
@@ -396,8 +394,16 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, 
       if (embedding_upostag) embeddings.append("universal_tag ").append(to_string(embedding_upostag)).append(" 1\n");
       if (embedding_feats) embeddings.append("feats ").append(to_string(embedding_feats)).append(" 1\n");
       if (embedding_xpostag) embeddings.append("tag ").append(to_string(embedding_xpostag)).append(" 1\n");
-      if (embedding_form) embeddings.append("form ").append(to_string(embedding_form)).append(" 1\n");
-      if (embedding_lemma) embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 1\n");
+      if (embedding_form) {
+        embeddings.append("form ").append(to_string(embedding_form)).append(" 2");
+        if (!option_str(parser, "embedding_form_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_form_file"));
+        embeddings.push_back('\n');
+      }
+      if (embedding_lemma) {
+        embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 2");
+        if (!option_str(parser, "embedding_lemma_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_lemma_file"));
+        embeddings.push_back('\n');
+      }
       if (embedding_deprel) embeddings.append("deprel ").append(to_string(embedding_deprel)).append(" 1\n");
 
       int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
@@ -454,22 +460,16 @@ const string& trainer_morphodita_parsito::combine_lemma(const word& w, bool use_
   return use_lemma && !drop_lemmas.count(w.lemma) ? w.lemma : w.form;
 }
 
-const string& trainer_morphodita_parsito::option_str_indexed(const named_values::map& options, int model, const string& name) {
+const string& trainer_morphodita_parsito::option_str(const named_values::map& options, const string& name, int model) {
   string indexed_name(name);
-  indexed_name.push_back('_');
-  indexed_name.push_back('1' + model);
+  if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
 
   return options.count(indexed_name) ? options.at(indexed_name) : options.count(name) ? options.at(name) : empty_string;
 }
 
-bool trainer_morphodita_parsito::option_int(const named_values::map& options, const string& name, int& value, string& error) {
-  return options.count(name) ? parse_int(options.at(name), name.c_str(), value, error) : true;
-}
-
-bool trainer_morphodita_parsito::option_int_indexed(const named_values::map& options, int model, const string& name, int& value, string& error) {
+bool trainer_morphodita_parsito::option_int(const named_values::map& options, const string& name, int& value, string& error, int model) {
   string indexed_name(name);
-  indexed_name.push_back('_');
-  indexed_name.push_back('1' + model);
+  if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
 
   if (options.count(indexed_name))
     return parse_int(options.at(indexed_name), name.c_str(), value, error);
@@ -478,20 +478,9 @@ bool trainer_morphodita_parsito::option_int_indexed(const named_values::map& opt
   return true;
 }
 
-bool trainer_morphodita_parsito::option_bool(const named_values::map& options, const string& name, bool& value, string& error) {
-  if (options.count(name)) {
-    int int_value;
-    if (!parse_int(options.at(name), name.c_str(), int_value, error))
-      return false;
-    value = int_value != 0;
-  }
-  return true;
-}
-
-bool trainer_morphodita_parsito::option_bool_indexed(const named_values::map& options, int model, const string& name, bool& value, string& error) {
+bool trainer_morphodita_parsito::option_bool(const named_values::map& options, const string& name, bool& value, string& error, int model) {
   string indexed_name(name);
-  indexed_name.push_back('_');
-  indexed_name.push_back('1' + model);
+  if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
 
   if (options.count(indexed_name) || options.count(name)) {
     int int_value;
@@ -502,8 +491,15 @@ bool trainer_morphodita_parsito::option_bool_indexed(const named_values::map& op
   return true;
 }
 
-bool trainer_morphodita_parsito::option_double(const named_values::map& options, const string& name, double& value, string& error) {
-  return options.count(name) ? parse_double(options.at(name), name.c_str(), value, error) : true;
+bool trainer_morphodita_parsito::option_double(const named_values::map& options, const string& name, double& value, string& error, int model) {
+  string indexed_name(name);
+  if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
+
+  if (options.count(indexed_name))
+    return parse_double(options.at(indexed_name), name.c_str(), value, error);
+  if (options.count(name))
+    return parse_double(options.at(name), name.c_str(), value, error);
+  return true;
 }
 
 const string trainer_morphodita_parsito::empty_string;
