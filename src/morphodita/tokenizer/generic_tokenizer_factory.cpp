@@ -21,7 +21,7 @@ tokenizer* generic_tokenizer_factory::new_tokenizer() const {
 bool generic_tokenizer_factory::load(istream& is) {
   version = is.get();
 
-  return is;
+  return bool(is);
 }
 
 } // namespace morphodita
