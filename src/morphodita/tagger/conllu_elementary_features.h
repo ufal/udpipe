@@ -149,7 +149,7 @@ void conllu_elementary_features<Map>::compute_features(const vector<string_piece
           }
       }
 
-      if (tag[0] == 'V') {
+      if (tag.size() >= 2 && tag[1] == 'V') {
         int tag_compare;
         verb_candidate = verb_candidate < 0 || (tag_compare = tag.compare(analyses[i][verb_candidate].tag), tag_compare < 0) || (tag_compare == 0 && lemma < analyses[i][verb_candidate].lemma) ? j : verb_candidate;
       }
@@ -236,7 +236,7 @@ void conllu_elementary_features<Map>::compute_dynamic_features(const tagged_lemm
     dynamic.values[PREVIOUS_VERB_FORM] = elementary_feature_empty;
   }
 
-  if (tag.tag[0] == 'V') {
+  if (tag.tag.size() >= 2 && tag.tag[1] == 'V') {
     dynamic.values[PREVIOUS_OR_CURRENT_VERB_TAG] = per_tag.values[TAG];
     dynamic.values[PREVIOUS_OR_CURRENT_VERB_FORM] = per_form.values[FORM];
   } else {
