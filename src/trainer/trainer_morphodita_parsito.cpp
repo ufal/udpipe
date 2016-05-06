@@ -190,10 +190,10 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
     }
 
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
-    dictionary_special_tags.unknown_tag = "X";
-    dictionary_special_tags.number_tag = "NUM";
-    dictionary_special_tags.punctuation_tag = "PUNCT";
-    dictionary_special_tags.symbol_tag = "SYM";
+    dictionary_special_tags.unknown_tag = "~X";
+    dictionary_special_tags.number_tag = "~NUM";
+    dictionary_special_tags.punctuation_tag = "~PUNCT";
+    dictionary_special_tags.symbol_tag = "~SYM";
 
     // Enrich the dictionary if required
     if (guesser_enrich_dictionary) {
