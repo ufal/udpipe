@@ -24,7 +24,7 @@ tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) co
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
   error.clear();
 
-  if (!taggers.empty()) return error.assign("No tagger defined for the UDPipe model!"), false;
+  if (taggers.empty()) return error.assign("No tagger defined for the UDPipe model!"), false;
 
   tagger_cache* c = tagger_caches.pop();
   if (!c) c = new tagger_cache();
