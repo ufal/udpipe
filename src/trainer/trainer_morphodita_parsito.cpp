@@ -103,7 +103,7 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
       // TODO
     } else {
       // Create MorphoDiTa model(s)
-      int models = 2; if (!option_int(tagger, "models", models, error)) return false;
+      int models = 1; if (!option_int(tagger, "models", models, error)) return false;
       if (models <= 0) return error.assign("Number of tagger models cannot be negative or zero!"), false;
       if (models > 4) return error.assign("Cannot create more than four tagger models!"), false;
 
