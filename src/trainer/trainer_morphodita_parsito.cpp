@@ -296,7 +296,9 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
   const string& tagger_feature_templates =
       option_str(tagger, "templates", model) == "tagger" ? tagger_features_tagger :
       option_str(tagger, "templates", model) == "lemmatizer" ? tagger_features_lemmatizer :
-      option_str(tagger, "templates", model);
+      !option_str(tagger, "templates", model).empty() ? option_str(tagger, "templates", model) :
+      model == 1 ? tagger_features_lemmatizer : tagger_features_tagger;
+
   const string& tagger_heldout = option_str(tagger, "heldout", model);
   if (tagger_heldout.empty()) tagger_early_stopping = false;
   const string& tagger_accuracy = option_str(tagger, "accuracy", model);
