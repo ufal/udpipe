@@ -191,9 +191,9 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
 
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
     dictionary_special_tags.unknown_tag = "~X";
-    dictionary_special_tags.number_tag = "~NUM";
-    dictionary_special_tags.punctuation_tag = "~PUNCT";
-    dictionary_special_tags.symbol_tag = "~SYM";
+    dictionary_special_tags.number_tag = most_frequent_tag(data, "NUM", use_xpostag, use_feats, combined_tag);
+    dictionary_special_tags.punctuation_tag = most_frequent_tag(data, "PUNCT", use_xpostag, use_feats, combined_tag);
+    dictionary_special_tags.symbol_tag = most_frequent_tag(data, "SYM", use_xpostag, use_feats, combined_tag);
 
     // Enrich the dictionary if required
     if (guesser_enrich_dictionary) {
@@ -455,6 +455,24 @@ const string& trainer_morphodita_parsito::combine_tag(const word& w, bool xposta
     if (feats) combined_tag.append(w.feats);
   }
 
+  return combined_tag;
+}
+
+const string& trainer_morphodita_parsito::most_frequent_tag(const vector<sentence>& data, const string& upostag, bool xpostag, bool feats, string& combined_tag) {
+  unordered_map<string, unsigned> counts;
+
+  for (auto&& sentence : data)
+    for (size_t i = 1; i < sentence.words.size(); i++)
+      if (sentence.words[i].upostag == upostag)
+        counts[combine_tag(sentence.words[i], xpostag, feats, combined_tag)]++;
+
+  combined_tag.assign("~").append(upostag);
+  unsigned best = 0;
+  for (auto&& tags : counts)
+    if (tags.second > best) {
+      best = tags.second;
+      combined_tag.assign(tags.first);
+    }
   return combined_tag;
 }
 
