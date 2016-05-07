@@ -117,14 +117,14 @@ void conllu_elementary_features<Map>::compute_features(const vector<string_piece
       char separator = tag[0];
       size_t index = tag.find(separator, 1);
       if (index == string::npos) index = tag.size();
-      per_tag[i][j].values[TAG_UPOS] = maps[MAP_TAG_UPOS].value(tag.c_str() + (index ? 1 : 0), index);
+      per_tag[i][j].values[TAG_UPOS] = maps[MAP_TAG_UPOS].value(tag.c_str() + (index ? 1 : 0), index - (index ? 1 : 0));
 
       if (index < tag.size()) index++;
-      index = tag.find(separator, index);
+      if (index < tag.size()) index = tag.find(separator, index);
       if (index < tag.size()) index++;
       for (size_t length; index < tag.size(); index += length + 1) {
         length = tag.find('|', index);
-        if (length == string::npos) length = tag.size() - index;
+        length = (length == string::npos ? tag.size() : length) - index;
 
         for (size_t equal_sign = 0; equal_sign + 1 < length; equal_sign++)
           if (tag[index + equal_sign] == '=') {
