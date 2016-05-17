@@ -27,17 +27,23 @@ class trainer_morphodita_parsito {
   static bool train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error);
   static bool train_parser(const vector<sentence>& data, const string& options, ostream& os, string& error);
 
+  enum model_type { TOKENIZER_MODEL, TAGGER_MODEL, PARSER_MODEL };
+  static bool load_model(const string& data, model_type model, string_piece& range);
+
+  // Tagger model
   static bool train_tagger_model(const vector<sentence>& data, unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error);
   static bool can_combine_tag(const word& w, string& error);
   static const string& combine_tag(const word& w, bool xpostag, bool feats, string& combined_tag);
   static const string& most_frequent_tag(const vector<sentence>& data, const string& upostag, bool xpostag, bool feats, string& combined_tag);
   static const string& combine_lemma(const word& w, bool use_lemma, const unordered_set<string>& drop_lemmas = unordered_set<string>());
 
+  // Generic options handling
   static const string& option_str(const named_values::map& options, const string& name, int model = -1);
   static bool option_int(const named_values::map& options, const string& name, int& value, string& error, int model = -1);
   static bool option_bool(const named_values::map& options, const string& name, bool& value, string& error, int model = -1);
   static bool option_double(const named_values::map& options, const string& name, double& value, string& error, int model = -1);
 
+  // Various string data
   static const string empty_string;
   static const string tag_separators;
   static const string tagger_features_tagger;

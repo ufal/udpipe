@@ -76,10 +76,14 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& /*data*
     named_values::map tokenizer;
     if (!named_values::parse(options, tokenizer, error)) return false;
 
-    if (tokenizer.count("model")) {
+    if (tokenizer.count("from_model")) {
       // Use specified tokenizer model
-      cerr << "Using specified tokenizer model." << endl;
-      // TODO
+      string_piece tokenizer_data;
+      if (!load_model(tokenizer["from_model"], TOKENIZER_MODEL, tokenizer_data))
+        return error.assign("Cannot load model from which the tokenizer should be used!"), false;
+
+      cerr << "Using tokenizer from given model." << endl;
+      os.write(tokenizer_data.str, tokenizer_data.len);
     } else {
       error.assign("Trainable tokenizer not implemented yet!");
       return false;
@@ -97,10 +101,27 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
     named_values::map tagger;
     if (!named_values::parse(options, tagger, error)) return false;
 
-    if (tagger.count("model")) {
-      // Use specified tagger model
-      cerr << "Using specified tagger model." << endl;
-      // TODO
+    if (tagger.count("from_model")) {
+      // Use specified tokenizer model(s)
+      int model_index = 1, taggers_total = 0;
+      string model_name = "from_model";
+      vector<string_piece> taggers_data;
+      do {
+        taggers_data.emplace_back();
+        if (!load_model(tagger[model_name], TAGGER_MODEL, taggers_data.back()))
+          return error.assign("Cannot load model from which the tagger should be used!"), false;
+        if (taggers_data.back().str[0])
+          taggers_total += taggers_data.back().str[0];
+        else
+          taggers_data.pop_back();
+        model_name = "from_model_" + to_string(++model_index);
+      } while (tagger.count(model_name));
+      if (taggers_total < 0 || taggers_total > 4) return error.assign("Cannot create more than four tagger models!"), false;
+
+      cerr << "Using tokenizer from given model." << endl;
+      os.put(taggers_total);
+      for (auto&& tagger_data : taggers_data)
+        os.write(tagger_data.str + 1, tagger_data.len - 1);
     } else {
       // Create MorphoDiTa model(s)
       int models = 1; if (!option_int(tagger, "models", models, error)) return false;
@@ -116,6 +137,120 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
 
   return true;
 }
+
+bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
+  if (options == "none") {
+    os.put(0);
+  } else {
+    // Create Parsito model
+    named_values::map parser;
+    if (!named_values::parse(options, parser, error)) return false;
+
+    if (parser.count("from_model")) {
+      // Use specified parser model
+      string_piece parser_data;
+      if (!load_model(parser["from_model"], PARSER_MODEL, parser_data))
+        return error.assign("Cannot load model from which the parser should be used!"), false;
+
+      cerr << "Using parser from given model." << endl;
+      os.write(parser_data.str, parser_data.len);
+    } else {
+      os.put(1);
+
+      // Parsito options
+      string transition_system = parser.count("transition_system") ? parser["transition_system"] : "projective";
+      string transition_oracle = parser.count("transition_oracle") ? parser["transition_oracle"] :
+          transition_system == "projective" ? "dynamic" :
+          transition_system == "swap" ? "static_lazy" :
+          "static";
+
+      int embedding_upostag = 20; if (!option_int(parser, "embedding_upostag", embedding_upostag, error)) return false;
+      int embedding_feats = 20; if (!option_int(parser, "embedding_feats", embedding_feats, error)) return false;
+      int embedding_xpostag = 0; if (!option_int(parser, "embedding_xpostag", embedding_xpostag, error)) return false;
+      int embedding_form = 50; if (!option_int(parser, "embedding_form", embedding_form, error)) return false;
+      int embedding_lemma = 0; if (!option_int(parser, "embedding_lemma", embedding_lemma, error)) return false;
+      int embedding_deprel = 20; if (!option_int(parser, "embedding_deprel", embedding_deprel, error)) return false;
+      string embeddings;
+      if (embedding_upostag) embeddings.append("universal_tag ").append(to_string(embedding_upostag)).append(" 1\n");
+      if (embedding_feats) embeddings.append("feats ").append(to_string(embedding_feats)).append(" 1\n");
+      if (embedding_xpostag) embeddings.append("tag ").append(to_string(embedding_xpostag)).append(" 1\n");
+      if (embedding_form) {
+        embeddings.append("form ").append(to_string(embedding_form)).append(" 2");
+        if (!option_str(parser, "embedding_form_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_form_file"));
+        embeddings.push_back('\n');
+      }
+      if (embedding_lemma) {
+        embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 2");
+        if (!option_str(parser, "embedding_lemma_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_lemma_file"));
+        embeddings.push_back('\n');
+      }
+      if (embedding_deprel) embeddings.append("deprel ").append(to_string(embedding_deprel)).append(" 1\n");
+
+      int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
+      int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
+      int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
+      int structured_interval = 8; if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
+      double learning_rate = 0.01; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
+      double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
+      double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
+
+      // Train the parser
+    }
+  }
+
+  return true;
+}
+
+bool trainer_morphodita_parsito::load_model(const string& data, model_type model, string_piece& range) {
+  istringstream is(data);
+
+  // Check that it is morphodita_parsito model.
+  char len;
+  if (!is.get(len)) return false;
+  string name(len, ' ');
+  if (!is.read(&name[0], len)) return false;
+  if (name != "morphodita_parsito") return false;
+
+  char version;
+  if (!is.get(version)) return false;
+
+  // Tokenizer
+  {
+    if (model == TOKENIZER_MODEL) range.str = data.data() + is.tellg();
+    char tokenizer; if (!is.get(tokenizer)) return false;
+    unique_ptr<morphodita::tokenizer_factory> tokenizer_factory(tokenizer ? morphodita::tokenizer_factory::load(is) : nullptr);
+    if (tokenizer && !tokenizer_factory) return false;
+    if (model == TOKENIZER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+  }
+
+  // Tagger
+  {
+    if (model == TAGGER_MODEL) range.str = data.data() + is.tellg();
+    char taggers; if (!is.get(taggers)) return false;
+    for (char i = 0; i < taggers; i++) {
+      char lemma; if (!is.get(lemma)) return false;
+      char xpostag; if (!is.get(xpostag)) return false;
+      char feats; if (!is.get(feats)) return false;
+      unique_ptr<morphodita::tagger> tagger(morphodita::tagger::load(is));
+      if (!tagger) return false;
+    }
+    if (model == TAGGER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+  }
+
+  // Parser
+  {
+    if (model == PARSER_MODEL) range.str = data.data() + is.tellg();
+    char parser;
+    if (!is.get(parser)) return false;
+    unique_ptr<parsito::parser> parser_model(parser ? parsito::parser::load(is) : nullptr);
+    if (parser && !parser_model) return false;
+    if (model == PARSER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+  }
+
+  return false;
+}
+
+// Tagger model helper functions
 
 bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data, unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
@@ -364,65 +499,6 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
   return true;
 }
 
-bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
-  if (options == "none") {
-    os.put(0);
-  } else {
-    // Create Parsito model
-    named_values::map parser;
-    if (!named_values::parse(options, parser, error)) return false;
-
-    if (parser.count("model")) {
-      // Use specified parser model
-      cerr << "Using specified parser model." << endl;
-      // TODO
-    } else {
-      os.put(1);
-
-      // Parsito options
-      string transition_system = parser.count("transition_system") ? parser["transition_system"] : "projective";
-      string transition_oracle = parser.count("transition_oracle") ? parser["transition_oracle"] :
-          transition_system == "projective" ? "dynamic" :
-          transition_system == "swap" ? "static_lazy" :
-          "static";
-
-      int embedding_upostag = 20; if (!option_int(parser, "embedding_upostag", embedding_upostag, error)) return false;
-      int embedding_feats = 20; if (!option_int(parser, "embedding_feats", embedding_feats, error)) return false;
-      int embedding_xpostag = 0; if (!option_int(parser, "embedding_xpostag", embedding_xpostag, error)) return false;
-      int embedding_form = 50; if (!option_int(parser, "embedding_form", embedding_form, error)) return false;
-      int embedding_lemma = 0; if (!option_int(parser, "embedding_lemma", embedding_lemma, error)) return false;
-      int embedding_deprel = 20; if (!option_int(parser, "embedding_deprel", embedding_deprel, error)) return false;
-      string embeddings;
-      if (embedding_upostag) embeddings.append("universal_tag ").append(to_string(embedding_upostag)).append(" 1\n");
-      if (embedding_feats) embeddings.append("feats ").append(to_string(embedding_feats)).append(" 1\n");
-      if (embedding_xpostag) embeddings.append("tag ").append(to_string(embedding_xpostag)).append(" 1\n");
-      if (embedding_form) {
-        embeddings.append("form ").append(to_string(embedding_form)).append(" 2");
-        if (!option_str(parser, "embedding_form_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_form_file"));
-        embeddings.push_back('\n');
-      }
-      if (embedding_lemma) {
-        embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 2");
-        if (!option_str(parser, "embedding_lemma_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_lemma_file"));
-        embeddings.push_back('\n');
-      }
-      if (embedding_deprel) embeddings.append("deprel ").append(to_string(embedding_deprel)).append(" 1\n");
-
-      int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
-      int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
-      int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
-      int structured_interval = 8; if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
-      double learning_rate = 0.01; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
-      double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
-      double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
-
-      // Train the parser
-    }
-  }
-
-  return true;
-}
-
 bool trainer_morphodita_parsito::can_combine_tag(const word& w, string& error) {
   error.clear();
 
@@ -480,6 +556,8 @@ const string& trainer_morphodita_parsito::combine_lemma(const word& w, bool use_
   return use_lemma && !drop_lemmas.count(w.lemma) ? w.lemma : w.form;
 }
 
+// Generic options handling
+
 const string& trainer_morphodita_parsito::option_str(const named_values::map& options, const string& name, int model) {
   string indexed_name(name);
   if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
@@ -521,6 +599,8 @@ bool trainer_morphodita_parsito::option_double(const named_values::map& options,
     return parse_double(options.at(name), name.c_str(), value, error);
   return true;
 }
+
+// Various string data
 
 const string trainer_morphodita_parsito::empty_string;
 
