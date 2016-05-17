@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <sstream>
 
+#include "detokenizer.h"
 #include "model/model_morphodita_parsito.h"
 #include "morphodita/morpho/generic_morpho_encoder.h"
 #include "morphodita/morpho/morpho.h"
@@ -63,7 +64,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
   return true;
 }
 
-bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
   if (options == "none") {
     os.put(0);
   } else if (options == "generic") {
@@ -85,6 +86,12 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& /*data*
       cerr << "Using tokenizer from given model." << endl;
       os.write(tokenizer_data.str, tokenizer_data.len);
     } else {
+      if (tokenizer.count("detokenize")) {
+        detokenizer detokenizer(tokenizer["detokenize"]);
+        for (auto&& sentence : data)
+          detokenizer.detokenize(sentence);
+      }
+
       error.assign("Trainable tokenizer not implemented yet!");
       return false;
     }

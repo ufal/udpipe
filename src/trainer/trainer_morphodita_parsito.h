@@ -23,7 +23,7 @@ class trainer_morphodita_parsito {
   static bool train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
 
  private:
-  static bool train_tokenizer(const vector<sentence>& data, const string& options, ostream& os, string& error);
+  static bool train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error);
   static bool train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error);
   static bool train_parser(const vector<sentence>& data, const string& options, ostream& os, string& error);
 
