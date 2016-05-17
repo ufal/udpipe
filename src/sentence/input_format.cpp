@@ -84,7 +84,8 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       if (from <= last_multiword_token)
         return error.assign("Multiword token '").append(line.str, line.len).append("' overlaps with the previous one!"), false;
       last_multiword_token = to;
-      s.multiword_tokens.emplace_back(from, to, string(tokens[1].str, tokens[1].len));
+      s.multiword_tokens.emplace_back(from, to, string(tokens[1].str, tokens[1].len),
+                                      tokens[9].len == 1 && tokens[9].str[0] == '_' ? string() : string(tokens[9].str, tokens[9].len));
       continue;
     }
 

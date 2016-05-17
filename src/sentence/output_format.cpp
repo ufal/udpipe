@@ -39,7 +39,8 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) const 
         i == s.multiword_tokens[multiword_token].id_first) {
       os << s.multiword_tokens[multiword_token].id_first << '-'
          << s.multiword_tokens[multiword_token].id_last << '\t'
-         << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t_\n";
+         << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t"
+         << underscore_on_empty(s.multiword_tokens[multiword_token].misc) << '\n';
       multiword_token++;
     }
 

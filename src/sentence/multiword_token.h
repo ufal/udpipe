@@ -18,8 +18,10 @@ class multiword_token {
  public:
   int id_first, id_last;
   string form;
+  string misc;
 
-  multiword_token(int id_first, int id_last, const string& form) : id_first(id_first), id_last(id_last), form(form) {}
+  multiword_token(int id_first, int id_last, const string& form, const string& misc)
+      : id_first(id_first), id_last(id_last), form(form), misc(misc) {}
 };
 
 } // namespace udpipe
