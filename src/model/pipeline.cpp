@@ -117,7 +117,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
         punct++;
         punct_uas += gold.words[i].head == system.words[i].head;
         punct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
-        if (gold.words[i].deprel != "PUNCT") {
+        if (gold.words[i].upostag != "PUNCT") {
           nopunct++;
           nopunct_uas += gold.words[i].head == system.words[i].head;
           nopunct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
