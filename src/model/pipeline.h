@@ -26,7 +26,7 @@ class pipeline {
   void set_parser(const string& parser);
 
   bool process(const string& input, ostream& os, string& error) const;
-//  bool evaluate(const string& input, ostream& os, string& error) const;
+  bool evaluate(const string& input, ostream& os, string& error) const;
 
  private:
   const model* m;
