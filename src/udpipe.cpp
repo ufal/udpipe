@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
   iostreams_init();
 
   options::map options;
-  if (!options::parse({{"method", options::value{"morphodita_parsito"}},
+  if (!options::parse({{"accuracy", options::value::none},
+                       {"method", options::value{"morphodita_parsito"}},
                        {"output", options::value::any},
                        {"parse", options::value::none},
                        {"parser", options::value::any},
@@ -41,7 +42,8 @@ int main(int argc, char* argv[]) {
       (argc < 2 && !options.count("version")))
     runtime_failure("Usage: " << argv[0] << " --train [training_options] model_file [input_files]\n"
                     "       " << argv[0] << " [running_options] model_file [input_files]\n"
-                    "Running options: --output=output file template\n"
+                    "Running options: --accuracy (measure accuracy only)\n"
+                    "                 --output=output file template\n"
                     "                 --tokenize (perform tokenization)\n"
                     "                 --tokenizer=tokenizer options, implies --tokenize\n"
                     "                 --tag (perform tagging)\n"
@@ -93,13 +95,23 @@ int main(int argc, char* argv[]) {
                       options.count("parser") ? options["parser"] : options.count("parse") ? string() : "none");
 
     // Process the data
-    process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
-      string para, error;
+    if (options.count("accuracy"))
+      process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
+        string para, data, error;
 
-      while (getpara(is, para))
-        if (!pipeline.process(para, os, error))
-          runtime_failure("An error occurred during UDPipe execution: " << error);
-    });
+        while (getpara(is, para))
+          data.append(para);
+        if (!pipeline.evaluate(data, os, error))
+            runtime_failure("An error occurred during UDPipe execution: " << error);
+      });
+    else
+      process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
+        string para, error;
+
+        while (getpara(is, para))
+          if (!pipeline.process(para, os, error))
+            runtime_failure("An error occurred during UDPipe execution: " << error);
+      });
   }
 
   return 0;
