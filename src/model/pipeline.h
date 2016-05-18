@@ -26,10 +26,9 @@ class pipeline {
   void set_parser(const string& parser);
 
   bool process(const string& input, ostream& os, string& error) const;
+//  bool evaluate(const string& input, ostream& os, string& error) const;
 
  private:
-  bool process_tokenized(sentence& s, ostream& os, string& error) const;
-
   const model* m;
   string tokenizer, tagger, parser;
   unique_ptr<output_format> conllu_output;

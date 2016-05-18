@@ -36,44 +36,31 @@ bool pipeline::process(const string& input, ostream& os, string& error) const {
   error.clear();
 
   sentence s;
+
+  unique_ptr<ufal::udpipe::tokenizer> t;
+  unique_ptr<input_format> conllu_input;
   if (tokenizer != "none") {
-    // Tokenize the input
-    unique_ptr<ufal::udpipe::tokenizer> t(m->new_tokenizer(tokenizer));
+    t.reset(m->new_tokenizer(tokenizer));
     if (!t) return error.assign("Cannot allocate new tokenizer!"), false;
-
     t->set_text(input);
-    while (t->next_sentence(s, error))
-      if (!process_tokenized(s, os, error))
-        return false;
-    if (!error.empty()) return false;
   } else {
-    // The input is already in CoNLL-U format
-    unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
-    if (!conllu_input || !conllu_output) return error.assign("Cannot allocate CoNLL-U format instance!"), false;
-
+    conllu_input.reset(input_format::new_conllu_input_format());
+    if (!conllu_input) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
     conllu_input->set_text(input);
-    while (conllu_input->next_sentence(s, error))
-      if (!process_tokenized(s, os, error))
-        return false;
-    if (!error.empty()) return false;
   }
 
-  return true;
-}
+  while (t ? t->next_sentence(s, error) : conllu_input->next_sentence(s, error)) {
+    if (tagger != "none")
+      if (!m->tag(s, tagger, error))
+        return false;
 
-bool pipeline::process_tokenized(sentence& s, ostream& os, string& error) const {
-  // Tag
-  if (tagger != "none")
-    if (!m->tag(s, tagger, error))
-      return false;
+    if (parser != "none")
+      if (!m->parse(s, parser, error))
+        return false;
 
-  // Parse
-  if (parser != "none")
-    if (!m->parse(s, parser, error))
-      return false;
-
-  // Write
-  conllu_output->write_sentence(s, os);
+    conllu_output->write_sentence(s, os);
+  }
+  if (!error.empty()) return false;
 
   return true;
 }
