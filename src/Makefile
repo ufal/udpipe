@@ -13,7 +13,7 @@ include rest_server/microrestd/Makefile.include
 
 EXECUTABLES = $(call exe,udpipe)
 SERVER = $(call exe,rest_server/udpipe_server)
-TOOLS = $(call exe,tools/udpipe_accuracy)
+TOOLS =
 LIBRARIES = $(call lib,libudpipe)
 
 .PHONY: all exe server tools lib full
