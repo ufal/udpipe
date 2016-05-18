@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "tree_format_conllu.h"
+#include "utils/getpara.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
@@ -18,15 +19,7 @@ namespace parsito {
 // Input CoNLL-U format
 
 bool tree_input_format_conllu::read_block(istream& in, string& block) const {
-  block.clear();
-
-  string line;
-  while (getline(in, line)) {
-    block.append(line).push_back('\n');
-    if (line.empty()) break;
-  }
-
-  return !block.empty();
+  return bool(getpara(in, block));
 }
 
 void tree_input_format_conllu::set_text(string_piece text, bool make_copy) {
