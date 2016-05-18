@@ -24,6 +24,7 @@
 #include "morphodita/tokenizer/tokenizer_ids.h"
 #include "morphodita/tokenizer/generic_tokenizer.h"
 #include "morphodita/tokenizer/generic_tokenizer_factory_encoder.h"
+#include "parsito/parser/parser_nn_trainer.h"
 #include "utils/options.h"
 #include "utils/parse_double.h"
 #include "utils/parse_int.h"
@@ -151,7 +152,9 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
   return true;
 }
 
-bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, const string& tagger_model, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, const string& options, const string& tagger_model, ostream& os, string& error) {
+  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
+
   if (options == "none") {
     os.put(0);
   } else {
@@ -207,7 +210,82 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, 
       double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
       double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
 
+      // Prepare data in the correct format
+      parsito::network_parameters parameters;
+      parameters.iterations = iterations;
+      parameters.structured_interval = structured_interval;
+      parameters.hidden_layer = hidden_layer;
+      parameters.hidden_layer_type = parsito::activation_function::TANH;
+      parameters.trainer.algorithm = parsito::network_trainer::SGD;
+      parameters.trainer.learning_rate = learning_rate;
+      parameters.trainer.learning_rate_final = learning_rate_final;
+      parameters.trainer.momentum = 0;
+      parameters.trainer.epsilon = 0;
+      parameters.batch_size = batch_size;
+      parameters.initialization_range = 0.1;
+      parameters.l1_regularization = 0;
+      parameters.l2_regularization = l2;
+      parameters.maxnorm_regularization = 0;
+      parameters.dropout_hidden = 0;
+      parameters.dropout_input = 0;
+
+      // Tag the input if required
+      unique_ptr<model> tagger;
+      bool use_gold_tags = false; if (!option_bool(parser, "use_gold_tags", use_gold_tags, error)) return false;
+      if (!use_gold_tags && !tagger_model.empty() && tagger_model[0]) {
+        stringstream tagger_description;
+        tagger_description.put(1).put(0).write(tagger_model.data(), tagger_model.size()).put(0);
+        tagger.reset(model_morphodita_parsito::load(tagger_description));
+        if (!tagger) return error.assign("Cannot load the tagger model for parser training data generation!"), false;
+      }
+
+      // Training data
+      sentence tagged;
+      vector<parsito::tree> train_trees;
+      for (auto&& sentence : data) {
+        tagged = sentence;
+        if (tagger && !tagger->tag(tagged, string(), error)) return false;
+
+        train_trees.emplace_back();
+        for (size_t i = 1; i < tagged.words.size(); i++) {
+          train_trees.back().add_node(tagged.words[i].form);
+          train_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
+          train_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
+          train_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
+          train_trees.back().nodes.back().feats.assign(tagged.words[i].feats);
+        }
+        for (size_t i = 1; i < tagged.words.size(); i++)
+          train_trees.back().set_head(tagged.words[i].id, tagged.words[i].head, tagged.words[i].deprel);
+      }
+
+      // Heldout data
+      vector<parsito::tree> heldout_trees;
+      const string& parser_heldout = option_str(parser, "heldout");
+      if (!parser_heldout.empty()) {
+        conllu_input_format->set_text(parser_heldout.c_str());
+        while (conllu_input_format->next_sentence(tagged, error)) {
+          if (tagger && !tagger->tag(tagged, string(), error)) return false;
+
+          heldout_trees.emplace_back();
+          for (size_t i = 1; i < tagged.words.size(); i++) {
+            heldout_trees.back().add_node(tagged.words[i].form);
+            heldout_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
+            heldout_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
+            heldout_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
+            heldout_trees.back().nodes.back().feats.assign(tagged.words[i].feats);
+          }
+          for (size_t i = 1; i < tagged.words.size(); i++)
+            heldout_trees.back().set_head(tagged.words[i].id, tagged.words[i].head, tagged.words[i].deprel);
+        }
+        if (!error.empty()) return false;
+      }
+
       // Train the parser
+      binary_encoder enc;
+      enc.add_str("nn");
+      parsito::parser_nn_trainer::train(transition_system, transition_oracle, embeddings, parser_nodes,
+                                        parameters, 1, train_trees, heldout_trees, enc);
+      compressor::save(os, enc);
     }
   }
 
