@@ -443,7 +443,6 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
 
   const string& tagger_heldout = option_str(tagger, "heldout", model);
   if (tagger_heldout.empty()) tagger_early_stopping = false;
-  const string& tagger_accuracy = option_str(tagger, "accuracy", model);
 
   // Train the tagger
   cerr << "Training tagger model " << model+1 << "." << endl;
@@ -460,48 +459,10 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
       heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     heldout_input << '\n';
   }
+  if (!error.empty()) return false;
 
-  stringstream tagger_description;
-  tagger_description.put(tagger_id);
-  morphodita::tagger_trainer<morphodita::perceptron_tagger_trainer<morphodita::train_feature_sequences<morphodita::conllu_elementary_features>>>::train(morphodita::tagger_ids::decoding_order(tagger_id), morphodita::tagger_ids::window_size(tagger_id), tagger_iterations, morpho_description, true, feature_templates_input, tagger_prune_features, input, heldout_input, tagger_early_stopping, tagger_description);
-
-  // Measure tagger accuracy if required
-  if (!tagger_accuracy.empty()) {
-    unique_ptr<morphodita::tagger> tagger(morphodita::tagger::load(tagger_description));
-    if (!tagger) return error.assign("Cannot create temporary tagger for evaluating accuracy!"), false;
-    tagger_description.seekg(0, ios::beg);
-
-    word w;
-    vector<string_piece> forms;
-    vector<morphodita::tagged_lemma> analyses;
-    int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
-    conllu_input_format->set_text(tagger_accuracy.c_str());
-    for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
-      forms.clear();
-      for (size_t i = 1; i < sentence.words.size(); i++)
-        forms.emplace_back(sentence.words[i].form);
-
-      tagger->tag(forms, analyses);
-
-      for (size_t i = 0; i < analyses.size(); i++) {
-        w.lemma.assign("_");
-        model_morphodita_parsito::fill_word_analysis(analyses[i], true, have_lemma, true, true, w);
-        words++;
-        upostag += sentence.words[i+1].upostag == w.upostag;
-        xpostag += sentence.words[i+1].xpostag == w.xpostag;
-        feats += sentence.words[i+1].feats == w.feats;
-        all_tags += sentence.words[i+1].upostag == w.upostag && sentence.words[i+1].xpostag == w.xpostag && sentence.words[i+1].feats == w.feats;
-        lemma += sentence.words[i+1].lemma == w.lemma;
-      }
-    }
-    if (!error.empty()) return false;
-
-    cerr << "Tagger accuracy for model " << models+1 << " - forms: " << words
-         << ", upostag: " << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
-         << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
-  }
-
-  os << tagger_description.rdbuf();
+  os.put(tagger_id);
+  morphodita::tagger_trainer<morphodita::perceptron_tagger_trainer<morphodita::train_feature_sequences<morphodita::conllu_elementary_features>>>::train(morphodita::tagger_ids::decoding_order(tagger_id), morphodita::tagger_ids::window_size(tagger_id), tagger_iterations, morpho_description, true, feature_templates_input, tagger_prune_features, input, heldout_input, tagger_early_stopping, os);
 
   return true;
 }
