@@ -125,7 +125,7 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
       } while (tagger.count(model_name));
       if (taggers_total < 0 || taggers_total > 4) return error.assign("Cannot create more than four tagger models!"), false;
 
-      cerr << "Using tokenizer from given model." << endl;
+      cerr << "Using tagger from given model(s)." << endl;
       os.put(taggers_total);
       for (auto&& tagger_data : taggers_data)
         os.write(tagger_data.str + 1, tagger_data.len - 1);
