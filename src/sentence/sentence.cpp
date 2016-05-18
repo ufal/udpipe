@@ -17,7 +17,7 @@ namespace udpipe {
 const string sentence::root_form = "<root>";
 
 sentence::sentence() {
-  add_word(root_form);
+  clear();
 }
 
 bool sentence::empty() {
