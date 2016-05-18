@@ -131,7 +131,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     os << "Tagging - forms: " << words << ", upostag: " << fixed << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
        << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
   if (parser != "none")
-    os << "Parsing - UAS: " << 100. * punct_uas / punct << "%, LAS: " << 100. * punct_las / punct << "%, "
+    os << "Parsing - UAS: " << fixed << setprecision(2) << 100. * punct_uas / punct << "%, LAS: " << 100. * punct_las / punct << "%, "
        << "without punctuation - UAS: " << 100. * nopunct_uas / nopunct << "%, LAS: " << 100. * nopunct_las / nopunct << '%' << endl;
 
   return true;
