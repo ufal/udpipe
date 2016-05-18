@@ -58,8 +58,14 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
         return false;
 
   if (!train_tokenizer(conllu, tokenizer, os, error)) return false;
-  if (!train_tagger(conllu, tagger, os, error)) return false;
-  if (!train_parser(conllu, parser, os, error)) return false;
+  string tagger_model;
+  {
+    ostringstream os_tagger;
+    if (!train_tagger(conllu, tagger, os_tagger, error)) return false;
+    tagger_model.assign(os_tagger.str());
+    os.write(tagger_model.data(), tagger_model.size());
+  }
+  if (!train_parser(conllu, parser, tagger_model, os, error)) return false;
 
   return true;
 }
@@ -145,7 +151,7 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
   return true;
 }
 
-bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_parser(const vector<sentence>& /*data*/, const string& options, const string& tagger_model, ostream& os, string& error) {
   if (options == "none") {
     os.put(0);
   } else {

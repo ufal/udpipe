@@ -25,7 +25,7 @@ class trainer_morphodita_parsito {
  private:
   static bool train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error);
   static bool train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error);
-  static bool train_parser(const vector<sentence>& data, const string& options, ostream& os, string& error);
+  static bool train_parser(const vector<sentence>& data, const string& options, const string& tagger_model, ostream& os, string& error);
 
   enum model_type { TOKENIZER_MODEL, TAGGER_MODEL, PARSER_MODEL };
   static bool load_model(const string& data, model_type model, string_piece& range);
