@@ -1,0 +1,6 @@
+DirectoryIndex demo.php
+
+RewriteEngine on
+
+RewriteRule api$ http://morphodita:8004/ [QSA,P,L]
+RewriteRule api/(.*)$ http://morphodita:8004/$1 [QSA,P,L]

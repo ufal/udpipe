@@ -1,0 +1,57 @@
+.lindat-common .container {
+  background-color: #FFF;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #C0C0C0;
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #C0C0C0;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #C0C0C0;
+}
+
+/* nav-tabs menu center fix*/
+.nav-tabs > li {
+    float:none;
+    display:inline-block;
+    *display:inline; /* ie7 fix */
+    *zoom:1; /* hasLayout ie7 trigger */
+    vertical-align: top;
+}
+
+/* fix wrong margin of breadcrumbs */
+ul.breadcrumb {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+/* Styles for file input */
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+/* Allow recoloring active tab to bg-success */
+ul.nav-tabs-green > li > a {
+  color: #3c763d;
+}
+
+ul.nav-tabs-green > li.active > a,
+ul.nav-tabs-green > li.active > a:hover,
+ul.nav-tabs-green > li.active > a:focus,
+ul.nav-tabs-green > li > a:hover {
+  color: #3c763d;
+  background-color: #dff0d8;
+}
