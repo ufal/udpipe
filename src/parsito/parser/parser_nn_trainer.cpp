@@ -12,7 +12,6 @@
 #include <fstream>
 #include <limits>
 #include <random>
-#include <thread>
 #include <unordered_set>
 
 #include "parsito/network/neural_network_trainer.h"
@@ -28,7 +27,7 @@ namespace parsito {
 
 void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name,
                               const string& embeddings_description, const string& nodes_description, const network_parameters& parameters,
-                              unsigned number_of_threads, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
+                              unsigned /*number_of_threads*/, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
   if (train.empty()) runtime_failure("No training data was given!");
 
   // Random generator with fixed seed for reproducibility
@@ -432,13 +431,7 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
     };
 
     cerr << "Iteration " << iteration << ": ";
-    if (number_of_threads > 1) {
-      vector<thread> threads;
-      for (unsigned i = 0; i < number_of_threads; i++) threads.emplace_back(training);
-      for (; !threads.empty(); threads.pop_back()) threads.back().join();
-    } else {
-      training();
-    }
+    training();
     cerr << "training logprob " << scientific << setprecision(4) << atomic_logprob;
 
     // Evaluate heldout data if present
