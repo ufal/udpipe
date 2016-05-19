@@ -61,4 +61,3 @@ void embedding::create(unsigned dimension, int updatable_index, const vector<pai
 } // namespace parsito
 } // namespace udpipe
 } // namespace ufal
-
