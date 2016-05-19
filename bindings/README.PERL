@@ -22,10 +22,10 @@ UDPipe library bindings is available in the Ufal::UDPipe
 (http://search.cpan.org/~straka/Ufal-UDPipe/) package. The classes can be
 imported into the current namespace using the :all export tag.
 
-The bindings is a straightforward conversion of the C++ bindings API. TODO:
-Vectors do not have native Perl interface, see Ufal::UDPipe::Children for
-reference. Static methods and enumerations are available only through the
-module, not through object instance.
+The bindings is a straightforward conversion of the C++ bindings API. Vectors do
+not have native Perl interface, see Ufal::UDPipe::Words for reference. Static
+methods and enumerations are available only through the module, not through
+object instance.
 
 
 C++ Bindings API

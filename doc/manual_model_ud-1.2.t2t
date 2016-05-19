@@ -11,27 +11,27 @@ The models work in UDPipe version 1.0.
 
 Universal Dependencies 1.2 Models are versioned according to the date released
 in the format ``YYMMDD``, where ``YY``, ``MM`` and ``DD`` are two-digit
-representation of year, month and day, respectively. The latest version is TODO.
+representation of year, month and day, respectively. The latest version is 160523.
 
 
 === Download ===[universal_dependencies_12_models_download]
 
-The latest version TODO of the Czech MorphoDiTa models can be downloaded
-from [LINDAT/CLARIN repository TODO].
+The latest version 160523 of the Czech MorphoDiTa models can be downloaded
+from [LINDAT/CLARIN repository http://hdl.handle.net/11234/1-1659].
 
 
 === Acknowledgements ===[universal_dependencies_12_models_acknowledgements]
 
-This work has been using language resources developed and/or stored and/or
-distributed by the LINDAT/CLARIN project of the Ministry of Education of the
-Czech Republic (project //LM2010013//).
+This work has been partially supported and has been using language resources
+and tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project //LM2015071//).
 
 The models were trained on [Universal Dependencies 1.2 http://hdl.handle.net/11234/1-1548] treebanks.
 
 
 ==== Publications ====[universal_dependencies_12_models_publications]
 
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// To appear at LREC 2016.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// LREC 2016, Portorož, Slovenia, May 2016.
 -
 
 === Model Description ===[universal_dependencies_12_models_description]

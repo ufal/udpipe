@@ -2,12 +2,9 @@
 [![Build Status](https://travis-ci.org/ufal/udpipe.svg?branch=master)](https://travis-ci.org/ufal/udpipe)
 
 UDPipe is an trainable pipeline for tokenization, tagging, lemmatization and
-parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
-only annotated data in CoNLL-U format. (Nevertheless, to train the tokenizer,
-either the `SpaceAfter` feature must be present, or at least some plain text
-must be available; also morphological analyzer and lemmatizer can be improved
-if morphological dictionary is provided.) Trained models are provided for
-nearly all UD treebanks.  UDPipe is available as a binary, as a library for
+dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
+only annotated data in CoNLL-U format. Trained models are provided for
+nearly all UD treebanks. UDPipe is available as a binary, as a library for
 C++, Python, Perl, Java, C#, and as a web service.
 
 UDPipe is a free software under

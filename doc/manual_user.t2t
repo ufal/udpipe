@@ -1,8 +1,6 @@
 UDPipe User's Manual
 ====================
 
-TODO
-
 Like any supervised machine learning tool, UDPipe needs a trained linguistic model.
 This section describes the available language models and also the commandline
 tools and interfaces.

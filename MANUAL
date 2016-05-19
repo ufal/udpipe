@@ -5,13 +5,10 @@ Introduction
 ============
 
 UDPipe is an trainable pipeline for tokenization, tagging, lemmatization and
-parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
-only annotated data in CoNLL-U format. (Nevertheless, to train the tokenizer,
-either the `SpaceAfter` feature must be present, or at least some plain text
-must be available; also morphological analyzer and lemmatizer can be improved if
-morphological dictionary is provided.) Trained models are provided for nearly
-all UD treebanks.  UDPipe is available as a binary, as a library for C++,
-Python, Perl, Java, C#, and as a web service.
+dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be
+trained given only annotated data in CoNLL-U format. Trained models are provided
+for nearly all UD treebanks. UDPipe is available as a binary, as a library for
+C++, Python, Perl, Java, C#, and as a web service.
 
 UDPipe is a free software under Mozilla Public License 2.0
 (http://www.mozilla.org/MPL/2.0/) and the linguistic models are free for
@@ -71,7 +68,8 @@ from LINDAT/CLARIN (http://www.lindat.cz) infrastructure and described further
 in the UDPipe User's Manual. Currently the following language models are
 available:
 
-- Universal Dependencies 1.2 Models: udpipe-ud1.2-TODO (TODO) (documentation
+- Universal Dependencies 1.2 Models: udpipe-ud1.2-160523
+  (http://hdl.handle.net/11234/1-1659) (documentation
   (http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models))
 
 
@@ -133,7 +131,6 @@ To compile UDPipe, run make in the src directory.
 Make targets and options:
 - exe: compile the binaries (default)
 - server: compile the REST server
-- tools: compile various tools
 - lib: compile the static library
 - BITS=32 or BITS=64: compile for specified 32-bit or 64-bit architecture
   instead of the default one
@@ -227,8 +224,6 @@ the PYTHON_INCLUDE variable using
 UDPipe User's Manual
 ====================
 
-TODO
-
 Like any supervised machine learning tool, UDPipe needs a trained linguistic
 model. This section describes the available language models and also the
 commandline tools and interfaces.
@@ -244,22 +239,23 @@ treebanks. The models work in UDPipe version 1.0.
 
 Universal Dependencies 1.2 Models are versioned according to the date released
 in the format YYMMDD, where YY, MM and DD are two-digit representation of year,
-month and day, respectively. The latest version is TODO.
+month and day, respectively. The latest version is 160523.
 
 
 Download
 --------
 
-The latest version TODO of the Czech MorphoDiTa models can be downloaded from
-LINDAT/CLARIN repository (TODO).
+The latest version 160523 of the Czech MorphoDiTa models can be downloaded from
+LINDAT/CLARIN repository (http://hdl.handle.net/11234/1-1659).
 
 
 Acknowledgements
 ----------------
 
-This work has been using language resources developed and/or stored and/or
-distributed by the LINDAT/CLARIN project of the Ministry of Education of the
-Czech Republic (project LM2010013).
+This work has been partially supported and has been using language resources and
+tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project
+LM2015071).
 
 The models were trained on Universal Dependencies 1.2
 (http://hdl.handle.net/11234/1-1548) treebanks.
@@ -270,7 +266,8 @@ Publications
 
 - (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. UDPipe:
   Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization,
-  Morphological Analysis, POS Tagging and Parsing. To appear at LREC 2016.
+  Morphological Analysis, POS Tagging and Parsing. LREC 2016, Portorož,
+  Slovenia, May 2016.
 
 
 Model Description
@@ -396,10 +393,10 @@ Java Bindings
 
 UDPipe library bindings is available in the cz.cuni.mff.ufal.udpipe package.
 
-The bindings is a straightforward conversion of the C++ bindings API. TODO:
-Vectors do not have native Java interface, see cz.cuni.mff.ufal.udpipe.Children
-class for reference. Also, class members are accessible and modifiable using
-using getField and setField wrappers.
+The bindings is a straightforward conversion of the C++ bindings API. Vectors do
+not have native Java interface, see cz.cuni.mff.ufal.udpipe.Words class for
+reference. Also, class members are accessible and modifiable using using
+getField and setField wrappers.
 
 The bindings require native C++ library libudpipe_java (called udpipe_java on
 Windows). If the library is found in the current directory, it is used,
@@ -413,10 +410,10 @@ UDPipe library bindings is available in the Ufal::UDPipe
 (http://search.cpan.org/~straka/Ufal-UDPipe/) package. The classes can be
 imported into the current namespace using the :all export tag.
 
-The bindings is a straightforward conversion of the C++ bindings API. TODO:
-Vectors do not have native Perl interface, see Ufal::UDPipe::Children for
-reference. Static methods and enumerations are available only through the
-module, not through object instance.
+The bindings is a straightforward conversion of the C++ bindings API. Vectors do
+not have native Perl interface, see Ufal::UDPipe::Words for reference. Static
+methods and enumerations are available only through the module, not through
+object instance.
 
 
 Python Bindings
@@ -457,7 +454,8 @@ Publications
 
 - (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. UDPipe:
   Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization,
-  Morphological Analysis, POS Tagging and Parsing. To appear at LREC 2016.
+  Morphological Analysis, POS Tagging and Parsing. LREC 2016, Portorož,
+  Slovenia, May 2016.
 
 
 Bibtex for Referencing
@@ -466,9 +464,11 @@ Bibtex for Referencing
   @InProceedings{udpipe:2016,
     author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
     title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
-    booktitle = {To appear at LREC 2016.},
-    month     = {May},
+    booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16), Portorož, Slovenia},
     year      = {2016},
+    month     = {May},
+    date      = {23-28},
+    address   = {Portorož, Slovenia}
   }
 
 

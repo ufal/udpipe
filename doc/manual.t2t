@@ -35,7 +35,7 @@ in the
 %manual% [UDPipe User's Manual #users_manual].
 Currently the following language models are available:
 
-- Universal Dependencies 1.2 Models: [udpipe-ud1.2-TODO TODO] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
+- Universal Dependencies 1.2 Models: [udpipe-ud1.2-160523 http://hdl.handle.net/11234/1-1659] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
 
 
 == License ==[license]
@@ -97,7 +97,7 @@ This work has been using language resources developed and/or stored and/or distr
 
 == Publications ==[publications]
 
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// To appear at LREC 2016.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// LREC 2016, Portorož, Slovenia, May 2016.
 -
 
 == Bibtex for Referencing ==[bibtex_for_referencing]
@@ -106,9 +106,11 @@ This work has been using language resources developed and/or stored and/or distr
 @InProceedings{udpipe:2016,
   author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
   title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
-  booktitle = {To appear at LREC 2016.},
-  month     = {May},
+  booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16), Portorož, Slovenia},
   year      = {2016},
+  month     = {May},
+  date      = {23-28},
+  address   = {Portorož, Slovenia}
 }
 ```
 

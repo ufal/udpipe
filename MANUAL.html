@@ -139,12 +139,9 @@
 
 <p>
 UDPipe is an trainable pipeline for tokenization, tagging, lemmatization and
-parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
-only annotated data in CoNLL-U format. (Nevertheless, to train the tokenizer,
-either the `SpaceAfter` feature must be present, or at least some plain text
-must be available; also morphological analyzer and lemmatizer can be improved
-if morphological dictionary is provided.) Trained models are provided for
-nearly all UD treebanks.  UDPipe is available as a binary, as a library for
+dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
+only annotated data in CoNLL-U format. Trained models are provided for
+nearly all UD treebanks. UDPipe is available as a binary, as a library for
 C++, Python, Perl, Java, C#, and as a web service.
 </p>
 <p>
@@ -213,7 +210,7 @@ Currently the following language models are available:
 </p>
 
 <ul>
-<li>Universal Dependencies 1.2 Models: <a href="TODO">udpipe-ud1.2-TODO</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">documentation</a>)
+<li>Universal Dependencies 1.2 Models: <a href="http://hdl.handle.net/11234/1-1659">udpipe-ud1.2-160523</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">documentation</a>)
 </li>
 </ul>
 
@@ -290,8 +287,6 @@ Make targets and options:
 <li><code>exe</code>: compile the binaries (default)
 </li>
 <li><code>server</code>: compile the REST server
-</li>
-<li><code>tools</code>: compile various tools
 </li>
 <li><code>lib</code>: compile the static library
 </li>
@@ -414,9 +409,6 @@ make PYTHON_INCLUDE=path_to_Python_includes
 <h1>5. UDPipe User's Manual</h1>
 
 <p>
-TODO
-</p>
-<p>
 Like any supervised machine learning tool, UDPipe needs a trained linguistic model.
 This section describes the available language models and also the commandline
 tools and interfaces.
@@ -435,24 +427,24 @@ The models work in UDPipe version 1.0.
 <p>
 Universal Dependencies 1.2 Models are versioned according to the date released
 in the format <code>YYMMDD</code>, where <code>YY</code>, <code>MM</code> and <code>DD</code> are two-digit
-representation of year, month and day, respectively. The latest version is TODO.
+representation of year, month and day, respectively. The latest version is 160523.
 </p>
 
 <a id="universal_dependencies_12_models_download" name="universal_dependencies_12_models_download"></a>
 <h3>5.1.1. Download</h3>
 
 <p>
-The latest version TODO of the Czech MorphoDiTa models can be downloaded
-from <a href="TODO">LINDAT/CLARIN repository</a>.
+The latest version 160523 of the Czech MorphoDiTa models can be downloaded
+from <a href="http://hdl.handle.net/11234/1-1659">LINDAT/CLARIN repository</a>.
 </p>
 
 <a id="universal_dependencies_12_models_acknowledgements" name="universal_dependencies_12_models_acknowledgements"></a>
 <h3>5.1.2. Acknowledgements</h3>
 
 <p>
-This work has been using language resources developed and/or stored and/or
-distributed by the LINDAT/CLARIN project of the Ministry of Education of the
-Czech Republic (project <i>LM2010013</i>).
+This work has been partially supported and has been using language resources
+and tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project <i>LM2015071</i>).
 </p>
 <p>
 The models were trained on <a href="http://hdl.handle.net/11234/1-1548">Universal Dependencies 1.2</a> treebanks.
@@ -462,7 +454,7 @@ The models were trained on <a href="http://hdl.handle.net/11234/1-1548">Universa
 <h4>5.1.2.1. Publications</h4>
 
 <ul>
-<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> To appear at LREC 2016.
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> LREC 2016, Portorož, Slovenia, May 2016.
 </li>
 </ul>
 
@@ -617,8 +609,8 @@ package.
 </p>
 <p>
 The bindings is a straightforward conversion of the <code>C++</code> bindings API.
-TODO: Vectors do not have native Java interface, see
-<code>cz.cuni.mff.ufal.udpipe.Children</code> class for reference. Also, class members
+Vectors do not have native Java interface, see
+<code>cz.cuni.mff.ufal.udpipe.Words</code> class for reference. Also, class members
 are accessible and modifiable using using <code>getField</code> and <code>setField</code>
 wrappers.
 </p>
@@ -639,7 +631,7 @@ export tag.
 </p>
 <p>
 The bindings is a straightforward conversion of the <code>C++</code> bindings API.
-TODO: Vectors do not have native Perl interface, see <code>Ufal::UDPipe::Children</code> for
+Vectors do not have native Perl interface, see <code>Ufal::UDPipe::Words</code> for
 reference. Static methods and enumerations are available only through the
 module, not through object instance.
 </p>
@@ -689,7 +681,7 @@ Acknowledgements for individual language models are listed in <a href="#users_ma
 <h2>8.1. Publications</h2>
 
 <ul>
-<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> To appear at LREC 2016.
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> LREC 2016, Portorož, Slovenia, May 2016.
 </li>
 </ul>
 
@@ -700,9 +692,11 @@ Acknowledgements for individual language models are listed in <a href="#users_ma
 @InProceedings{udpipe:2016,
   author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
   title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
-  booktitle = {To appear at LREC 2016.},
-  month     = {May},
+  booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16), Portorož, Slovenia},
   year      = {2016},
+  month     = {May},
+  date      = {23-28},
+  address   = {Portorož, Slovenia}
 }
 </pre>
 

@@ -20,10 +20,10 @@ Java Bindings API
 
 UDPipe library bindings is available in the cz.cuni.mff.ufal.udpipe package.
 
-The bindings is a straightforward conversion of the C++ bindings API. TODO:
-Vectors do not have native Java interface, see cz.cuni.mff.ufal.udpipe.Children
-class for reference. Also, class members are accessible and modifiable using
-using getField and setField wrappers.
+The bindings is a straightforward conversion of the C++ bindings API. Vectors do
+not have native Java interface, see cz.cuni.mff.ufal.udpipe.Words class for
+reference. Also, class members are accessible and modifiable using using
+getField and setField wrappers.
 
 The bindings require native C++ library libudpipe_java (called udpipe_java on
 Windows). If the library is found in the current directory, it is used,
