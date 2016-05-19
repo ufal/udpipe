@@ -60,7 +60,6 @@ void detokenizer::detokenize(sentence& s) const {
 }
 
 int detokenizer::difference(const string& left, const string& right, bool separate, int mode) const {
-  auto& data = mode == LOWERCASE ? data_lowercased : data_categorized;
   auto& func = mode == LOWERCASE ? perform_lowercase : perform_categorize;
   auto& sa = mode == LOWERCASE ? sa_lowercased : sa_categorized;
 
