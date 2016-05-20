@@ -24,6 +24,7 @@
 #include "morphodita/tokenizer/tokenizer_ids.h"
 #include "morphodita/tokenizer/generic_tokenizer.h"
 #include "morphodita/tokenizer/generic_tokenizer_factory_encoder.h"
+#include "morphodita/tokenizer/gru_tokenizer_factory_trainer.h"
 #include "parsito/parser/parser_nn_trainer.h"
 #include "utils/options.h"
 #include "utils/parse_double.h"
@@ -32,6 +33,7 @@
 #include "sentence/input_format.h"
 #include "sentence/sentence.h"
 #include "trainer_morphodita_parsito.h"
+#include "unilib/utf8.h"
 #include "utils/split.h"
 
 namespace ufal {
@@ -72,6 +74,8 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
 }
 
 bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
+  using namespace unilib;
+
   if (options == "none") {
     os.put(0);
   } else if (options == "generic") {
@@ -99,8 +103,31 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
           detokenizer.detokenize(sentence);
       }
 
-      error.assign("Trainable tokenizer not implemented yet!");
-      return false;
+      // Prepare data for the gru_tokenizer
+      vector<morphodita::tokenized_sentence> sentences;
+      for (auto&& s : data) {
+        auto& sentence = (sentences.emplace_back(), sentences.back());
+
+        bool previous_nospace = true;
+        for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+          const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
+
+          if (!previous_nospace) sentence.sentence.push_back(' ');
+          sentence.tokens.emplace_back(sentence.sentence.size(), 0);
+          for (auto&& chr : utf8::decoder(form))
+            sentence.sentence.push_back(chr);
+          sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
+
+          const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
+          previous_nospace = misc.find(space_after_no) != string::npos;
+
+          if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+            i = s.multiword_tokens[j++].id_last;
+        }
+      }
+
+      // Train gru_tokenizer
+      if (!morphodita::gru_tokenizer_factory_trainer::train(1, sentences, os, error)) return false;
     }
   }
 
@@ -655,6 +682,8 @@ bool trainer_morphodita_parsito::option_double(const named_values::map& options,
 // Various string data
 
 const string trainer_morphodita_parsito::empty_string;
+
+const string trainer_morphodita_parsito::space_after_no = "SpaceAfter=No";
 
 const string trainer_morphodita_parsito::tag_separators = "~!@#$%^&*()/";
 

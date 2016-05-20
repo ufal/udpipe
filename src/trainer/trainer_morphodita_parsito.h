@@ -45,6 +45,7 @@ class trainer_morphodita_parsito {
 
   // Various string data
   static const string empty_string;
+  static const string space_after_no;
   static const string tag_separators;
   static const string tagger_features_tagger;
   static const string tagger_features_lemmatizer;
