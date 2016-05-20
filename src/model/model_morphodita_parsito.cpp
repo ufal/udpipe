@@ -121,8 +121,7 @@ model* model_morphodita_parsito::load(istream& is) {
   return m.release();
 }
 
-model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer)
-  : tokenizer(tokenizer) {}
+model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer) : tokenizer(tokenizer) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
