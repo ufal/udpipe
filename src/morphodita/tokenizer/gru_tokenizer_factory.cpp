@@ -15,15 +15,20 @@ namespace udpipe {
 namespace morphodita {
 
 tokenizer* gru_tokenizer_factory::new_tokenizer() const {
-  return new gru_tokenizer(2);
+  return new gru_tokenizer(url_email_tokenizer);
 }
 
 bool gru_tokenizer_factory::load(istream& is) {
-  version = is.get();
+  char version;
+  if (!is.get(version)) return false;
+
+  char url_email;
+  if (!is.get(url_email)) return false;
+  this->url_email_tokenizer = url_email;
 
   // TODO
 
-  return bool(is);
+  return true;
 }
 
 } // namespace morphodita

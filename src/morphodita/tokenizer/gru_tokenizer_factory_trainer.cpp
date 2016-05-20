@@ -13,10 +13,15 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-bool gru_tokenizer_factory_trainer::train(unsigned /*version*/, const vector<tokenized_sentence>& /*data*/, ostream& /*os*/, string& error) {
+bool gru_tokenizer_factory_trainer::train(unsigned version, unsigned url_email_tokenizer, const vector<tokenized_sentence>& /*data*/, ostream& os, string& error) {
   error.clear();
 
-  return error.assign("Not implemented yet!"), false;
+  os.put(version);
+  os.put(url_email_tokenizer);
+
+  // TODO
+
+  return true;
 }
 
 } // namespace morphodita

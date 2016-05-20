@@ -22,8 +22,9 @@ class gru_tokenizer_factory : public tokenizer_factory {
   virtual tokenizer* new_tokenizer() const override;
 
   bool load(istream& is);
+
  private:
-  unsigned version;
+  unsigned url_email_tokenizer;
 };
 
 } // namespace morphodita

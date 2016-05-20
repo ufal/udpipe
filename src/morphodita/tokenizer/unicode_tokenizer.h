@@ -22,6 +22,7 @@ namespace morphodita {
 
 class unicode_tokenizer : public tokenizer {
  public:
+  enum { URL_EMAIL_LATEST = 2 };
   unicode_tokenizer(unsigned url_email_tokenizer);
 
   virtual void set_text(string_piece text, bool make_copy = false) override;

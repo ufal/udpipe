@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "tokenizer.h"
+#include "unicode_tokenizer.h"
 
 namespace ufal {
 namespace udpipe {
@@ -23,7 +24,9 @@ struct tokenized_sentence {
 
 class gru_tokenizer_factory_trainer {
  public:
-  static bool train(unsigned version, const vector<tokenized_sentence>& data, ostream& os, string& error);
+  enum { LATEST = 1, URL_EMAIL_LATEST = unicode_tokenizer::URL_EMAIL_LATEST };
+
+  static bool train(unsigned version, unsigned url_email_tokenizer, const vector<tokenized_sentence>& data, ostream& os, string& error);
 };
 
 } // namespace morphodita
