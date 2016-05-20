@@ -37,6 +37,6 @@
         <!-- menu -->
         <ul class="nav nav-tabs text-center" style="margin-bottom: 10px">
           <li <?php if ($main_page == 'info.php') echo ' class="active"'?>><a href="info.php"><span class="fa fa-info-circle"></span> About</a></li>
-          <li <?php if ($main_page == 'demo.php') echo ' class="active"'?>><a href="demo.php"><span class="fa fa-cogs"></span> Run</a></li>
+          <li <?php if ($main_page == 'run.php') echo ' class="active"'?>><a href="run.php"><span class="fa fa-cogs"></span> Run</a></li>
           <li <?php if ($main_page == 'api-reference.php') echo ' class="active"'?>><a href="api-reference.php"><span class="fa fa-list"></span> REST API Documentation</a></li>
         </ul>
