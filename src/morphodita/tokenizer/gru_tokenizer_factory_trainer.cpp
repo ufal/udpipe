@@ -7,33 +7,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include "common.h"
+#include "gru_tokenizer_factory_trainer.h"
 
 namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-class tokenizer_ids {
- public:
-  enum tokenizer_id {
-    CZECH = 0,
-    ENGLISH = 1,
-    GENERIC = 2,
-    GRU = 3,
-  };
+bool gru_tokenizer_factory_trainer::train(unsigned /*version*/, const vector<tokenized_sentence>& /*data*/, ostream& /*os*/, string& error) {
+  error.clear();
 
-  static bool parse(const string& str, tokenizer_id& id) {
-    if (str == "czech") return id = CZECH, true;
-    if (str == "english") return id = ENGLISH, true;
-    if (str == "generic") return id = GENERIC, true;
-    if (str == "gru") return id = GRU, true;
-    return false;
-  }
-};
-
-typedef tokenizer_ids::tokenizer_id tokenizer_id;
+  return error.assign("Not implemented yet!"), false;
+}
 
 } // namespace morphodita
 } // namespace udpipe

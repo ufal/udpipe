@@ -10,6 +10,7 @@
 #include <fstream>
 
 #include "generic_tokenizer_factory.h"
+#include "gru_tokenizer_factory.h"
 #include "tokenizer_ids.h"
 #include "utils/new_unique_ptr.h"
 
@@ -23,6 +24,12 @@ tokenizer_factory* tokenizer_factory::load(istream& is) {
     case tokenizer_ids::GENERIC:
       {
         auto res = new_unique_ptr<generic_tokenizer_factory>();
+        if (res->load(is)) return res.release();
+        break;
+      }
+    case tokenizer_ids::GRU:
+      {
+        auto res = new_unique_ptr<gru_tokenizer_factory>();
         if (res->load(is)) return res.release();
         break;
       }

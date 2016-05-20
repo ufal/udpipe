@@ -7,4 +7,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MORPHODITA_OBJECTS = morpho/czech_morpho morpho/english_morpho morpho/english_morpho_guesser morpho/external_morpho morpho/generic_morpho morpho/morpho morpho/morpho_statistical_guesser morpho/tag_filter tagger/tagger tagset_converter/identity_tagset_converter tagset_converter/pdt_to_conll2009_tagset_converter tagset_converter/strip_lemma_comment_tagset_converter tagset_converter/strip_lemma_id_tagset_converter tagset_converter/tagset_converter tokenizer/czech_tokenizer tokenizer/english_tokenizer tokenizer/generic_tokenizer tokenizer/ragel_tokenizer tokenizer/tokenizer tokenizer/unicode_tokenizer tokenizer/vertical_tokenizer unilib/unicode unilib/utf8 unilib/version utils/compressor_load version/version
+MORPHODITA_OBJECTS = derivator/derivation_formatter derivator/derivator_dictionary
+MORPHODITA_OBJECTS += morpho/czech_morpho morpho/english_morpho morpho/english_morpho_guesser
+MORPHODITA_OBJECTS += morpho/external_morpho morpho/generic_morpho morpho/morpho
+MORPHODITA_OBJECTS += morpho/morpho_statistical_guesser morpho/tag_filter tagger/tagger
+MORPHODITA_OBJECTS += tagset_converter/identity_tagset_converter tagset_converter/pdt_to_conll2009_tagset_converter
+MORPHODITA_OBJECTS += tagset_converter/strip_lemma_comment_tagset_converter
+MORPHODITA_OBJECTS += tagset_converter/strip_lemma_id_tagset_converter tagset_converter/tagset_converter
+MORPHODITA_OBJECTS += tokenizer/czech_tokenizer tokenizer/english_tokenizer tokenizer/generic_tokenizer
+MORPHODITA_OBJECTS += tokenizer/ragel_tokenizer tokenizer/tokenizer tokenizer/unicode_tokenizer tokenizer/vertical_tokenizer
+MORPHODITA_OBJECTS += unilib/unicode unilib/utf8 unilib/version utils/compressor_load version/version

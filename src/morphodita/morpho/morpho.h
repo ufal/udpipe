@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common.h"
+#include "morphodita/derivator/derivator.h"
 #include "morphodita/tokenizer/tokenizer.h"
 
 namespace ufal {
@@ -93,6 +94,13 @@ class morpho {
   // Construct a new tokenizer instance appropriate for this morphology.
   // Can return NULL if no such tokenizer exists.
   virtual tokenizer* new_tokenizer() const = 0;
+
+  // Return a derivator for this morphology, or NULL if it does not exist.
+  // The returned instance is owned by the morphology and should not be deleted.
+  virtual const derivator* get_derivator() const;
+
+ protected:
+  unique_ptr<derivator> derinet;
 };
 
 } // namespace morphodita

@@ -1,6 +1,6 @@
 // This file is part of MorphoDiTa <http://github.com/ufal/morphodita/>.
 //
-// Copyright 2015 Institute of Formal and Applied Linguistics, Faculty of
+// Copyright 2016 Institute of Formal and Applied Linguistics, Faculty of
 // Mathematics and Physics, Charles University in Prague, Czech Republic.
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -15,25 +15,10 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-class tokenizer_ids {
+class derivator_dictionary_encoder {
  public:
-  enum tokenizer_id {
-    CZECH = 0,
-    ENGLISH = 1,
-    GENERIC = 2,
-    GRU = 3,
-  };
-
-  static bool parse(const string& str, tokenizer_id& id) {
-    if (str == "czech") return id = CZECH, true;
-    if (str == "english") return id = ENGLISH, true;
-    if (str == "generic") return id = GENERIC, true;
-    if (str == "gru") return id = GRU, true;
-    return false;
-  }
+  static void encode(istream& is, istream& dictionary, bool verbose, ostream& os);
 };
-
-typedef tokenizer_ids::tokenizer_id tokenizer_id;
 
 } // namespace morphodita
 } // namespace udpipe

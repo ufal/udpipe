@@ -10,30 +10,21 @@
 #pragma once
 
 #include "common.h"
+#include "tokenizer.h"
 
 namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-class tokenizer_ids {
- public:
-  enum tokenizer_id {
-    CZECH = 0,
-    ENGLISH = 1,
-    GENERIC = 2,
-    GRU = 3,
-  };
-
-  static bool parse(const string& str, tokenizer_id& id) {
-    if (str == "czech") return id = CZECH, true;
-    if (str == "english") return id = ENGLISH, true;
-    if (str == "generic") return id = GENERIC, true;
-    if (str == "gru") return id = GRU, true;
-    return false;
-  }
+class tokenized_sentence {
+  u32string sentence;
+  vector<token_range> tokens;
 };
 
-typedef tokenizer_ids::tokenizer_id tokenizer_id;
+class gru_tokenizer_factory_trainer {
+ public:
+  static bool train(unsigned version, const vector<tokenized_sentence>& data, ostream& os, string& error);
+};
 
 } // namespace morphodita
 } // namespace udpipe

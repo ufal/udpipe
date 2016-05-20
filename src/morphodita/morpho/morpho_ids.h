@@ -25,6 +25,7 @@ class morpho_ids {
     ENGLISH_V2 = 4,
     ENGLISH_V3 = 5, ENGLISH = ENGLISH_V3,
     SLOVAK_PDT = 6,
+    DERIVATOR_DICTIONARY = 7,
   };
 
   static bool parse(const string& str, morpho_id& id) {
