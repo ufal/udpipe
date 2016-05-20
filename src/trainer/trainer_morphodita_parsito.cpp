@@ -126,8 +126,14 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         }
       }
 
-      // Train gru_tokenizer
-      if (!morphodita::gru_tokenizer_factory_trainer::train(1, sentences, os, error)) return false;
+      // Train and encode gru_tokenizer
+      bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
+
+      os.put(1);
+      os.put(morphodita::tokenizer_ids::GRU);
+      if (!morphodita::gru_tokenizer_factory_trainer::train(morphodita::gru_tokenizer_factory_trainer::LATEST,
+                                                            tokenize_url ? morphodita::gru_tokenizer_factory_trainer::URL_EMAIL_LATEST : 0,
+                                                            sentences, os, error)) return false;
     }
   }
 
