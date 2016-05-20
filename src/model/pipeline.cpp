@@ -94,7 +94,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     bool can_evaluate(const tokenizer_evaluator& gold) { return chars == gold.chars; }
     f1_info evaluate_sentences(const tokenizer_evaluator& gold) { return evaluate_f1(sentences, gold.sentences); }
     f1_info evaluate_tokens(const tokenizer_evaluator& gold) { return evaluate_f1(tokens, gold.tokens); }
-    f1_info evaluate_multiwords(const tokenizer_evaluator& gold) { return evaluate_f1(tokens, gold.tokens); }
+    f1_info evaluate_multiwords(const tokenizer_evaluator& gold) { return evaluate_f1(multiwords, gold.multiwords); }
 
    private:
     u32string chars;
@@ -190,16 +190,16 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
       auto tokens = system_tokenizer.evaluate_tokens(gold_tokenizer);
       os << "Tokenizer - tokens system: " << tokens.total_system << ", gold: " << tokens.total_gold
          << ", precision: " << fixed << setprecision(2) << 100. * tokens.precision
-         << "%, recall: " << 100. * tokens.recall << "%, f1: " << tokens.f1 << "%" << endl;
-      auto sentences = gold_tokenizer.evaluate_sentences(system_tokenizer);
+         << "%, recall: " << 100. * tokens.recall << "%, f1: " << 100. * tokens.f1 << "%" << endl;
+      auto sentences = system_tokenizer.evaluate_sentences(gold_tokenizer);
       os << "Tokenizer - sentences system: " << sentences.total_system << ", gold: " << sentences.total_gold
          << ", precision: " << fixed << setprecision(2) << 100. * sentences.precision
-         << "%, recall: " << 100. * sentences.recall << "%, f1: " << sentences.f1 << "%" << endl;
-      auto multiwords = gold_tokenizer.evaluate_multiwords(system_tokenizer);
+         << "%, recall: " << 100. * sentences.recall << "%, f1: " << 100. * sentences.f1 << "%" << endl;
+      auto multiwords = system_tokenizer.evaluate_multiwords(gold_tokenizer);
       if (multiwords.total_gold || multiwords.total_system)
         os << "Tokenizer - multiwords system: " << multiwords.total_system << ", gold: " << multiwords.total_gold
            << ", precision: " << fixed << setprecision(2) << 100. * multiwords.precision
-           << "%, recall: " << 100. * multiwords.recall << "%, f1: " << multiwords.f1 << "%" << endl;
+           << "%, recall: " << 100. * multiwords.recall << "%, f1: " << 100. * multiwords.f1 << "%" << endl;
     }
   }
 
@@ -215,18 +215,17 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
 
 template <class T>
 pipeline::f1_info pipeline::evaluate_f1(const vector<pair<size_t, T>>& system, const vector<pair<size_t, T>>& gold) {
-  int both = 0, s = 0, g = 0;
+  size_t both = 0;
   for (size_t si = 0, gi = 0; si < system.size() || gi < gold.size(); )
     if (si < system.size() && (gi == gold.size() || system[si].first < gold[gi].first))
-      s++, si++;
+      si++;
     else if (gi < gold.size() && (si == system.size() || gold[gi].first < system[si].first))
-      g++, gi++;
-    else if (system[si].second == gold[gi].second)
-      both++, si++, gi++;
+      gi++;
     else
-      s++, g++, si++, gi++;
+      both += system[si++].second == gold[gi++].second;
 
-  return {s, g, s ? both / double(s) : 0., g ? both / double(g) : 0., s+g ? 2 * both / double(s + g) : 0. };
+  return {system.size(), gold.size(), system.size() ? both / double(system.size()) : 0.,
+    gold.size() ? both / double(gold.size()) : 0., system.size()+gold.size() ? 2 * both / double(system.size() + gold.size()) : 0. };
 }
 
 const string pipeline::space_after_no = "SpaceAfter=No";

@@ -35,7 +35,7 @@ class pipeline {
   string tokenizer, tagger, parser;
   unique_ptr<output_format> conllu_output;
 
-  struct f1_info { int total_system, total_gold; double precision, recall, f1; };
+  struct f1_info { size_t total_system, total_gold; double precision, recall, f1; };
   template <class T>
   static f1_info evaluate_f1(const vector<pair<size_t, T>>& system, const vector<pair<size_t, T>>& gold);
 
