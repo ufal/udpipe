@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "common.h"
 #include "model.h"
 #include "sentence/output_format.h"
@@ -32,6 +34,12 @@ class pipeline {
   const model* m;
   string tokenizer, tagger, parser;
   unique_ptr<output_format> conllu_output;
+
+  struct f1_info { int total_system, total_gold; double precision, recall, f1; };
+  template <class T>
+  static f1_info evaluate_f1(const vector<pair<size_t, T>>& system, const vector<pair<size_t, T>>& gold);
+
+  static const string space_after_no;
 };
 
 } // namespace udpipe
