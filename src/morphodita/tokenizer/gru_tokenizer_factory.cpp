@@ -17,7 +17,7 @@ namespace udpipe {
 namespace morphodita {
 
 tokenizer* gru_tokenizer_factory::new_tokenizer() const {
-  return new gru_tokenizer(url_email_tokenizer, segment, *network);
+  return new gru_tokenizer(url_email_tokenizer, segment, *network, unknown_chars);
 }
 
 bool gru_tokenizer_factory::load(istream& is) {
@@ -30,8 +30,15 @@ bool gru_tokenizer_factory::load(istream& is) {
   try {
     url_email_tokenizer = data.next_1B();
     segment = data.next_2B();
+
     network.reset(gru_tokenizer_network::load(data));
     if (!network) return false;
+
+    unknown_chars.clear();
+    for (unsigned unknown_chars_len = data.next_1B(); unknown_chars_len; unknown_chars_len--) {
+      unilib::unicode::category_t cat = data.next_4B();
+      unknown_chars[cat] = data.next_4B();
+    }
   } catch (binary_decoder_error&) {
     return false;
   }

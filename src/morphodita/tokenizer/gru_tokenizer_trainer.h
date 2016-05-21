@@ -10,7 +10,6 @@
 #pragma once
 
 #include "common.h"
-#include "tokenizer.h"
 #include "unicode_tokenizer.h"
 
 namespace ufal {

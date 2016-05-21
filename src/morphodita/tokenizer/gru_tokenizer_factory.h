@@ -11,7 +11,7 @@
 
 #include "common.h"
 #include "tokenizer_factory.h"
-#include "gru_tokenizer_network.h"
+#include "gru_tokenizer.h"
 
 namespace ufal {
 namespace udpipe {
@@ -29,6 +29,7 @@ class gru_tokenizer_factory : public tokenizer_factory {
   unsigned segment;
 
   unique_ptr<gru_tokenizer_network> network;
+  gru_tokenizer::unknown_chars_map unknown_chars;
 };
 
 } // namespace morphodita
