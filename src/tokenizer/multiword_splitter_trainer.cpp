@@ -25,6 +25,7 @@ bool multiword_splitter_trainer::train(const vector<sentence>& data, ostream& os
   // Train
   struct token_info {
     vector<string> words;
+    unsigned count = 0;
   };
   map<string, token_info> multiwords;
 
@@ -34,12 +35,28 @@ bool multiword_splitter_trainer::train(const vector<sentence>& data, ostream& os
       utf8::map(unicode::lowercase, multiword.form, lc_form);
 
       auto& info = multiwords[lc_form];
+      info.count++;
       if (!info.words.empty()) continue;
 
       for (int i = multiword.id_first; i <= multiword.id_last; i++) {
         info.words.emplace_back();
         utf8::map(unicode::lowercase, sentence.words[i].form, info.words.back());
       }
+    }
+
+  // Remove the rules which triggers too negatively
+  for (auto&& sentence : data)
+    for (size_t i = 1, j = 0; i < sentence.words.size(); i++) {
+      if (j < sentence.multiword_tokens.size() && sentence.multiword_tokens[j].id_first == int(i)) {
+        i = sentence.multiword_tokens[j++].id_last;
+        continue;
+      }
+
+      utf8::map(unicode::lowercase, sentence.words[i].form, lc_form);
+      auto it = multiwords.find(lc_form);
+      if (it != multiwords.end())
+        if (!--it->second.count)
+          multiwords.erase(it);
     }
 
   // Encode
