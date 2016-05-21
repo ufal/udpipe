@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common.h"
+#include "utils/string_piece.h"
 
 namespace ufal {
 namespace udpipe {
@@ -29,7 +30,9 @@ class word {
 
   vector<int> children;
 
-  word(int id = -1, const string& form = string()) : id(id), form(form), head(-1) {}
+  word(int id = -1, string_piece form = string_piece()) : id(id), head(-1) {
+    if (form.len) this->form.assign(form.str, form.len);
+  }
 };
 
 } // namespace udpipe

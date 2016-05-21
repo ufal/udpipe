@@ -70,13 +70,11 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   class tokenizer_evaluator {
    public:
     void add_sentence(const sentence& s) {
-      using namespace unilib;
-
       sentences.emplace_back(chars.size(), chars.size());
       for (size_t i = 1, j = 0; i < s.words.size(); i++) {
         tokens.emplace_back(chars.size(), chars.size());
         const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
-        for (auto&& chr : utf8::decoder(form))
+        for (auto&& chr : unilib::utf8::decoder(form))
           chars.push_back(chr);
         tokens.back().second = chars.size();
 

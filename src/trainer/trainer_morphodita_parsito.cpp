@@ -75,8 +75,6 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
 }
 
 bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
-  using namespace unilib;
-
   if (options == "none") {
     os.put(0);
   } else {
@@ -118,7 +116,7 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
 
             if (!previous_nospace) sentence.sentence.push_back(' ');
             sentence.tokens.emplace_back(sentence.sentence.size(), 0);
-            for (auto&& chr : utf8::decoder(form))
+            for (auto&& chr : unilib::utf8::decoder(form))
               sentence.sentence.push_back(chr);
             sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
 

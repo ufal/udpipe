@@ -27,7 +27,7 @@ class sentence {
 
   bool empty();
   void clear();
-  word& add_word(const string& form);
+  word& add_word(string_piece form = string_piece());
   void set_head(int id, int head, const string& deprel);
   void unlink_all_words();
 };

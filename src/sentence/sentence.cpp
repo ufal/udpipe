@@ -33,7 +33,7 @@ void sentence::clear() {
   root.lemma = root.upostag = root.xpostag = root.feats = root_form;
 }
 
-word& sentence::add_word(const string& form) {
+word& sentence::add_word(string_piece form) {
   words.emplace_back(words.size(), form);
   return words.back();
 }

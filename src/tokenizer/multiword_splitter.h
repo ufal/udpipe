@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "common.h"
 #include "sentence/sentence.h"
 #include "utils/string_piece.h"
@@ -23,6 +25,10 @@ class multiword_splitter {
   static multiword_splitter* load(istream& is);
 
  private:
+  struct suffix_info {
+    vector<string> words;
+  };
+  unordered_map<string, suffix_info> suffixes;
 };
 
 } // namespace udpipe

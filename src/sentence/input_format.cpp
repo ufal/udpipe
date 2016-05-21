@@ -84,8 +84,7 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       if (from <= last_multiword_token)
         return error.assign("Multiword token '").append(line.str, line.len).append("' overlaps with the previous one!"), false;
       last_multiword_token = to;
-      s.multiword_tokens.emplace_back(from, to, string(tokens[1].str, tokens[1].len),
-                                      tokens[9].len == 1 && tokens[9].str[0] == '_' ? string() : string(tokens[9].str, tokens[9].len));
+      s.multiword_tokens.emplace_back(from, to, tokens[1], tokens[9].len == 1 && tokens[9].str[0] == '_' ? string_piece() : tokens[9]);
       continue;
     }
 
@@ -107,7 +106,7 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
     }
 
     // Add new word
-    auto& word = s.add_word(string(tokens[1].str, tokens[1].len));
+    auto& word = s.add_word(tokens[1]);
     word.lemma.assign(tokens[2].str, tokens[2].len);
     if (!(tokens[3].len == 1 && tokens[3].str[0] == '_')) word.upostag.assign(tokens[3].str, tokens[3].len);
     if (!(tokens[4].len == 1 && tokens[4].str[0] == '_')) word.xpostag.assign(tokens[4].str, tokens[4].len);
