@@ -7,26 +7,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#pragma once
-
-#include "common.h"
-#include "unicode_tokenizer.h"
 #include "gru_tokenizer_network.h"
 
 namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-class gru_tokenizer : public unicode_tokenizer {
- public:
-  gru_tokenizer(unsigned url_email_tokenizer, const gru_tokenizer_network& network )
-      : unicode_tokenizer(url_email_tokenizer), network(network) {}
+gru_tokenizer_network* gru_tokenizer_network::load(istream& is) {
+  char version; if (!is.get(version)) return nullptr;
+  char dim; if (!is.get(dim)) return nullptr;
 
-  virtual bool next_sentence(vector<token_range>& tokens) override;
+  unique_ptr<gru_tokenizer_network> network;
+  if (dim == 24) network.reset(gru_tokenizer_network_implementation<24>::load(is));
+  else return nullptr;
 
- private:
-  const gru_tokenizer_network& network;
-};
+  return network.release();
+}
 
 } // namespace morphodita
 } // namespace udpipe

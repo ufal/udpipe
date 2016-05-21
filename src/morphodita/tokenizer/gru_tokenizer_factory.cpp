@@ -15,7 +15,7 @@ namespace udpipe {
 namespace morphodita {
 
 tokenizer* gru_tokenizer_factory::new_tokenizer() const {
-  return new gru_tokenizer(url_email_tokenizer);
+  return new gru_tokenizer(url_email_tokenizer, *network);
 }
 
 bool gru_tokenizer_factory::load(istream& is) {
@@ -26,7 +26,8 @@ bool gru_tokenizer_factory::load(istream& is) {
   if (!is.get(url_email)) return false;
   this->url_email_tokenizer = url_email;
 
-  // TODO
+  network.reset(gru_tokenizer_network::load(is));
+  if (!network) return false;
 
   return true;
 }
