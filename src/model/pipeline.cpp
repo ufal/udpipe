@@ -186,10 +186,10 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     if (!system_tokenizer.can_evaluate(gold_tokenizer)) {
       os << "Cannot evaluate tokenizer, it returned different sequence of token characters!" << endl;
     } else {
+      auto tokens = system_tokenizer.evaluate_tokens(gold_tokenizer);
       if (!space_after_nos) {
         os << "No SpaceAfter=No features, not evaluating tokenizer performance on tokens." << endl;
       } else {
-        auto tokens = system_tokenizer.evaluate_tokens(gold_tokenizer);
         os << "Tokenizer - tokens system: " << tokens.total_system << ", gold: " << tokens.total_gold
            << ", precision: " << fixed << setprecision(2) << 100. * tokens.precision
            << "%, recall: " << 100. * tokens.recall << "%, f1: " << 100. * tokens.f1 << "%" << endl;
@@ -200,8 +200,9 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
          << "%, recall: " << 100. * sentences.recall << "%, f1: " << 100. * sentences.f1 << "%" << endl;
       auto multiwords = system_tokenizer.evaluate_multiwords(gold_tokenizer);
       if (multiwords.total_gold || multiwords.total_system)
-        os << "Tokenizer - multiwords system: " << multiwords.total_system << ", gold: " << multiwords.total_gold
-           << ", precision: " << fixed << setprecision(2) << 100. * multiwords.precision
+        os << "Tokenizer - multiwords system: " << multiwords.total_system << " (" << 100. * multiwords.total_system / tokens.total_system
+           << "%), gold: " << multiwords.total_gold << " (" << 100. * multiwords.total_gold / tokens.total_gold
+           << "%), precision: " << fixed << setprecision(2) << 100. * multiwords.precision
            << "%, recall: " << 100. * multiwords.recall << "%, f1: " << 100. * multiwords.f1 << "%" << endl;
     }
   }
