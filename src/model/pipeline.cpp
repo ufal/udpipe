@@ -107,7 +107,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
   if (!conllu_input) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
 
-  string plain_text;
+  string plain_text; unsigned space_after_nos = 0;
   sentence system, gold;
   int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
   int punct = 0, punct_uas = 0, punct_las = 0, nopunct = 0, nopunct_uas = 0, nopunct_las = 0;
@@ -123,6 +123,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
         plain_text.append(j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].form : gold.words[i].form);
         const string& misc = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].misc : gold.words[i].misc;
         previous_nospace = misc.find(space_after_no) != string::npos;
+        space_after_nos += previous_nospace ? 1 : 0;
         if (j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i))
           i = gold.multiword_tokens[j++].id_last;
       }
@@ -187,10 +188,14 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     if (!system_tokenizer.can_evaluate(gold_tokenizer)) {
       os << "Cannot evaluate tokenizer, it returned different sequence of token characters!" << endl;
     } else {
-      auto tokens = system_tokenizer.evaluate_tokens(gold_tokenizer);
-      os << "Tokenizer - tokens system: " << tokens.total_system << ", gold: " << tokens.total_gold
-         << ", precision: " << fixed << setprecision(2) << 100. * tokens.precision
-         << "%, recall: " << 100. * tokens.recall << "%, f1: " << 100. * tokens.f1 << "%" << endl;
+      if (!space_after_nos) {
+        os << "No SpaceAfter=No features, not evaluating tokenizer performance on tokens." << endl;
+      } else {
+        auto tokens = system_tokenizer.evaluate_tokens(gold_tokenizer);
+        os << "Tokenizer - tokens system: " << tokens.total_system << ", gold: " << tokens.total_gold
+           << ", precision: " << fixed << setprecision(2) << 100. * tokens.precision
+           << "%, recall: " << 100. * tokens.recall << "%, f1: " << 100. * tokens.f1 << "%" << endl;
+      }
       auto sentences = system_tokenizer.evaluate_sentences(gold_tokenizer);
       os << "Tokenizer - sentences system: " << sentences.total_system << ", gold: " << sentences.total_gold
          << ", precision: " << fixed << setprecision(2) << 100. * sentences.precision
