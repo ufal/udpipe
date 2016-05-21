@@ -72,9 +72,8 @@ multiword_splitter* multiword_splitter::load(istream& is) {
   binary_decoder data;
   if (!compressor::load(is, data)) return nullptr;
 
+  unique_ptr<multiword_splitter> splitter(new multiword_splitter());
   try {
-    unique_ptr<multiword_splitter> splitter(new multiword_splitter());
-
     for (unsigned suffixes = data.next_4B(); suffixes; suffixes--) {
       string suffix;
       data.next_str(suffix);
@@ -93,11 +92,11 @@ multiword_splitter* multiword_splitter::load(istream& is) {
         for (suffix.pop_back(); !suffix.empty(); suffix.pop_back())
           splitter->suffixes[suffix];
     }
-
-    return splitter.release();
   } catch (binary_decoder_error&) {
     return nullptr;
   }
+
+  return data.is_end() ? splitter.release() : nullptr;
 }
 
 } // namespace udpipe

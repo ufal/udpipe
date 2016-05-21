@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "common.h"
+#include "utils/binary_decoder.h"
 
 namespace ufal {
 namespace udpipe {
@@ -26,7 +27,7 @@ class gru_tokenizer_network {
   enum outcome_t { NO_SPLIT, END_OF_TOKEN, END_OF_SENTENCE, OUTCOMES };
   virtual void compute(const vector<char32_t>& chars, vector<outcome_t>& outcomes) const = 0;
 
-  static gru_tokenizer_network* load(istream& is);
+  static gru_tokenizer_network* load(binary_decoder& data);
 };
 
 template <int D>
@@ -34,7 +35,7 @@ class gru_tokenizer_network_implementation : public gru_tokenizer_network {
  public:
   virtual void compute(const vector<char32_t>& chars, vector<outcome_t>& outcomes) const override;
 
-  static gru_tokenizer_network_implementation<D>* load(istream& is);
+  static gru_tokenizer_network_implementation<D>* load(binary_decoder& data);
 
  protected:
   struct array { float w[D]; };
@@ -51,7 +52,7 @@ void gru_tokenizer_network_implementation<D>::compute(const vector<char32_t>& ch
 }
 
 template <int D>
-gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>::load(istream& /*is*/) {
+gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>::load(binary_decoder& /*data*/) {
   // TODO
 
   return nullptr;

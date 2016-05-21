@@ -19,12 +19,15 @@ namespace morphodita {
 
 class gru_tokenizer : public unicode_tokenizer {
  public:
-  gru_tokenizer(unsigned url_email_tokenizer, const gru_tokenizer_network& network )
-      : unicode_tokenizer(url_email_tokenizer), network(network) {}
+  gru_tokenizer(unsigned url_email_tokenizer, unsigned segment, const gru_tokenizer_network& network)
+      : unicode_tokenizer(url_email_tokenizer), segment(segment), network_chars(segment), network_outcomes(segment), network(network) {}
 
   virtual bool next_sentence(vector<token_range>& tokens) override;
 
  private:
+  unsigned segment;
+  vector<char32_t> network_chars;
+  vector<gru_tokenizer_network::outcome_t> network_outcomes;
   const gru_tokenizer_network& network;
 };
 

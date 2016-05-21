@@ -7,15 +7,35 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include "gru_tokenizer.h"
+#pragma once
+
+#include "common.h"
+#include "gru_tokenizer_network.h"
+#include "utils/binary_encoder.h"
 
 namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-bool gru_tokenizer::next_sentence(vector<token_range>& tokens) {
-  tokens.clear();
+//
+// Declarations
+//
 
+template <int D>
+class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementation<D> {
+ public:
+
+  static bool train(unsigned segment, binary_encoder& enc, string& error);
+};
+
+//
+// Defititions
+//
+
+template <int D>
+bool gru_tokenizer_network_trainer<D>::train(unsigned int /*segment*/, binary_encoder& enc, string& /*error*/) {
+  enc.add_1B(1);
+  enc.add_1B(D);
   return false;
 }
 

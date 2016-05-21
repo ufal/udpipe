@@ -13,15 +13,12 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-gru_tokenizer_network* gru_tokenizer_network::load(istream& is) {
-  char version; if (!is.get(version)) return nullptr;
-  char dim; if (!is.get(dim)) return nullptr;
-
-  unique_ptr<gru_tokenizer_network> network;
-  if (dim == 24) network.reset(gru_tokenizer_network_implementation<24>::load(is));
-  else return nullptr;
-
-  return network.release();
+gru_tokenizer_network* gru_tokenizer_network::load(binary_decoder& data) {
+  if (data.next_1B() != 1) return nullptr;
+  switch (data.next_1B()) {
+    case 24: return gru_tokenizer_network_implementation<24>::load(data);
+  }
+  return nullptr;
 }
 
 } // namespace morphodita

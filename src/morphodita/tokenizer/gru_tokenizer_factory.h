@@ -26,6 +26,7 @@ class gru_tokenizer_factory : public tokenizer_factory {
 
  private:
   unsigned url_email_tokenizer;
+  unsigned segment;
 
   unique_ptr<gru_tokenizer_network> network;
 };

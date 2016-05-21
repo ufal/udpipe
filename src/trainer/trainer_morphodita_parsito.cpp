@@ -22,7 +22,7 @@
 #include "morphodita/tagger/tagger_trainer.h"
 #include "morphodita/tokenizer/generic_tokenizer.h"
 #include "morphodita/tokenizer/generic_tokenizer_factory_encoder.h"
-#include "morphodita/tokenizer/gru_tokenizer_factory_trainer.h"
+#include "morphodita/tokenizer/gru_tokenizer_trainer.h"
 #include "morphodita/tokenizer/tokenizer_ids.h"
 #include "parsito/parser/parser_nn_trainer.h"
 #include "sentence/input_format.h"
@@ -130,12 +130,15 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
 
         // Train and encode gru_tokenizer
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
+        int segment_size = 50; if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
+        int dimension = 24; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
 
         os.put(morphodita::tokenizer_ids::GRU);
-        if (!morphodita::gru_tokenizer_factory_trainer::train(morphodita::gru_tokenizer_factory_trainer::LATEST,
-                                                              tokenize_url ? morphodita::gru_tokenizer_factory_trainer::URL_EMAIL_LATEST : 0,
-                                                              sentences, os, error)) return false;
-      } else return error.assign("Unknown tokenizer model '").append(model).append("'!"), false;
+        if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0, segment_size, dimension, sentences, os, error))
+          return false;
+      } else {
+        return error.assign("Unknown tokenizer model '").append(model).append("'!"), false;
+      }
 
       // Multiword splitter
       if (!multiword_splitter_trainer::train(data, os, error)) return false;
