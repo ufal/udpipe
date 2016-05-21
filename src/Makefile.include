@@ -25,5 +25,6 @@ UDPIPE_OBJECTS += morphodita/tokenizer/gru_tokenizer_factory_trainer morphodita/
 UDPIPE_OBJECTS += model/model model/model_morphodita_parsito model/pipeline
 UDPIPE_OBJECTS += parsito/embedding/embedding_encode parsito/network/neural_network_trainer parsito/parser/parser_nn_trainer
 UDPIPE_OBJECTS += sentence/input_format sentence/output_format sentence/sentence
-UDPIPE_OBJECTS += tokenizer/detokenizer trainer/trainer trainer/trainer_morphodita_parsito
+UDPIPE_OBJECTS += tokenizer/detokenizer tokenizer/multiword_splitter tokenizer/multiword_splitter_trainer
+UDPIPE_OBJECTS += trainer/trainer trainer/trainer_morphodita_parsito
 UDPIPE_OBJECTS += unilib/version utils/compressor_load utils/compressor_save version/version

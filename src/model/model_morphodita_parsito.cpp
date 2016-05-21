@@ -9,7 +9,6 @@
 
 #include <algorithm>
 
-#include "common.h"
 #include "model_morphodita_parsito.h"
 #include "utils/getpara.h"
 #include "utils/parse_int.h"
@@ -18,7 +17,7 @@ namespace ufal {
 namespace udpipe {
 
 tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) const {
-  return tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer()) : nullptr;
+  return tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get()) : nullptr;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
@@ -101,6 +100,8 @@ model* model_morphodita_parsito::load(istream& is) {
   if (!is.get(tokenizer)) return nullptr;
   m->tokenizer_factory.reset(tokenizer ? morphodita::tokenizer_factory::load(is) : nullptr);
   if (tokenizer && !m->tokenizer_factory) return nullptr;
+  m->splitter.reset(tokenizer ? multiword_splitter::load(is) : nullptr);
+  if (tokenizer && !m->splitter) return nullptr;
 
   m->taggers.clear();
   char taggers; if (!is.get(taggers)) return nullptr;
@@ -121,7 +122,8 @@ model* model_morphodita_parsito::load(istream& is) {
   return m.release();
 }
 
-model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer) : tokenizer(tokenizer) {}
+model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter)
+  : tokenizer(tokenizer), splitter(splitter) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
@@ -135,11 +137,8 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   s.clear();
   error.clear();
   if (tokenizer->next_sentence(&forms, nullptr)) {
-    for (size_t i = 0; i < forms.size(); i++) {
-      s.add_word(string(forms[i].str, forms[i].len));
-      if (i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len)
-        s.words.back().misc.assign("SpaceAfter=No");
-    }
+    for (size_t i = 0; i < forms.size(); i++)
+      splitter.append_token(forms[i], i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len ? "SpaceAfter=No" : "", s);
     return true;
   }
 

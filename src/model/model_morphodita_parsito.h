@@ -15,6 +15,7 @@
 #include "morphodita/tokenizer/tokenizer_factory.h"
 #include "morphodita/tagger/tagger.h"
 #include "parsito/parser/parser.h"
+#include "tokenizer/multiword_splitter.h"
 #include "utils/named_values.h"
 #include "utils/threadsafe_stack.h"
 
@@ -31,6 +32,7 @@ class model_morphodita_parsito : public model {
  private:
 
   unique_ptr<morphodita::tokenizer_factory> tokenizer_factory;
+  unique_ptr<multiword_splitter> splitter;
   struct tagger_model {
     bool upostag, lemma, xpostag, feats;
     unique_ptr<morphodita::tagger> tagger;
@@ -43,7 +45,7 @@ class model_morphodita_parsito : public model {
 
   class tokenizer_morphodita : public tokenizer {
    public:
-    tokenizer_morphodita(morphodita::tokenizer* tokenizer);
+    tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter);
 
     virtual bool read_block(istream& is, string& block) const override;
     virtual void set_text(string_piece text, bool make_copy = false) override;
@@ -51,6 +53,7 @@ class model_morphodita_parsito : public model {
 
    private:
     unique_ptr<morphodita::tokenizer> tokenizer;
+    const multiword_splitter& splitter;
     vector<string_piece> forms;
   };
 

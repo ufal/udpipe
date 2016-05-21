@@ -1,6 +1,6 @@
 // This file is part of UDPipe <http://github.com/ufal/udpipe/>.
 //
-// Copyright 2015 Institute of Formal and Applied Linguistics, Faculty of
+// Copyright 2016 Institute of Formal and Applied Linguistics, Faculty of
 // Mathematics and Physics, Charles University in Prague, Czech Republic.
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -11,21 +11,18 @@
 
 #include "common.h"
 #include "sentence/sentence.h"
-#include "tokenizer/tokenizer.h"
+#include "utils/string_piece.h"
 
 namespace ufal {
 namespace udpipe {
 
-class model {
+class multiword_splitter {
  public:
-  virtual ~model() {}
+  void append_token(string_piece token, string_piece misc, sentence& s) const;
 
-  static model* load(const char* fname);
-  static model* load(istream& is);
+  static multiword_splitter* load(istream& is);
 
-  virtual tokenizer* new_tokenizer(const string& options) const = 0;
-  virtual bool tag(sentence& s, const string& options, string& error) const = 0;
-  virtual bool parse(sentence& s, const string& options, string& error) const = 0;
+ private:
 };
 
 } // namespace udpipe
