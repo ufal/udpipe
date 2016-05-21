@@ -78,4 +78,3 @@ bool multiword_splitter_trainer::train(const vector<sentence>& data, ostream& os
 
 } // namespace udpipe
 } // namespace ufal
-
