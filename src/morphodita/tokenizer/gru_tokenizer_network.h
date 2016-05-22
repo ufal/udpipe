@@ -77,8 +77,8 @@ class gru_tokenizer_network_implementation : public gru_tokenizer_network {
 
 template <int R, int C>
 void gru_tokenizer_network::matrix<R, C>::clear() {
-  for (int i = 0; i < R; i++) fill_n(w[i], C, 0);
-  fill_n(b, R, 0);
+  for (int i = 0; i < R; i++) fill_n(w[i], C, 0.f);
+  fill_n(b, R, 0.f);
 }
 
 template <int R, int C>
@@ -194,7 +194,7 @@ gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>
     auto& embedding = network->embeddings[data.next_4B()];
     copy_n(data.next<float>(D), D, embedding.w[0]);
   }
-  fill_n(network->empty_embedding.w[0], D, 0);
+  fill_n(network->empty_embedding.w[0], D, 0.f);
 
   network->gru_fwd.load(data);
   network->gru_bwd.load(data);

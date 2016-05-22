@@ -263,7 +263,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, cons
       parameters.trainer.momentum = 0;
       parameters.trainer.epsilon = 0;
       parameters.batch_size = batch_size;
-      parameters.initialization_range = 0.1;
+      parameters.initialization_range = 0.1f;
       parameters.l1_regularization = 0;
       parameters.l2_regularization = l2;
       parameters.maxnorm_regularization = 0;
@@ -352,7 +352,7 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
     char tokenizer; if (!is.get(tokenizer)) return false;
     unique_ptr<morphodita::tokenizer_factory> tokenizer_factory(tokenizer ? morphodita::tokenizer_factory::load(is) : nullptr);
     if (tokenizer && !tokenizer_factory) return false;
-    if (model == TOKENIZER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+    if (model == TOKENIZER_MODEL) return range.len = is.tellg() - streampos(range.str - data.data()), true;
   }
 
   // Tagger
@@ -366,7 +366,7 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
       unique_ptr<morphodita::tagger> tagger(morphodita::tagger::load(is));
       if (!tagger) return false;
     }
-    if (model == TAGGER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+    if (model == TAGGER_MODEL) return range.len = is.tellg() - streampos(range.str - data.data()), true;
   }
 
   // Parser
@@ -376,7 +376,7 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
     if (!is.get(parser)) return false;
     unique_ptr<parsito::parser> parser_model(parser ? parsito::parser::load(is) : nullptr);
     if (parser && !parser_model) return false;
-    if (model == PARSER_MODEL) return range.len = is.tellg() - (range.str - data.data()), true;
+    if (model == PARSER_MODEL) return range.len = is.tellg() - streampos(range.str - data.data()), true;
   }
 
   return false;
@@ -527,11 +527,11 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
         for (auto&& analysis : analyses) {
           w.lemma.assign("_");
           model_morphodita_parsito::fill_word_analysis(analysis, true, have_lemma, true, true, w);
-          upostag_ok |= sentence.words[i].upostag == w.upostag;
-          xpostag_ok |= sentence.words[i].xpostag == w.xpostag;
-          feats_ok |= sentence.words[i].feats == w.feats;
-          all_tags_ok |= sentence.words[i].upostag == w.upostag && sentence.words[i].xpostag == w.xpostag && sentence.words[i].feats == w.feats;
-          lemma_ok |= sentence.words[i].lemma == w.lemma;
+          upostag_ok |= int(sentence.words[i].upostag == w.upostag);
+          xpostag_ok |= int(sentence.words[i].xpostag == w.xpostag);
+          feats_ok |= int(sentence.words[i].feats == w.feats);
+          all_tags_ok |= int(sentence.words[i].upostag == w.upostag && sentence.words[i].xpostag == w.xpostag && sentence.words[i].feats == w.feats);
+          lemma_ok |= int(sentence.words[i].lemma == w.lemma);
         }
         words++;
         total_analyses += analyses.size();
