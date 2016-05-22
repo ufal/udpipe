@@ -69,7 +69,7 @@ class gru_tokenizer_network_implementation : public gru_tokenizer_network {
   unordered_map<char32_t, matrix<1,D>> embeddings;
   matrix<1,D> empty_embedding;
   gru gru_fwd, gru_bwd;
-  matrix<3, 2*D> projection;
+  matrix<3, D> projection_fwd, projection_bwd;
   unordered_map<unilib::unicode::category_t, char32_t> unknown_chars;
 };
 
@@ -115,67 +115,44 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
 
   // Clear outcome probabilities
   for (auto&& outcome : outcomes)
-    outcome.w[0] = outcome.w[1] = outcome.w[2] = 0;
+    for (int i = 0; i < 3; i++)
+      outcome.w[i] = projection_fwd.b[i];
 
-  // Perform forward GRU
+  // Perform forward & backward GRU
   matrix<1, D> state, update, reset, candidate;
-  state.clear();
-  for (size_t i = 0; i < outcomes.size(); i++) {
-    for (int j = 0; j < D; j++) {
-      update.w[0][j] = gru_fwd.X_z.b[j];
-      reset.w[0][j] = gru_fwd.X_r.b[j];
-      for (int k = 0; k < D; k++) {
-        update.w[0][j] += outcomes[i].embedding[k] * gru_fwd.X_z.w[j][k] + state.w[0][k] * gru_fwd.H_z.w[j][k];
-        reset.w[0][j] += outcomes[i].embedding[k] * gru_fwd.X_r.w[j][k] + state.w[0][k] * gru_fwd.H_r.w[j][k];
+  for (int dir = 0; dir < 2; dir++) {
+    auto& gru = dir == 0 ? gru_fwd : gru_bwd;
+    auto& projection = dir == 0 ? projection_fwd : projection_bwd;
+
+    state.clear();
+    for (size_t i = 0; i < outcomes.size(); i++) {
+      auto& outcome = outcomes[dir == 0 ? i : outcomes.size() - 1 - i];
+
+      for (int j = 0; j < D; j++) {
+        update.w[0][j] = gru.X_z.b[j];
+        reset.w[0][j] = gru.X_r.b[j];
+        for (int k = 0; k < D; k++) {
+          update.w[0][j] += outcome.embedding[k] * gru.X_z.w[j][k] + state.w[0][k] * gru.H_z.w[j][k];
+          reset.w[0][j] += outcome.embedding[k] * gru.X_r.w[j][k] + state.w[0][k] * gru.H_r.w[j][k];
+        }
+        update.w[0][j] = 1.f / (1.f + exp(-update.w[0][j]));
+        reset.w[0][j] = 1.f / (1.f + exp(-reset.w[0][j]));
       }
-      update.w[0][j] = 1.f / (1.f + exp(-update.w[0][j]));
-      reset.w[0][j] = 1.f / (1.f + exp(-reset.w[0][j]));
-    }
-    for (int j = 0; j < D; j++)
-      reset.w[0][j] *= state.w[0][j];
-    for (int j = 0; j < D; j++) {
-      candidate.w[0][j] = gru_fwd.X.b[j];
-      for (int k = 0; k < D; k++)
-        candidate.w[0][j] += outcomes[i].embedding[k] * gru_fwd.X.w[j][k] + reset.w[0][k] * gru_fwd.H.w[j][k];
-      candidate.w[0][j] = tanh(candidate.w[0][j]);
-    }
-    for (int j = 0; j < D; j++)
-      state.w[0][j] = (1.f - update.w[0][j]) * state.w[0][j] + update.w[0][j] * candidate.w[0][j];
-
-    for (int j = 0; j < 3; j++) {
-      outcomes[i].w[j] = projection.b[j];
-      for (int k = 0; k < D; k++)
-        outcomes[i].w[j] += projection.w[j][k] * state.w[0][k];
-    }
-  }
-
-  // Perform backward GRU
-  state.clear();
-  for (size_t i = outcomes.size(); i--; ) {
-    for (int j = 0; j < D; j++) {
-      update.w[0][j] = gru_bwd.X_z.b[j];
-      reset.w[0][j] = gru_bwd.X_r.b[j];
-      for (int k = 0; k < D; k++) {
-        update.w[0][j] += outcomes[i].embedding[k] * gru_bwd.X_z.w[j][k] + state.w[0][k] * gru_bwd.H_z.w[j][k];
-        reset.w[0][j] += outcomes[i].embedding[k] * gru_bwd.X_r.w[j][k] + state.w[0][k] * gru_bwd.H_r.w[j][k];
+      for (int j = 0; j < D; j++)
+        reset.w[0][j] *= state.w[0][j];
+      for (int j = 0; j < D; j++) {
+        candidate.w[0][j] = gru.X.b[j];
+        for (int k = 0; k < D; k++)
+          candidate.w[0][j] += outcome.embedding[k] * gru.X.w[j][k] + reset.w[0][k] * gru.H.w[j][k];
+        candidate.w[0][j] = tanh(candidate.w[0][j]);
       }
-      update.w[0][j] = 1.f / (1.f + exp(-update.w[0][j]));
-      reset.w[0][j] = 1.f / (1.f + exp(-reset.w[0][j]));
-    }
-    for (int j = 0; j < D; j++)
-      reset.w[0][j] *= state.w[0][j];
-    for (int j = 0; j < D; j++) {
-      candidate.w[0][j] = gru_bwd.X.b[j];
-      for (int k = 0; k < D; k++)
-        candidate.w[0][j] += outcomes[i].embedding[k] * gru_bwd.X.w[j][k] + reset.w[0][k] * gru_bwd.H.w[j][k];
-      candidate.w[0][j] = tanh(candidate.w[0][j]);
-    }
-    for (int j = 0; j < D; j++)
-      state.w[0][j] = (1.f - update.w[0][j]) * state.w[0][j] + update.w[0][j] * candidate.w[0][j];
+      for (int j = 0; j < D; j++)
+        state.w[0][j] = (1.f - update.w[0][j]) * state.w[0][j] + update.w[0][j] * candidate.w[0][j];
 
-    for (int j = 0; j < 3; j++)
-      for (int k = 0; k < D; k++)
-        outcomes[i].w[j] += projection.w[j][D+k] * state.w[0][k];
+      for (int j = 0; j < 3; j++)
+        for (int k = 0; k < D; k++)
+          outcome.w[j] += projection.w[j][k] * state.w[0][k];
+    }
   }
 
   // Choose the outcome with the highest weight
@@ -198,7 +175,8 @@ gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>
 
   network->gru_fwd.load(data);
   network->gru_bwd.load(data);
-  network->projection.load(data);
+  network->projection_fwd.load(data);
+  network->projection_bwd.load(data);
 
   network->unknown_chars.clear();
   for (unsigned unknown_chars_len = data.next_1B(); unknown_chars_len; unknown_chars_len--) {

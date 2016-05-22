@@ -75,6 +75,8 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
 }
 
 bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
+  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
+
   if (options == "none") {
     os.put(0);
   } else {
@@ -99,13 +101,15 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         os.put(morphodita::tokenizer_id::GENERIC);
         morphodita::generic_tokenizer_factory_encoder::encode(morphodita::generic_tokenizer::LATEST, os);
       } else if (model.empty() || model == "gru") {
+        unique_ptr<detokenizer> detokenization;
+
+        // Prepare training data for the gru_tokenizer
         if (tokenizer.count("detokenize")) {
-          detokenizer detokenizer(tokenizer["detokenize"]);
+          detokenization.reset(new detokenizer(tokenizer["detokenize"]));
           for (auto&& sentence : data)
-            detokenizer.detokenize(sentence);
+            detokenization->detokenize(sentence);
         }
 
-        // Prepare data for the gru_tokenizer
         vector<morphodita::tokenized_sentence> sentences;
         for (auto&& s : data) {
           auto& sentence = (sentences.emplace_back(), sentences.back());
@@ -128,13 +132,47 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
           }
         }
 
-        // Train and encode gru_tokenizer
+        // Heldout data
+        vector<morphodita::tokenized_sentence> heldout_sentences;
+
+        const string& tokenizer_heldout = option_str(tokenizer, "heldout");
+        bool detokenize_handout = true; if (!option_bool(tokenizer, "detokenize_handout", detokenize_handout, error)) return false;
+        if (!tokenizer_heldout.empty()) {
+          sentence s;
+          conllu_input_format->set_text(tokenizer_heldout.c_str());
+          while (conllu_input_format->next_sentence(s, error)) {
+            auto& sentence = (heldout_sentences.emplace_back(), heldout_sentences.back());
+
+            if (detokenization && detokenize_handout) detokenization->detokenize(s);
+
+            bool previous_nospace = true;
+            for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+              const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
+
+              if (!previous_nospace) sentence.sentence.push_back(' ');
+              sentence.tokens.emplace_back(sentence.sentence.size(), 0);
+              for (auto&& chr : unilib::utf8::decoder(form))
+                sentence.sentence.push_back(chr);
+              sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
+
+              const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
+              previous_nospace = misc.find(space_after_no) != string::npos;
+
+              if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+                i = s.multiword_tokens[j++].id_last;
+            }
+          }
+          if (!error.empty()) return false;
+        }
+
+        // Options
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
         int segment_size = 50; if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
         int dimension = 16; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
 
+        // Train and encode gru_tokenizer
         os.put(morphodita::tokenizer_ids::GRU);
-        if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0, segment_size, dimension, sentences, os, error))
+        if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0, segment_size, dimension, sentences, heldout_sentences, os, error))
           return false;
       } else {
         return error.assign("Unknown tokenizer model '").append(model).append("'!"), false;
