@@ -29,4 +29,3 @@ class url_detector {
 } // namespace utils
 } // namespace udpipe
 } // namespace ufal
-

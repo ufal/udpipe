@@ -1,3 +1,8 @@
+Version 2.0.1 [22 May 2016]
+---------------------------
+- Make named_values.h compile on VS 2015.
+
+
 Version 2.0.0 [04 Mar 2016]
 ---------------------------
 - Rename iostreams_xml.h to xml_encoded.h.
