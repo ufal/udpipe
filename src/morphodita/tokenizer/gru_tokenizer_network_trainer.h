@@ -17,7 +17,7 @@
 #include "gru_tokenizer.h"
 #include "gru_tokenizer_network.h"
 #include "gru_tokenizer_trainer.h"
-#include "unicode/utf8.h"
+#include "unilib/utf8.h"
 #include "utils/binary_encoder.h"
 
 namespace ufal {
@@ -37,6 +37,18 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
   template <int R, int C> using matrix = gru_tokenizer_network::matrix<R, C>;
   using typename gru_tokenizer_network_implementation<D>::gru;
 
+  template <int R, int C> struct matrix_trainer {
+    float w_g[R][C], b_g[R];
+    float w_m[R][C], b_m[R];
+    float w_v[R][C], b_v[R];
+
+    matrix_trainer() : w_g(), b_g(), w_m(), b_m(), w_v(), b_v() {}
+  };
+  struct gru_trainer {
+    matrix_trainer<D,D> X, X_r, X_z;
+    matrix_trainer<D,D> H, H_r, H_z;
+  };
+
   struct f1_info { double precision, recall, f1; };
   void evaluate(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& heldout, f1_info& tokens_f1, f1_info& sentences_f1);
   void evaluate_f1(const vector<token_range>& system, const vector<token_range>& gold, f1_info& f1);
@@ -49,7 +61,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 };
 
 //
-// Defititions
+// Definitions
 //
 
 template <int D>
@@ -75,15 +87,20 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   random_matrix(this->projection_bwd, generator, 1.f, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
 
   // Train the network
+  unordered_map<char32_t, pair<matrix<1, D>*, matrix_trainer<1, D>>> embeddings;
+  gru_trainer gru_fwd, gru_bwd;
+  matrix_trainer<3, D> projection_fwd, projection_bwd;
+  vector<matrix<1, D>> states_fwd, states_bwd, dropout_fwd, dropout_bwd;
+
   size_t training_offset = 0, training_shift;
   vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
   vector<gru_tokenizer_network::outcome_t> training_output, instance_output(segment);
   vector<int> permutation; for (size_t i = 0; i < data.size(); i++) permutation.push_back(permutation.size());
-  for (int epoch = 0; epoch < 1; epoch++) {
+  for (int epoch = 0; epoch < 5; epoch++) {
     double logprob = 0;
     int total = 0, correct = 0;
 
-    for (int instance = 0; instance < 25; instance++) {
+    for (int instance = 0; instance < 1000; instance++) {
       // Prepare input instance
       if (training_offset + segment >= training_input.size()) {
         shuffle(permutation.begin(), permutation.end(), generator);
@@ -116,7 +133,9 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
           break;
       training_offset += training_shift;
 
-      // Train the network
+      // Forward pass
+
+      // Backward pass
 
       // Update the weights
     }
