@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <random>
 #include <utility>
 
@@ -52,7 +53,9 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 //
 
 template <int D>
-bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& /*error*/) {
+bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
+  if (segment < 10) return error.assign("Segment size must be at least 10!"), false;
+
   mt19937 generator;
 
   // Generate embeddings
@@ -72,12 +75,46 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   random_matrix(this->projection_bwd, generator, 1.f, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
 
   // Train the network
+  size_t training_offset = 0, training_shift;
+  vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
+  vector<gru_tokenizer_network::outcome_t> training_output, instance_output(segment);
+  vector<int> permutation; for (size_t i = 0; i < data.size(); i++) permutation.push_back(permutation.size());
   for (int epoch = 0; epoch < 1; epoch++) {
     double logprob = 0;
     int total = 0, correct = 0;
 
-    for (int instance = 0; instance < 10; instance++) {
-      // Create input
+    for (int instance = 0; instance < 25; instance++) {
+      // Prepare input instance
+      if (training_offset + segment >= training_input.size()) {
+        shuffle(permutation.begin(), permutation.end(), generator);
+        training_input.clear(); training_output.clear();
+        for (auto&& index : permutation) {
+          auto& sentence = data[index];
+          if (sentence.tokens.empty()) continue;
+
+          training_offset = training_input.size();
+          training_input.resize(training_offset + sentence.sentence.size() + 1);
+          training_output.resize(training_offset + sentence.sentence.size() + 1);
+          for (size_t i = 0; i <= sentence.sentence.size(); i++) {
+            training_input[training_offset + i].chr = i < sentence.sentence.size() ? sentence.sentence[i] : ' ';
+            training_output[training_offset + i].outcome = gru_tokenizer_network::NO_SPLIT;
+          }
+          for (size_t i = 0; i < sentence.tokens.size(); i++)
+            if (i+1 < sentence.tokens.size() && sentence.tokens[i].start + sentence.tokens[i].length == sentence.tokens[i+1].start)
+              training_output[training_offset + sentence.tokens[i].start + sentence.tokens[i].length - 1].outcome = gru_tokenizer_network::END_OF_TOKEN;
+            else if (i+1 == sentence.tokens.size())
+              training_output[training_offset + sentence.tokens[i].start + sentence.tokens[i].length - 1].outcome = gru_tokenizer_network::END_OF_SENTENCE;
+        }
+        training_offset = 0;
+      }
+      copy_n(training_input.begin() + training_offset, segment, instance_input.begin());
+      copy_n(training_output.begin() + training_offset, segment, instance_output.begin());
+
+      // Shift training_offset
+      for (training_shift = segment - 5; training_shift > segment / 2; training_shift--)
+        if (instance_output[training_shift-1].outcome != gru_tokenizer_network::NO_SPLIT || instance_input[training_shift-1].chr == ' ')
+          break;
+      training_offset += training_shift;
 
       // Train the network
 
