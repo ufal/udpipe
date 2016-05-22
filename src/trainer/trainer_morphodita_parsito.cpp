@@ -285,7 +285,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, cons
       int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
       int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
       int structured_interval = 8; if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
-      double learning_rate = 0.01; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
+      double learning_rate = 0.02; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
       double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
       double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
 
