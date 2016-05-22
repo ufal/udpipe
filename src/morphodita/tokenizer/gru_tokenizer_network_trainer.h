@@ -85,7 +85,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
     }
 
     // Evaluate
-    cerr << "Epoch " << epoch << ", logprob: " << scientific << setprecision(4) << logprob
+    cerr << "Epoch " << epoch+1 << ", logprob: " << scientific << setprecision(4) << logprob
          << ", training acc: " << fixed << setprecision(2) << 100. * correct / double(total) << "%";
     if (!heldout.empty()) {
       f1_info tokens, sentences;
