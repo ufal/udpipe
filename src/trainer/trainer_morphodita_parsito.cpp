@@ -131,7 +131,7 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         // Train and encode gru_tokenizer
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
         int segment_size = 50; if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
-        int dimension = 24; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
+        int dimension = 16; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
 
         os.put(morphodita::tokenizer_ids::GRU);
         if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0, segment_size, dimension, sentences, os, error))

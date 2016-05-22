@@ -16,7 +16,7 @@ namespace morphodita {
 gru_tokenizer_network* gru_tokenizer_network::load(binary_decoder& data) {
   if (data.next_1B() != 1) return nullptr;
   switch (data.next_1B()) {
-    case 24: return gru_tokenizer_network_implementation<24>::load(data);
+    case 16: return gru_tokenizer_network_implementation<16>::load(data);
   }
   return nullptr;
 }

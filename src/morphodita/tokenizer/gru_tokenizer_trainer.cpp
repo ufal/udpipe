@@ -32,8 +32,8 @@ bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment
   enc.add_2B(segment);
 
   // Train the GRU network
-  if (dimension == 24) {
-    if (!gru_tokenizer_network_trainer<24>::train(segment, enc, error)) return false;
+  if (dimension == 16) {
+    if (!gru_tokenizer_network_trainer<16>::train(segment, enc, error)) return false;
   } else {
     return error.assign("Gru tokenizer dimension '").append(to_string(dimension)).append("' is not supported!"), false;
   }

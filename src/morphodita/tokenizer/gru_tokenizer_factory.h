@@ -29,7 +29,6 @@ class gru_tokenizer_factory : public tokenizer_factory {
   unsigned segment;
 
   unique_ptr<gru_tokenizer_network> network;
-  gru_tokenizer::unknown_chars_map unknown_chars;
 };
 
 } // namespace morphodita
