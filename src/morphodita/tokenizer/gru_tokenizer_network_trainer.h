@@ -87,10 +87,19 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   random_matrix(this->projection_bwd, generator, 1.f, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
 
   // Train the network
-  unordered_map<char32_t, pair<matrix<1, D>*, matrix_trainer<1, D>>> embeddings;
+  struct embedding_trainer {
+    matrix<1, D>& original;
+    matrix_trainer<1, D> embedding;
+    embedding_trainer(matrix<1, D>& original) : original(original) {}
+  };
+  unordered_map<char32_t, embedding_trainer> embeddings;
+  for (auto&& embedding : this->embeddings)
+    embeddings.emplace(embedding.first, embedding.second);
+  vector<embedding_trainer*> chosen_embeddings(segment);
+
   gru_trainer gru_fwd, gru_bwd;
+  vector<matrix<1, D>> states_fwd(segment), states_bwd(segment), dropout_fwd(segment), dropout_bwd(segment);
   matrix_trainer<3, D> projection_fwd, projection_bwd;
-  vector<matrix<1, D>> states_fwd, states_bwd, dropout_fwd, dropout_bwd;
 
   size_t training_offset = 0, training_shift;
   vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
