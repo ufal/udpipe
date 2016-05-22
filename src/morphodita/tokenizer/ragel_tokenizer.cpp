@@ -372,6 +372,10 @@ vector<uint8_t> ragel_tokenizer::ragel_map;
 atomic_flag ragel_tokenizer::ragel_map_flag = ATOMIC_FLAG_INIT;
 
 ragel_tokenizer::ragel_tokenizer(unsigned url_email_tokenizer) : unicode_tokenizer(url_email_tokenizer) {
+  initialize_ragel_map();
+}
+
+void ragel_tokenizer::initialize_ragel_map() {
   while (ragel_map_flag.test_and_set()) {}
   if (ragel_map.empty()) {
     for (uint8_t ascii = 0; ascii < 128; ascii++)

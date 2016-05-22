@@ -26,9 +26,10 @@ class ragel_tokenizer : public unicode_tokenizer {
   static inline uint8_t ragel_char(const char_info& chr);
 
  private:
+  static void initialize_ragel_map();
   static vector<uint8_t> ragel_map;
   static atomic_flag ragel_map_flag;
-  void ragel_map_add(char32_t chr, uint8_t mapping);
+  static void ragel_map_add(char32_t chr, uint8_t mapping);
 
   friend class unicode_tokenizer;
   static bool ragel_url_email(unsigned version, const vector<char_info>& chars, size_t& current_char, vector<token_range>& tokens);

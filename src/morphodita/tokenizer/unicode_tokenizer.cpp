@@ -17,6 +17,8 @@ namespace udpipe {
 namespace morphodita {
 
 unicode_tokenizer::unicode_tokenizer(unsigned url_email_tokenizer) : url_email_tokenizer(url_email_tokenizer) {
+  ragel_tokenizer::initialize_ragel_map();
+
   set_text(string_piece(nullptr, 0));
 }
 
@@ -51,7 +53,6 @@ bool unicode_tokenizer::next_sentence(vector<string_piece>* forms, vector<token_
 
 bool unicode_tokenizer::tokenize_url_email(vector<token_range>& tokens) {
   if (current >= chars.size() - 1) return false;
-
   return url_email_tokenizer ? ragel_tokenizer::ragel_url_email(url_email_tokenizer, chars, current, tokens) : false;
 }
 
