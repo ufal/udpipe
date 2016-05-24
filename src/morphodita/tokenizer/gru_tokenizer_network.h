@@ -159,7 +159,6 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
   for (auto&& outcome : outcomes) {
     outcome.outcome = outcome.w[1] > outcome.w[0];
     if (outcome.w[2] > outcome.w[outcome.outcome]) outcome.outcome = 2;
-    outcome.outcome = 0;
   }
 }
 

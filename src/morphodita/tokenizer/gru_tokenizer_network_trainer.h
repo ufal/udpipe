@@ -38,15 +38,23 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
   using typename gru_tokenizer_network_implementation<D>::gru;
 
   template <int R, int C> struct matrix_trainer {
+    matrix<R, C>& original;
     float w_g[R][C], b_g[R];
     float w_m[R][C], b_m[R];
     float w_v[R][C], b_v[R];
 
-    matrix_trainer() : w_g(), b_g(), w_m(), b_m(), w_v(), b_v() {}
+    matrix_trainer(matrix<R, C>& original) : original(original), w_g(), b_g(), w_m(), b_m(), w_v(), b_v() {}
+    void update_weights();
   };
   struct gru_trainer {
     matrix_trainer<D,D> X, X_r, X_z;
     matrix_trainer<D,D> H, H_r, H_z;
+    vector<matrix<1, D>> states, updates, resets, candidates, dropouts;
+
+    gru_trainer(gru& g, unsigned segment)
+        : X(g.X), X_r(g.X_r), X_z(g.X_z), H(g.H), H_r(g.H_r), H_z(g.H_z),
+        states(segment + 1), updates(segment), resets(segment), candidates(segment), dropouts(segment) {}
+    void update_weights();
   };
 
   struct f1_info { double precision, recall, f1; };
@@ -70,6 +78,10 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
 
   mt19937 generator;
 
+  float dropout_parameter = 0.1f;
+  float dropout_multiplier = 1.f / (1.f - dropout_parameter);
+  bernoulli_distribution dropout_distribution(dropout_parameter);
+
   // Generate embeddings
   for (auto&& sentence : data)
     for (auto&& chr : sentence.sentence)
@@ -87,19 +99,12 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   random_matrix(this->projection_bwd, generator, 1.f, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
 
   // Train the network
-  struct embedding_trainer {
-    matrix<1, D>& original;
-    matrix_trainer<1, D> embedding;
-    embedding_trainer(matrix<1, D>& original) : original(original) {}
-  };
-  unordered_map<char32_t, embedding_trainer> embeddings;
+  unordered_map<char32_t, matrix_trainer<1, D>> embeddings;
   for (auto&& embedding : this->embeddings)
     embeddings.emplace(embedding.first, embedding.second);
-  vector<embedding_trainer*> chosen_embeddings(segment);
-
-  gru_trainer gru_fwd, gru_bwd;
-  vector<matrix<1, D>> states_fwd(segment), states_bwd(segment), dropout_fwd(segment), dropout_bwd(segment);
-  matrix_trainer<3, D> projection_fwd, projection_bwd;
+  vector<matrix_trainer<1, D>*> chosen_embeddings(segment);
+  gru_trainer gru_fwd(this->gru_fwd, segment), gru_bwd(this->gru_bwd, segment);
+  matrix_trainer<3, D> projection_fwd(this->projection_fwd), projection_bwd(this->projection_bwd);
 
   size_t training_offset = 0, training_shift;
   vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
@@ -109,7 +114,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
     double logprob = 0;
     int total = 0, correct = 0;
 
-    for (int instance = 0; instance < 1000; instance++) {
+    for (int instance = 0; instance < 10000; instance++) {
       // Prepare input instance
       if (training_offset + segment >= training_input.size()) {
         shuffle(permutation.begin(), permutation.end(), generator);
@@ -143,10 +148,130 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
       training_offset += training_shift;
 
       // Forward pass
+      for (unsigned i = 0; i < segment; i++) {
+        chosen_embeddings[i] = &embeddings.at(instance_input[i].chr);
+        for (int j = 0; j < 3; j++)
+          instance_output[i].w[j] = projection_fwd.original.b[j];
+      }
+
+      for (int dir = 0; dir < 2; dir++) {
+        auto& gru = dir == 0 ? gru_fwd : gru_bwd;
+        auto& projection = dir == 0 ? projection_fwd : projection_bwd;
+
+        gru.states[0].clear();
+        for (size_t i = 0; i < segment; i++) {
+          auto& embedding = chosen_embeddings[dir == 0 ? i : segment - 1 - i];
+          auto& output = instance_output[dir == 0 ? i : segment - 1 - i];
+
+          for (int j = 0; j < D; j++) {
+            gru.updates[i].w[0][j] = gru.X_z.original.b[j];
+            gru.resets[i].w[0][j] = gru.X_r.original.b[j];
+            for (int k = 0; k < D; k++) {
+              gru.updates[i].w[0][j] += embedding->original.w[0][k] * gru.X_z.original.w[j][k] + gru.states[i].w[0][k] * gru.H_z.original.w[j][k];
+              gru.resets[i].w[0][j] += embedding->original.w[0][k] * gru.X_r.original.w[j][k] + gru.states[i].w[0][k] * gru.H_r.original.w[j][k];
+            }
+            gru.updates[i].w[0][j] = 1.f / (1.f + exp(-gru.updates[i].w[0][j]));
+            gru.resets[i].w[0][j] = 1.f / (1.f + exp(-gru.resets[i].w[0][j]));
+            gru.resets[i].w[0][j] *= gru.states[i].w[0][j];
+          }
+          for (int j = 0; j < D; j++) {
+            gru.candidates[i].w[0][j] = gru.X.original.b[j];
+            for (int k = 0; k < D; k++)
+              gru.candidates[i].w[0][j] += embedding->original.w[0][k] * gru.X.original.w[j][k] + gru.resets[i].w[0][k] * gru.H.original.w[j][k];
+            gru.candidates[i].w[0][j] = tanh(gru.candidates[i].w[0][j]);
+            gru.states[i+1].w[0][j] = (1.f - gru.updates[i].w[0][j]) * gru.states[i].w[0][j] + gru.updates[i].w[0][j] * gru.candidates[i].w[0][j];
+          }
+
+          if (dropout_parameter)
+            for (int j = 0; j < D; j++)
+              gru.dropouts[i].w[0][j] = dropout_distribution(generator) ? 0.f : dropout_multiplier * gru.states[i+1].w[0][j];
+
+          for (int j = 0; j < 3; j++)
+            for (int k = 0; k < D; k++)
+              output.w[j] += projection.original.w[j][k] * gru.dropouts[i].w[0][k];
+        }
+      }
+
+      for (auto&& output : instance_output) {
+        float sum = 0;
+        int best = output.w[1] > output.w[0];
+        if (output.w[2] > output.w[best]) best = 2;
+        for (int j = 0; j < 3; j++) sum += (output.w[j] = exp(output.w[j] - output.w[best]));
+        sum = 1.f / sum;
+        for (int j = 0; j < 3; j++) output.w[j] *= sum;
+
+        total++;
+        correct += best == output.outcome;
+        logprob += log(output.w[output.outcome]);
+      }
 
       // Backward pass
+      for (auto&& output : instance_output)
+        for (int j = 0; j < 3; j++)
+          output.w[j] = (output.outcome == j) - output.w[j];
 
+      for (int dir = 0; dir < 2; dir++) {
+        auto& gru = dir == 0 ? gru_fwd : gru_bwd;
+        auto& projection = dir == 0 ? projection_fwd : projection_bwd;
+
+        matrix<1, D> state_g, update_g, candidate_g, reset_g;
+        state_g.clear();
+        for (size_t i = segment; i-- >= segment; ) {
+          auto& embedding = chosen_embeddings[dir == 0 ? i : segment - 1 - i];
+          auto& output = instance_output[dir == 0 ? i : segment - 1 - i];
+
+          for (int j = 0; j < 3; j++)
+            for (int k = 0; k < D; k++)
+              projection.w_g[j][k] += gru.dropouts[i].w[0][k] * output.w[j];
+
+          for (int j = 0; j < D; j++)
+            if (gru.dropouts[i].w[0][j])
+              for (int k = 0; k < 3; k++)
+                state_g.w[0][j] += projection.original.w[k][j] * output.w[k];
+
+          reset_g.clear();
+          for (int j = 0; j < D; j++) {
+            update_g.w[0][j] = state_g.w[0][j] * (gru.candidates[i].w[0][j] - gru.states[i].w[0][j]);
+            candidate_g.w[0][j] = state_g.w[0][j] * gru.updates[i].w[0][j];
+            state_g.w[0][j] = state_g.w[0][j] * (1.f - gru.updates[i].w[0][j]);
+
+            candidate_g.w[0][j] *= 1 - gru.candidates[i].w[0][j] * gru.candidates[i].w[0][j];
+            gru.X.b_g[j] += candidate_g.w[0][j];
+            for (int k = 0; k < D; k++) {
+              gru.X.w_g[j][k] += candidate_g.w[0][j] * embedding->original.w[0][k];
+              gru.H.w_g[j][k] += candidate_g.w[0][j] * gru.states[i].w[0][k];
+              embedding->w_g[0][k] += candidate_g.w[0][j] * gru.X.original.w[j][k];
+              reset_g.w[0][k] += candidate_g.w[0][j] * gru.H.original.w[j][k];
+            }
+          }
+          for (int j = 0; j < D; j++) {
+            state_g.w[0][j] += reset_g.w[0][j] * gru.resets[i].w[0][j];
+            reset_g.w[0][j] = reset_g.w[0][j] * gru.states[i].w[0][j];
+
+            update_g.w[0][j] *= gru.updates[i].w[0][j] * (1 - gru.updates[i].w[0][j]);
+            reset_g.w[0][j] *= gru.resets[i].w[0][j] * (1 - gru.resets[i].w[0][j]);
+
+            gru.X_z.b_g[j] += update_g.w[0][j];
+            gru.X_r.b_g[j] += reset_g.w[0][j];
+            for (int k = 0; k < D; k++) {
+              gru.X_z.w_g[j][k] += update_g.w[0][j] * embedding->original.w[0][k];
+              gru.H_z.w_g[j][k] += update_g.w[0][j] * gru.states[i].w[0][k];
+              gru.X_r.w_g[j][k] += reset_g.w[0][j] * embedding->original.w[0][k];
+              gru.H_r.w_g[j][k] += reset_g.w[0][j] * gru.states[i].w[0][k];
+              embedding->w_g[0][k] += update_g.w[0][j] * gru.X_z.original.w[j][k] + reset_g.w[0][j] * gru.X_r.original.w[j][k];
+              state_g.w[0][k] += update_g.w[0][j] * gru.H_z.original.w[j][k] + reset_g.w[0][j] * gru.H_z.original.w[j][k];
+            }
+          }
+        }
+      }
       // Update the weights
+      for (auto&& chosen_embedding : chosen_embeddings)
+        chosen_embedding->update_weights();
+      gru_fwd.update_weights();
+      gru_bwd.update_weights();
+      projection_fwd.update_weights();
+      projection_bwd.update_weights();
+
     }
 
     // Evaluate
@@ -178,6 +303,31 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   save_matrix(this->projection_bwd, enc);
 
   return true;
+}
+
+template <int D> template <int R, int C>
+void gru_tokenizer_network_trainer<D>::matrix_trainer<R, C>::update_weights() {
+  for (int i = 0; i < R; i++) {
+    for (int j = 0; j < C; j++)
+      original.w[i][j] += 0.01 * w_g[i][j]; // - 0.000001 * original.w[i][j];
+    original.b[i] += 0.01 * b_g[i]; // - 0.000001 * original.b[i];
+  }
+
+  for (int i = 0; i < R; i++) {
+    for (int j = 0; j < C; j++)
+      w_g[i][j] = 0.f;
+    b_g[i] = 0.f;
+  }
+}
+
+template <int D>
+void gru_tokenizer_network_trainer<D>::gru_trainer::update_weights() {
+  X.update_weights();
+  X_r.update_weights();
+  X_z.update_weights();
+  H.update_weights();
+  H_r.update_weights();
+  H_z.update_weights();
 }
 
 template <int D>
