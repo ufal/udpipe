@@ -59,6 +59,13 @@ class gru_tokenizer_network_implementation : public gru_tokenizer_network {
   static gru_tokenizer_network_implementation<D>* load(binary_decoder& data);
 
  protected:
+  void cache_embeddings();
+
+  struct cached_embedding {
+    matrix<1, D> e;
+    matrix<6, D> cache;
+  };
+
   struct gru {
     matrix<D,D> X, X_r, X_z;
     matrix<D,D> H, H_r, H_z;
@@ -66,8 +73,8 @@ class gru_tokenizer_network_implementation : public gru_tokenizer_network {
     void load(binary_decoder& data);
   };
 
-  unordered_map<char32_t, matrix<1,D>> embeddings;
-  matrix<1,D> empty_embedding;
+  unordered_map<char32_t, cached_embedding> embeddings;
+  cached_embedding empty_embedding;
   gru gru_fwd, gru_bwd;
   matrix<3, D> projection_fwd, projection_bwd;
   unordered_map<unilib::unicode::category_t, char32_t> unknown_chars;
@@ -105,11 +112,11 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
   for (size_t i = 0; i < chars.size(); i++) {
     auto embedding = embeddings.find(chars[i].chr);
     if (embedding != embeddings.end()) {
-      outcomes[i].embedding = embedding->second.w[0];
+      outcomes[i].embedding = embedding->second.cache.w[0];
     } else {
       auto unknown_char = unknown_chars.find(chars[i].cat);
       if (unknown_char != unknown_chars.end()) embedding = embeddings.find(unknown_char->second);
-      outcomes[i].embedding = embedding != embeddings.end() ? embedding->second.w[0] : empty_embedding.w[0];
+      outcomes[i].embedding = embedding != embeddings.end() ? embedding->second.cache.w[0] : empty_embedding.cache.w[0];
     }
   }
 
@@ -127,22 +134,23 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
     state.clear();
     for (size_t i = 0; i < outcomes.size(); i++) {
       auto& outcome = outcomes[dir == 0 ? i : outcomes.size() - 1 - i];
+      auto* embedding_cache = outcome.embedding + (dir == 1) * 3 * D;
 
       for (int j = 0; j < D; j++) {
-        update.w[0][j] = gru.X_z.b[j];
-        reset.w[0][j] = gru.X_r.b[j];
+        update.w[0][j] = gru.X_z.b[j] + embedding_cache[2*D + j];
+        reset.w[0][j] = gru.X_r.b[j] + embedding_cache[D + j];
         for (int k = 0; k < D; k++) {
-          update.w[0][j] += outcome.embedding[k] * gru.X_z.w[j][k] + state.w[0][k] * gru.H_z.w[j][k];
-          reset.w[0][j] += outcome.embedding[k] * gru.X_r.w[j][k] + state.w[0][k] * gru.H_r.w[j][k];
+          update.w[0][j] += state.w[0][k] * gru.H_z.w[j][k];
+          reset.w[0][j] += state.w[0][k] * gru.H_r.w[j][k];
         }
         update.w[0][j] = 1.f / (1.f + exp(-update.w[0][j]));
         reset.w[0][j] = 1.f / (1.f + exp(-reset.w[0][j]));
         reset.w[0][j] *= state.w[0][j];
       }
       for (int j = 0; j < D; j++) {
-        candidate.w[0][j] = gru.X.b[j];
+        candidate.w[0][j] = gru.X.b[j] + embedding_cache[j];
         for (int k = 0; k < D; k++)
-          candidate.w[0][j] += outcome.embedding[k] * gru.X.w[j][k] + reset.w[0][k] * gru.H.w[j][k];
+          candidate.w[0][j] += reset.w[0][k] * gru.H.w[j][k];
         candidate.w[0][j] = tanh(candidate.w[0][j]);
         state.w[0][j] = update.w[0][j] * state.w[0][j] + (1.f - update.w[0][j]) * candidate.w[0][j];
       }
@@ -166,9 +174,9 @@ gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>
 
   for (unsigned chars = data.next_4B(); chars; chars--) {
     auto& embedding = network->embeddings[data.next_4B()];
-    copy_n(data.next<float>(D), D, embedding.w[0]);
+    copy_n(data.next<float>(D), D, embedding.e.w[0]);
   }
-  fill_n(network->empty_embedding.w[0], D, 0.f);
+  fill_n(network->empty_embedding.e.w[0], D, 0.f);
 
   network->gru_fwd.load(data);
   network->gru_bwd.load(data);
@@ -181,7 +189,26 @@ gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>
     network->unknown_chars[cat] = data.next_4B();
   }
 
+  network->cache_embeddings();
+
   return network.release();
+}
+
+template <int D>
+void gru_tokenizer_network_implementation<D>::cache_embeddings() {
+  for (auto&& embedding : embeddings) {
+    auto& e = embedding.second.e;
+    auto& cache = embedding.second.cache;
+
+    fill_n(cache.w[0], 6*D, 0.f);
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][i] += e.w[0][j] * gru_fwd.X.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][D+i] += e.w[0][j] * gru_fwd.X_r.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][2*D+i] += e.w[0][j] * gru_fwd.X_z.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][3*D+i] += e.w[0][j] * gru_bwd.X.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][4*D+i] += e.w[0][j] * gru_bwd.X_r.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][5*D+i] += e.w[0][j] * gru_bwd.X_z.w[i][j];
+  }
+  fill_n(empty_embedding.cache.w[0], 6*D, 0.f);
 }
 
 } // namespace morphodita

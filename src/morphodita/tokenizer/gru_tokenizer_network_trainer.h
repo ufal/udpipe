@@ -37,6 +37,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 
  private:
   template <int R, int C> using matrix = gru_tokenizer_network::matrix<R, C>;
+  using typename gru_tokenizer_network_implementation<D>::cached_embedding;
   using typename gru_tokenizer_network_implementation<D>::gru;
 
   template <int R, int C> struct matrix_trainer {
@@ -90,11 +91,11 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   for (auto&& sentence : data)
     for (auto&& chr : sentence.sentence)
       if (!this->embeddings.count(chr)) {
-        matrix<1, D> embedding;
-        random_matrix(embedding, generator, 1.f, 0.f);
+        cached_embedding embedding;
+        random_matrix(embedding.e, generator, 1.f, 0.f);
         this->embeddings.emplace(chr, embedding);
       }
-  this->empty_embedding.clear();
+  this->empty_embedding.e.clear();
 
   // Initialize weights
   random_gru(this->gru_fwd, generator, 1.f);
@@ -105,7 +106,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   // Train the network
   unordered_map<char32_t, matrix_trainer<1, D>> embeddings;
   for (auto&& embedding : this->embeddings)
-    embeddings.emplace(embedding.first, embedding.second);
+    embeddings.emplace(embedding.first, embedding.second.e);
   vector<matrix_trainer<1, D>*> chosen_embeddings(segment);
   gru_trainer gru_fwd(this->gru_fwd, segment), gru_bwd(this->gru_bwd, segment);
   matrix_trainer<3, D> projection_fwd(this->projection_fwd), projection_bwd(this->projection_bwd);
@@ -314,7 +315,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
         best_sentence_f1_network = *this;
       }
       if (early_stopping && best_sentence_f1 && epoch - best_sentence_f1_epoch > 30) {
-        cerr << "Stopping after 30 iterations of not improving sentence f1." << endl;
+        cerr << endl << "Stopping after 30 iterations of not improving sentence f1." << endl;
         break;
       }
     }
@@ -338,7 +339,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   enc.add_4B(this->embeddings.size());
   for (auto&& embedding : this->embeddings) {
     enc.add_4B(embedding.first);
-    enc.add_data(embedding.second.w[0], D);
+    enc.add_data(embedding.second.e.w[0], D);
   }
   save_gru(this->gru_fwd, enc);
   save_gru(this->gru_bwd, enc);
@@ -405,6 +406,7 @@ void gru_tokenizer_network_trainer<D>::evaluate(unsigned url_email_tokenizer, un
   vector<token_range> system_sentences, system_tokens, tokens;
   string text_utf8;
 
+  this->cache_embeddings();
   gru_tokenizer tokenizer(url_email_tokenizer, segment, *this);
   unilib::utf8::encode(text, text_utf8);
   tokenizer.set_text(text_utf8);
