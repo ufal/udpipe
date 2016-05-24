@@ -31,7 +31,9 @@ namespace morphodita {
 template <int D>
 class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementation<D> {
  public:
-  bool train(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error);
+  bool train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
+             float learning_rate, float dropout_rate, const vector<tokenized_sentence>& data,
+             const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error);
 
  private:
   template <int R, int C> using matrix = gru_tokenizer_network::matrix<R, C>;
@@ -44,7 +46,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
     float w_v[R][C], b_v[R];
 
     matrix_trainer(matrix<R, C>& original) : original(original), w_g(), b_g(), w_m(), b_m(), w_v(), b_v() {}
-    void update_weights();
+    void update_weights(float learning_rate);
   };
   struct gru_trainer {
     matrix_trainer<D,D> X, X_r, X_z;
@@ -54,7 +56,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
     gru_trainer(gru& g, unsigned segment)
         : X(g.X), X_r(g.X_r), X_z(g.X_z), H(g.H), H_r(g.H_r), H_z(g.H_z),
         states(segment + 1), updates(segment), resets(segment), candidates(segment), dropouts(segment) {}
-    void update_weights();
+    void update_weights(float learning_rate);
   };
 
   struct f1_info { double precision, recall, f1; };
@@ -73,14 +75,15 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 //
 
 template <int D>
-bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
+bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
+                                             float learning_rate, float dropout, const vector<tokenized_sentence>& data,
+                                             const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
   if (segment < 10) return error.assign("Segment size must be at least 10!"), false;
 
   mt19937 generator;
 
-  float dropout_parameter = 0.1f;
-  float dropout_multiplier = 1.f / (1.f - dropout_parameter);
-  bernoulli_distribution dropout_distribution(dropout_parameter);
+  float dropout_multiplier = 1.f / (1.f - dropout);
+  bernoulli_distribution dropout_distribution(dropout);
 
   // Generate embeddings
   for (auto&& sentence : data)
@@ -110,11 +113,11 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
   vector<gru_tokenizer_network::outcome_t> training_output, instance_output(segment);
   vector<int> permutation; for (size_t i = 0; i < data.size(); i++) permutation.push_back(permutation.size());
-  for (int epoch = 0; epoch < 5; epoch++) {
+  for (unsigned epoch = 0; epoch < epochs; epoch++) {
     double logprob = 0;
     int total = 0, correct = 0;
 
-    for (int instance = 0; instance < 10000; instance++) {
+    for (int instance = 0, instances = 10000; instance < instances; instance++) {
       // Prepare input instance
       if (training_offset + segment >= training_input.size()) {
         shuffle(permutation.begin(), permutation.end(), generator);
@@ -182,7 +185,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
             gru.states[i+1].w[0][j] = (1.f - gru.updates[i].w[0][j]) * gru.states[i].w[0][j] + gru.updates[i].w[0][j] * gru.candidates[i].w[0][j];
           }
 
-          if (dropout_parameter)
+          if (dropout)
             for (int j = 0; j < D; j++)
               gru.dropouts[i].w[0][j] = dropout_distribution(generator) ? 0.f : dropout_multiplier * gru.states[i+1].w[0][j];
 
@@ -264,14 +267,22 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
           }
         }
       }
-      // Update the weights
-      for (auto&& chosen_embedding : chosen_embeddings)
-        chosen_embedding->update_weights();
-      gru_fwd.update_weights();
-      gru_bwd.update_weights();
-      projection_fwd.update_weights();
-      projection_bwd.update_weights();
 
+      // Update the weights
+      if (batch_size == 1 ||
+          instance+1 == instances ||
+          (instance+1) % batch_size == 0) {
+        if (batch_size == 1)
+          for (auto&& chosen_embedding : chosen_embeddings)
+            chosen_embedding->update_weights(learning_rate);
+        else
+          for (auto&& embedding : embeddings)
+            embedding.second.update_weights(learning_rate);
+        gru_fwd.update_weights(learning_rate);
+        gru_bwd.update_weights(learning_rate);
+        projection_fwd.update_weights(learning_rate);
+        projection_bwd.update_weights(learning_rate);
+      }
     }
 
     // Evaluate
@@ -306,11 +317,11 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
 }
 
 template <int D> template <int R, int C>
-void gru_tokenizer_network_trainer<D>::matrix_trainer<R, C>::update_weights() {
+void gru_tokenizer_network_trainer<D>::matrix_trainer<R, C>::update_weights(float learning_rate) {
   for (int i = 0; i < R; i++) {
     for (int j = 0; j < C; j++)
-      original.w[i][j] += 0.01 * w_g[i][j]; // - 0.000001 * original.w[i][j];
-    original.b[i] += 0.01 * b_g[i]; // - 0.000001 * original.b[i];
+      original.w[i][j] += learning_rate * w_g[i][j];
+    original.b[i] += learning_rate * b_g[i];
   }
 
   for (int i = 0; i < R; i++) {
@@ -321,13 +332,13 @@ void gru_tokenizer_network_trainer<D>::matrix_trainer<R, C>::update_weights() {
 }
 
 template <int D>
-void gru_tokenizer_network_trainer<D>::gru_trainer::update_weights() {
-  X.update_weights();
-  X_r.update_weights();
-  X_z.update_weights();
-  H.update_weights();
-  H_r.update_weights();
-  H_z.update_weights();
+void gru_tokenizer_network_trainer<D>::gru_trainer::update_weights(float learning_rate) {
+  X.update_weights(learning_rate);
+  X_r.update_weights(learning_rate);
+  X_z.update_weights(learning_rate);
+  H.update_weights(learning_rate);
+  H_r.update_weights(learning_rate);
+  H_z.update_weights(learning_rate);
 }
 
 template <int D>

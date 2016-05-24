@@ -19,7 +19,9 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, ostream& os, string& error) {
+bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, unsigned epochs,
+                                  unsigned batch_size, float learning_rate, float dropout, const vector<tokenized_sentence>& data,
+                                  const vector<tokenized_sentence>& heldout, ostream& os, string& error) {
   using namespace unilib;
 
   error.clear();
@@ -34,7 +36,7 @@ bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment
   // Train the GRU network
   if (dimension == 16) {
     gru_tokenizer_network_trainer<16> network;
-    if (!network.train(url_email_tokenizer, segment, data, heldout, enc, error)) return false;
+    if (!network.train(url_email_tokenizer, segment, epochs, batch_size, learning_rate, dropout, data, heldout, enc, error)) return false;
   } else {
     return error.assign("Gru tokenizer dimension '").append(to_string(dimension)).append("' is not supported!"), false;
   }

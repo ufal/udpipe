@@ -25,7 +25,9 @@ class gru_tokenizer_trainer {
  public:
   enum { URL_EMAIL_LATEST = unicode_tokenizer::URL_EMAIL_LATEST };
 
-  static bool train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& handout, ostream& os, string& error);
+  static bool train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, unsigned epochs,
+                    unsigned batch_size, float learning_rate, float dropout, const vector<tokenized_sentence>& data,
+                    const vector<tokenized_sentence>& heldout, ostream& os, string& error);
 };
 
 } // namespace morphodita
