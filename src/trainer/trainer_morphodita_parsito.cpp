@@ -169,7 +169,7 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
         int segment_size = 50; if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
         int dimension = 16; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
-        int epochs = 5; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
+        int epochs = 50; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
         int batch_size = 1; if (!option_int(tokenizer, "batch_size", batch_size, error)) return false;
         bool adam = true; if (!option_bool(tokenizer, "adam", adam, error)) return false;
         double learning_rate = 0.01; if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
