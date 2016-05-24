@@ -2,7 +2,7 @@
 
 data() {
   case "$2" in
-    none) perl -e 'print((" ")x500000)';;
+    none) echo;;
     *) zcat /net/data/W2C/W2C_WEB/2011-08/$2.txt.gz | head -c 500000;;
   esac > raw_texts/$1.txt
 }
