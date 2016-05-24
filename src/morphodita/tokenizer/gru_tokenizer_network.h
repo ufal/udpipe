@@ -137,17 +137,15 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
         }
         update.w[0][j] = 1.f / (1.f + exp(-update.w[0][j]));
         reset.w[0][j] = 1.f / (1.f + exp(-reset.w[0][j]));
-      }
-      for (int j = 0; j < D; j++)
         reset.w[0][j] *= state.w[0][j];
+      }
       for (int j = 0; j < D; j++) {
         candidate.w[0][j] = gru.X.b[j];
         for (int k = 0; k < D; k++)
           candidate.w[0][j] += outcome.embedding[k] * gru.X.w[j][k] + reset.w[0][k] * gru.H.w[j][k];
         candidate.w[0][j] = tanh(candidate.w[0][j]);
+        state.w[0][j] = update.w[0][j] * state.w[0][j] + (1.f - update.w[0][j]) * candidate.w[0][j];
       }
-      for (int j = 0; j < D; j++)
-        state.w[0][j] = (1.f - update.w[0][j]) * state.w[0][j] + update.w[0][j] * candidate.w[0][j];
 
       for (int j = 0; j < 3; j++)
         for (int k = 0; k < D; k++)

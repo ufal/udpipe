@@ -52,11 +52,11 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
   struct gru_trainer {
     matrix_trainer<D,D> X, X_r, X_z;
     matrix_trainer<D,D> H, H_r, H_z;
-    vector<matrix<1, D>> states, updates, resets, candidates, dropouts;
+    vector<matrix<1, D>> states, updates, resets, resetstates, candidates, dropouts;
 
     gru_trainer(gru& g, unsigned segment)
-        : X(g.X), X_r(g.X_r), X_z(g.X_z), H(g.H), H_r(g.H_r), H_z(g.H_z),
-        states(segment + 1), updates(segment), resets(segment), candidates(segment), dropouts(segment) {}
+        : X(g.X), X_r(g.X_r), X_z(g.X_z), H(g.H), H_r(g.H_r), H_z(g.H_z), states(segment + 1),
+        updates(segment), resets(segment), resetstates(segment), candidates(segment), dropouts(segment) {}
     void update_weights(bool adam, float learning_rate);
   };
 
@@ -178,19 +178,18 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
             }
             gru.updates[i].w[0][j] = 1.f / (1.f + exp(-gru.updates[i].w[0][j]));
             gru.resets[i].w[0][j] = 1.f / (1.f + exp(-gru.resets[i].w[0][j]));
-            gru.resets[i].w[0][j] *= gru.states[i].w[0][j];
+            gru.resetstates[i].w[0][j] = gru.resets[i].w[0][j] * gru.states[i].w[0][j];
           }
           for (int j = 0; j < D; j++) {
             gru.candidates[i].w[0][j] = gru.X.original.b[j];
             for (int k = 0; k < D; k++)
-              gru.candidates[i].w[0][j] += embedding->original.w[0][k] * gru.X.original.w[j][k] + gru.resets[i].w[0][k] * gru.H.original.w[j][k];
+              gru.candidates[i].w[0][j] += embedding->original.w[0][k] * gru.X.original.w[j][k] + gru.resetstates[i].w[0][k] * gru.H.original.w[j][k];
             gru.candidates[i].w[0][j] = tanh(gru.candidates[i].w[0][j]);
-            gru.states[i+1].w[0][j] = (1.f - gru.updates[i].w[0][j]) * gru.states[i].w[0][j] + gru.updates[i].w[0][j] * gru.candidates[i].w[0][j];
+            gru.states[i+1].w[0][j] = gru.updates[i].w[0][j] * gru.states[i].w[0][j] + (1.f - gru.updates[i].w[0][j]) * gru.candidates[i].w[0][j];
           }
 
-          if (dropout)
-            for (int j = 0; j < D; j++)
-              gru.dropouts[i].w[0][j] = dropout_distribution(generator) ? 0.f : dropout_multiplier * gru.states[i+1].w[0][j];
+          for (int j = 0; j < D; j++)
+            gru.dropouts[i].w[0][j] = dropout && dropout_distribution(generator) ? 0.f : dropout_multiplier * gru.states[i+1].w[0][j];
 
           for (int j = 0; j < 3; j++)
             for (int k = 0; k < D; k++)
@@ -220,39 +219,39 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
         auto& gru = dir == 0 ? gru_fwd : gru_bwd;
         auto& projection = dir == 0 ? projection_fwd : projection_bwd;
 
-        matrix<1, D> state_g, update_g, candidate_g, reset_g;
+        matrix<1, D> state_g, update_g, candidate_g, reset_g, resetstate_g;
         state_g.clear();
-        for (size_t i = segment; i-- >= segment; ) {
+        for (size_t i = segment; i--; ) {
           auto& embedding = chosen_embeddings[dir == 0 ? i : segment - 1 - i];
           auto& output = instance_output[dir == 0 ? i : segment - 1 - i];
 
-          for (int k = 0; k < D; k++) // These for cycles are swapped because
-            for (int j = 0; j < 3; j++) // g++-4.8 generates wrong code otherwise.
-              projection.w_g[j][k] += gru.dropouts[i].w[0][k] * output.w[j];
+          for (int j = 0; j < D; j++) // These for cycles are swapped because
+            for (int k = 0; k < 3; k++) // g++-4.8 generates wrong code otherwise.
+              projection.w_g[k][j] += gru.dropouts[i].w[0][j] * output.w[k];
 
           for (int j = 0; j < D; j++)
             if (gru.dropouts[i].w[0][j])
               for (int k = 0; k < 3; k++)
                 state_g.w[0][j] += projection.original.w[k][j] * output.w[k];
 
-          reset_g.clear();
+          resetstate_g.clear();
           for (int j = 0; j < D; j++) {
-            update_g.w[0][j] = state_g.w[0][j] * (gru.candidates[i].w[0][j] - gru.states[i].w[0][j]);
-            candidate_g.w[0][j] = state_g.w[0][j] * gru.updates[i].w[0][j];
-            state_g.w[0][j] = state_g.w[0][j] * (1.f - gru.updates[i].w[0][j]);
+            update_g.w[0][j] = state_g.w[0][j] * (gru.states[i].w[0][j] - gru.candidates[i].w[0][j]);
+            candidate_g.w[0][j] = state_g.w[0][j] * (1.f - gru.updates[i].w[0][j]);
+            state_g.w[0][j] = state_g.w[0][j] * gru.updates[i].w[0][j];
 
             candidate_g.w[0][j] *= 1 - gru.candidates[i].w[0][j] * gru.candidates[i].w[0][j];
             gru.X.b_g[j] += candidate_g.w[0][j];
             for (int k = 0; k < D; k++) {
               gru.X.w_g[j][k] += candidate_g.w[0][j] * embedding->original.w[0][k];
-              gru.H.w_g[j][k] += candidate_g.w[0][j] * gru.states[i].w[0][k];
+              gru.H.w_g[j][k] += candidate_g.w[0][j] * gru.resetstates[i].w[0][k];
               embedding->w_g[0][k] += candidate_g.w[0][j] * gru.X.original.w[j][k];
-              reset_g.w[0][k] += candidate_g.w[0][j] * gru.H.original.w[j][k];
+              resetstate_g.w[0][k] += candidate_g.w[0][j] * gru.H.original.w[j][k];
             }
           }
           for (int j = 0; j < D; j++) {
-            state_g.w[0][j] += reset_g.w[0][j] * gru.resets[i].w[0][j];
-            reset_g.w[0][j] = reset_g.w[0][j] * gru.states[i].w[0][j];
+            state_g.w[0][j] += resetstate_g.w[0][j] * gru.resets[i].w[0][j];
+            reset_g.w[0][j] = resetstate_g.w[0][j] * gru.states[i].w[0][j];
 
             update_g.w[0][j] *= gru.updates[i].w[0][j] * (1 - gru.updates[i].w[0][j]);
             reset_g.w[0][j] *= gru.resets[i].w[0][j] * (1 - gru.resets[i].w[0][j]);
@@ -265,7 +264,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
               gru.X_r.w_g[j][k] += reset_g.w[0][j] * embedding->original.w[0][k];
               gru.H_r.w_g[j][k] += reset_g.w[0][j] * gru.states[i].w[0][k];
               embedding->w_g[0][k] += update_g.w[0][j] * gru.X_z.original.w[j][k] + reset_g.w[0][j] * gru.X_r.original.w[j][k];
-              state_g.w[0][k] += update_g.w[0][j] * gru.H_z.original.w[j][k] + reset_g.w[0][j] * gru.H_z.original.w[j][k];
+              state_g.w[0][k] += update_g.w[0][j] * gru.H_z.original.w[j][k] + reset_g.w[0][j] * gru.H_r.original.w[j][k];
             }
           }
         }
