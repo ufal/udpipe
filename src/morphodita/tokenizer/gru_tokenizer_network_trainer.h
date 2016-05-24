@@ -226,8 +226,8 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
           auto& embedding = chosen_embeddings[dir == 0 ? i : segment - 1 - i];
           auto& output = instance_output[dir == 0 ? i : segment - 1 - i];
 
-          for (int j = 0; j < 3; j++)
-            for (int k = 0; k < D; k++)
+          for (int k = 0; k < D; k++) // These for cycles are swapped because
+            for (int j = 0; j < 3; j++) // g++-4.8 generates wrong code otherwise.
               projection.w_g[j][k] += gru.dropouts[i].w[0][k] * output.w[j];
 
           for (int j = 0; j < D; j++)
