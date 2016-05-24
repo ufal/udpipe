@@ -21,7 +21,7 @@ namespace morphodita {
 
 bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, unsigned epochs,
                                   unsigned batch_size, bool adam, float learning_rate, float learning_rate_final, float dropout,
-                                  const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout,
+                                  bool early_stopping, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout,
                                   ostream& os, string& error) {
   using namespace unilib;
 
@@ -38,15 +38,15 @@ bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment
   if (dimension == 16) {
     gru_tokenizer_network_trainer<16> network;
     if (!network.train(url_email_tokenizer, segment, epochs, batch_size, adam, learning_rate,
-                       learning_rate_final, dropout, data, heldout, enc, error)) return false;
+                       learning_rate_final, dropout, early_stopping, data, heldout, enc, error)) return false;
   } else if (dimension == 20) {
     gru_tokenizer_network_trainer<20> network;
     if (!network.train(url_email_tokenizer, segment, epochs, batch_size, adam, learning_rate,
-                       learning_rate_final, dropout, data, heldout, enc, error)) return false;
+                       learning_rate_final, dropout, early_stopping, data, heldout, enc, error)) return false;
   } else if (dimension == 24) {
     gru_tokenizer_network_trainer<24> network;
     if (!network.train(url_email_tokenizer, segment, epochs, batch_size, adam, learning_rate,
-                       learning_rate_final, dropout, data, heldout, enc, error)) return false;
+                       learning_rate_final, dropout, early_stopping, data, heldout, enc, error)) return false;
   } else {
     return error.assign("Gru tokenizer dimension '").append(to_string(dimension)).append("' is not supported!"), false;
   }
