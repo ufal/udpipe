@@ -26,7 +26,7 @@ class gru_tokenizer_trainer {
   enum { URL_EMAIL_LATEST = unicode_tokenizer::URL_EMAIL_LATEST };
 
   static bool train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, unsigned epochs,
-                    unsigned batch_size, bool adam, float learning_rate, float learning_rate_final, float dropout,
+                    unsigned batch_size, float learning_rate, float learning_rate_final, float dropout,
                     bool early_stopping, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout,
                     ostream& os, string& error);
 };
