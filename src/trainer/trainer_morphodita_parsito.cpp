@@ -171,14 +171,16 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         int dimension = 16; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
         int epochs = 5; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
         int batch_size = 1; if (!option_int(tokenizer, "batch_size", batch_size, error)) return false;
+        bool adam = true; if (!option_bool(tokenizer, "adam", adam, error)) return false;
         double learning_rate = 0.01; if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
+        double learning_rate_final = 0.0; if (!option_double(tokenizer, "learning_rate_final", learning_rate_final, error)) return false;
         double dropout = 0.1; if (!option_double(tokenizer, "dropout", dropout, error)) return false;
 
         // Train and encode gru_tokenizer
         os.put(morphodita::tokenizer_ids::GRU);
         if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0,
-                                                      segment_size, dimension, epochs, batch_size, learning_rate, dropout,
-                                                      sentences, heldout_sentences, os, error))
+                                                      segment_size, dimension, epochs, batch_size, adam, learning_rate,
+                                                      learning_rate_final, dropout, sentences, heldout_sentences, os, error))
           return false;
       } else {
         return error.assign("Unknown tokenizer model '").append(model).append("'!"), false;
