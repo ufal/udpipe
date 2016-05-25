@@ -13,12 +13,13 @@
 
 #include "common.h"
 #include "sentence/sentence.h"
+#include "trainer.h"
 #include "utils/named_values.h"
 
 namespace ufal {
 namespace udpipe {
 
-class trainer_morphodita_parsito {
+class trainer_morphodita_parsito : public trainer {
  public:
   static bool train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
 

@@ -14,6 +14,9 @@
 namespace ufal {
 namespace udpipe {
 
+const string pipeline::DEFAULT;
+const string pipeline::NONE = "none";
+
 pipeline::pipeline(const model* m, const string& input_format, const string& tagger,
                    const string& parser, const string& output_format) {
   set_model(m);
@@ -73,11 +76,11 @@ bool pipeline::process(const string& input, ostream& os, string& error) const {
   if (!writer) return error.assign("The requested output format '").append(output_format_desc).append("' does not exist!"), false;
 
   while (reader->next_sentence(s, error)) {
-    if (tagger != "none")
+    if (tagger != NONE)
       if (!m->tag(s, tagger, error))
         return false;
 
-    if (parser != "none")
+    if (parser != NONE)
       if (!m->parse(s, parser, error))
         return false;
 
@@ -137,7 +140,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   conllu_input->set_text(input);
   while (conllu_input->next_sentence(gold, error)) {
     // Detokenize the input when tokenizing
-    if (tokenizer != "none") {
+    if (tokenizer != NONE) {
       gold_tokenizer.add_sentence(gold);
 
       bool previous_nospace = true;
@@ -159,7 +162,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
       system.add_word(gold.words[i].form);
 
     // Tag
-    if (tagger != "none") {
+    if (tagger != NONE) {
       if (!m->tag(system, tagger, error))
         return false;
       for (size_t i = 1; i < gold.words.size(); i++) {
@@ -180,7 +183,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     }
 
     // Parse
-    if (parser != "none") {
+    if (parser != NONE) {
       if (!m->parse(system, parser, error))
         return false;
       for (size_t i = 1; i < gold.words.size(); i++) {
@@ -198,7 +201,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   if (!error.empty()) return false;
 
   // Tokenize the input and evaluate
-  if (tokenizer != "none") {
+  if (tokenizer != NONE) {
     unique_ptr<input_format> t(m->new_tokenizer(tokenizer));
     if (!t) return error.assign("Cannot allocate new tokenizer!"), false;
 
@@ -232,10 +235,10 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
     }
   }
 
-  if (tagger != "none")
+  if (tagger != NONE)
     os << "Tagging - forms: " << words << ", upostag: " << fixed << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
        << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
-  if (parser != "none")
+  if (parser != NONE)
     os << "Parsing - UAS: " << fixed << setprecision(2) << 100. * punct_uas / punct << "%, LAS: " << 100. * punct_las / punct << "%, "
        << "without punctuation - UAS: " << 100. * nopunct_uas / nopunct << "%, LAS: " << 100. * nopunct_las / nopunct << '%' << endl;
 

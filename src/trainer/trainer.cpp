@@ -15,6 +15,9 @@
 namespace ufal {
 namespace udpipe {
 
+const string trainer::DEFAULT;
+const string trainer::NONE = "none";
+
 bool trainer::train(const string& method, const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
   error.clear();
 

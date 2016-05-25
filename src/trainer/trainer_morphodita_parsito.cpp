@@ -29,6 +29,7 @@
 #include "sentence/sentence.h"
 #include "tokenizer/detokenizer.h"
 #include "tokenizer/multiword_splitter_trainer.h"
+#include "trainer.h"
 #include "trainer_morphodita_parsito.h"
 #include "unilib/utf8.h"
 #include "utils/options.h"
@@ -77,7 +78,7 @@ bool trainer_morphodita_parsito::train(const string& data, const string& tokeniz
 bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
-  if (options == "none") {
+  if (options == NONE) {
     os.put(0);
   } else {
     // Tokenizer options
@@ -196,7 +197,7 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
 }
 
 bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error) {
-  if (options == "none") {
+  if (options == NONE) {
     os.put(0);
   } else {
     // Parse options
@@ -243,7 +244,7 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
 bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, const string& options, const string& tagger_model, ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
-  if (options == "none") {
+  if (options == NONE) {
     os.put(0);
   } else {
     // Create Parsito model

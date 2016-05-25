@@ -26,6 +26,8 @@ class model {
   virtual input_format* new_tokenizer(const string& options) const = 0;
   virtual bool tag(sentence& s, const string& options, string& error) const = 0;
   virtual bool parse(sentence& s, const string& options, string& error) const = 0;
+
+  static const string DEFAULT;
 };
 
 } // namespace udpipe

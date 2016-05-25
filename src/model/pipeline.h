@@ -31,6 +31,9 @@ class pipeline {
   bool process(const string& input, ostream& os, string& error) const;
   bool evaluate(const string& input, ostream& os, string& error) const;
 
+  static const string DEFAULT;
+  static const string NONE;
+
  private:
   const model* m;
   string input_format_desc, tokenizer, tagger, parser, output_format_desc;
