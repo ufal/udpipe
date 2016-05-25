@@ -28,9 +28,9 @@ int main(int argc, char* argv[]) {
   options::map options;
   if (!options::parse({{"accuracy", options::value::none},
                        {"method", options::value{"morphodita_parsito"}},
-                       {"input_format", options::value::any},
+                       {"input", options::value::any},
                        {"outfile", options::value::any},
-                       {"output_format", options::value::any},
+                       {"output", options::value::any},
                        {"parse", options::value::none},
                        {"parser", options::value::any},
                        {"tag", options::value::none},
@@ -45,9 +45,9 @@ int main(int argc, char* argv[]) {
     runtime_failure("Usage: " << argv[0] << " --train [training_options] model_file [input_files]\n"
                     "       " << argv[0] << " [running_options] model_file [input_files]\n"
                     "Running options: --accuracy (measure accuracy only)\n"
-                    "                 --input_format=[conllu|horizontal|vertical]\n"
+                    "                 --input=[conllu|horizontal|vertical]\n"
                     "                 --outfile=output file template\n"
-                    "                 --output_format=[conllu|horizontal|vertical]\n"
+                    "                 --output=[conllu|horizontal|vertical]\n"
                     "                 --tokenize (perform tokenization)\n"
                     "                 --tokenizer=tokenizer options, implies --tokenize\n"
                     "                 --tag (perform tagging)\n"
@@ -93,18 +93,18 @@ int main(int argc, char* argv[]) {
     if (!model) runtime_failure("Cannot load UDPipe model '" << argv[1] << "'!");
     cerr << "done." << endl;
 
-    string input_format =
+    string input =
         options.count("tokenizer") ? "tokenizer=" + options["tokenizer"] :
         options.count("tokenize") ? "tokenizer" :
-        options.count("input_format") ? options["input_format"] : "conllu";
+        options.count("input") ? options["input"] : "conllu";
 
-    string output_format = options.count("output_format") ? options["output_format"] : "conllu";
+    string output = options.count("output") ? options["output"] : "conllu";
 
     // Prepare the pipeline
-    pipeline pipeline(model.get(), input_format,
+    pipeline pipeline(model.get(), input,
                       options.count("tagger") ? options["tagger"] : options.count("tag") ? string() : "none",
                       options.count("parser") ? options["parser"] : options.count("parse") ? string() : "none",
-                      output_format);
+                      output);
 
     // Process the data
     if (options.count("accuracy"))

@@ -9,6 +9,7 @@
 
 #include "pipeline.h"
 #include "sentence/input_format.h"
+#include "sentence/output_format.h"
 #include "unilib/utf8.h"
 
 namespace ufal {
@@ -17,31 +18,30 @@ namespace udpipe {
 const string pipeline::DEFAULT;
 const string pipeline::NONE = "none";
 
-pipeline::pipeline(const model* m, const string& input_format, const string& tagger,
-                   const string& parser, const string& output_format) {
+pipeline::pipeline(const model* m, const string& input, const string& tagger, const string& parser, const string& output) {
   set_model(m);
-  set_input_format(input_format);
+  set_input(input);
   set_tagger(tagger);
   set_parser(parser);
-  set_output_format(output_format);
+  set_output(output);
 }
 
 void pipeline::set_model(const model* m) {
   this->m = m;
 }
 
-void pipeline::set_input_format(const string& input_format) {
+void pipeline::set_input(const string& input) {
   tokenizer.clear();
 
-  if (input_format.empty()) {
-    input_format_desc = "conllu";
-  } else if (input_format == "tokenize" || input_format == "tokenizer") {
-    input_format_desc = "tokenizer";
-  } else if (input_format.compare(0, 10, "tokenizer=") == 0) {
-    input_format_desc = "tokenizer";
-    tokenizer.assign(input_format, 10, string::npos);
+  if (input.empty()) {
+    this->input = "conllu";
+  } else if (input == "tokenize" || input == "tokenizer") {
+    this->input = "tokenizer";
+  } else if (input.compare(0, 10, "tokenizer=") == 0) {
+    this->input = "tokenizer";
+    tokenizer.assign(input, 10, string::npos);
   } else {
-    input_format_desc = input_format;
+    this->input = input;
   }
 }
 
@@ -53,8 +53,8 @@ void pipeline::set_parser(const string& parser) {
   this->parser = parser;
 }
 
-void pipeline::set_output_format(const string& output_format) {
-  output_format_desc = output_format.empty() ? "conllu" : output_format;
+void pipeline::set_output(const string& output) {
+  this->output = output.empty() ? "conllu" : output;
 }
 
 bool pipeline::process(istream& is, ostream& os, string& error) const {
@@ -63,16 +63,16 @@ bool pipeline::process(istream& is, ostream& os, string& error) const {
   sentence s;
 
   unique_ptr<input_format> reader;
-  if (input_format_desc == "tokenizer") {
+  if (input == "tokenizer") {
     reader.reset(m->new_tokenizer(tokenizer));
     if (!reader) return error.assign("The model does not have a tokenizer!"), false;
   } else {
-    reader.reset(input_format::new_input_format(input_format_desc));
-    if (!reader) return error.assign("The requested input format '").append(input_format_desc).append("' does not exist!"), false;
+    reader.reset(input_format::new_input_format(input));
+    if (!reader) return error.assign("The requested input format '").append(input).append("' does not exist!"), false;
   }
 
-  unique_ptr<output_format> writer(output_format::new_output_format(output_format_desc));
-  if (!writer) return error.assign("The requested output format '").append(output_format_desc).append("' does not exist!"), false;
+  unique_ptr<output_format> writer(output_format::new_output_format(output));
+  if (!writer) return error.assign("The requested output format '").append(output).append("' does not exist!"), false;
 
   string block;
   while (reader->read_block(is, block)) {
@@ -130,7 +130,7 @@ bool pipeline::evaluate(istream& is, ostream& os, string& error) const {
 
   error.clear();
 
-  if (input_format_desc != "conllu")
+  if (input != "conllu")
     return error.assign("Only CoNLL-U input format is supported for evaluation!"), false;
 
   unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());

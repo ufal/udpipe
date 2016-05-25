@@ -13,20 +13,19 @@
 
 #include "common.h"
 #include "model.h"
-#include "sentence/output_format.h"
 
 namespace ufal {
 namespace udpipe {
 
 class pipeline {
  public:
-  pipeline(const model* m, const string& input_format, const string& tagger, const string& parser, const string& output_format);
+  pipeline(const model* m, const string& input, const string& tagger, const string& parser, const string& output);
 
   void set_model(const model* m);
-  void set_input_format(const string& input_format);
+  void set_input(const string& input);
   void set_tagger(const string& tagger);
   void set_parser(const string& parser);
-  void set_output_format(const string& output_format);
+  void set_output(const string& output);
 
   bool process(istream& is, ostream& os, string& error) const;
   bool evaluate(istream& is, ostream& os, string& error) const;
@@ -36,7 +35,7 @@ class pipeline {
 
  private:
   const model* m;
-  string input_format_desc, tokenizer, tagger, parser, output_format_desc;
+  string input, tokenizer, tagger, parser, output;
 
   struct f1_info { size_t total_system, total_gold; double precision, recall, f1; };
   template <class T>

@@ -120,10 +120,10 @@ class model {
 
 class pipeline {
  public:
-  pipeline(const model* m, const std::string& input_format, const std::string& tagger, const std::string& parser, const std::string& output_format);
+  pipeline(const model* m, const std::string& input, const std::string& tagger, const std::string& parser, const std::string& output);
 
   void set_model(const model* m);
-  void set_input_format(const std::string& input_format);
+  void set_input(const std::string& input);
   void set_tagger(const std::string& tagger);
   void set_parser(const std::string& parser);
   void set_output_format(const std::string& output_format);
@@ -136,7 +136,7 @@ class pipeline {
 
  private:
   const model* m;
-  std::string input_format_desc, tokenizer, tagger, parser, output_format_desc;
+  std::string input, tokenizer, tagger, parser, output;
 };
 
 class trainer {
