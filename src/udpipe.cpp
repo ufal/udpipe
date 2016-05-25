@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "common.h"
+#include "model/evaluator.h"
 #include "model/model.h"
 #include "model/pipeline.h"
 #include "sentence/input_format.h"
@@ -120,32 +121,35 @@ int main(int argc, char* argv[]) {
     if (!model) runtime_failure("Cannot load UDPipe model '" << argv[1] << "'!");
     cerr << "done." << endl;
 
-    string input =
-        options.count("tokenizer") ? "tokenizer=" + options["tokenizer"] :
-        options.count("tokenize") ? "tokenizer" :
-        options.count("input") ? options["input"] : "conllu";
+    if (options.count("accuracy")) {
+      if (options.count("input")) runtime_failure("The --input option is unsupported when --accuracy is used!");
+      if (options.count("output")) runtime_failure("The --output option is unsupported when --accuracy is used!");
 
-    string output = options.count("output") ? options["output"] : "conllu";
+      // Prepare the evaluator
+      evaluator evaluator(model.get(), options.count("tokenizer") ? options["tokenizer"] : options.count("tokenize") ? pipeline::DEFAULT : pipeline::NONE,
+                          options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
+                          options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE);
 
-    // Prepare the pipeline
-    pipeline pipeline(model.get(), input,
-                      options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
-                      options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE,
-                      output);
-
-    // Process the data
-    if (options.count("accuracy"))
-      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os) {
+      // Process the data
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&evaluator](istream& is, ostream& os) {
         string error;
-        if (!pipeline.evaluate(is, os, error))
+        if (!evaluator.evaluate(is, os, error))
             runtime_failure("An error occurred during UDPipe execution: " << error);
       });
-    else
+    } else {
+      // Prepare the pipeline
+      pipeline pipeline(model.get(), options.count("tokenizer") ? "tokenizer=" + options["tokenizer"] : options.count("tokenize") ? "tokenizer" : options.count("input") ? options["input"] : "conllu",
+                        options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
+                        options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE,
+                        options.count("output") ? options["output"] : "conllu");
+
+      // Process the data
       process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os) {
         string error;
         if (!pipeline.process(is, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
       });
+    }
   }
 
   return 0;

@@ -126,10 +126,9 @@ class pipeline {
   void set_input(const std::string& input);
   void set_tagger(const std::string& tagger);
   void set_parser(const std::string& parser);
-  void set_output_format(const std::string& output_format);
+  void set_output(const std::string& output);
 
   bool process(std::istream& is, std::ostream& os, std::string& error) const;
-  bool evaluate(std::istream& is, std::ostream& os, std::string& error) const;
 
   static const std::string DEFAULT;
   static const std::string NONE;
@@ -147,6 +146,25 @@ class trainer {
 
   static const std::string DEFAULT;
   static const std::string NONE;
+};
+
+class evaluator {
+ public:
+  evaluator(const model* m, const std::string& tokenizer, const std::string& tagger, const std::string& parser);
+
+  void set_model(const model* m);
+  void set_tokenizer(const std::string& tokenizer);
+  void set_tagger(const std::string& tagger);
+  void set_parser(const std::string& parser);
+
+  bool evaluate(std::istream& is, std::ostream& os, std::string& error) const;
+
+  static const std::string DEFAULT;
+  static const std::string NONE;
+
+ private:
+  const model* m;
+  std::string tokenizer, tagger, parser;
 };
 
 class version {
