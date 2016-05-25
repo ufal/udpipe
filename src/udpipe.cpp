@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
   if (!options::parse({{"accuracy", options::value::none},
                        {"method", options::value{"morphodita_parsito"}},
                        {"input_format", options::value::any},
-                       {"output", options::value::any},
+                       {"outfile", options::value::any},
                        {"output_format", options::value::any},
                        {"parse", options::value::none},
                        {"parser", options::value::any},
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
                     "       " << argv[0] << " [running_options] model_file [input_files]\n"
                     "Running options: --accuracy (measure accuracy only)\n"
                     "                 --input_format=[conllu|horizontal|vertical]\n"
-                    "                 --output=output file template\n"
+                    "                 --outfile=output file template\n"
                     "                 --output_format=[conllu|horizontal|vertical]\n"
                     "                 --tokenize (perform tokenization)\n"
                     "                 --tokenizer=tokenizer options, implies --tokenize\n"
@@ -108,13 +108,13 @@ int main(int argc, char* argv[]) {
 
     // Process the data
     if (options.count("accuracy"))
-      process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os) {
         string error;
         if (!pipeline.evaluate(is, os, error))
             runtime_failure("An error occurred during UDPipe execution: " << error);
       });
     else
-      process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os) {
         string error;
         if (!pipeline.process(is, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
