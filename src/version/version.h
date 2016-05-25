@@ -14,7 +14,8 @@
 namespace ufal {
 namespace udpipe {
 
-struct version {
+class version {
+ public:
   unsigned major;
   unsigned minor;
   unsigned patch;
