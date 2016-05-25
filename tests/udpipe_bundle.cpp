@@ -35,18 +35,10 @@ int main(int argc, char* argv[]) {
 
   pipeline pipeline(model.get(), argv[1], pipeline::DEFAULT, pipeline::DEFAULT, argv[2]);
 
-  string line, para, error;
-  while (cin) {
-    para.clear();
-    while (getline(cin, line)) {
-      para.append(line).append("\n");
-      if (line.empty()) break;
-    }
-
-    if (!para.empty() && !pipeline.process(para, cout, error)) {
-      cerr << "An error occured: " << error << endl;
-      return 1;
-    }
+  string error;
+  if (!pipeline.process(cin, cout, error)) {
+    cerr << "An error occured: " << error << endl;
+    return 1;
   }
 
   return 0;

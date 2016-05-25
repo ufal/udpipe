@@ -128,8 +128,8 @@ class pipeline {
   void set_parser(const std::string& parser);
   void set_output_format(const std::string& output_format);
 
-  bool process(const std::string& input, std::ostream& os, std::string& error) const;
-  bool evaluate(const std::string& input, std::ostream& os, std::string& error) const;
+  bool process(std::istream& is, std::ostream& os, std::string& error) const;
+  bool evaluate(std::istream& is, std::ostream& os, std::string& error) const;
 
   static const std::string DEFAULT;
   static const std::string NONE;

@@ -109,20 +109,15 @@ int main(int argc, char* argv[]) {
     // Process the data
     if (options.count("accuracy"))
       process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
-        string para, data, error;
-
-        while (getpara(is, para))
-          data.append(para);
-        if (!pipeline.evaluate(data, os, error))
+        string error;
+        if (!pipeline.evaluate(is, os, error))
             runtime_failure("An error occurred during UDPipe execution: " << error);
       });
     else
       process_args_with_output_template(2, argc, argv, options["output"], [&pipeline](istream& is, ostream& os) {
-        string para, error;
-
-        while (getpara(is, para))
-          if (!pipeline.process(para, os, error))
-            runtime_failure("An error occurred during UDPipe execution: " << error);
+        string error;
+        if (!pipeline.process(is, os, error))
+          runtime_failure("An error occurred during UDPipe execution: " << error);
       });
   }
 

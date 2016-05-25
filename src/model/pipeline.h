@@ -28,8 +28,8 @@ class pipeline {
   void set_parser(const string& parser);
   void set_output_format(const string& output_format);
 
-  bool process(const string& input, ostream& os, string& error) const;
-  bool evaluate(const string& input, ostream& os, string& error) const;
+  bool process(istream& is, ostream& os, string& error) const;
+  bool evaluate(istream& is, ostream& os, string& error) const;
 
   static const string DEFAULT;
   static const string NONE;

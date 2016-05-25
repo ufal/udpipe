@@ -57,7 +57,7 @@ void pipeline::set_output_format(const string& output_format) {
   output_format_desc = output_format.empty() ? "conllu" : output_format;
 }
 
-bool pipeline::process(const string& input, ostream& os, string& error) const {
+bool pipeline::process(istream& is, ostream& os, string& error) const {
   error.clear();
 
   sentence s;
@@ -70,28 +70,31 @@ bool pipeline::process(const string& input, ostream& os, string& error) const {
     reader.reset(input_format::new_input_format(input_format_desc));
     if (!reader) return error.assign("The requested input format '").append(input_format_desc).append("' does not exist!"), false;
   }
-  reader->set_text(input);
 
   unique_ptr<output_format> writer(output_format::new_output_format(output_format_desc));
   if (!writer) return error.assign("The requested output format '").append(output_format_desc).append("' does not exist!"), false;
 
-  while (reader->next_sentence(s, error)) {
-    if (tagger != NONE)
-      if (!m->tag(s, tagger, error))
-        return false;
+  string block;
+  while (reader->read_block(is, block)) {
+    reader->set_text(block);
+    while (reader->next_sentence(s, error)) {
+      if (tagger != NONE)
+        if (!m->tag(s, tagger, error))
+          return false;
 
-    if (parser != NONE)
-      if (!m->parse(s, parser, error))
-        return false;
+      if (parser != NONE)
+        if (!m->parse(s, parser, error))
+          return false;
 
-    writer->write_sentence(s, os);
+      writer->write_sentence(s, os);
+    }
+    if (!error.empty()) return false;
   }
-  if (!error.empty()) return false;
 
   return true;
 }
 
-bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
+bool pipeline::evaluate(istream& is, ostream& os, string& error) const {
   class tokenizer_evaluator {
    public:
     void add_sentence(const sentence& s) {
@@ -137,68 +140,72 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   sentence system, gold;
   int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
   int punct = 0, punct_uas = 0, punct_las = 0, nopunct = 0, nopunct_uas = 0, nopunct_las = 0;
-  conllu_input->set_text(input);
-  while (conllu_input->next_sentence(gold, error)) {
-    // Detokenize the input when tokenizing
-    if (tokenizer != NONE) {
-      gold_tokenizer.add_sentence(gold);
 
-      bool previous_nospace = true;
-      for (size_t i = 1, j = 0; i < gold.words.size(); i++) {
-        if (!previous_nospace) plain_text.push_back(' ');
-        plain_text.append(j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].form : gold.words[i].form);
-        const string& misc = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].misc : gold.words[i].misc;
-        previous_nospace = misc.find(space_after_no) != string::npos;
-        space_after_nos += previous_nospace ? 1 : 0;
-        if (j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i))
-          i = gold.multiword_tokens[j++].id_last;
+  string block;
+  while (conllu_input->read_block(is, block)) {
+    conllu_input->set_text(block);
+    while (conllu_input->next_sentence(gold, error)) {
+      // Detokenize the input when tokenizing
+      if (tokenizer != NONE) {
+        gold_tokenizer.add_sentence(gold);
+
+        bool previous_nospace = true;
+        for (size_t i = 1, j = 0; i < gold.words.size(); i++) {
+          if (!previous_nospace) plain_text.push_back(' ');
+          plain_text.append(j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].form : gold.words[i].form);
+          const string& misc = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].misc : gold.words[i].misc;
+          previous_nospace = misc.find(space_after_no) != string::npos;
+          space_after_nos += previous_nospace ? 1 : 0;
+          if (j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i))
+            i = gold.multiword_tokens[j++].id_last;
+        }
+        plain_text.push_back(' ');
       }
-      plain_text.push_back(' ');
-    }
 
-    // Create empty copy
-    system.clear();
-    for (size_t i = 1; i < gold.words.size(); i++)
-      system.add_word(gold.words[i].form);
+      // Create empty copy
+      system.clear();
+      for (size_t i = 1; i < gold.words.size(); i++)
+        system.add_word(gold.words[i].form);
 
-    // Tag
-    if (tagger != NONE) {
-      if (!m->tag(system, tagger, error))
-        return false;
-      for (size_t i = 1; i < gold.words.size(); i++) {
-        words++;
-        upostag += gold.words[i].upostag == system.words[i].upostag;
-        xpostag += gold.words[i].xpostag == system.words[i].xpostag;
-        feats += gold.words[i].feats == system.words[i].feats;
-        all_tags += gold.words[i].upostag == system.words[i].upostag && gold.words[i].xpostag == system.words[i].xpostag && gold.words[i].feats == system.words[i].feats;
-        lemma += gold.words[i].lemma == system.words[i].lemma;
+      // Tag
+      if (tagger != NONE) {
+        if (!m->tag(system, tagger, error))
+          return false;
+        for (size_t i = 1; i < gold.words.size(); i++) {
+          words++;
+          upostag += gold.words[i].upostag == system.words[i].upostag;
+          xpostag += gold.words[i].xpostag == system.words[i].xpostag;
+          feats += gold.words[i].feats == system.words[i].feats;
+          all_tags += gold.words[i].upostag == system.words[i].upostag && gold.words[i].xpostag == system.words[i].xpostag && gold.words[i].feats == system.words[i].feats;
+          lemma += gold.words[i].lemma == system.words[i].lemma;
+        }
+      } else {
+        for (size_t i = 1; i < gold.words.size(); i++) {
+          system.words[i].upostag = gold.words[i].upostag;
+          system.words[i].xpostag = gold.words[i].xpostag;
+          system.words[i].feats = gold.words[i].feats;
+          system.words[i].lemma = gold.words[i].lemma;
+        }
       }
-    } else {
-      for (size_t i = 1; i < gold.words.size(); i++) {
-        system.words[i].upostag = gold.words[i].upostag;
-        system.words[i].xpostag = gold.words[i].xpostag;
-        system.words[i].feats = gold.words[i].feats;
-        system.words[i].lemma = gold.words[i].lemma;
-      }
-    }
 
-    // Parse
-    if (parser != NONE) {
-      if (!m->parse(system, parser, error))
-        return false;
-      for (size_t i = 1; i < gold.words.size(); i++) {
-        punct++;
-        punct_uas += gold.words[i].head == system.words[i].head;
-        punct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
-        if (gold.words[i].upostag != "PUNCT") {
-          nopunct++;
-          nopunct_uas += gold.words[i].head == system.words[i].head;
-          nopunct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
+      // Parse
+      if (parser != NONE) {
+        if (!m->parse(system, parser, error))
+          return false;
+        for (size_t i = 1; i < gold.words.size(); i++) {
+          punct++;
+          punct_uas += gold.words[i].head == system.words[i].head;
+          punct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
+          if (gold.words[i].upostag != "PUNCT") {
+            nopunct++;
+            nopunct_uas += gold.words[i].head == system.words[i].head;
+            nopunct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
+          }
         }
       }
     }
+    if (!error.empty()) return false;
   }
-  if (!error.empty()) return false;
 
   // Tokenize the input and evaluate
   if (tokenizer != NONE) {
