@@ -16,7 +16,7 @@
 namespace ufal {
 namespace udpipe {
 
-tokenizer* model_morphodita_parsito::new_tokenizer(const string& /*options*/) const {
+input_format* model_morphodita_parsito::new_tokenizer(const string& /*options*/) const {
   return tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get()) : nullptr;
 }
 

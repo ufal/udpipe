@@ -24,7 +24,7 @@ namespace udpipe {
 
 class model_morphodita_parsito : public model {
  public:
-  virtual tokenizer* new_tokenizer(const string& options) const override;
+  virtual input_format* new_tokenizer(const string& options) const override;
   virtual bool tag(sentence& s, const string& options, string& error) const override;
   virtual bool parse(sentence& s, const string& options, string& error) const override;
 
@@ -43,7 +43,7 @@ class model_morphodita_parsito : public model {
   vector<tagger_model> taggers;
   unique_ptr<parsito::parser> parser;
 
-  class tokenizer_morphodita : public tokenizer {
+  class tokenizer_morphodita : public input_format {
    public:
     tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter);
 

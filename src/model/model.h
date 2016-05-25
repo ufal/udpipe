@@ -10,8 +10,8 @@
 #pragma once
 
 #include "common.h"
+#include "sentence/input_format.h"
 #include "sentence/sentence.h"
-#include "tokenizer/tokenizer.h"
 
 namespace ufal {
 namespace udpipe {
@@ -23,7 +23,7 @@ class model {
   static model* load(const char* fname);
   static model* load(istream& is);
 
-  virtual tokenizer* new_tokenizer(const string& options) const = 0;
+  virtual input_format* new_tokenizer(const string& options) const = 0;
   virtual bool tag(sentence& s, const string& options, string& error) const = 0;
   virtual bool parse(sentence& s, const string& options, string& error) const = 0;
 };

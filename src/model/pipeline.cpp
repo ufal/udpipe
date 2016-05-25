@@ -38,19 +38,17 @@ bool pipeline::process(const string& input, ostream& os, string& error) const {
 
   sentence s;
 
-  unique_ptr<ufal::udpipe::tokenizer> t;
-  unique_ptr<input_format> conllu_input;
+  unique_ptr<input_format> input_format;
   if (tokenizer != "none") {
-    t.reset(m->new_tokenizer(tokenizer));
-    if (!t) return error.assign("Cannot allocate new tokenizer!"), false;
-    t->set_text(input);
+    input_format.reset(m->new_tokenizer(tokenizer));
+    if (!input_format) return error.assign("Cannot allocate new tokenizer!"), false;
   } else {
-    conllu_input.reset(input_format::new_conllu_input_format());
-    if (!conllu_input) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
-    conllu_input->set_text(input);
+    input_format.reset(input_format::new_conllu_input_format());
+    if (!input_format) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
   }
+  input_format->set_text(input);
 
-  while (t ? t->next_sentence(s, error) : conllu_input->next_sentence(s, error)) {
+  while (input_format->next_sentence(s, error)) {
     if (tagger != "none")
       if (!m->tag(s, tagger, error))
         return false;
@@ -174,7 +172,7 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
 
   // Tokenize the input and evaluate
   if (tokenizer != "none") {
-    unique_ptr<ufal::udpipe::tokenizer> t(m->new_tokenizer(tokenizer));
+    unique_ptr<input_format> t(m->new_tokenizer(tokenizer));
     if (!t) return error.assign("Cannot allocate new tokenizer!"), false;
 
     t->set_text(plain_text);
