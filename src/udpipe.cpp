@@ -102,8 +102,8 @@ int main(int argc, char* argv[]) {
 
     // Prepare the pipeline
     pipeline pipeline(model.get(), input,
-                      options.count("tagger") ? options["tagger"] : options.count("tag") ? string() : "none",
-                      options.count("parser") ? options["parser"] : options.count("parse") ? string() : "none",
+                      options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
+                      options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE,
                       output);
 
     // Process the data
