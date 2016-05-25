@@ -41,41 +41,34 @@
 namespace ufal {
 namespace udpipe {
 
-bool trainer_morphodita_parsito::train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train(const vector<sentence>& training, const vector<sentence>& heldout,
+                                       const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
   error.clear();
 
   // Save model version info
   os.put(1);
 
-  // Load input data
-  vector<sentence> conllu;
-
-  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
-  conllu_input_format->set_text(data.c_str());
-  while (conllu.emplace_back(), conllu_input_format->next_sentence(conllu.back(), error)) ;
-  conllu.pop_back();
-  if (!error.empty()) return false;
-
   // Check input data
-  for (auto&& sentence : conllu)
+  for (auto&& sentence : training)
     for (size_t i = 1; i < sentence.words.size(); i++)
       if (!can_combine_tag(sentence.words[i], error))
         return false;
 
-  if (!train_tokenizer(conllu, tokenizer, os, error)) return false;
+  if (!train_tokenizer(training, heldout, tokenizer, os, error)) return false;
   string tagger_model;
   {
     ostringstream os_tagger;
-    if (!train_tagger(conllu, tagger, os_tagger, error)) return false;
+    if (!train_tagger(training, heldout, tagger, os_tagger, error)) return false;
     tagger_model.assign(os_tagger.str());
     os.write(tagger_model.data(), tagger_model.size());
   }
-  if (!train_parser(conllu, parser, tagger_model, os, error)) return false;
+  if (!train_parser(training, heldout, parser, tagger_model, os, error)) return false;
 
   return true;
 }
 
-bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& training, const vector<sentence>& heldout,
+                                                 const string& options, ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
   if (options == NONE) {
@@ -102,17 +95,19 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         os.put(morphodita::tokenizer_id::GENERIC);
         morphodita::generic_tokenizer_factory_encoder::encode(morphodita::generic_tokenizer::LATEST, os);
       } else if (model.empty() || model == "gru") {
-        unique_ptr<detokenizer> detokenization;
-
-        // Prepare training data for the gru_tokenizer
+        // Create a detokenizator if required
+        unique_ptr<detokenizer> detokenizer;
         if (tokenizer.count("detokenize")) {
-          detokenization.reset(new detokenizer(tokenizer["detokenize"]));
-          for (auto&& sentence : data)
-            detokenization->detokenize(sentence);
+          detokenizer.reset(new udpipe::detokenizer(tokenizer["detokenize"]));
+          if (!detokenizer) return error.assign("Cannot create detokenizer!"), false;
         }
 
+        // Prepare training data for the gru_tokenizer
         vector<morphodita::tokenized_sentence> sentences;
-        for (auto&& s : data) {
+        for (auto&& training_sentence : training) {
+          sentence s = training_sentence;
+          if (detokenizer) detokenizer->detokenize(s);
+
           auto& sentence = (sentences.emplace_back(), sentences.back());
 
           bool previous_nospace = true;
@@ -136,34 +131,29 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
         // Heldout data
         vector<morphodita::tokenized_sentence> heldout_sentences;
 
-        const string& tokenizer_heldout = option_str(tokenizer, "heldout");
         bool detokenize_handout = true; if (!option_bool(tokenizer, "detokenize_handout", detokenize_handout, error)) return false;
-        if (!tokenizer_heldout.empty()) {
-          sentence s;
-          conllu_input_format->set_text(tokenizer_heldout.c_str());
-          while (conllu_input_format->next_sentence(s, error)) {
-            auto& sentence = (heldout_sentences.emplace_back(), heldout_sentences.back());
+        for (auto&& heldout_sentence : heldout) {
+          sentence s = heldout_sentence;
+          if (detokenizer && detokenize_handout) detokenizer->detokenize(s);
 
-            if (detokenization && detokenize_handout) detokenization->detokenize(s);
+          auto& sentence = (heldout_sentences.emplace_back(), heldout_sentences.back());
 
-            bool previous_nospace = true;
-            for (size_t i = 1, j = 0; i < s.words.size(); i++) {
-              const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
+          bool previous_nospace = true;
+          for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+            const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
 
-              if (!previous_nospace) sentence.sentence.push_back(' ');
-              sentence.tokens.emplace_back(sentence.sentence.size(), 0);
-              for (auto&& chr : unilib::utf8::decoder(form))
-                sentence.sentence.push_back(chr);
-              sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
+            if (!previous_nospace) sentence.sentence.push_back(' ');
+            sentence.tokens.emplace_back(sentence.sentence.size(), 0);
+            for (auto&& chr : unilib::utf8::decoder(form))
+              sentence.sentence.push_back(chr);
+            sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
 
-              const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
-              previous_nospace = misc.find(space_after_no) != string::npos;
+            const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
+            previous_nospace = misc.find(space_after_no) != string::npos;
 
-              if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
-                i = s.multiword_tokens[j++].id_last;
-            }
+            if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+              i = s.multiword_tokens[j++].id_last;
           }
-          if (!error.empty()) return false;
         }
 
         // Options
@@ -189,14 +179,15 @@ bool trainer_morphodita_parsito::train_tokenizer(vector<sentence>& data, const s
       }
 
       // Multiword splitter
-      if (!multiword_splitter_trainer::train(data, os, error)) return false;
+      if (!multiword_splitter_trainer::train(training, os, error)) return false;
     }
   }
 
   return true;
 }
 
-bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& training, const vector<sentence>& heldout,
+                                              const string& options, ostream& os, string& error) {
   if (options == NONE) {
     os.put(0);
   } else {
@@ -233,7 +224,7 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
 
       os.put(models);
       for (int model = 0; model < models; model++)
-        if (!train_tagger_model(data, model, models, tagger, os, error))
+        if (!train_tagger_model(training, heldout, model, models, tagger, os, error))
           return false;
     }
   }
@@ -241,7 +232,8 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& data, cons
   return true;
 }
 
-bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, const string& options, const string& tagger_model, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, const vector<sentence>& heldout,
+                                              const string& options, const string& tagger_model, ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
   if (options == NONE) {
@@ -331,9 +323,9 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, cons
       // Training data
       sentence tagged;
       vector<parsito::tree> train_trees;
-      for (auto&& sentence : data) {
+      for (auto&& sentence : training) {
         tagged = sentence;
-        if (tagger && !tagger->tag(tagged, string(), error)) return false;
+        if (tagger && !tagger->tag(tagged, DEFAULT, error)) return false;
 
         train_trees.emplace_back();
         for (size_t i = 1; i < tagged.words.size(); i++) {
@@ -349,24 +341,20 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& data, cons
 
       // Heldout data
       vector<parsito::tree> heldout_trees;
-      const string& parser_heldout = option_str(parser, "heldout");
-      if (!parser_heldout.empty()) {
-        conllu_input_format->set_text(parser_heldout.c_str());
-        while (conllu_input_format->next_sentence(tagged, error)) {
-          if (tagger && !tagger->tag(tagged, string(), error)) return false;
+      for (auto&& sentence : heldout) {
+        tagged = sentence;
+        if (tagger && !tagger->tag(tagged, DEFAULT, error)) return false;
 
-          heldout_trees.emplace_back();
-          for (size_t i = 1; i < tagged.words.size(); i++) {
-            heldout_trees.back().add_node(tagged.words[i].form);
-            heldout_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
-            heldout_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
-            heldout_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
-            heldout_trees.back().nodes.back().feats.assign(tagged.words[i].feats);
-          }
-          for (size_t i = 1; i < tagged.words.size(); i++)
-            heldout_trees.back().set_head(tagged.words[i].id, tagged.words[i].head, tagged.words[i].deprel);
+        heldout_trees.emplace_back();
+        for (size_t i = 1; i < tagged.words.size(); i++) {
+          heldout_trees.back().add_node(tagged.words[i].form);
+          heldout_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
+          heldout_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
+          heldout_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
+          heldout_trees.back().nodes.back().feats.assign(tagged.words[i].feats);
         }
-        if (!error.empty()) return false;
+        for (size_t i = 1; i < tagged.words.size(); i++)
+          heldout_trees.back().set_head(tagged.words[i].id, tagged.words[i].head, tagged.words[i].deprel);
       }
 
       // Train the parser
@@ -432,11 +420,13 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
 
 // Tagger model helper functions
 
-bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data, unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error) {
+bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& training, const vector<sentence>& heldout,
+                                                    unsigned model, unsigned models, const named_values::map& tagger,
+                                                    ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
   bool have_lemma = false;
-  for (auto&& sentence : data)
+  for (auto&& sentence : training)
     for (size_t i = 1; !have_lemma && i < sentence.words.size(); i++)
       if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
         have_lemma = true;
@@ -487,7 +477,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
     stringstream guesser_description;
     {
       stringstream guesser_input;
-      for (auto&& sentence : data) {
+      for (auto&& sentence : training) {
         for (size_t i = 1; i < sentence.words.size(); i++)
           guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, drop_lemmas) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
         guesser_input << '\n';
@@ -499,16 +489,16 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
     unordered_set<string> dictionary_entries;
     {
       string entry;
-      for (auto&& sentence : data)
+      for (auto&& sentence : training)
         for (size_t i = 1; i < sentence.words.size(); i++)
           dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i], use_lemma, drop_lemmas)).append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag)).append("\t").append(sentence.words[i].form));
     }
 
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
     dictionary_special_tags.unknown_tag = "~X";
-    dictionary_special_tags.number_tag = most_frequent_tag(data, "NUM", use_xpostag, use_feats, combined_tag);
-    dictionary_special_tags.punctuation_tag = most_frequent_tag(data, "PUNCT", use_xpostag, use_feats, combined_tag);
-    dictionary_special_tags.symbol_tag = most_frequent_tag(data, "SYM", use_xpostag, use_feats, combined_tag);
+    dictionary_special_tags.number_tag = most_frequent_tag(training, "NUM", use_xpostag, use_feats, combined_tag);
+    dictionary_special_tags.punctuation_tag = most_frequent_tag(training, "PUNCT", use_xpostag, use_feats, combined_tag);
+    dictionary_special_tags.symbol_tag = most_frequent_tag(training, "SYM", use_xpostag, use_feats, combined_tag);
 
     // Enrich the dictionary if required
     if (guesser_enrich_dictionary) {
@@ -523,7 +513,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
       string entry;
       unordered_set<string> analyzed_forms;
       vector<morphodita::tagged_lemma> analyses;
-      for (auto&& sentence : data)
+      for (auto&& sentence : training)
         for (size_t i = 1; i < sentence.words.size(); i++) {
           const auto& form = sentence.words[i].form;
           if (!analyzed_forms.count(form)) {
@@ -613,26 +603,22 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& data
       option_str(tagger, "templates", model) == "lemmatizer" ? tagger_features_lemmatizer :
       !option_str(tagger, "templates", model).empty() ? option_str(tagger, "templates", model) :
       model == 1 ? tagger_features_lemmatizer : tagger_features_tagger;
-
-  const string& tagger_heldout = option_str(tagger, "heldout", model);
-  if (tagger_heldout.empty()) tagger_early_stopping = false;
+  if (heldout.empty()) tagger_early_stopping = false;
 
   // Train the tagger
   cerr << "Training tagger model " << model+1 << "." << endl;
   stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
-  for (auto&& sentence : data) {
+  for (auto&& sentence : training) {
     for (size_t i = 1; i < sentence.words.size(); i++)
       input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     input << '\n';
   }
 
-  conllu_input_format->set_text(tagger_heldout.c_str());
-  for (sentence sentence; conllu_input_format->next_sentence(sentence, error); ) {
+  for (auto&& sentence : heldout) {
     for (size_t i = 1; i < sentence.words.size(); i++)
       heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     heldout_input << '\n';
   }
-  if (!error.empty()) return false;
 
   os.put(tagger_id);
   morphodita::tagger_trainer<morphodita::perceptron_tagger_trainer<morphodita::train_feature_sequences<morphodita::conllu_elementary_features>>>::train(morphodita::tagger_ids::decoding_order(tagger_id), morphodita::tagger_ids::window_size(tagger_id), tagger_iterations, morpho_description, true, feature_templates_input, tagger_prune_features, input, heldout_input, tagger_early_stopping, os);

@@ -21,18 +21,23 @@ namespace udpipe {
 
 class trainer_morphodita_parsito : public trainer {
  public:
-  static bool train(const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
+  static bool train(const vector<sentence>& training, const vector<sentence>& heldout,
+                    const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
 
  private:
-  static bool train_tokenizer(vector<sentence>& data, const string& options, ostream& os, string& error);
-  static bool train_tagger(const vector<sentence>& data, const string& options, ostream& os, string& error);
-  static bool train_parser(const vector<sentence>& data, const string& options, const string& tagger_model, ostream& os, string& error);
+  static bool train_tokenizer(const vector<sentence>& training, const vector<sentence>& heldout,
+                              const string& options, ostream& os, string& error);
+  static bool train_tagger(const vector<sentence>& training, const vector<sentence>& heldout,
+                           const string& options, ostream& os, string& error);
+  static bool train_parser(const vector<sentence>& training, const vector<sentence>& heldout,
+                           const string& options, const string& tagger_model, ostream& os, string& error);
 
   enum model_type { TOKENIZER_MODEL, TAGGER_MODEL, PARSER_MODEL };
   static bool load_model(const string& data, model_type model, string_piece& range);
 
   // Tagger model
-  static bool train_tagger_model(const vector<sentence>& data, unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error);
+  static bool train_tagger_model(const vector<sentence>& training, const vector<sentence>& heldout,
+                                 unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error);
   static bool can_combine_tag(const word& w, string& error);
   static const string& combine_tag(const word& w, bool xpostag, bool feats, string& combined_tag);
   static const string& most_frequent_tag(const vector<sentence>& data, const string& upostag, bool xpostag, bool feats, string& combined_tag);

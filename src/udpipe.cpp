@@ -13,6 +13,7 @@
 #include "common.h"
 #include "model/model.h"
 #include "model/pipeline.h"
+#include "sentence/input_format.h"
 #include "trainer/trainer.h"
 #include "utils/getpara.h"
 #include "utils/iostreams.h"
@@ -22,12 +23,26 @@
 
 using namespace ufal::udpipe;
 
+bool append_conllu(istream& is, vector<sentence>& sentences, string& error) {
+  unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
+
+  string block;
+  while (conllu_input->read_block(is, block)) {
+    conllu_input->set_text(block);
+    while (sentences.emplace_back(), conllu_input->next_sentence(sentences.back(), error)) ;
+    sentences.pop_back();
+    if (!error.empty()) return false;
+  }
+  return true;
+}
+
 int main(int argc, char* argv[]) {
   iostreams_init();
 
   options::map options;
   if (!options::parse({{"accuracy", options::value::none},
                        {"method", options::value{"morphodita_parsito"}},
+                       {"heldout", options::value::any},
                        {"input", options::value::any},
                        {"outfile", options::value::any},
                        {"output", options::value::any},
@@ -55,6 +70,7 @@ int main(int argc, char* argv[]) {
                     "                 --parse (perform parsing)\n"
                     "                 --parser=parser options, implies --parse\n"
                     "Training options: --method=[morphodita_parsito] which method to use\n"
+                    "                  --heldout=heldout data file name\n"
                     "                  --tokenizer=tokenizer options\n"
                     "                  --tagger=tagger options\n"
                     "                  --parser=parser options\n"
@@ -64,16 +80,28 @@ int main(int argc, char* argv[]) {
     return cout << version::version_and_copyright() << endl, 0;
 
   if (options.count("train")) {
-    // Load all data
+    string error;
+
+    // Load training data
     cerr << "Loading training data: " << flush;
-    ostringstream data;
+    vector<sentence> training;
     for (int i = 2; i < argc; i++) {
       ifstream input(argv[i]);
       if (!input.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
-      data << input.rdbuf() << '\n';
+      if (!append_conllu(input, training, error))
+        runtime_failure("Cannot load training data from file '" << argv[i] << "': " << error);
     }
-    if (argc == 2) data << cin.rdbuf();
+    if (argc == 2 && !append_conllu(cin, training, error)) runtime_failure("Cannot load training data: " << error);
     cerr << "done." << endl;
+
+    // Load heldout data
+    vector<sentence> heldout;
+    if (options.count("heldout")) {
+      ifstream input(options["heldout"]);
+      if (!input.is_open()) runtime_failure("Cannot open heldout data file '" << options["heldout"] << "'!");
+      if (!append_conllu(input, heldout, error))
+        runtime_failure("Cannot load heldout data from file '" << options["heldout"] << "': " << error);
+    }
 
     // Open output file
     ofstream model(argv[1], ofstream::binary);
@@ -82,8 +110,7 @@ int main(int argc, char* argv[]) {
     // Train the model
     cerr << "Training the UDPipe model." << endl;
     string method = options.count("method") ? options["method"] : "morphodita_parsito";
-    string error;
-    if (!trainer::train(method, data.str(), options["tokenizer"], options["tagger"], options["parser"], model, error))
+    if (!trainer::train(method, training, heldout, options["tokenizer"], options["tagger"], options["parser"], model, error))
       runtime_failure("An error occurred during model training: " << error);
     cerr << "The trained UDPipe model was saved." << endl;
   } else {

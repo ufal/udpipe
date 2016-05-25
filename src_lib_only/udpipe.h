@@ -141,7 +141,9 @@ class pipeline {
 
 class trainer {
  public:
-  static bool train(const std::string& method, const std::string& data, const std::string& tokenizer, const std::string& tagger, const std::string& parser, std::ostream& os, std::string& error);
+  static bool train(const std::string& method, const std::vector<sentence>& train, const std::vector<sentence>& heldout,
+                    const std::string& tokenizer, const std::string& tagger, const std::string& parser,
+                    std::ostream& os, std::string& error);
 
   static const std::string DEFAULT;
   static const std::string NONE;

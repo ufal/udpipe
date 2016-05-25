@@ -18,7 +18,8 @@ namespace udpipe {
 const string trainer::DEFAULT;
 const string trainer::NONE = "none";
 
-bool trainer::train(const string& method, const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
+bool trainer::train(const string& method, const vector<sentence>& training, const vector<sentence>& heldout,
+                    const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error) {
   error.clear();
 
   stringstream os_buffer;
@@ -26,7 +27,7 @@ bool trainer::train(const string& method, const string& data, const string& toke
   os_buffer.write(method.c_str(), method.size());
 
   if (method == "morphodita_parsito") {
-    if (!trainer_morphodita_parsito::train(data, tokenizer, tagger, parser, os_buffer, error))
+    if (!trainer_morphodita_parsito::train(training, heldout, tokenizer, tagger, parser, os_buffer, error))
       return false;
   } else {
     error.assign("Unknown UDPipe method '").append(method).append("'!");

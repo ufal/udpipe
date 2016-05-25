@@ -10,13 +10,15 @@
 #pragma once
 
 #include "common.h"
+#include "sentence/sentence.h"
 
 namespace ufal {
 namespace udpipe {
 
 class trainer {
  public:
-  static bool train(const string& method, const string& data, const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
+  static bool train(const string& method, const vector<sentence>& train, const vector<sentence>& heldout,
+                    const string& tokenizer, const string& tagger, const string& parser, ostream& os, string& error);
 
   static const string DEFAULT;
   static const string NONE;
