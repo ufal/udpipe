@@ -14,7 +14,7 @@
 namespace ufal {
 namespace udpipe {
 
-// Output CoNLL-U format
+// CoNLL-U output format
 class output_format_conllu : public output_format {
  public:
   virtual void write_sentence(const sentence& s, ostream& os) const override;
@@ -59,13 +59,49 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) const 
   os << endl;
 }
 
+// Horizontal output format
+class output_format_horizontal : public output_format {
+ public:
+  virtual void write_sentence(const sentence& s, ostream& os) const override;
+};
+
+void output_format_horizontal::write_sentence(const sentence& s, ostream& os) const {
+  for (size_t i = 1; i < s.words.size(); i++) {
+    os << s.words[i].form;
+    if (i+1 < s.words.size()) os << ' ';
+  }
+  os << endl;
+}
+
+// Vertical output format
+class output_format_vertical : public output_format {
+ public:
+  virtual void write_sentence(const sentence& s, ostream& os) const override;
+};
+
+void output_format_vertical::write_sentence(const sentence& s, ostream& os) const {
+  for (size_t i = 1; i < s.words.size(); i++)
+    os << s.words[i].form << '\n';
+  os << endl;
+}
+
 // Static factory methods
 output_format* output_format::new_conllu_output_format() {
   return new output_format_conllu();
 }
 
+output_format* output_format::new_horizontal_output_format() {
+  return new output_format_horizontal();
+}
+
+output_format* output_format::new_vertical_output_format() {
+  return new output_format_vertical();
+}
+
 output_format* output_format::new_output_format(const string& name) {
   if (name == "conllu") return new_conllu_output_format();
+  if (name == "horizontal") return new_horizontal_output_format();
+  if (name == "vertical") return new_vertical_output_format();
   return nullptr;
 }
 

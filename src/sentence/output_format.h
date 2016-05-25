@@ -24,6 +24,8 @@ class output_format {
   // Static factory methods
   static output_format* new_output_format(const string& name);
   static output_format* new_conllu_output_format();
+  static output_format* new_horizontal_output_format();
+  static output_format* new_vertical_output_format();
 };
 
 } // namespace udpipe
