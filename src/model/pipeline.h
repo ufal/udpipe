@@ -20,20 +20,20 @@ namespace udpipe {
 
 class pipeline {
  public:
-  pipeline(const model* m, const string& tokenizer, const string& tagger, const string& parser);
+  pipeline(const model* m, const string& input_format, const string& tagger, const string& parser, const string& output_format);
 
   void set_model(const model* m);
-  void set_tokenizer(const string& tokenizer);
+  void set_input_format(const string& input_format);
   void set_tagger(const string& tagger);
   void set_parser(const string& parser);
+  void set_output_format(const string& output_format);
 
   bool process(const string& input, ostream& os, string& error) const;
   bool evaluate(const string& input, ostream& os, string& error) const;
 
  private:
   const model* m;
-  string tokenizer, tagger, parser;
-  unique_ptr<output_format> conllu_output;
+  string input_format_desc, tokenizer, tagger, parser, output_format_desc;
 
   struct f1_info { size_t total_system, total_gold; double precision, recall, f1; };
   template <class T>

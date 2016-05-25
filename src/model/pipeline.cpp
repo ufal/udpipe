@@ -14,15 +14,32 @@
 namespace ufal {
 namespace udpipe {
 
-pipeline::pipeline(const model* m, const string& tokenizer, const string& tagger, const string& parser)
-    : m(m), tokenizer(tokenizer), tagger(tagger), parser(parser), conllu_output(output_format::new_conllu_output_format()) {}
+pipeline::pipeline(const model* m, const string& input_format, const string& tagger,
+                   const string& parser, const string& output_format) {
+  set_model(m);
+  set_input_format(input_format);
+  set_tagger(tagger);
+  set_parser(parser);
+  set_output_format(output_format);
+}
 
 void pipeline::set_model(const model* m) {
   this->m = m;
 }
 
-void pipeline::set_tokenizer(const string& tokenizer) {
-  this->tokenizer = tokenizer;
+void pipeline::set_input_format(const string& input_format) {
+  tokenizer.clear();
+
+  if (input_format.empty()) {
+    input_format_desc = "conllu";
+  } else if (input_format == "tokenize" || input_format == "tokenizer") {
+    input_format_desc = "tokenizer";
+  } else if (input_format.compare(0, 10, "tokenizer=") == 0) {
+    input_format_desc = "tokenizer";
+    tokenizer.assign(input_format, 10, string::npos);
+  } else {
+    input_format_desc = input_format;
+  }
 }
 
 void pipeline::set_tagger(const string& tagger) {
@@ -33,22 +50,29 @@ void pipeline::set_parser(const string& parser) {
   this->parser = parser;
 }
 
+void pipeline::set_output_format(const string& output_format) {
+  output_format_desc = output_format.empty() ? "conllu" : output_format;
+}
+
 bool pipeline::process(const string& input, ostream& os, string& error) const {
   error.clear();
 
   sentence s;
 
-  unique_ptr<input_format> input_format;
-  if (tokenizer != "none") {
-    input_format.reset(m->new_tokenizer(tokenizer));
-    if (!input_format) return error.assign("Cannot allocate new tokenizer!"), false;
+  unique_ptr<input_format> reader;
+  if (input_format_desc == "tokenizer") {
+    reader.reset(m->new_tokenizer(tokenizer));
+    if (!reader) return error.assign("The model does not have a tokenizer!"), false;
   } else {
-    input_format.reset(input_format::new_conllu_input_format());
-    if (!input_format) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
+    reader.reset(input_format::new_input_format(input_format_desc));
+    if (!reader) return error.assign("The requested input format '").append(input_format_desc).append("' does not exist!"), false;
   }
-  input_format->set_text(input);
+  reader->set_text(input);
 
-  while (input_format->next_sentence(s, error)) {
+  unique_ptr<output_format> writer(output_format::new_output_format(output_format_desc));
+  if (!writer) return error.assign("The requested output format '").append(output_format_desc).append("' does not exist!"), false;
+
+  while (reader->next_sentence(s, error)) {
     if (tagger != "none")
       if (!m->tag(s, tagger, error))
         return false;
@@ -57,7 +81,7 @@ bool pipeline::process(const string& input, ostream& os, string& error) const {
       if (!m->parse(s, parser, error))
         return false;
 
-    conllu_output->write_sentence(s, os);
+    writer->write_sentence(s, os);
   }
   if (!error.empty()) return false;
 
@@ -99,6 +123,9 @@ bool pipeline::evaluate(const string& input, ostream& os, string& error) const {
   } system_tokenizer, gold_tokenizer;
 
   error.clear();
+
+  if (input_format_desc != "conllu")
+    return error.assign("Only CoNLL-U input format is supported for evaluation!"), false;
 
   unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
   if (!conllu_input) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
