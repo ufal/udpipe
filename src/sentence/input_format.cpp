@@ -225,7 +225,7 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
     s.add_word(word);
 
     // Skip spaces till end of line
-    while (text.len && (*text.str == ' ' || *text.str == '\t'))
+    while (text.len && *text.str != '\r' && *text.str != '\n')
       text.str++, text.len--;
 
     // Skip one new line
