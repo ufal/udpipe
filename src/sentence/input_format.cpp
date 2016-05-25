@@ -15,7 +15,7 @@
 namespace ufal {
 namespace udpipe {
 
-// Input CoNLL-U format
+// CoNLL-U input format
 class input_format_conllu : public input_format {
  public:
   virtual bool read_block(istream& is, string& block) const override;
@@ -132,13 +132,133 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
   return !s.empty();
 }
 
+// Horizontal input format
+class input_format_horizontal : public input_format {
+ public:
+  virtual bool read_block(istream& is, string& block) const override;
+  virtual void set_text(string_piece text, bool make_copy = false) override;
+  virtual bool next_sentence(sentence& s, string& error) override;
+
+ private:
+  string_piece text;
+  string text_copy;
+};
+
+bool input_format_horizontal::read_block(istream& is, string& block) const {
+  return bool(getline(is, block));
+}
+
+void input_format_horizontal::set_text(string_piece text, bool make_copy) {
+  if (make_copy) {
+    text_copy.assign(text.str, text.len);
+    text = string_piece(text_copy.c_str(), text_copy.size());
+  }
+  this->text = text;
+}
+
+bool input_format_horizontal::next_sentence(sentence& s, string& error) {
+  error.clear();
+  s.clear();
+
+  // Skip spaces and newlines
+  while (text.len && (*text.str == ' ' || *text.str == '\t' || *text.str == '\r' || *text.str == '\n'))
+    text.str++, text.len--;
+
+  // Read space (and tab) separated words
+  while (text.len && *text.str != '\r' && *text.str != '\n') {
+    string_piece word = text;
+
+    // Slurp the word
+    while (text.len && *text.str != ' ' && *text.str != '\t' && *text.str != '\r' && *text.str != '\n')
+      text.str++, text.len--;
+    word.len = text.str - word.str;
+    s.add_word(word);
+
+    // Skip spaces
+    while (text.len && (*text.str == ' ' || *text.str == '\t'))
+      text.str++, text.len--;
+  }
+
+  return !s.empty();
+}
+
+// Vertical input format
+class input_format_vertical : public input_format {
+ public:
+  virtual bool read_block(istream& is, string& block) const override;
+  virtual void set_text(string_piece text, bool make_copy = false) override;
+  virtual bool next_sentence(sentence& s, string& error) override;
+
+ private:
+  string_piece text;
+  string text_copy;
+};
+
+bool input_format_vertical::read_block(istream& is, string& block) const {
+  return bool(getpara(is, block));
+}
+
+void input_format_vertical::set_text(string_piece text, bool make_copy) {
+  if (make_copy) {
+    text_copy.assign(text.str, text.len);
+    text = string_piece(text_copy.c_str(), text_copy.size());
+  }
+  this->text = text;
+}
+
+bool input_format_vertical::next_sentence(sentence& s, string& error) {
+  error.clear();
+  s.clear();
+
+  // Skip spaces and newlines
+  while (text.len && (*text.str == ' ' || *text.str == '\t' || *text.str == '\r' || *text.str == '\n'))
+    text.str++, text.len--;
+
+  // Read first word without spaces on every line
+  while (text.len && *text.str != '\r' && *text.str != '\n') {
+    string_piece word = text;
+
+    // Slurp the word
+    while (text.len && *text.str != ' ' && *text.str != '\t' && *text.str != '\r' && *text.str != '\n')
+      text.str++, text.len--;
+    word.len = text.str - word.str;
+    s.add_word(word);
+
+    // Skip spaces till end of line
+    while (text.len && (*text.str == ' ' || *text.str == '\t'))
+      text.str++, text.len--;
+
+    // Skip one new line
+    if (text.len >= 2 && text.str[0] == '\r' && text.str[1] == '\r')
+      text.str += 2, text.len -= 2;
+    else if (text.len && *text.str == '\n')
+      text.str++, text.len--;
+
+    // Skip spaces on the beginning of the line
+    while (text.len && (*text.str == ' ' || *text.str == '\t'))
+      text.str++, text.len--;
+  }
+
+  return !s.empty();
+}
+
 // Static factory methods
 input_format* input_format::new_conllu_input_format() {
   return new input_format_conllu();
 }
 
+input_format* input_format::new_horizontal_input_format() {
+  return new input_format_horizontal();
+}
+
+input_format* input_format::new_vertical_input_format() {
+  return new input_format_vertical();
+}
+
 input_format* input_format::new_input_format(const string& name) {
   if (name == "conllu") return new_conllu_input_format();
+  if (name == "horizontal") return new_horizontal_input_format();
+  if (name == "vertical") return new_vertical_input_format();
   return nullptr;
 }
 

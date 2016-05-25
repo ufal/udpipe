@@ -26,6 +26,8 @@ class input_format {
   // Static factory methods
   static input_format* new_input_format(const string& name);
   static input_format* new_conllu_input_format();
+  static input_format* new_horizontal_input_format();
+  static input_format* new_vertical_input_format();
 };
 
 } // namespace udpipe
