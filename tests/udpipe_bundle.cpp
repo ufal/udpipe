@@ -19,11 +19,35 @@
 using namespace ufal::udpipe;
 using namespace std;
 
-int main() {
-  version udpipe = version::current();
+int main(int argc, char* argv[]) {
+  if (argc < 4) {
+    cerr << "Usage: " << argv[0] << " input_format output_format model" << endl;
+    return 1;
+  }
 
-  cout << "UDPipe " << udpipe.major << '.' << udpipe.minor << '.' << udpipe.patch
-      << (!udpipe.prerelease.empty() ? "-" : "") << udpipe.prerelease << '.' << endl;
+  cerr << "Loading UDPipe model: " << flush;
+  unique_ptr<model> model(model::load(argv[3]));
+  if (!model) {
+    cerr << "Cannot load UDPipe model '" << argv[1] << "'!" << endl;
+    return 1;
+  }
+  cerr << "done." << endl;
+
+  pipeline pipeline(model.get(), argv[1], pipeline::DEFAULT, pipeline::DEFAULT, argv[2]);
+
+  string line, para, error;
+  while (cin) {
+    para.clear();
+    while (getline(cin, line)) {
+      para.append(line).append("\n");
+      if (line.empty()) break;
+    }
+
+    if (!para.empty() && !pipeline.process(para, cout, error)) {
+      cerr << "An error occured: " << error << endl;
+      return 1;
+    }
+  }
 
   return 0;
 }
