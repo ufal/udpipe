@@ -18,6 +18,7 @@
 namespace ufal {
 namespace udpipe {
 
+namespace utils {
 struct string_piece {
   const char* str;
   size_t len;
@@ -27,6 +28,8 @@ struct string_piece {
   string_piece(const char* str, size_t len) : str(str), len(len) {}
   string_piece(const std::string& str) : str(str.c_str()), len(str.size()) {}
 };
+}
+typedef utils::string_piece string_piece;
 
 class word {
  public:
