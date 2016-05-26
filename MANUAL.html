@@ -75,6 +75,8 @@
       </li>
       <li><a href="#universal_dependencies_12_models_description">5.1.3. Model Description</a>
       </li>
+      <li><a href="#universal_dependencies_12_models_performance">5.1.4. Model Performance</a>
+      </li>
       </ul>
     </li>
     <li><a href="#run_udpipe">5.2. Running UDPipe</a>
@@ -461,6 +463,11 @@ Ministry of Education, Youth and Sports of the Czech Republic (project <i>LM2015
 <p>
 The models were trained on <a href="http://hdl.handle.net/11234/1-1548">Universal Dependencies 1.2</a> treebanks.
 </p>
+<p>
+For the UD treebanks which do not contain original plain text version,
+raw text is used to train the tokenizer instead. The plain texts
+were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-9">W2C &ndash; Web to Corpus</a>.
+</p>
 
 <a id="universal_dependencies_12_models_publications" name="universal_dependencies_12_models_publications"></a>
 <h4>5.1.2.1. Publications</h4>
@@ -474,8 +481,406 @@ The models were trained on <a href="http://hdl.handle.net/11234/1-1548">Universa
 <h3>5.1.3. Model Description</h3>
 
 <p>
-TODO
+The Universal Dependencies 1.2 models contain 36 models, each consisting of
+a tokenizer, tagger, lemmatizer and dependency parser, all trained using
+the UD data. The model for Japanese is missing, because we do not have
+the license for the required corpus of Mainichi Shinbun 1995.
 </p>
+<p>
+The tokenizer is trained using the <code>SpaceAfter=No</code> features. If the features
+are not present in the data, they can be filled in using raw text in the
+language in question (surprisingly, quite little data suffices, we use 500kB).
+</p>
+<p>
+The tagger, lemmatizer and parser are trained using gold UD data.
+</p>
+<p>
+Details about model architecture and training process can be found in the
+(Straka et al. 2016) paper.
+</p>
+
+<a id="universal_dependencies_12_models_performance" name="universal_dependencies_12_models_performance"></a>
+<h3>5.1.4. Model Performance</h3>
+
+<p>
+We present the tagger, lemmatizer and parser performance, measured
+on the testing portion of the data. Only the segmentation and the
+tokenization of the testing data is retained before evaluation.
+Therefore, the dependency parser is evaluated without gold POS tags.
+</p>
+
+<table border="1">
+<tr>
+<th>Treebank</th>
+<th>UPOS</th>
+<th>XPOS</th>
+<th>Feats</th>
+<th>All Tags</th>
+<th>Lemma</th>
+<th>UAS</th>
+<th>LAS</th>
+</tr>
+<tr>
+<td>Ancient Greek</td>
+<td align="right">91.1%</td>
+<td align="right">77.8%</td>
+<td align="right">88.7%</td>
+<td align="right">77.7%</td>
+<td align="right">86.9%</td>
+<td align="right">68.1%</td>
+<td align="right">61.6%</td>
+</tr>
+<tr>
+<td>Ancient Greek-PROIEL</td>
+<td align="right">96.7%</td>
+<td align="right">96.4%</td>
+<td align="right">89.3%</td>
+<td align="right">88.4%</td>
+<td align="right">93.4%</td>
+<td align="right">75.8%</td>
+<td align="right">69.6%</td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td align="right">98.8%</td>
+<td align="right">97.7%</td>
+<td align="right">97.8%</td>
+<td align="right">97.6%</td>
+<td></td>
+<td align="right">80.4%</td>
+<td align="right">75.6%</td>
+</tr>
+<tr>
+<td>Basque</td>
+<td align="right">93.3%</td>
+<td align="center">-</td>
+<td align="right">87.2%</td>
+<td align="right">85.4%</td>
+<td align="right">93.5%</td>
+<td align="right">74.8%</td>
+<td align="right">69.5%</td>
+</tr>
+<tr>
+<td>Bulgarian</td>
+<td align="right">97.8%</td>
+<td align="right">94.8%</td>
+<td align="right">94.4%</td>
+<td align="right">93.1%</td>
+<td align="right">94.6%</td>
+<td align="right">89.0%</td>
+<td align="right">84.2%</td>
+</tr>
+<tr>
+<td>Croatian</td>
+<td align="right">94.9%</td>
+<td align="center">-</td>
+<td align="right">85.5%</td>
+<td align="right">85.0%</td>
+<td align="right">93.1%</td>
+<td align="right">78.6%</td>
+<td align="right">71.0%</td>
+</tr>
+<tr>
+<td>Czech</td>
+<td align="right">98.4%</td>
+<td align="right">93.2%</td>
+<td align="right">92.6%</td>
+<td align="right">92.2%</td>
+<td align="right">97.8%</td>
+<td align="right">86.9%</td>
+<td align="right">83.0%</td>
+</tr>
+<tr>
+<td>Danish</td>
+<td align="right">95.8%</td>
+<td align="center">-</td>
+<td align="right">94.8%</td>
+<td align="right">93.6%</td>
+<td align="right">95.2%</td>
+<td align="right">78.6%</td>
+<td align="right">74.8%</td>
+</tr>
+<tr>
+<td>Dutch</td>
+<td align="right">89.7%</td>
+<td align="right">88.7%</td>
+<td align="right">91.2%</td>
+<td align="right">86.4%</td>
+<td align="right">88.9%</td>
+<td align="right">78.1%</td>
+<td align="right">70.7%</td>
+</tr>
+<tr>
+<td>English</td>
+<td align="right">94.5%</td>
+<td align="right">93.8%</td>
+<td align="right">95.4%</td>
+<td align="right">92.5%</td>
+<td align="right">97.0%</td>
+<td align="right">84.2%</td>
+<td align="right">80.6%</td>
+</tr>
+<tr>
+<td>Estonian</td>
+<td align="right">88.0%</td>
+<td align="right">73.7%</td>
+<td align="right">80.0%</td>
+<td align="right">73.6%</td>
+<td align="right">77.0%</td>
+<td align="right">79.9%</td>
+<td align="right">71.5%</td>
+</tr>
+<tr>
+<td>Finnish</td>
+<td align="right">94.9%</td>
+<td align="right">96.0%</td>
+<td align="right">93.2%</td>
+<td align="right">92.1%</td>
+<td align="right">86.8%</td>
+<td align="right">81.0%</td>
+<td align="right">76.5%</td>
+</tr>
+<tr>
+<td>Finnish-FTB</td>
+<td align="right">94.0%</td>
+<td align="right">91.6%</td>
+<td align="right">93.3%</td>
+<td align="right">91.2%</td>
+<td align="right">89.1%</td>
+<td align="right">81.5%</td>
+<td align="right">76.9%</td>
+</tr>
+<tr>
+<td>French</td>
+<td align="right">95.8%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="right">95.8%</td>
+<td align="center">-</td>
+<td align="right">82.8%</td>
+<td align="right">78.4%</td>
+</tr>
+<tr>
+<td>German</td>
+<td align="right">90.5%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="right">90.5%</td>
+<td align="center">-</td>
+<td align="right">78.2%</td>
+<td align="right">72.2%</td>
+</tr>
+<tr>
+<td>Gothic</td>
+<td align="right">95.5%</td>
+<td align="right">95.7%</td>
+<td align="right">88.0%</td>
+<td align="right">86.3%</td>
+<td align="right">93.4%</td>
+<td align="right">76.4%</td>
+<td align="right">68.2%</td>
+</tr>
+<tr>
+<td>Greek</td>
+<td align="right">97.3%</td>
+<td align="right">97.3%</td>
+<td align="right">92.8%</td>
+<td align="right">91.7%</td>
+<td align="right">94.8%</td>
+<td align="right">80.3%</td>
+<td align="right">76.5%</td>
+</tr>
+<tr>
+<td>Hebrew</td>
+<td align="right">94.9%</td>
+<td align="right">94.9%</td>
+<td align="right">91.3%</td>
+<td align="right">90.5%</td>
+<td align="center">-</td>
+<td align="right">82.6%</td>
+<td align="right">76.8%</td>
+</tr>
+<tr>
+<td>Hindi</td>
+<td align="right">95.8%</td>
+<td align="right">94.8%</td>
+<td align="right">90.2%</td>
+<td align="right">87.7%</td>
+<td align="right">98.0%</td>
+<td align="right">91.7%</td>
+<td align="right">87.5%</td>
+</tr>
+<tr>
+<td>Hungarian</td>
+<td align="right">92.6%</td>
+<td align="center">-</td>
+<td align="right">89.9%</td>
+<td align="right">88.9%</td>
+<td align="right">86.9%</td>
+<td align="right">77.0%</td>
+<td align="right">70.6%</td>
+</tr>
+<tr>
+<td>Indonesian</td>
+<td align="right">93.5%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="right">93.5%</td>
+<td align="center">-</td>
+<td align="right">79.9%</td>
+<td align="right">73.3%</td>
+</tr>
+<tr>
+<td>Irish</td>
+<td align="right">91.8%</td>
+<td align="right">90.3%</td>
+<td align="right">79.4%</td>
+<td align="right">76.6%</td>
+<td align="right">87.3%</td>
+<td align="right">74.4%</td>
+<td align="right">66.1%</td>
+</tr>
+<tr>
+<td>Italian</td>
+<td align="right">97.2%</td>
+<td align="right">97.0%</td>
+<td align="right">97.1%</td>
+<td align="right">96.2%</td>
+<td align="right">97.7%</td>
+<td align="right">88.6%</td>
+<td align="right">85.8%</td>
+</tr>
+<tr>
+<td>Latin</td>
+<td align="right">91.2%</td>
+<td align="right">75.8%</td>
+<td align="right">79.3%</td>
+<td align="right">75.6%</td>
+<td align="right">79.9%</td>
+<td align="right">57.1%</td>
+<td align="right">46.7%</td>
+</tr>
+<tr>
+<td>Latin-ITT</td>
+<td align="right">98.8%</td>
+<td align="right">94.0%</td>
+<td align="right">94.6%</td>
+<td align="right">93.8%</td>
+<td align="right">98.3%</td>
+<td align="right">79.9%</td>
+<td align="right">76.4%</td>
+</tr>
+<tr>
+<td>Latin-PROIEL</td>
+<td align="right">96.4%</td>
+<td align="right">96.0%</td>
+<td align="right">88.9%</td>
+<td align="right">88.2%</td>
+<td align="right">95.3%</td>
+<td align="right">75.3%</td>
+<td align="right">68.3%</td>
+</tr>
+<tr>
+<td>Norwegian</td>
+<td align="right">97.2%</td>
+<td align="center">-</td>
+<td align="right">95.5%</td>
+<td align="right">94.7%</td>
+<td align="right">96.9%</td>
+<td align="right">86.7%</td>
+<td align="right">84.1%</td>
+</tr>
+<tr>
+<td>Old Church Slavonic</td>
+<td align="right">95.3%</td>
+<td align="right">95.1%</td>
+<td align="right">89.1%</td>
+<td align="right">88.2%</td>
+<td align="right">92.9%</td>
+<td align="right">80.6%</td>
+<td align="right">73.4%</td>
+</tr>
+<tr>
+<td>Persian</td>
+<td align="right">97.0%</td>
+<td align="right">96.3%</td>
+<td align="right">96.5%</td>
+<td align="right">96.2%</td>
+<td align="center">-</td>
+<td align="right">83.8%</td>
+<td align="right">79.4%</td>
+</tr>
+<tr>
+<td>Polish</td>
+<td align="right">95.8%</td>
+<td align="right">84.0%</td>
+<td align="right">84.1%</td>
+<td align="right">83.8%</td>
+<td align="right">92.8%</td>
+<td align="right">86.3%</td>
+<td align="right">79.6%</td>
+</tr>
+<tr>
+<td>Portuguese</td>
+<td align="right">97.6%</td>
+<td align="right">92.3%</td>
+<td align="right">95.3%</td>
+<td align="right">92.0%</td>
+<td align="right">97.8%</td>
+<td align="right">85.8%</td>
+<td align="right">81.9%</td>
+</tr>
+<tr>
+<td>Romanian</td>
+<td align="right">89.0%</td>
+<td align="right">81.0%</td>
+<td align="right">82.3%</td>
+<td align="right">81.0%</td>
+<td align="right">75.3%</td>
+<td align="right">68.6%</td>
+<td align="right">56.9%</td>
+</tr>
+<tr>
+<td>Slovenian</td>
+<td align="right">95.7%</td>
+<td align="right">88.2%</td>
+<td align="right">88.6%</td>
+<td align="right">87.5%</td>
+<td align="right">95.0%</td>
+<td align="right">84.1%</td>
+<td align="right">80.3%</td>
+</tr>
+<tr>
+<td>Spanish</td>
+<td align="right">95.3%</td>
+<td align="center">-</td>
+<td align="right">95.9%</td>
+<td align="right">93.4%</td>
+<td align="right">96.3%</td>
+<td align="right">84.2%</td>
+<td align="right">80.3%</td>
+</tr>
+<tr>
+<td>Swedish</td>
+<td align="right">95.8%</td>
+<td align="right">93.9%</td>
+<td align="right">94.8%</td>
+<td align="right">93.2%</td>
+<td align="right">95.5%</td>
+<td align="right">81.4%</td>
+<td align="right">77.1%</td>
+</tr>
+<tr>
+<td>Tamil</td>
+<td align="right">85.9%</td>
+<td align="right">80.8%</td>
+<td align="right">84.3%</td>
+<td align="right">80.2%</td>
+<td align="right">88.0%</td>
+<td align="right">67.2%</td>
+<td align="right">58.8%</td>
+</tr>
+</table>
 
 <a id="run_udpipe" name="run_udpipe"></a>
 <h2>5.2. Running UDPipe</h2>
@@ -944,7 +1349,7 @@ Authors:
 <a href="http://ufal.mff.cuni.cz/udpipe">UDPipe website</a>.
 </p>
 <p>
-<a href="TODO">UDPipe LINDAT/CLARIN entry</a>.
+<a href="http://hdl.handle.net/11234/1-1702">UDPipe LINDAT/CLARIN entry</a>.
 </p>
 
 <a id="udpipe_acknowledgements" name="udpipe_acknowledgements"></a>
@@ -988,7 +1393,7 @@ Acknowledgements for individual language models are listed in <a href="#users_ma
 
 <p>
 If you prefer to reference UDPipe by a permanent identifier (PID),
-you can use <code>TODO</code>.
+you can use <code>http://hdl.handle.net/11234/1-1702</code>.
 </p>
 </div>
 
