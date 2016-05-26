@@ -13,6 +13,9 @@
 
 #include "common.h"
 #include "microrestd/microrestd.h"
+#include "model/model.h"
+#include "sentence/input_format.h"
+#include "sentence/output_format.h"
 
 namespace ufal {
 namespace udpipe {
@@ -21,6 +24,8 @@ namespace microrestd = ufal::microrestd;
 
 class udpipe_service : public microrestd::rest_service {
  public:
+  typedef ufal::udpipe::model Model;
+
   struct model_description {
     string rest_id, file, acknowledgements;
 
@@ -37,11 +42,23 @@ class udpipe_service : public microrestd::rest_service {
 
   // Models
   struct model_info {
-    model_info(const string& rest_id, const string& acknowledgements)
-        : rest_id(rest_id), acknowledgements(acknowledgements) {}
+    model_info(const string& rest_id, const string& acknowledgements, Model* model)
+        : rest_id(rest_id), acknowledgements(acknowledgements), model(model) {
+      sentence s;
+      string error;
+      unique_ptr<input_format> tokenizer(model->new_tokenizer(Model::DEFAULT));
+
+      can_tokenize = tokenizer.get() != nullptr;
+      can_tag = model->tag(s, Model::DEFAULT, error);
+      can_parse = model->parse(s, Model::DEFAULT, error);
+    }
 
     string rest_id;
     string acknowledgements;
+    unique_ptr<Model> model;
+    bool can_tokenize;
+    bool can_tag;
+    bool can_parse;
   };
   vector<model_info> models;
   unordered_map<string, const model_info*> rest_models_map;
@@ -57,8 +74,18 @@ class udpipe_service : public microrestd::rest_service {
   };
 
   bool handle_rest_models(microrestd::rest_request& req);
+  bool handle_rest_process(microrestd::rest_request& req);
+
+  const string& get_rest_model_id(microrestd::rest_request& req);
+  const string& get_data(microrestd::rest_request& req, string& error);
+  input_format* get_input_format(microrestd::rest_request& req, const model_info* model, bool& is_tokenizer, string& error);
+  const string& get_tagger(microrestd::rest_request& req, const model_info* model, string& error);
+  const string& get_parser(microrestd::rest_request& req, const model_info* model, string& error);
+  output_format* get_output_format(microrestd::rest_request& req, string& error);
 
   microrestd::json_builder json_models;
+
+  static const string empty;
 };
 
 } // namespace udpipe
