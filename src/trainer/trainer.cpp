@@ -44,5 +44,24 @@ bool trainer::train(const string& method, const vector<sentence>& training, cons
   return true;
 }
 
+unsigned trainer::hyperparameter_integer(unsigned run, unsigned index, unsigned minimum, unsigned maximum) {
+  return minimum + int((maximum - minimum + 1) * rnd(run, index));
+}
+
+double trainer::hyperparameter_uniform(unsigned run, unsigned index, double minimum, double maximum) {
+  return minimum + (maximum - minimum) * rnd(run, index);
+}
+
+double trainer::hyperparameter_logarithmic(unsigned run, unsigned index, double minimum, double maximum) {
+  return exp(log(minimum) + (log(maximum) - log(minimum)) * rnd(run, index));
+}
+
+double trainer::rnd(unsigned run, unsigned index) {
+  uint32_t state = 12345U;
+  for (unsigned i = 0; i < 10; i++)
+    state = state * 1103515245U + run * 19999999U + index * 1000000007U + 12345U;
+  return (state >> 16) / double(1<<16);
+}
+
 } // namespace udpipe
 } // namespace ufal

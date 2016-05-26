@@ -73,14 +73,13 @@ bool trainer_morphodita_parsito::train(const vector<sentence>& training, const v
 
 bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& training, const vector<sentence>& heldout,
                                                  const string& options, ostream& os, string& error) {
-  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
-
   if (options == NONE) {
     os.put(0);
   } else {
     // Tokenizer options
     named_values::map tokenizer;
     if (!named_values::parse(options, tokenizer, error)) return false;
+    int run = 0; if (!option_int(tokenizer, "run", run, error)) return false;
 
     if (tokenizer.count("from_model")) {
       // Use specified tokenizer model
@@ -165,11 +164,16 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
         int segment_size = 50; // if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
         int dimension = 16; // if (!option_int(tokenizer, "dimension", dimension, error)) return false;
         int epochs = 100; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
-        int batch_size = 50; if (!option_int(tokenizer, "batch_size", batch_size, error)) return false;
-        double learning_rate = 0.005; if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
+        int batch_size = run <= 1 ? 50 : 50 + 50 * hyperparameter_integer(run, 1, 0, 1);
+        if (!option_int(tokenizer, "batch_size", batch_size, error)) return false;
+        double learning_rate = run <= 1 ? 0.005 : hyperparameter_logarithmic(run, 2, 0.0005, 0.01);
+        if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
         double learning_rate_final = 0.0; // if (!option_double(tokenizer, "learning_rate_final", learning_rate_final, error)) return false;
         double dropout = 0.1; if (!option_double(tokenizer, "dropout", dropout, error)) return false;
         bool early_stopping = !heldout_sentences.empty(); if (!option_bool(tokenizer, "early_stopping", early_stopping, error)) return false;
+
+        if (run >= 1) cerr << "Random search run " << run << ", batch_size=" << batch_size
+                           << ", learning_rate=" << fixed << setprecision(8) << learning_rate << endl;
 
         // Train and encode gru_tokenizer
         os.put(morphodita::tokenizer_ids::GRU);
@@ -238,14 +242,13 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& training, 
 
 bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, const vector<sentence>& heldout,
                                               const string& options, const string& tagger_model, ostream& os, string& error) {
-  unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
-
   if (options == NONE) {
     os.put(0);
   } else {
     // Create Parsito model
     named_values::map parser;
     if (!named_values::parse(options, parser, error)) return false;
+    int run = 1; if (!option_int(parser, "run", run, error)) return false;
 
     if (parser.count("from_model")) {
       // Use specified parser model
@@ -290,10 +293,17 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
       int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
       int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
-      int structured_interval = 8; if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
-      double learning_rate = 0.02; if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
+      int structured_interval = run <= 1 ? 8 : hyperparameter_integer(run,1,0,2) == 2 ? 0 : 8 + 2*hyperparameter_integer(run,1,0,2);
+      if (!option_int(parser, "structured_interval", structured_interval, error)) return false;
+      double learning_rate = run <= 1 ? 0.02 : hyperparameter_logarithmic(run, 2, 0.005, 0.04);
+      if (!option_double(parser, "learning_rate", learning_rate, error)) return false;
       double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
-      double l2 = 0.5; if (!option_double(parser, "l2", l2, error)) return false;
+      double l2 = run <= 1 ? 0.5 : hyperparameter_uniform(run, 3, 0.2, 0.6);
+      if (!option_double(parser, "l2", l2, error)) return false;
+
+      if (run >= 1) cerr << "Random search run " << run << ", structured_interval=" << structured_interval
+                         << ", learning_rate=" << fixed << setprecision(8) << learning_rate
+                         << ", l2=" << l2 << endl;
 
       // Prepare data in the correct format
       parsito::network_parameters parameters;
@@ -429,6 +439,8 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
                                                     ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
+  int run = 1; if (!option_int(tagger, "run", run, error, model)) return false;
+
   bool have_lemma = false;
   for (auto&& sentence : training)
     for (size_t i = 1; !have_lemma && i < sentence.words.size(); i++)
@@ -463,10 +475,15 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
 
     // Guesser options
     int guesser_suffix_len = 4; if (!option_int(tagger, "guesser_suffix_len", guesser_suffix_len, error, model)) return false;
-    int guesser_suffix_rules = 8; if (!option_int(tagger, "guesser_suffix_rules", guesser_suffix_rules, error, model)) return false;
+    int guesser_suffix_rules = run <= 1 ? 8 : 5 + hyperparameter_integer(run, 1, 0, 7);
+    if (!option_int(tagger, "guesser_suffix_rules", guesser_suffix_rules, error, model)) return false;
     int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int(tagger, "guesser_prefixes_max", guesser_prefixes_max, error, model)) return false;
     int guesser_prefix_min_count = 10; if (!option_int(tagger, "guesser_prefix_min_count", guesser_prefix_min_count, error, model)) return false;
-    int guesser_enrich_dictionary = 6; if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
+    int guesser_enrich_dictionary = run <= 1 ? 6 : 3 + hyperparameter_integer(run, 2, 0, 7);
+    if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
+
+    if (run >= 1) cerr << "Random search run " << run << ", guesser_suffix_rules=" << guesser_suffix_rules
+                       << ", guesser_enrich_dictionary=" << guesser_enrich_dictionary << endl;
 
     // Dictionary options
     int dictionary_suffix_len = 8; if (!option_int(tagger, "dictionary_suffix_len", dictionary_suffix_len, error, model)) return false;

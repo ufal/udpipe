@@ -22,6 +22,14 @@ class trainer {
 
   static const string DEFAULT;
   static const string NONE;
+
+ protected:
+  static unsigned hyperparameter_integer(unsigned run, unsigned index, unsigned minimum, unsigned maximum);
+  static double hyperparameter_uniform(unsigned run, unsigned index, double minimum, double maximum);
+  static double hyperparameter_logarithmic(unsigned run, unsigned index, double minimum, double maximum);
+
+ private:
+  static double rnd(unsigned run, unsigned index);
 };
 
 } // namespace udpipe
