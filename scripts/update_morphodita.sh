@@ -23,6 +23,10 @@ perl -ple '
 
   /^#include "([^"]*)"$/ and !-f dirname($ARGV)."/$1" and !-f "../src/$1" and $_ = "#include \"morphodita/$1\"";
   ' -i ../src/morphodita/*/*
+sed '
+  /^#include "/,/^$/{/^$/i#include "trainer/training_failure.h"
+};s/runtime_failure/training_failure/
+  ' -i `grep -Rl runtime_failure ../src/morphodita`
 
 # Disable all logging except for accuracy reporting during tagger training.
 sed 's#^.*\bcerr\b.*$#//&#' -i ../src/morphodita/*/*

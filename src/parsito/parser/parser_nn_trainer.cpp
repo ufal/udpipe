@@ -20,6 +20,7 @@
 #include "utils/parse_double.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -28,7 +29,7 @@ namespace parsito {
 void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name,
                               const string& embeddings_description, const string& nodes_description, const network_parameters& parameters,
                               unsigned /*number_of_threads*/, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
-  if (train.empty()) runtime_failure("No training data was given!");
+  if (train.empty()) training_failure("No training data was given!");
 
   // Random generator with fixed seed for reproducibility
   mt19937 generator(42);
@@ -37,8 +38,8 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
   for (auto&& tree : train)
     for (auto&& node : tree.nodes)
       if (node.id) {
-        if (node.head < 0) runtime_failure("The node '" << node.form << "' with id " << node.id << " has no head set!");
-        if (node.deprel.empty()) runtime_failure("The node '" << node.form << "' with id " << node.id << " has no deprel set!");
+        if (node.head < 0) training_failure("The node '" << node.form << "' with id " << node.id << " has no head set!");
+        if (node.deprel.empty()) training_failure("The node '" << node.form << "' with id " << node.id << " has no deprel set!");
       }
 
   // Generate labels for transition system
@@ -54,14 +55,14 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
 
   // Create transition system and transition oracle
   parser.system.reset(transition_system::create(transition_system_name, parser.labels));
-  if (!parser.system) runtime_failure("Cannot create transition system '" << transition_system_name << "'!");
+  if (!parser.system) training_failure("Cannot create transition system '" << transition_system_name << "'!");
 
   unique_ptr<transition_oracle> oracle(parser.system->oracle(transition_oracle_name));
-  if (!oracle) runtime_failure("Cannot create transition oracle '" << transition_oracle_name << "' for transition system '" << transition_system_name << "'!");
+  if (!oracle) training_failure("Cannot create transition oracle '" << transition_oracle_name << "' for transition system '" << transition_system_name << "'!");
 
   // Create node_extractor
   string error;
-  if (!parser.nodes.create(nodes_description, error)) runtime_failure(error);
+  if (!parser.nodes.create(nodes_description, error)) training_failure(error);
 
   // Load value_extractors and embeddings
   vector<string> value_names;
@@ -73,11 +74,11 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
 
     split(line, ' ', tokens);
     if (!(tokens.size() >= 3 && tokens.size() <= 6))
-      runtime_failure("Expected 3 to 6 columns on embedding description line '" << line << "'!");
+      training_failure("Expected 3 to 6 columns on embedding description line '" << line << "'!");
 
     value_names.emplace_back(string(tokens[0].str, tokens[0].len));
     parser.values.emplace_back();
-    if (!parser.values.back().create(tokens[0], error)) runtime_failure(error);
+    if (!parser.values.back().create(tokens[0], error)) training_failure(error);
 
     int dimension = parse_int(tokens[1], "embedding dimension");
     int min_count = parse_int(tokens[2], "minimum frequency count");
@@ -102,17 +103,17 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
       int update_weights = tokens.size() >= 5 ? parse_int(tokens[4], "update weights") : 1;
       int max_embeddings = tokens.size() >= 6 ? parse_int(tokens[5], "maximum embeddings count") : numeric_limits<int>::max();
       ifstream in(string(tokens[3].str, tokens[3].len));
-      if (!in.is_open()) runtime_failure("Cannot load '" << tokens[0] << "' embedding from file '" << tokens[3] << "'!");
+      if (!in.is_open()) training_failure("Cannot load '" << tokens[0] << "' embedding from file '" << tokens[3] << "'!");
 
       // Load first line containing dictionary size and dimensions
       string line;
       vector<string_piece> parts;
-      if (!getline(in, line)) runtime_failure("Cannot read first line from embedding file '" << tokens[3] << "'!");
+      if (!getline(in, line)) training_failure("Cannot read first line from embedding file '" << tokens[3] << "'!");
       split(line, ' ', parts);
-      if (parts.size() != 2) runtime_failure("Expected two numbers on the first line of embedding file '" << tokens[3] << "'!");
+      if (parts.size() != 2) training_failure("Expected two numbers on the first line of embedding file '" << tokens[3] << "'!");
       int file_dimension = parse_int(parts[1], "embedding file dimension");
 
-      if (file_dimension < dimension) runtime_failure("The embedding file '" << tokens[3] << "' has lower dimension than required!");
+      if (file_dimension < dimension) training_failure("The embedding file '" << tokens[3] << "' has lower dimension than required!");
 
       // Generate random projection when smaller dimension is required
       vector<vector<float>> projection;
@@ -137,7 +138,7 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
       while (getline(in, line) && int(weights.size()) < max_embeddings) {
         split(line, ' ', parts);
         if (!parts.empty() && !parts.back().len) parts.pop_back(); // Ignore space at the end of line
-        if (int(parts.size()) != file_dimension + 1) runtime_failure("Wrong number of values on line '" << line << "' of embedding file '" << tokens[3]);
+        if (int(parts.size()) != file_dimension + 1) training_failure("Wrong number of values on line '" << line << "' of embedding file '" << tokens[3]);
         for (int i = 0; i < file_dimension; i++)
           input_weights[i] = parse_double(parts[1 + i], "embedding weight");
 

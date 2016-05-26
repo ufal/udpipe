@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "neural_network_trainer.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -311,7 +312,7 @@ void neural_network_trainer::backpropagate(vector<embedding>& embeddings, const 
       return;
   }
 
-  runtime_failure("Internal error, unsupported trainer!");
+  training_failure("Internal error, unsupported trainer!");
 }
 
 void neural_network_trainer::l1_regularize() {

@@ -14,6 +14,7 @@
 #include "morphodita/morpho/morpho.h"
 #include "training_maps.h"
 #include "viterbi.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -43,9 +44,9 @@ template <class TaggerTrainer>
 void tagger_trainer<TaggerTrainer>::train(int decoding_order, int window_size, int iterations, istream& in_morpho_dict, bool use_guesser, istream& in_feature_templates, bool prune_features, istream& in_train, istream& in_heldout, bool early_stopping, ostream& out_tagger) {
 //  cerr << "Loading dictionary: ";
   unique_ptr<morpho> d(morpho::load(in_morpho_dict));
-  if (!d) runtime_failure("Cannot load dictionary!");
+  if (!d) training_failure("Cannot load dictionary!");
 //  cerr << "done" << endl;
-  if (!in_morpho_dict.seekg(0, istream::beg)) runtime_failure("Cannot seek in dictionary file to the beginning!");
+  if (!in_morpho_dict.seekg(0, istream::beg)) training_failure("Cannot seek in dictionary file to the beginning!");
 
   vector<sentence> train_data;
 //  cerr << "Loading train data: ";
@@ -85,7 +86,7 @@ double tagger_trainer<TaggerTrainer>::load_data(istream& is, const morpho& d, bo
     }
 
     split(line, '\t', tokens);
-    if (tokens.size() != 3) runtime_failure("The tagger data line '" << line << "' does not contain three columns!");
+    if (tokens.size() != 3) training_failure("The tagger data line '" << line << "' does not contain three columns!");
 
     // Add form to sentence
     forms++;

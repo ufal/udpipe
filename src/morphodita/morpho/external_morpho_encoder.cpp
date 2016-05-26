@@ -10,6 +10,7 @@
 #include "external_morpho_encoder.h"
 #include "utils/binary_encoder.h"
 #include "utils/compressor.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -22,7 +23,7 @@ void external_morpho_encoder::encode(const string& unknown_tag, ostream& out_mor
   enc.add_1B(unknown_tag.size());
   enc.add_data(unknown_tag);
 
-  if (!compressor::save(out_morpho, enc)) runtime_failure("Cannot compress and write dictionary to file!");
+  if (!compressor::save(out_morpho, enc)) training_failure("Cannot compress and write dictionary to file!");
 //  cerr << "Dictionary saved." << endl;
 }
 

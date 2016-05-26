@@ -15,6 +15,7 @@
 #include "persistent_unordered_map_encoder.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -33,7 +34,7 @@ void english_morpho_guesser_encoder::encode(istream& guesser_file, istream& nega
   // Load guesser exceptions
   while (getline(guesser_file, line)) {
     split(line, '\t', tokens);
-    if (tokens.size() != 3) runtime_failure("The line '" << line << "' in english guesser file does not have three columns!");
+    if (tokens.size() != 3) training_failure("The line '" << line << "' in english guesser file does not have three columns!");
     guesser[tokens[2]][tokens[0]].insert(tokens[1]);
     if (tags_map.emplace(tokens[1], tags_map.size()).second) tags.emplace_back(tokens[1]);
   }
@@ -51,14 +52,14 @@ void english_morpho_guesser_encoder::encode(istream& guesser_file, istream& nega
   // Load negations
   while (negations_file && getline(negations_file, line)) {
     split(line, '\t', tokens);
-    if (tokens.size() != 3) runtime_failure("The line '" << line << "' in english negation file does not have three columns!");
+    if (tokens.size() != 3) training_failure("The line '" << line << "' in english negation file does not have three columns!");
 
     unsigned negation_len = parse_int(tokens[2].c_str(), "negation_len in english negation file");
-    if (!negation_len) runtime_failure("Negation len in line '" << line << "' in english negation file is zero!");
+    if (!negation_len) training_failure("Negation len in line '" << line << "' in english negation file is zero!");
 
     unsigned to_follow = parse_int(tokens[1].c_str(), "to_follow in english negation file");
 
-    if (negations.count(tokens[0])) runtime_failure("The negation '" << tokens[0] << "' in english negation file is repeated!");
+    if (negations.count(tokens[0])) training_failure("The negation '" << tokens[0] << "' in english negation file is repeated!");
     negations.emplace(tokens[0], negation_info(negation_len, to_follow));
   }
 

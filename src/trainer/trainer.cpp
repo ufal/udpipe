@@ -11,6 +11,7 @@
 
 #include "trainer.h"
 #include "trainer_morphodita_parsito.h"
+#include "training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -26,11 +27,16 @@ bool trainer::train(const string& method, const vector<sentence>& training, cons
   os_buffer.put(method.size());
   os_buffer.write(method.c_str(), method.size());
 
-  if (method == "morphodita_parsito") {
-    if (!trainer_morphodita_parsito::train(training, heldout, tokenizer, tagger, parser, os_buffer, error))
+  try {
+    if (method == "morphodita_parsito") {
+      if (!trainer_morphodita_parsito::train(training, heldout, tokenizer, tagger, parser, os_buffer, error))
+        return false;
+    } else {
+      error.assign("Unknown UDPipe method '").append(method).append("'!");
       return false;
-  } else {
-    error.assign("Unknown UDPipe method '").append(method).append("'!");
+    }
+  } catch (training_error& e) {
+    error.assign(e.what());
     return false;
   }
 

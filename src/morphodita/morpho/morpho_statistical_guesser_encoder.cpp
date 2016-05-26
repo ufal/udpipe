@@ -13,6 +13,7 @@
 #include "morpho_statistical_guesser_encoder.h"
 #include "persistent_unordered_map_encoder.h"
 #include "utils/split.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -26,24 +27,24 @@ void morpho_statistical_guesser_encoder::encode(istream& is, binary_encoder& enc
   // Load statistical guesser
   string line;
   vector<string> tokens;
-  if (!getline(is, line)) runtime_failure("Missing first line with default tag in statistical guesser file");
+  if (!getline(is, line)) training_failure("Missing first line with default tag in statistical guesser file");
   int statistical_guesser_default = tags_map.emplace(line.data(), tags.size()).first->second;
   if (unsigned(statistical_guesser_default) >= tags.size()) tags.emplace_back(line.data());
 
   while (getline(is, line)) {
     split(line, '\t', tokens);
-    if (tokens.size() < 3 || (tokens.size() % 2) != 1) runtime_failure("Cannot parse line " << line << " in statistical guesser file!");
+    if (tokens.size() < 3 || (tokens.size() % 2) != 1) training_failure("Cannot parse line " << line << " in statistical guesser file!");
 
     vector<string> affixes;
     split(tokens[0], ' ', affixes);
-    if (affixes.size() != 2) runtime_failure("Cannot parse prefix_suffix '" << tokens[0] << "' in statistical guesser file!");
+    if (affixes.size() != 2) training_failure("Cannot parse prefix_suffix '" << tokens[0] << "' in statistical guesser file!");
     reverse(affixes[1].begin(), affixes[1].end());
 
     auto& rules = statistical_guesser[affixes[1] + ' ' + affixes[0]];
     for (unsigned i = 1; i < tokens.size(); i+= 2) {
       vector<string> replacements;
       split(tokens[i], ' ', replacements);
-      if (replacements.size() != 4) runtime_failure("Cannot parse replacement rule '" << tokens[i] << "' in statistical guesser file!");
+      if (replacements.size() != 4) training_failure("Cannot parse replacement rule '" << tokens[i] << "' in statistical guesser file!");
 
       vector<string> rule_tags;
       split(tokens[i+1], ' ', rule_tags);
@@ -70,7 +71,7 @@ void morpho_statistical_guesser_encoder::encode(istream& is, binary_encoder& enc
     binary_encoder e;
     e.add_1B(rules.size());
     for (auto&& rule : rules) {
-      if (rule.first.size() != 4) runtime_failure("Replacement rule not of size 4 in statistical guesser!");
+      if (rule.first.size() != 4) training_failure("Replacement rule not of size 4 in statistical guesser!");
       for (auto&& affix : rule.first) {
         e.add_1B(affix.size());
         e.add_data(affix);

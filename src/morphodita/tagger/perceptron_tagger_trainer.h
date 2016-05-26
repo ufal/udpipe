@@ -19,6 +19,7 @@
 #include "tagger_trainer.h"
 #include "training_maps.h"
 #include "viterbi.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -52,7 +53,7 @@ void perceptron_tagger_trainer<FeatureSequences>::train(int decoding_order, int 
   typedef feature_sequences_optimizer<FeatureSequences> optimizer;
   typename optimizer::optimized_feature_sequences optimized_features;
   optimizer::optimize(features, optimized_features);
-  if (!optimized_features.save(out_tagger)) runtime_failure("Cannot save feature sequences!");
+  if (!optimized_features.save(out_tagger)) training_failure("Cannot save feature sequences!");
 }
 
 template <class FeatureSequences>

@@ -9,6 +9,7 @@
 
 #include "raw_morpho_dictionary_reader.h"
 #include "utils/split.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -19,7 +20,7 @@ bool raw_morpho_dictionary_reader::next_lemma(string& lemma, vector<pair<string,
     if (!getline(in, line))
       return false;
     split(line, '\t', tokens);
-    if (tokens.size() != 3) runtime_failure("Line " << line << " does not have three columns!");
+    if (tokens.size() != 3) training_failure("Line " << line << " does not have three columns!");
   }
 
   lemma = tokens[0];
@@ -27,7 +28,7 @@ bool raw_morpho_dictionary_reader::next_lemma(string& lemma, vector<pair<string,
   tagged_forms.emplace_back(tokens[2], tokens[1]);
   while (getline(in, line)) {
     split(line, '\t', tokens);
-    if (tokens.size() != 3) runtime_failure("Line " << line << " does not have three columns!");
+    if (tokens.size() != 3) training_failure("Line " << line << " does not have three columns!");
 
     if (lemma != tokens[0]) break;
     tagged_forms.emplace_back(tokens[2], tokens[1]);

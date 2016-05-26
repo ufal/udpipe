@@ -59,3 +59,7 @@ patch -d ../src/parsito/parser parser_nn_trainer.cpp <<EOF
  
      // Evaluate heldout data if present
 EOF
+sed '
+  /^#include "/,/^$/{/^$/i#include "trainer/training_failure.h"
+};s/runtime_failure/training_failure/
+  ' -i `grep -Rl runtime_failure ../src/parsito`

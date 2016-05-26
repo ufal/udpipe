@@ -14,6 +14,7 @@
 #include "morpho_statistical_guesser_encoder.h"
 #include "utils/binary_encoder.h"
 #include "utils/compressor.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -43,7 +44,7 @@ void czech_morpho_encoder::encode(istream& in_dictionary, int max_suffix_len, is
 
   // done, save the dictionary
 //  cerr << "Compressing dictionary." << endl;
-  if (!compressor::save(out_morpho, enc)) runtime_failure("Cannot compress and write dictionary to file!");
+  if (!compressor::save(out_morpho, enc)) training_failure("Cannot compress and write dictionary to file!");
 //  cerr << "Dictionary saved." << endl;
 }
 

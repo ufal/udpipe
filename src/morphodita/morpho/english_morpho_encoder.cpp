@@ -13,6 +13,7 @@
 #include "morpho_dictionary_encoder.h"
 #include "utils/binary_encoder.h"
 #include "utils/compressor.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -28,7 +29,7 @@ void english_morpho_encoder::encode(istream& dictionary, int max_suffix_len, ist
   english_morpho_guesser_encoder::encode(guesser, negations, enc);
 
 //  cerr << "Compressing dictionary." << endl;
-  if (!compressor::save(out, enc)) runtime_failure("Cannot compress and write dictionary to file!");
+  if (!compressor::save(out, enc)) training_failure("Cannot compress and write dictionary to file!");
 //  cerr << "Dictionary saved." << endl;
 }
 

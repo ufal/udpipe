@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "string_piece.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -46,17 +47,17 @@ binary_encoder::binary_encoder() {
 }
 
 void binary_encoder::add_1B(unsigned val) {
-  if (uint8_t(val) != val) runtime_failure("Should encode value " << val << " in one byte!");
+  if (uint8_t(val) != val) training_failure("Should encode value " << val << " in one byte!");
   data.push_back(val);
 }
 
 void binary_encoder::add_2B(unsigned val) {
-  if (uint16_t(val) != val) runtime_failure("Should encode value " << val << " in one byte!");
+  if (uint16_t(val) != val) training_failure("Should encode value " << val << " in one byte!");
   data.insert(data.end(), (unsigned char*) &val, ((unsigned char*) &val) + sizeof(uint16_t));
 }
 
 void binary_encoder::add_4B(unsigned val) {
-  if (uint32_t(val) != val) runtime_failure("Should encode value " << val << " in one byte!");
+  if (uint32_t(val) != val) training_failure("Should encode value " << val << " in one byte!");
   data.insert(data.end(), (unsigned char*) &val, ((unsigned char*) &val) + sizeof(uint32_t));
 }
 

@@ -18,3 +18,7 @@ sed '
   s/^namespace utils {/namespace udpipe {\n&/
   s/^} \/\/ namespace utils/&\n} \/\/ namespace udpipe/
   ' -i ../src/utils/*
+sed '
+  /^#include "/,/^$/{/^$/i#include "trainer/training_failure.h"
+};s/runtime_failure/training_failure/
+  ' -i ../src/utils/binary_encoder.h

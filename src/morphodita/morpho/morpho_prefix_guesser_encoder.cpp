@@ -13,6 +13,7 @@
 #include "morpho_prefix_guesser_encoder.h"
 #include "persistent_unordered_map_encoder.h"
 #include "utils/split.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -34,13 +35,13 @@ void morpho_prefix_guesser_encoder::encode(istream& is, binary_encoder& enc) {
       continue;
     }
     split(line, '\t', tokens);
-    if (tokens.size() != 2) runtime_failure("Line " << line << " in prefix guesser prefixes file does not contain two columns!");
+    if (tokens.size() != 2) training_failure("Line " << line << " in prefix guesser prefixes file does not contain two columns!");
 
     auto it = filters_map.emplace(tokens[1], 1<<filters.size());
     if (it.second)
       filters.emplace_back(tokens[1]);
     auto filter = it.first->second;
-    if (!filter) runtime_failure("Too much different tag filters in the prefix guesser when adding tag filter '" << tokens[1] << "'!");
+    if (!filter) training_failure("Too much different tag filters in the prefix guesser when adding tag filter '" << tokens[1] << "'!");
 
     (*prefixes_current)[tokens[0]] |= filter;
   }

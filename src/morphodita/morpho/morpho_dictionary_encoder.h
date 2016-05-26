@@ -20,6 +20,7 @@
 #include "utils/binary_encoder.h"
 #include "utils/new_unique_ptr.h"
 #include "utils/parse_int.h"
+#include "trainer/training_failure.h"
 
 namespace ufal {
 namespace udpipe {
@@ -170,7 +171,7 @@ void dictionary<LemmaAddinfo>::load(istream& is, int max_suffix_len) {
       // Find forms of the class being added.
       auto start = forms.begin();
       while (start != forms.end() && start->first.compare(0, prefix.size(), prefix) != 0) start++;
-      if (start == forms.end()) runtime_failure("Internal error when generating classes, cannot find prefix '" << prefix << "'!");
+      if (start == forms.end()) training_failure("Internal error when generating classes, cannot find prefix '" << prefix << "'!");
       auto end = start;
       while (end != forms.end() && end->first.compare(0, prefix.size(), prefix) == 0) end++;
 
