@@ -279,13 +279,98 @@ TODO
 Running UDPipe
 --------------
 
-TODO
+Probably the most common usage of UDPipe is to tokenize, tag and parse input
+using
+  udpipe --tokenize --tag --parse udpipe_model
+
+The input is assumed to be in UTF-8 encoding and can be either already tokenized
+and segmented, or it can be a plain text which is tokenized and segmented
+automatically.
+
+Any number of files can be specified after the udpipe_model and if no file is
+given, input is read from standard input. The output is by default saved to
+standard output, but if --outfile=name is used, it is saved to the given file
+name. The output file name can contain a {}, which is replaced by a base name of
+the processed file (i.e., without directories and an extension).
+
+The full command syntax of running UDPipe is
+  udpipe [options] udpipe_model file ...
+  Options: --input=[conllu|horizontal|vertical]
+           --outfile=output file template
+           --output=[conllu|horizontal|vertical]
+           --tokenize (perform tokenization)
+           --tokenizer=tokenizer options, implies --tokenize
+           --tag (perform tagging)
+           --tagger=tagger options, implies --tag
+           --parse (perform parsing)
+           --parser=parser options, implies --parse
+
+
+Tokenizer
+---------
+
+If the --tokenize input is supplied, the input is assumed to be plain text and
+is tokenized using model tokenizer. Additional arguments to the tokenizer might
+be specified using --tokenizer=data option (which implies --tokenize).
+
+
+Input Formats
+-------------
+
+If the tokenizer is not used, the input format is specified using the --input
+option. Currently supported input formats are:
+- conllu (default): the CoNLL-U format
+  (http://universaldependencies.org/docs/format.html)
+- horizontal: each sentence on a separate line, with tokens separated by spaces
+- vertical: each token on a separate line, with an empty line denoting end of
+  sentence; only the first space-separated word is used as a token, the rest of
+  the line is ignored
+
+
+Tagger
+------
+
+If the --tag input is supplied, the input is POS tagged lemmatized using the
+model tagger. Additional arguments to the tagger might be specified using
+--tagger=data option (which implies --tag).
+
+
+Dependency Parsing
+------------------
+
+If the --parse input is supplied, the input is parsed using the model dependency
+parser.  Additional arguments to the parser might be specified using
+--parser=data option (which implies --parse).
+
+
+Output Formats
+--------------
+
+The output format is specified using the --output option. Currently supported
+output formats are:
+- conllu (default): the CoNLL-U format
+  (http://universaldependencies.org/docs/format.html)
+- horizontal: each sentence on a separate line, with words separated by a
+  single space
+- vertical: each word on a separate line, with an empty line denoting end of
+  sentence
 
 
 Running the UDPipe REST Server
 ------------------------------
 
-TODO
+UDPipe also provides REST server binary udpipe_server. The binary uses
+MicroRestD (http://github.com/ufal/microrestd) as a REST server implementation
+and provides UDPipe REST API
+(http://lindat.mff.cuni.cz/services/udpipe/api-reference.php).
+
+The full command syntax of udpipe_server is
+  udpipe_server [options] port (rest_id model_file acknowledgements)*
+  Options: --daemon
+
+The udpipe_server can run either in foreground or in background (when --daemon
+is used). The specified model files are loaded during start and kept in memory
+all the time. This behaviour may change in future to load the models on demand.
 
 
 Training UDPipe Models
@@ -297,7 +382,18 @@ TODO
 Measuring Model Accuracy
 ------------------------
 
-TODO
+Measuring custom model accuracy can be performed by running:
+  udpipe --accuracy [udpipe_options] udpipe_model file ...
+
+The command syntax is similar to the regular UDPipe operation, only the input
+must be always in CoNLL-U format
+(http://universaldependencies.org/docs/format.html) and the --input and --output
+options are ignored.
+
+If --tokenize(r) option is passed, tokenizer performance is evaluted (using
+SpaceAfter=No features of the input file). If --tag(ger) and/or --parse(r)
+options are passed, tagger and/or dependency parser performance is evaluated,
+respectively.
 
 
 UDPipe API Reference

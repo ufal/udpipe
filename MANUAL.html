@@ -78,6 +78,18 @@
       </ul>
     </li>
     <li><a href="#run_udpipe">5.2. Running UDPipe</a>
+      <ul>
+      <li><a href="#run_udpipe_tokenizer">5.2.1. Tokenizer</a>
+      </li>
+      <li><a href="#run_udpipe_input">5.2.2. Input Formats</a>
+      </li>
+      <li><a href="#run_udpipe_tagger">5.2.3. Tagger</a>
+      </li>
+      <li><a href="#run_udpipe_parser">5.2.4. Dependency Parsing</a>
+      </li>
+      <li><a href="#run_udpipe_output">5.2.5. Output Formats</a>
+      </li>
+      </ul>
     </li>
     <li><a href="#udpipe_server">5.3. Running the UDPipe REST Server</a>
     </li>
@@ -468,15 +480,124 @@ TODO
 <a id="run_udpipe" name="run_udpipe"></a>
 <h2>5.2. Running UDPipe</h2>
 
-<p>
-TODO
+<p style="margin-bottom:0">
+Probably the most common usage of UDPipe is to tokenize, tag and parse input using
 </p>
+<pre style="margin-top:0">
+udpipe --tokenize --tag --parse udpipe_model
+</pre>
+
+<p>
+The input is assumed to be in UTF-8 encoding and can be either already tokenized
+and segmented, or it can be a plain text which is tokenized and segmented automatically.
+</p>
+<p>
+Any number of files can be specified after the <code>udpipe_model</code> and if no
+file is given, input is read from standard input. The output is by default
+saved to standard output, but if <code>--outfile=name</code> is used, it is saved
+to the given file name. The output file name can contain a <code>{}</code>, which is
+replaced by a base name of the processed file (i.e., without directories
+and an extension).
+</p>
+<p style="margin-bottom:0">
+The full command syntax of running UDPipe is
+</p>
+<pre style="margin-top:0">
+udpipe [options] udpipe_model file ...
+Options: --input=[conllu|horizontal|vertical]
+         --outfile=output file template
+         --output=[conllu|horizontal|vertical]
+         --tokenize (perform tokenization)
+         --tokenizer=tokenizer options, implies --tokenize
+         --tag (perform tagging)
+         --tagger=tagger options, implies --tag
+         --parse (perform parsing)
+         --parser=parser options, implies --parse
+</pre>
+
+<a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
+<h3>5.2.1. Tokenizer</h3>
+
+<p>
+If the <code>--tokenize</code> input is supplied, the input is assumed to be
+plain text and is tokenized using model tokenizer. Additional arguments to the
+tokenizer might be specified using <code>--tokenizer=data</code> option (which implies
+<code>--tokenize</code>).
+</p>
+
+<a id="run_udpipe_input" name="run_udpipe_input"></a>
+<h3>5.2.2. Input Formats</h3>
+
+<p style="margin-bottom:0">
+If the tokenizer is not used, the input format is specified using the
+<code>--input</code> option. Currently supported input formats are:
+</p>
+<ul style="margin-top:0">
+<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+</li>
+<li><code>horizontal</code>: each sentence on a separate line, with tokens separated by spaces
+</li>
+<li><code>vertical</code>: each token on a separate line, with an empty line denoting end of sentence;
+  only the first space-separated word is used as a token, the rest of the line is ignored
+</li>
+</ul>
+
+<a id="run_udpipe_tagger" name="run_udpipe_tagger"></a>
+<h3>5.2.3. Tagger</h3>
+
+<p>
+If the <code>--tag</code> input is supplied, the input is POS tagged lemmatized
+using the model tagger. Additional arguments to the tagger might be
+specified using <code>--tagger=data</code> option (which implies <code>--tag</code>).
+</p>
+
+<a id="run_udpipe_parser" name="run_udpipe_parser"></a>
+<h3>5.2.4. Dependency Parsing</h3>
+
+<p>
+If the <code>--parse</code> input is supplied, the input is parsed using
+the model dependency parser.  Additional arguments to the parser might be
+specified using <code>--parser=data</code> option (which implies <code>--parse</code>).
+</p>
+
+<a id="run_udpipe_output" name="run_udpipe_output"></a>
+<h3>5.2.5. Output Formats</h3>
+
+<p style="margin-bottom:0">
+The output format is specified using the <code>--output</code> option. Currently
+supported output formats are:
+</p>
+<ul style="margin-top:0">
+<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+</li>
+<li><code>horizontal</code>: each sentence on a separate line, with words separated by a single space
+</li>
+<li><code>vertical</code>: each word on a separate line, with an empty line denoting end of sentence
+</li>
+</ul>
 
 <a id="udpipe_server" name="udpipe_server"></a>
 <h2>5.3. Running the UDPipe REST Server</h2>
 
 <p>
-TODO
+UDPipe also provides REST server binary <code>udpipe_server</code>.
+The binary uses <a href="http://github.com/ufal/microrestd">MicroRestD</a> as a REST
+server implementation and provides
+<a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">UDPipe REST API</a>.
+</p>
+<p style="margin-bottom:0">
+The full command syntax of <code>udpipe_server</code> is
+</p>
+<pre style="margin-top:0">
+udpipe_server [options] port (rest_id model_file acknowledgements)*
+Options: --daemon
+</pre>
+
+<p>
+The <code>udpipe_server</code> can run either in foreground or in background (when
+<code>--daemon</code> is used). The specified model files are loaded during start and
+kept in memory all the time. This behaviour may change in future to load the
+models on demand.
 </p>
 
 <a id="model_training" name="model_training"></a>
@@ -489,8 +610,22 @@ TODO
 <a id="udpipe_accuracy" name="udpipe_accuracy"></a>
 <h3>5.4.1. Measuring Model Accuracy</h3>
 
+<p style="margin-bottom:0">
+Measuring custom model accuracy can be performed by running:
+</p>
+<pre style="margin-top:0">
+udpipe --accuracy [udpipe_options] udpipe_model file ...
+</pre>
+
 <p>
-TODO
+The command syntax is similar to the regular UDPipe operation, only
+the input must be always in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+and the <code>--input</code> and <code>--output</code> options are ignored.
+</p>
+<p>
+If <code>--tokenize(r)</code> option is passed, tokenizer performance is evaluted
+(using <code>SpaceAfter=No</code> features of the input file). If <code>--tag(ger)</code> and/or <code>--parse(r)</code>
+options are passed, tagger and/or dependency parser performance is evaluated, respectively.
 </p>
 
 <a id="api_reference" name="api_reference"></a>
