@@ -1,0 +1,29 @@
+# This file is part of UDPipe <http://github.com/ufal/udpipe/>.
+#
+# Copyright 2015 Institute of Formal and Applied Linguistics, Faculty of
+# Mathematics and Physics, Charles University in Prague, Czech Republic.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+include ../../src/Makefile.builtem
+include ../../src/Makefile.include
+
+SWIG_FLAGS+=-O -c++ -outcurrentdir
+BINDING_C_FLAGS+=$(call include_dir,../../src_lib_only)
+BINDING_UDPIPE_OBJECTS=$(addprefix ../../src/,$(call dynobj,$(UDPIPE_OBJECTS)))
+ifneq ($(filter osx-%,$(PLATFORM)),)
+  BINDING_LD_FLAGS+=-Wl,-undefined -Wl,dynamic_lookup
+endif
+
+.PHONY: binding_udpipe_o
+$(BINDING_UDPIPE_OBJECTS): binding_udpipe_o
+binding_udpipe_o:
+	@$(MAKE) -C ../../src $(call dynobj,$(UDPIPE_OBJECTS))
+
+.PHONY: veryclean
+veryclean: clean
+	$(MAKE) -C ../../src clean
+
+.DEFAULT_GOAL :=

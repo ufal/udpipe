@@ -1,0 +1,4 @@
+/.build/
+/Ufal/
+libudpipe_csharp.so
+udpipe_csharp.cpp

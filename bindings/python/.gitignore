@@ -1,0 +1,4 @@
+/.build/
+/ufal/
+udpipe_python.cpp
+ufal_udpipe.so

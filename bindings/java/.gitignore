@@ -1,0 +1,5 @@
+/.build/
+/cz/
+libudpipe_java.so
+udpipe.jar
+udpipe_java.cpp
