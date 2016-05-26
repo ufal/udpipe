@@ -585,8 +585,153 @@ declaration:
 <a id="bindings_helper_structures" name="bindings_helper_structures"></a>
 <h3>6.3.1. Helper Structures</h3>
 
+<pre>
+typedef vector&lt;int&gt; Children;
+
+typedef vector&lt;string&gt; Comments;
+
+class ProcessingError {
+public:
+  bool occurred();
+  string message;
+};
+
+class Word {
+ public:
+  int id;         // 0 is root, &gt;0 is sentence word, &lt;0 is undefined
+  string form;    // form
+  string lemma;   // lemma
+  string upostag; // universal part-of-speech tag
+  string xpostag; // language-specific part-of-speech tag
+  string feats;   // list of morphological features
+  int head;       // head, 0 is root, &lt;0 is undefined
+  string deprel;  // dependency relation to the head
+  string deps;    // secondary dependencies
+  string misc;    // miscellaneous information
+
+  Children children;
+
+  Word(int id = -1, const string&amp; form = string());
+};
+typedef vector&lt;Word&gt; Words;
+
+class MultiwordToken {
+ public:
+  int idFirst, idLast;
+  string form;
+  string misc;
+
+  MultiwordToken(int id_first = -1, int id_last = -1, const string&amp; form = string(), const string&amp; misc = string());
+};
+typedef vector&lt;MultiwordToken&gt; MultiwordTokens;
+
+class Sentence {
+ public:
+  Sentence();
+
+  Words words;
+  MultiwordTokens multiwordTokens;
+  Comments comments
+  static const string rootForm;
+
+  bool empty();
+  void clear();
+  virtual Word&amp; addWord(const char* form);
+  void setHead(int id, int head, const string&amp; deprel);
+  void unlinkAllWords();
+};
+typedef vector&lt;Sentence&gt; Sentences;
+</pre>
+
 <a id="bindings_main_classes" name="bindings_main_classes"></a>
 <h3>6.3.2. Main Classes</h3>
+
+<pre>
+class InputFormat {
+ public:
+  virtual void setText(const char* text);
+  virtual bool nextSentence(Sentence&amp; s, ProcessingError* error = nullptr);
+
+  static InputFormat* newInputFormat(const string&amp; name);
+  static InputFormat* newConlluInputFormat();
+  static InputFormat* newHorizontalInputFormat();
+  static InputFormat* newVerticalInputFormat();
+};
+
+class OutputFormat {
+ public:
+  virtual string writeSentence(const Sentence&amp; s) const;
+
+  static OutputFormat* newOutputFormat(const string&amp; name);
+  static OutputFormat* newConlluOutputFormat();
+  static OutputFormat* newHorizontalOutputFormat();
+  static OutputFormat* newVerticalOutputFormat();
+};
+
+class Model {
+ public:
+  static Model* load(const char* fname);
+
+  virtual InputFormat* newTokenizer(const string&amp; options) const;
+  virtual bool tag(Sentence&amp; s, const string&amp; options, ProcessingError* error = nullptr) const;
+  virtual bool parse(Sentence&amp; s, const string&amp; options, ProcessingError* error) const;
+
+  static const string DEFAULT;
+};
+
+class Pipeline {
+ public:
+  Pipeline(const Model* m, const string&amp; input, const string&amp; tagger, const string&amp; parser, const string&amp; output);
+
+  void setModel(const Model* m);
+  void setInput(const string&amp; input);
+  void setTagger(const string&amp; tagger);
+  void setParser(const string&amp; parser);
+  void setOutput(const string&amp; output);
+
+  string process(const string&amp; data, ProcessingError* error = nullptr) const;
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+
+class Trainer {
+ public:
+
+  static string train(const string&amp; method, const Sentences&amp; train, const Sentences&amp; heldout,
+                      const string&amp; tokenizer, const string&amp; tagger, const string&amp; parser,
+                      ProcessingError* error = nullptr);
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+
+class Evaluator {
+ public:
+  Evaluator(const Model* m, const string&amp; tokenizer, const string&amp; tagger, const string&amp; parser);
+
+  void setModel(const Model* m);
+  void setTokenizer(const string&amp; tokenizer);
+  void setTagger(const string&amp; tagger);
+  void setParser(const string&amp; parser);
+
+  string evaluate(const string&amp; data, ProcessingError* error = nullptr) const;
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+
+class Version {
+ public:
+  unsigned major;
+  unsigned minor;
+  unsigned patch;
+  string prerelease;
+
+  // Returns current version.
+  static version current();
+};
+</pre>
 
 <a id="csharp_bindings" name="csharp_bindings"></a>
 <h2>6.4. C# Bindings</h2>
