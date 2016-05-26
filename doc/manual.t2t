@@ -84,7 +84,7 @@ Authors:
 
 [UDPipe website http://ufal.mff.cuni.cz/udpipe].
 
-[UDPipe LINDAT/CLARIN entry TODO].
+[UDPipe LINDAT/CLARIN entry http://hdl.handle.net/11234/1-1702].
 
 
 = Acknowledgements =[udpipe_acknowledgements]
@@ -120,4 +120,4 @@ This work has been using language resources developed and/or stored and/or distr
 == Permanent Identifier ==[permanent_identifier]
 
 If you prefer to reference UDPipe by a permanent identifier (PID),
-you can use ``TODO``.
+you can use ``http://hdl.handle.net/11234/1-1702``.
