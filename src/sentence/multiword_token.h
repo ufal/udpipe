@@ -21,7 +21,7 @@ class multiword_token {
   string form;
   string misc;
 
-  multiword_token(int id_first, int id_last, string_piece form = string_piece(), string_piece misc = string_piece()) : id_first(id_first), id_last(id_last) {
+  multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece()) : id_first(id_first), id_last(id_last) {
     if (form.len) this->form.assign(form.str, form.len);
     if (misc.len) this->misc.assign(misc.str, misc.len);
   }
