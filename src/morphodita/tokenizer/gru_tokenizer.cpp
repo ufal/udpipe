@@ -62,16 +62,26 @@ int gru_tokenizer::next_outcome() {
     network_outcomes.resize(network_length);
 
     // Perform the classification
-    for (size_t i = 0; i < network_length; i++) {
-      network_chars[i].chr = chars[i + network_start].chr;
-      network_chars[i].cat = chars[i + network_start].cat;
+    for (size_t i = 0; i < network_length; i++)
+      if (is_space(i + network_start))
+        network_chars[i].chr = ' ', network_chars[i].cat = unilib::unicode::Zs;
+      else
+        network_chars[i].chr = chars[i + network_start].chr, network_chars[i].cat = chars[i + network_start].cat;
+
+    // Add a space to the end on the EOD
+    if (network_length < segment) {
+      network_chars.emplace_back();
+      network_outcomes.emplace_back();
+      network_chars.back().chr = ' ';
+      network_chars.back().cat = unilib::unicode::Zs;
     }
     network.classify(network_chars, network_outcomes);
 
     // Add spacing token/sentence breaks
     for (size_t i = 0; i < network_length - 1; i++)
-      if ((i + 2 < network_length && network_chars[i+1].chr == '\n' && network_chars[i+2].chr == '\n') ||
-          (i + 4 < network_length && network_chars[i+1].chr == '\r' && network_chars[i+2].chr == '\n' && network_chars[i+3].chr == '\r' && network_chars[i+4].chr == '\n'))
+      if ((i + 2 < network_length && chars[network_start+i+1].chr == '\n' && chars[network_start+i+2].chr == '\n') ||
+          (i + 4 < network_length && chars[network_start+i+1].chr == '\r' && chars[network_start+i+2].chr == '\n' &&
+           chars[network_start+i+3].chr == '\r' && chars[network_start+i+4].chr == '\n'))
         network_outcomes[i].outcome = gru_tokenizer_network::END_OF_SENTENCE;
       else if (network_outcomes[i].outcome == gru_tokenizer_network::NO_SPLIT && is_space(network_start + i + 1) && !is_space(network_start + i))
         network_outcomes[i].outcome = gru_tokenizer_network::END_OF_TOKEN;
