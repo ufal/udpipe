@@ -53,6 +53,10 @@ bool trainer_morphodita_parsito::train(const vector<sentence>& training, const v
     for (size_t i = 1; i < sentence.words.size(); i++)
       if (!can_combine_tag(sentence.words[i], error))
         return false;
+  for (auto&& sentence : heldout)
+    for (size_t i = 1; i < sentence.words.size(); i++)
+      if (!can_combine_tag(sentence.words[i], error))
+        return false;
 
   if (!train_tokenizer(training, heldout, tokenizer, os, error)) return false;
   string tagger_model;
@@ -647,7 +651,8 @@ const string& trainer_morphodita_parsito::combine_tag(const word& w, bool xposta
          (w.upostag.find(tag_separators[separator]) != string::npos || w.xpostag.find(tag_separators[separator]) != string::npos))
     separator++;
   if (separator >= tag_separators.size())
-    runtime_failure("Cannot find tag separating character, UPOSTAG and XPOSTAG contain all of '" << tag_separators << "'!");
+    // Should not happen, as can_combine_tag was called before
+    separator = 0;
 
   combined_tag.assign(1, tag_separators[separator]);
   combined_tag.append(w.upostag);
