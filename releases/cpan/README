@@ -1,0 +1,46 @@
+Ufal-UDPipe
+
+Ufal-UDPipe package is a Perl bindings for UDPipe library
+http://ufal.mff.cuni.cz/udpipe.
+
+In order to compile the package, compiler supporting C++11 is required,
+either g++ 4.7 or newer, clang++ 3.2 or newer, or Visual C++ 2015.
+
+INSTALLATION
+
+To install this module, run the following commands:
+
+	perl Build.PL
+	./Build
+	./Build install
+
+SUPPORT AND DOCUMENTATION
+
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc Ufal::UDPipe
+
+You can also look for information at:
+
+    RT, CPAN's request tracker (report bugs here)
+        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Ufal-UDPipe
+
+    AnnoCPAN, Annotated CPAN documentation
+        http://annocpan.org/dist/Ufal-UDPipe
+
+    CPAN Ratings
+        http://cpanratings.perl.org/d/Ufal-UDPipe
+
+    Search CPAN
+        http://search.cpan.org/dist/Ufal-UDPipe/
+
+
+LICENSE AND COPYRIGHT
+
+Copyright 2016 Institute of Formal and Applied Linguistics, Faculty of
+Mathematics and Physics, Charles University in Prague, Czech Republic.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
