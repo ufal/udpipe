@@ -44,6 +44,9 @@ class gru_tokenizer_network {
   struct char_info {
     char32_t chr;
     unilib::unicode::category_t cat;
+
+    char_info() {}
+    char_info(char32_t chr, unilib::unicode::category_t cat) : chr(chr), cat(cat) {}
   };
 
   virtual void classify(const vector<char_info>& chars, vector<outcome_t>& outcomes) const = 0;
