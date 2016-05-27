@@ -1,8 +1,5 @@
 <?php $main_page=basename(__FILE__); require('header.php') ?>
 
-<p><b>The service will be released soon.</b></p>
-
-<!--
 <div class="dropdown pull-right" style='margin-left: 10px; margin-bottom: 10px'>
   <button class="btn btn-default dropdown-toggle" type="button" id="tocDropdown" data-toggle="dropdown"><span class="fa fa-bars"></span> Table of Contents <span class="caret"></span></button>
   <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="tocDropdown">
@@ -19,7 +16,7 @@
 <p>UDPipe web service is available on
 <code>http(s)://lindat.mff.cuni.cz/services/udpipe/api/</code>.</p>
 
-<p>The web service is freely available for testing. Respect the
+<p>The web service is freely available. Respect the
 <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>
 licence of the models &ndash; <b>explicit written permission of the authors is
 required for any commercial exploitation of the system</b>. If you use the
@@ -53,9 +50,10 @@ handling.</p>
 <h3>Method <a id='models'>models</a></h3>
 
 <p>Return the list of models available in the UDPipe REST API, and for each
-model enumerate methods supported by this models. The default model (used
-when user supplies no model to a method call) is also returned &ndash; this is guaranteed
-to be the latest Czech model.</p>
+model enumerate components supported by this models (model can contain
+a <code>tokenizer</code>, <code>tagger</code> and a <code>parser</code>).
+The default model (used when user supplies no model to a method call) is
+also returned &ndash; this is guaranteed to be the latest Czech model.</p>
 
 <h4>Browser Example</h4>
 
@@ -66,14 +64,18 @@ to be the latest Czech model.</p>
 
 <h4>Example JSON Response</h4>
 <pre class="prettyprint lang-json">
-TODO
+{
+ "models": {
+  "czech-ud-1.2-160523": ["tokenizer", "tagger", "parser"],
+  "english-ud-1.2-160523": ["tokenizer", "tagger", "parser"]
+ },
+ "default_model": "czech-ud-1.2-160523"
+}
 </pre>
 
 <hr />
 
 <h3>Method <a id='process'>process</a></h3>
-
-<p>TODO</p>
 
 <p>Process given data as described <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe">in the User's Manual</a>.</p>
 
@@ -81,6 +83,11 @@ TODO
 <tr><th>Parameter</th><th>Mandatory</th><th>Data type</th><th>Description</th></tr>
 <tr><td>data</td><td>yes</td><td>string</td><td>Input text in <b>UTF-8</b>.</td></tr>
 <tr><td>model</td><td>no</td><td>string</td><td>Model to use; see <a href="#model_selection">model selection</a> for model matching rules.</td></tr>
+<tr><td>tokenizer</td><td>no</td><td>string</td><td>If the option is present, the input is assumed to be in plain text and is tokenized. If the parameter has a value, it is passed to the tokenizer.</td></tr>
+<tr><td>input</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>If the tokenizer is not used, the input is assumed to be in the specified <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">input format</a>; default <code>conllu</code>.</td></tr>
+<tr><td>tagger</td><td>no</td><td>string</td><td>If the option is present, the input is POS tagged and lemmatized. If the parameter has a value, it is passed to the tagger.</td></tr>
+<tr><td>parser</td><td>no</td><td>string</td><td>If the option is present, the input is dependency parsed. If the parameter has a value, it is passed to the parser.</td></tr>
+<tr><td>output</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>The <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_output">output format</a> to use; default <code>conllu</code>.</td></tr>
 </table>
 
 <p>
@@ -99,8 +106,8 @@ The <code>processed_output</code> is the output of the UDPipe in the requested o
 
 <h4>Browser Examples</h4>
 <table style='width: 100%'>
- <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">http://lindat.mff.cuni.cz/services/udpipe/api/process?data=</pre></td>
-     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('http://lindat.mff.cuni.cz/services/udpipe/api/process?data=')">try&nbsp;this</button></td></tr>
+ <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">http://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.</pre></td>
+     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('http://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.')">try&nbsp;this</button></td></tr>
 </table>
 
 <hr />
@@ -135,7 +142,7 @@ the <code>model</code> option:</p>
 The described API can be comfortably used by <code>curl</code>. Several examples follow:
 
 <h3>Passing Input on Command Line (if UTF-8 locale is being used)</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl --data 'data=' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl --data 'tokenizer=&tagger=&parser=&data=Děti pojedou k babičce. Už se těší.' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Using Files as Input (files must be in UTF-8 encoding)</h3>
 <pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
@@ -145,7 +152,5 @@ The described API can be comfortably used by <code>curl</code>. Several examples
 
 <h3>Converting JSON Result to Plain Text</h3>
 <pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process | python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
-
--->
 
 <?php require('footer.php') ?>

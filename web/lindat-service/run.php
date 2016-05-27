@@ -8,11 +8,10 @@ Documentation</a> and the models are described in the
 <a href="http://ufal.mff.cuni.cz/udpipe/users-manual">UDPipe User's Manual</a>.
 </p>
 
-<p><b>The service will be released soon.</b></p>
-<!--
-<script type="text/javascript"><!- -
+<script type="text/javascript"><!--
   var input_file_content = null;
   var output_file_content = null;
+  var output_file_table = null;
   var output_file_tree = null;
 
   function doSubmit() {
@@ -28,12 +27,18 @@ Documentation</a> and the models are described in the
       text = jQuery('#input').val();
     }
 
+    var options = {model: model, data: text};
+    var input = jQuery('input[name=option_input]:checked:visible').val();
+    if (input && input == "tokenizer") options.tokenizer = ""; else options.input = input ? input : "conllu";
+    if (jQuery('#tagger').prop('checked')) options.tagger = "";
+    if (jQuery('#parser').prop('checked')) options.parser = "";
+
     output_file_content = null;
+    output_file_table = null;
     output_file_tree = null;
     jQuery('#submit').html('<span class="fa fa-cog"></span> Waiting for Results <span class="fa fa-cog"></span>');
     jQuery('#submit').prop('disabled', true);
-    var options = {model: model, data: text};
-    jQuery.ajax('//lindat.mff.cuni.cz/services/parsito/api/parse',
+    jQuery.ajax('//lindat.mff.cuni.cz/services/udpipe/api/process',
            {dataType: "json", data: options, type: "POST", success: function(json) {
       try {
         if ("result" in json) {
@@ -42,8 +47,8 @@ Documentation</a> and the models are described in the
           jQuery('#output_text_content').text(output_file_content);
 
           var output_tab = jQuery('#output_tabs>.tab-pane.active');
-          if (output_tab.length > 0 && output_tab.attr('id') == 'output_tree') showTree();
-          else jQuery('#output_tree').empty();
+          if (output_tab.length > 0 && output_tab.attr('id') == 'output_table') showTable(); else jQuery('#output_table').empty();
+          if (output_tab.length > 0 && output_tab.attr('id') == 'output_tree') showTree(); else jQuery('#output_tree').empty();
 
           var acknowledgements = "";
           for (var a in json.acknowledgements)
@@ -69,7 +74,28 @@ Documentation</a> and the models are described in the
   function saveFile() {
     if (!output_file_content) return;
     var conllu = new Blob([output_file_content], {type: "text/x-conllu"});
-    saveAs(conllu, "parsed.conllu");
+    saveAs(conllu, "processed.conllu");
+  }
+
+  function showTable() {
+    if (!output_file_content) return;
+    if (output_file_table) return;
+
+    var table = [];
+    table.push('<table class="table table-hover table-condensed" style="margin-top: 15px">');
+    table.push('<tr><th>Id</th><th>Form</th><th>Lemma</th><th>UPosTag</th><th>XPosTag</th><th>Feats</th><th>Head</th><th>DepRel</th><th>Deps</th><th>Misc</th></tr>');
+    var lines = jQuery('#output_text_content').html().split(/\r?\n/);
+    while (lines.length && lines[lines.length-1] == "") lines.pop();
+    for (var i in lines) {
+      table.push(lines[i].match(/^(#|$)/) ?
+        '<tr><td colspan="10">' + (lines[i] ? lines[i] : "&nbsp;") + '</td></tr>' :
+        '<tr><td>' + lines[i].replace(/\t/g, '</td><td>').replace(/\|/g, "|<wbr>") + '</td></tr>'
+      );
+    }
+    table.push('</table>');
+
+    output_file_table = table.join("\n");
+    jQuery('#output_table').html('<button id="save_file" class="btn btn-success form-control" type="submit" onclick="saveFile()"><span class="fa fa-download"></span> Save Output File</span></button>' + output_file_table);
   }
 
   function showTree() {
@@ -92,17 +118,19 @@ Documentation</a> and the models are described in the
         tree_desc.push([parts[1], 'w'+parts[0]]);
 
         if (!tree_nodes.length) tree_nodes.push({id:'w0', ord:0, parent:null, data:{id:"0",form:"<root>"}, labels:['<root>','','']});
-        tree_nodes.push({id:'w'+parts[0], ord:tree_nodes.length, parent:'w'+parts[6], data:{
+        tree_nodes.push({id:'w'+parts[0], ord:tree_nodes.length, parent:parts[6]!==""?'w'+parts[6]:null, data:{
           id:parts[0], form:parts[1], lemma:parts[2], upostag:parts[3], xpostag:parts[4],
           feats:parts[5], head:parts[6], deprel:parts[7], deps:parts[8], misc:parts[9]
         }, labels:[parts[1], '#{#00008b}'+parts[7], '#{#004048}'+parts[3]]});
       } else if (tree_nodes.length) {
         var last_child = [];
         for (var i = 1; i < tree_nodes.length; i++) {
-          var head = parseInt(tree_nodes[i].data.head);
-          if (!last_child[head]) tree_nodes[head].firstson = 'w'+i;
-          else tree_nodes[last_child[head]].rbrother = 'w'+i;
-          last_child[head] = i;
+          var head = tree_nodes[i].data.head!=="" ? parseInt(tree_nodes[i].data.head) : "";
+          if (head !== "") {
+            if (!last_child[head]) tree_nodes[head].firstson = 'w'+i;
+            else tree_nodes[last_child[head]].rbrother = 'w'+i;
+            last_child[head] = i;
+          }
         }
 
         trees.push({desc:tree_desc,zones:{conllu:{trees:{"a":{layer:"a",nodes:tree_nodes}}}}});
@@ -120,7 +148,7 @@ Documentation</a> and the models are described in the
     var svg_element = jQuery('#output_tree_content svg');
     if (svg_element.length) {
       var svg = new Blob([svg_element.parent().html()], {type: "image/svg+xml"});
-      saveAs(svg, 'parsed.svg');
+      saveAs(svg, 'processed.svg');
     }
   }
 
@@ -146,14 +174,15 @@ Documentation</a> and the models are described in the
     }
   });
 
+  jQuery(document).on('show.bs.tab', '#output_table_link', showTable);
   jQuery(document).on('show.bs.tab', '#output_tree_link', showTree);
 
   jQuery(document).ready(function() {
-    jQuery.ajax('//lindat.mff.cuni.cz/services/parsito/api/models',
+    jQuery.ajax('//lindat.mff.cuni.cz/services/udpipe/api/models',
                 {dataType: "json", success: function(json) {
       var models_list = '';
       for (var model in json.models)
-          models_list += "<option" + (models_list ? "" : " selected") + ">" + json.models[model] + "</option>";
+          models_list += "<option" + (models_list ? "" : " selected") + ">" + model + "</option>";
       jQuery('#model').html(models_list);
     }, complete: function() {
       if (!jQuery('#model').html()) {
@@ -161,7 +190,7 @@ Documentation</a> and the models are described in the
       }
     }});
   });
-- -></script>
+--></script>
 
 <div class="panel panel-info">
   <div class="panel-heading">Service</div>
@@ -185,13 +214,17 @@ Documentation</a> and the models are described in the
       <div class="form-group row">
         <label class="col-sm-2 control-label">Input:</label>
         <div class="col-sm-10">
-          <label class="radio-inline" id="option_input_conllu"><input name="option_input" type="radio" value="conllu" checked/>CoNLL-U</label>
+          <label title="Tokenize input using a tokenizer" class="radio-inline" id="option_input_tokenizer"><input name="option_input" type="radio" value="tokenizer" checked/>Plain text</label>
+          <label title="The CoNLL-U format" class="radio-inline" id="option_input_conllu"><input name="option_input" type="radio" value="conllu" />CoNLL-U</label>
+          <label title="Sentence on a line, words separated by spaces" class="radio-inline" id="option_input_horizontal"><input name="option_input" type="radio" value="horizontal" />Horizontal</label>
+          <label title="Word on a line, empty line denoting end of sentence" class="radio-inline" id="option_input_vertical"><input name="option_input" type="radio" value="vertical" />Vertical</label>
         </div>
       </div>
       <div class="form-group row">
-        <label class="col-sm-2 control-label">Output:</label>
+        <label class="col-sm-2 control-label">Actions:</label>
         <div class="col-sm-10">
-          <label class="radio-inline" id="option_output_conllu"><input name="option_output" type="radio" value="conllu" checked/>CoNLL-U</label>
+          <label class="checkbox-inline" title="Perform POS tagging an lemmatization"><input type="checkbox" id="tagger" checked>Tag and Lemmatize</label>
+          <label class="checkbox-inline" title="Perform dependency parsing"><input type="checkbox" id="parser" checked>Parse</label>
         </div>
       </div>
     </div>
@@ -202,10 +235,7 @@ Documentation</a> and the models are described in the
     </ul>
     <div class="tab-content" id="input_tabs" style="border-right: 1px solid #ddd; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 15px">
      <div class="tab-pane active" id="input_text">
-      <textarea id="input" class="form-control" rows="10" cols="80">1	Z	_	ADP	_	AdpType=Prep|Case=Gen	_	_	_	_
-2	očí	_	NOUN	_	Case=Gen|Gender=Fem|Negative=Pos|Number=Plur	_	_	_	_
-3	do	_	ADP	_	AdpType=Prep|Case=Gen	_	_	_	_
-4	očí	_	NOUN	_	Case=Gen|Gender=Fem|Negative=Pos|Number=Plur	_	_	_	_</textarea>
+      <textarea id="input" class="form-control" rows="10" cols="80"></textarea>
      </div>
      <div class="tab-pane" id="input_file">
       <div class="input-group">
@@ -219,10 +249,13 @@ Documentation</a> and the models are described in the
 
     <ul class="nav nav-tabs nav-justified nav-tabs-green">
      <li class="active"><a href="#output_text" data-toggle="tab"><span class="fa fa-font"></span> Output Text</a></li>
+     <li><a href="#output_table" data-toggle="tab" id="output_table_link"><span class="fa fa-table"></span> Show Table</a></li>
      <li><a href="#output_tree" data-toggle="tab" id="output_tree_link"><span class="fa fa-tree"></span> Show Trees</a></li>
     </ul>
     <div class="tab-content" id="output_tabs" style="border-right: 1px solid #ddd; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; padding: 15px">
      <div class="tab-pane active" id="output_text">
+     </div>
+     <div class="tab-pane" id="output_table">
      </div>
      <div class="tab-pane" id="output_tree">
      </div>
@@ -232,6 +265,5 @@ Documentation</a> and the models are described in the
     <p id="acknowledgements_text" style="display: none"> </p>
   </div>
 </div>
--->
 
 <?php require('footer.php') ?>
