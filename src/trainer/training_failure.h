@@ -16,6 +16,7 @@
 
 namespace ufal {
 namespace udpipe {
+namespace utils {
 
 class training_error : public runtime_error {
  public:
@@ -26,5 +27,6 @@ class training_error : public runtime_error {
 
 #define training_failure(message) throw (training_error::message_collector << message, training_error())
 
+} // namespace utils
 } // namespace udpipe
 } // namespace ufal
