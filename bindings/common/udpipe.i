@@ -171,7 +171,7 @@ class model {
   %newobject load;
   static model* load(const char* fname);
 
-  %rename(%newTokenizer) new_tokenizer;
+  %rename(newTokenizer) new_tokenizer;
   %newobject new_tokenizer;
   virtual input_format* new_tokenizer(const std::string& options) const = 0;
   %extend {
