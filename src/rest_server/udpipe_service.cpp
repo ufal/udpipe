@@ -53,9 +53,13 @@ bool udpipe_service::init(const vector<model_description>& model_descriptions) {
   rest_models_map.emplace(string(), &models.front());
 
   // Init REST service
-  json_models.clear().object().indent().key("models").indent().array();
+  json_models.clear().object().indent().key("models").indent().object();
   for (auto& model : models) {
-    json_models.indent().value(model.rest_id);
+    json_models.indent().key(model.rest_id).indent().array();
+    if (model.can_tokenize) json_models.value("tokenizer");
+    if (model.can_tag) json_models.value("tagger");
+    if (model.can_parse) json_models.value("parser");
+    json_models.close();
   }
   json_models.indent().close().indent().key("default_model").indent().value(model_descriptions.front().rest_id).finish(true);
 
@@ -122,7 +126,7 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
     sentence s;
     while (input->next_sentence(s, error)) {}
     if (!error.empty())
-      return req.respond_error(error.assign("Cannot read input data: ").append(error).append("\n"));
+      return req.respond_error(error.insert(0, "Cannot read input data: ").append("\n"));
   }
 
   input->set_text(data);
