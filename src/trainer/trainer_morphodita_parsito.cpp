@@ -248,7 +248,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
     // Create Parsito model
     named_values::map parser;
     if (!named_values::parse(options, parser, error)) return false;
-    int run = 1; if (!option_int(parser, "run", run, error)) return false;
+    int run = 0; if (!option_int(parser, "run", run, error)) return false;
 
     if (parser.count("from_model")) {
       // Use specified parser model
@@ -439,7 +439,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
                                                     ostream& os, string& error) {
   unique_ptr<input_format> conllu_input_format(input_format::new_conllu_input_format());
 
-  int run = 1; if (!option_int(tagger, "run", run, error, model)) return false;
+  int run = 0; if (!option_int(tagger, "run", run, error, model)) return false;
 
   bool have_lemma = false;
   for (auto&& sentence : training)
