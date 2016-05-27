@@ -117,27 +117,47 @@
     <ul>
     <li><a href="#versioning">6.1. UDPipe Versioning</a>
     </li>
-    <li><a href="#version">6.2. Class version</a>
+    <li><a href="#string_piece">6.2. Struct string_piece</a>
+    </li>
+    <li><a href="#node">6.3. Class word</a>
+    </li>
+    <li><a href="#multiword_token">6.4. Class multiword_token</a>
+    </li>
+    <li><a href="#sentence">6.5. Class sentence</a>
+    </li>
+    <li><a href="#input_format">6.6. Class input_format</a>
+    </li>
+    <li><a href="#output_format">6.7. Class output_format</a>
+    </li>
+    <li><a href="#model">6.8. Class model</a>
+    </li>
+    <li><a href="#pipeline">6.9. Class pipeline</a>
+    </li>
+    <li><a href="#trainer">6.10. Class trainer</a>
+    </li>
+    <li><a href="#evaluator">6.11. Class evaluator</a>
+    </li>
+    <li><a href="#version">6.12. Class version</a>
       <ul>
-      <li><a href="#version_current">6.2.1. version::current</a>
+      <li><a href="#version_current">6.12.1. version::current</a>
       </li>
       </ul>
     </li>
-    <li><a href="#cpp_bindings_api">6.3. C++ Bindings API</a>
+    <li><a href="#cpp_bindings_api">6.13. C++ Bindings API</a>
       <ul>
-      <li><a href="#bindings_helper_structures">6.3.1. Helper Structures</a>
+      <li><a href="#bindings_helper_structures">6.13.1. Helper Structures</a>
       </li>
-      <li><a href="#bindings_main_classes">6.3.2. Main Classes</a>
+      <li><a href="#bindings_main_classes">6.13.2. Main Classes</a>
       </li>
       </ul>
     </li>
-    <li><a href="#csharp_bindings">6.4. C# Bindings</a>
+    <li><a href="#csharp_bindings">6.14. C# Bindings</a>
     </li>
-    <li><a href="#java_bindings">6.5. Java Bindings</a>
+    <li><a href="#java_bindings">6.15. Java Bindings</a>
     </li>
-    <li><a href="#perl_bindings">6.6. Perl Bindings</a>
+    <li><a href="#perl_bindings">6.16. Perl Bindings</a>
     </li>
-    <li><a href="#python_bindings">6.7. Python Bindings</a>
+    <li><a href="#python_bindings">6.17. Python Bindings</a>
     </li>
     </ul>
   </li>
@@ -1332,8 +1352,206 @@ models created from the same data by different <i>major.minor</i> UDPipe
 versions may have different behaviour.
 </p>
 
+<a id="string_piece" name="string_piece"></a>
+<h2>6.2. Struct string_piece</h2>
+
+<pre>
+struct string_piece {
+  const char* str;
+  size_t len;
+
+  string_piece();
+  string_piece(const char* str);
+  string_piece(const char* str, size_t len);
+  string_piece(const std::string&amp; str);
+}
+</pre>
+
+<p>
+The <a href="#string_piece"><code>string_piece</code></a> is used for efficient string passing. The string
+referenced in <a href="#string_piece"><code>string_piece</code></a> is not owned by it, so users have to make sure
+the referenced string exists as long as the <a href="#string_piece"><code>string_piece</code></a>.
+</p>
+
+<a id="node" name="node"></a>
+<h2>6.3. Class word</h2>
+
+<pre>
+class word {
+ public:
+  int id;         // 0 is root, &gt;0 is sentence word, &lt;0 is undefined
+  string form;    // form
+  string lemma;   // lemma
+  string upostag; // universal part-of-speech tag
+  string xpostag; // language-specific part-of-speech tag
+  string feats;   // list of morphological features
+  int head;       // head, 0 is root, &lt;0 is undefined
+  string deprel;  // dependency relation to the head
+  string deps;    // secondary dependencies
+  string misc;    // miscellaneous information
+
+  vector&lt;int&gt; children;
+
+  word(int id = -1, string_piece form = string_piece());
+};
+</pre>
+
+<p>
+The <a href="#word"><code>word</code></a> class represents a sentence word.
+The <a href="#word"><code>word</code></a> fields correspond to <a href="http://universaldependencies.org/docs/format.html">CoNLL-U fields</a>,
+with the <code>children</code> field representing the opposite direction of <code>head</code> links.
+</p>
+
+<a id="multiword_token" name="multiword_token"></a>
+<h2>6.4. Class multiword_token</h2>
+
+<pre>
+class multiword_token {
+ public:
+  int id_first, id_last;
+  string form;
+  string misc;
+
+  multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece());
+};
+</pre>
+
+<a id="sentence" name="sentence"></a>
+<h2>6.5. Class sentence</h2>
+
+<pre>
+class sentence {
+ public:
+  sentence();
+
+  vector&lt;word&gt; words;
+  vector&lt;multiword_token&gt; multiword_tokens;
+  vector&lt;string&gt; comments;
+  static const string root_form;
+
+  bool empty();
+  void clear();
+  word&amp; add_word(string_piece form = string_piece());
+  void set_head(int id, int head, const string&amp; deprel);
+  void unlink_all_words();
+};
+</pre>
+
+<a id="input_format" name="input_format"></a>
+<h2>6.6. Class input_format</h2>
+
+<pre>
+class input_format {
+ public:
+  virtual ~input_format() {}
+
+  virtual bool read_block(istream&amp; is, string&amp; block) const = 0;
+  virtual void set_text(string_piece text, bool make_copy = false) = 0;
+  virtual bool next_sentence(sentence&amp; s, string&amp; error) = 0;
+
+  // Static factory methods
+  static input_format* new_input_format(const string&amp; name);
+  static input_format* new_conllu_input_format();
+  static input_format* new_horizontal_input_format();
+  static input_format* new_vertical_input_format();
+};
+</pre>
+
+<a id="output_format" name="output_format"></a>
+<h2>6.7. Class output_format</h2>
+
+<pre>
+class output_format {
+ public:
+  virtual ~output_format() {}
+
+  virtual void write_sentence(const sentence&amp; s, ostream&amp; os) const = 0;
+
+  // Static factory methods
+  static output_format* new_output_format(const string&amp; name);
+  static output_format* new_conllu_output_format();
+  static output_format* new_horizontal_output_format();
+  static output_format* new_vertical_output_format();
+};
+</pre>
+
+<a id="model" name="model"></a>
+<h2>6.8. Class model</h2>
+
+<pre>
+class model {
+ public:
+  virtual ~model() {}
+
+  static model* load(const char* fname);
+  static model* load(istream&amp; is);
+
+  virtual input_format* new_tokenizer(const string&amp; options) const = 0;
+  virtual bool tag(sentence&amp; s, const string&amp; options, string&amp; error) const = 0;
+  virtual bool parse(sentence&amp; s, const string&amp; options, string&amp; error) const = 0;
+
+  static const string DEFAULT;
+};
+</pre>
+
+<a id="pipeline" name="pipeline"></a>
+<h2>6.9. Class pipeline</h2>
+
+<pre>
+class pipeline {
+ public:
+  pipeline(const model* m, const string&amp; input, const string&amp; tagger, const string&amp; parser, const string&amp; output);
+
+  void set_model(const model* m);
+  void set_input(const string&amp; input);
+  void set_tagger(const string&amp; tagger);
+  void set_parser(const string&amp; parser);
+  void set_output(const string&amp; output);
+
+  bool process(istream&amp; is, ostream&amp; os, string&amp; error) const;
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+</pre>
+
+<a id="trainer" name="trainer"></a>
+<h2>6.10. Class trainer</h2>
+
+<pre>
+class trainer {
+ public:
+  static bool train(const string&amp; method, const vector&lt;sentence&gt;&amp; train, const vector&lt;sentence&gt;&amp; heldout,
+                    const string&amp; tokenizer, const string&amp; tagger, const string&amp; parser,
+                    ostream&amp; os, string&amp; error);
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+</pre>
+
+<a id="evaluator" name="evaluator"></a>
+<h2>6.11. Class evaluator</h2>
+
+<pre>
+class evaluator {
+ public:
+  evaluator(const model* m, const string&amp; tokenizer, const string&amp; tagger, const string&amp; parser);
+
+  void set_model(const model* m);
+  void set_tokenizer(const string&amp; tokenizer);
+  void set_tagger(const string&amp; tagger);
+  void set_parser(const string&amp; parser);
+
+  bool evaluate(istream&amp; is, ostream&amp; os, string&amp; error) const;
+
+  static const string DEFAULT;
+  static const string NONE;
+};
+</pre>
+
 <a id="version" name="version"></a>
-<h2>6.2. Class version</h2>
+<h2>6.12. Class version</h2>
 
 <pre>
 class version {
@@ -1341,7 +1559,7 @@ class version {
   unsigned major;
   unsigned minor;
   unsigned patch;
-  std::string prerelease;
+  string prerelease;
 
   static <A HREF="#version">version</A> <A HREF="#version_current">current</A>();
 };
@@ -1353,7 +1571,7 @@ See <a href="#versioning">UDPipe Versioning</a> for more information.
 </p>
 
 <a id="version_current" name="version_current"></a>
-<h3>6.2.1. version::current</h3>
+<h3>6.12.1. version::current</h3>
 
 <pre>
 static <A HREF="#version">version</A> current();
@@ -1364,7 +1582,7 @@ Returns current UDPipe version.
 </p>
 
 <a id="cpp_bindings_api" name="cpp_bindings_api"></a>
-<h2>6.3. C++ Bindings API</h2>
+<h2>6.13. C++ Bindings API</h2>
 
 <p>
 Bindings for other languages than C++ are created using SWIG from the C++
@@ -1375,7 +1593,7 @@ declaration:
 </p>
 
 <a id="bindings_helper_structures" name="bindings_helper_structures"></a>
-<h3>6.3.1. Helper Structures</h3>
+<h3>6.13.1. Helper Structures</h3>
 
 <pre>
 typedef vector&lt;int&gt; Children;
@@ -1436,7 +1654,7 @@ typedef vector&lt;Sentence&gt; Sentences;
 </pre>
 
 <a id="bindings_main_classes" name="bindings_main_classes"></a>
-<h3>6.3.2. Main Classes</h3>
+<h3>6.13.2. Main Classes</h3>
 
 <pre>
 class InputFormat {
@@ -1526,7 +1744,7 @@ class Version {
 </pre>
 
 <a id="csharp_bindings" name="csharp_bindings"></a>
-<h2>6.4. C# Bindings</h2>
+<h2>6.14. C# Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the <code>Ufal.UDPipe</code> namespace.
@@ -1538,7 +1756,7 @@ The bindings requires native C++ library <code>libudpipe_csharp</code> (called
 </p>
 
 <a id="java_bindings" name="java_bindings"></a>
-<h2>6.5. Java Bindings</h2>
+<h2>6.15. Java Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the <code>cz.cuni.mff.ufal.udpipe</code>
@@ -1558,7 +1776,7 @@ directory, it is used, otherwise standard library search process is used.
 </p>
 
 <a id="perl_bindings" name="perl_bindings"></a>
-<h2>6.6. Perl Bindings</h2>
+<h2>6.16. Perl Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the
@@ -1574,7 +1792,7 @@ module, not through object instance.
 </p>
 
 <a id="python_bindings" name="python_bindings"></a>
-<h2>6.7. Python Bindings</h2>
+<h2>6.17. Python Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the

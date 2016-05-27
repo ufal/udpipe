@@ -681,6 +681,190 @@ the same data by different major.minor UDPipe versions may have different
 behaviour.
 
 
+Struct string_piece
+-------------------
+
+  struct string_piece {
+    const char* str;
+    size_t len;
+
+    string_piece();
+    string_piece(const char* str);
+    string_piece(const char* str, size_t len);
+    string_piece(const std::string& str);
+  }
+
+The string_piece is used for efficient string passing. The string referenced in
+string_piece is not owned by it, so users have to make sure the referenced
+string exists as long as the string_piece.
+
+
+Class word
+----------
+
+  class word {
+   public:
+    int id;         // 0 is root, >0 is sentence word, <0 is undefined
+    string form;    // form
+    string lemma;   // lemma
+    string upostag; // universal part-of-speech tag
+    string xpostag; // language-specific part-of-speech tag
+    string feats;   // list of morphological features
+    int head;       // head, 0 is root, <0 is undefined
+    string deprel;  // dependency relation to the head
+    string deps;    // secondary dependencies
+    string misc;    // miscellaneous information
+
+    vector<int> children;
+
+    word(int id = -1, string_piece form = string_piece());
+  };
+
+The word class represents a sentence word. The word fields correspond to CoNLL-U
+fields (http://universaldependencies.org/docs/format.html), with the children
+field representing the opposite direction of head links.
+
+
+Class multiword_token
+---------------------
+
+  class multiword_token {
+   public:
+    int id_first, id_last;
+    string form;
+    string misc;
+
+    multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece());
+  };
+
+
+Class sentence
+--------------
+
+  class sentence {
+   public:
+    sentence();
+
+    vector<word> words;
+    vector<multiword_token> multiword_tokens;
+    vector<string> comments;
+    static const string root_form;
+
+    bool empty();
+    void clear();
+    word& add_word(string_piece form = string_piece());
+    void set_head(int id, int head, const string& deprel);
+    void unlink_all_words();
+  };
+
+
+Class input_format
+------------------
+
+  class input_format {
+   public:
+    virtual ~input_format() {}
+
+    virtual bool read_block(istream& is, string& block) const = 0;
+    virtual void set_text(string_piece text, bool make_copy = false) = 0;
+    virtual bool next_sentence(sentence& s, string& error) = 0;
+
+    // Static factory methods
+    static input_format* new_input_format(const string& name);
+    static input_format* new_conllu_input_format();
+    static input_format* new_horizontal_input_format();
+    static input_format* new_vertical_input_format();
+  };
+
+
+Class output_format
+-------------------
+
+  class output_format {
+   public:
+    virtual ~output_format() {}
+
+    virtual void write_sentence(const sentence& s, ostream& os) const = 0;
+
+    // Static factory methods
+    static output_format* new_output_format(const string& name);
+    static output_format* new_conllu_output_format();
+    static output_format* new_horizontal_output_format();
+    static output_format* new_vertical_output_format();
+  };
+
+
+Class model
+-----------
+
+  class model {
+   public:
+    virtual ~model() {}
+
+    static model* load(const char* fname);
+    static model* load(istream& is);
+
+    virtual input_format* new_tokenizer(const string& options) const = 0;
+    virtual bool tag(sentence& s, const string& options, string& error) const = 0;
+    virtual bool parse(sentence& s, const string& options, string& error) const = 0;
+
+    static const string DEFAULT;
+  };
+
+
+Class pipeline
+--------------
+
+  class pipeline {
+   public:
+    pipeline(const model* m, const string& input, const string& tagger, const string& parser, const string& output);
+
+    void set_model(const model* m);
+    void set_input(const string& input);
+    void set_tagger(const string& tagger);
+    void set_parser(const string& parser);
+    void set_output(const string& output);
+
+    bool process(istream& is, ostream& os, string& error) const;
+
+    static const string DEFAULT;
+    static const string NONE;
+  };
+
+
+Class trainer
+-------------
+
+  class trainer {
+   public:
+    static bool train(const string& method, const vector<sentence>& train, const vector<sentence>& heldout,
+                      const string& tokenizer, const string& tagger, const string& parser,
+                      ostream& os, string& error);
+
+    static const string DEFAULT;
+    static const string NONE;
+  };
+
+
+Class evaluator
+---------------
+
+  class evaluator {
+   public:
+    evaluator(const model* m, const string& tokenizer, const string& tagger, const string& parser);
+
+    void set_model(const model* m);
+    void set_tokenizer(const string& tokenizer);
+    void set_tagger(const string& tagger);
+    void set_parser(const string& parser);
+
+    bool evaluate(istream& is, ostream& os, string& error) const;
+
+    static const string DEFAULT;
+    static const string NONE;
+  };
+
+
 Class version
 -------------
 
@@ -689,7 +873,7 @@ Class version
     unsigned major;
     unsigned minor;
     unsigned patch;
-    std::string prerelease;
+    string prerelease;
 
     static version current();
   };
