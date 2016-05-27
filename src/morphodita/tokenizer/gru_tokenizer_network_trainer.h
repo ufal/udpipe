@@ -82,6 +82,11 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
                                              const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
   if (segment < 10) return error.assign("Segment size must be at least 10!"), false;
 
+  unsigned characters = 0;
+  for (auto&& sentence : data)
+    characters += sentence.sentence.size();
+  if (characters < segment) return error.assign("Not enought training data for the gru_tokenizer!"), false;
+
   mt19937 generator;
 
   float dropout_multiplier = 1.f / (1.f - dropout);
