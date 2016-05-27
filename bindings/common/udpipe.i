@@ -182,7 +182,7 @@ class model {
     }
   }
   %extend {
-    virtual bool parse(sentence& s, const std::string& options, ProcessingError* error) const {
+    virtual bool parse(sentence& s, const std::string& options, ProcessingError* error = nullptr) const {
       std::string str;
 
       return $self->parse(s, options, error ? error->message : str);
