@@ -99,7 +99,163 @@ models on demand.
 
 == Training UDPipe Models ==[model_training]
 
-TODO
+Custom UDPipe models can be trained using the following syntax:
+``` udpipe --train model.output [--heldout=heldout_data] training_file ...
+
+The training data should be in [CoNLL-U format http://universaldependencies.org/docs/format.html].
+
+By default three model components are trained -- a tokenizer, tagger and
+a parser.  Any subset of the model components can be trained and a model
+component may be copied from an existing model.
+
+The training options are specified for each model component separately
+using the ``--tokenizer``, ``--tagger`` and ``--parser`` option.
+If a model component should not be trained, value ``none`` should
+be used (e.g., ``--tagger=none``).
+
+The options are ``name=value`` pairs separated by a semicolon. The
+value can be either a simple string value (ending by a semicolon),
+file content specified as ``name=file:filename``, or an arbitrary
+string value specified as ``name=data:length:value``, where the value
+is exactly ``length`` bytes long.
+
+=== Reusing Components from Existing Models ===[model_training_reusing_components]
+
+The model components (tagger, parser or tagger) can be reused from
+existing models, by specifying ``from_model=file:filename`` option.
+
+=== Random Hyperparameter Search ===[model_training_random_search]
+
+The default values of hyperparameters is set to the values
+which were used the most during UD 1.2 models training, but if you
+want to reach best performance, the hyperparameters must be tuned.
+
+Apart from manual grid search, UDPipe can perform a simple random search.
+You can perform the random search by repeatedly training UDPipe
+(preferably in parallel, most likely on different computers)
+while specifying different training run number -- some of the
+hyperparameters (chosen by us; but if you specify their value
+on command line, it is not modified) change their value on different
+training runs. The pseudorandom sequences of hyperparameters
+are of course deterministic.
+
+The training run can be specified by providing ``run=number`` option
+to a model component. The run number 1 is the default one (with best
+hyperparameters for the UD 1.2 models), runs 2 and more randomize
+the hyperparameters.
+
+=== Tokenizer ===[model_training_tokenizer]
+
+The tokenizer is trained using the ``SpaceAfter=No`` features in the CoNLL-U files.
+If the feature is not present, a //detokenizer// can be used to guess
+the ``SpaceAfter=No`` features according to a supplied plain text.
+
+In order to use the detokenizer, use ``detokenizer=file:filename_with_plaintext``
+option. In UD 1.2 models, optimal performance is achieved with very small plain
+texts -- only 500kB.
+
+The tokenizer recognizes the following options:
+- ``tokenize_url`` (default ``true``): tokenize URLs and emails using a manually
+    implemented recognizer
+- ``epochs`` (default 100): the number of epochs to train the tokenizer for
+- ``batch_size`` (default 50): batch size used during tokenizer training
+- ``learning_rate`` (default 0.005): the learning rate used during tokenizer training
+- ``dropout`` (default 0.1): dropout used during tokenizer training
+-
+
+
+During random hyperparameter search, ``batch_size`` is chosen uniformly from //{50,100}//
+and ``learning_rate`` logarithmically from //<0.0005, 0.01)//.
+
+=== Tagger ===[model_training_tagger]
+
+The tagging is currently performed using [MorphoDiTa http://ufal.mff.cuni.cz/morphodita].
+The UDPipe tagger consists of possibly several MorphoDiTa models, each tagging
+some of the POS tags and/or lemmas.
+
+By default, only one model is constructed, which generates all available tags (UPOS,
+XPOS, Feats and Lemma). However, we found out during the UD 1.2 models training
+that performance improves if one model tags the UPOS, XPOS and Feats tags, while the
+other is performing lemmatization. Therefore, if you utilize two MorphoDiTa models,
+by default the first one generates all tags and the second one performs lemmatization.
+
+The number of MorphoDiTa models can be specified using ``models=number`` parameter.
+All other parameters may be either generic for all models (``guesser_suffix_rules=5``),
+or specific for a given model (``guesser_suffix_rules_2=6``), including the
+``from_model`` option (therefore, MorphoDiTa models can be trained separately
+and then combined together to one UDPipe model).
+
+Every model utilizes UPOS for disambiguation and the first model is the one producing
+the UPOS tags on output.
+
+The tokenizer recognizes the following options:
+- ``use_lemma`` (default for the second model and also if there is only one model): use the
+  lemma field internally to perform disambiguation; the lemma may be not outputted
+- ``provide_lemma`` (default for the second model and also if there is only one model):
+  produce the disambiguated lemma on output
+- ``use_xpostag`` (default for the first model): use the
+  XPOS tags internally to perform disambiguation; it may not be outputted
+- ``provide_xpostag`` (default for the first model): produce the disambiguated XPOS tag on output
+- ``use_feats`` (default for the first model): use the
+  Feats internally to perform disambiguation; it may not be outputted
+- ``provide_feats`` (default for the first model): produce the disambiguated Feats field on output
+- ``guesser_suffix_rules`` (default 8): number of rules generated for every suffix
+- ``guesser_enrich_dictionary`` (default 6): number of rules generated for forms present
+  in training data (assuming that the analyses from the training data may not be all)
+-
+
+During random hyperparameter search, ``guesser_suffix_rules`` is chosen uniformly from
+//{5,6,7,8,9,10,11,12}// and ``guesser_enrich_dictionary`` is chosen uniformly from
+//{3,4,5,6,7,8,9,10}//.
+
+Note that for very large input training files it may happen that the
+morphological dictionary will be too large and the training will end with an error.
+If that happens, use smaller values for ``guesser_suffix_rules`` and/or ``guesser_enrich_dictionary``.
+
+=== Parser ===[model_training_parser]
+
+The parsing is performed using [Parsito http://ufal.mff.cuni.cz/parsito], which is a
+transition-based parser using neural network classifier.
+
+The transition-based systems can be configured by the following options:
+- ``transition_system`` (default projective): which transition system to use for parsing (language dependant, you can choose according
+  to language properties or try all and choose the best)
+  - ``projective``: projective stack-based arc standard system with ``shift``, ``left_arc`` and ``right_arc`` transitions
+  - ``swap``: fully non-projective system which extends ``projective`` system by adding ``swap`` transition
+  - ``link2``: partially non-projective system which extends ``projective`` system by adding ``left_arc2`` and ``right_arc2`` transitions
+- ``transition_oracle`` (default dynamic/static_lazy_static whichever first is applicable): which transition oracle to use for the chosen ``transition_system``:
+  - ``transition_system=projective``: available oracles are ``static`` and ``dynamic`` (``dynamic`` usually gives better results, but training time is slower)
+  - ``transition_system=swap``: available oracles are ``static_eager`` and ``static_lazy`` (``static_lazy`` almost always gives better results)
+  - ``transition_system=link2``: only available oracle is ``static``
+- ``structured_interval`` (default 8): use search-based oracle in addition to the ``translation_oracle`` specified. This almost always gives better results, but makes training 2-3 times slower. For details, see the paper //Straka et al. 2015: Parsing Universal Dependency Treebanks using Neural Networks and Search-Based Oracle//
+-
+
+The embeddings used by the parser can be specified as follows:
+- ``embedding_upostag`` (default 20): the dimension of the UPos embedding used in the parser
+- ``embedding_feats`` (default 20): the dimension of the Feats embedding used in the parser
+- ``embedding_xpostag`` (default 0): the dimension of the XPos embedding used in the parser
+- ``embedding_form`` (default 50): the dimension of the Form embedding used in the parser
+- ``embedding_lemma`` (default 0): the dimension of the Lemma embedding used in the parser
+- ``embedding_form_file``: pre-trained word embeddings created by ``word2vec`` can be optionally used;
+    pretraining embeddings even on the UD data itself improves accuracy (we use ``-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2`` options to pretrain on UD data)
+- ``embedding_lemma_file``: pre-trained lemma embeddings created by ``word2vec`` can be optionally used;
+-
+
+Note that form embedding could be pretrained directly in UDPipe (and will probably be pretrained
+in future UDPipe version).
+
+The neural network training options:
+- ``iterations`` (default 10): number of training iterations to use
+- ``hidden_layer`` (default 200): the size of the hidden layer
+- ``batch_size`` (default 10): batch size used during neural network training
+- ``learning_rate`` (default 0.02): the learning rate used during neural network training
+- ``learning_rate_final`` (0.001): the final learning rate used during neural network training
+- ``l2`` (0.5): the L2 regularization used during neural network training
+-
+
+During random hyperparameter search, ``structured_interval`` is chosen uniformly from
+//{0,8,10}//, ``learning_rate`` is chosen logarithmically from ``<0.005,0.04)`` and
+``l2`` is chosen uniformly from ``<0.2,0.6)``.
 
 === Measuring Model Accuracy ===[udpipe_accuracy]
 
