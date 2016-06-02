@@ -82,7 +82,7 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
   string plain_text; unsigned space_after_nos = 0;
   sentence system, gold;
   int words = 0, upostag = 0, xpostag = 0, feats = 0, all_tags = 0, lemma = 0;
-  int punct = 0, punct_uas = 0, punct_las = 0, nopunct = 0, nopunct_uas = 0, nopunct_las = 0;
+  int edges = 0, uas = 0, las = 0;
 
   string block;
   while (conllu_input->read_block(is, block)) {
@@ -136,14 +136,9 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
         if (!m->parse(system, parser, error))
           return false;
         for (size_t i = 1; i < gold.words.size(); i++) {
-          punct++;
-          punct_uas += gold.words[i].head == system.words[i].head;
-          punct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
-          if (gold.words[i].upostag != "PUNCT") {
-            nopunct++;
-            nopunct_uas += gold.words[i].head == system.words[i].head;
-            nopunct_las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
-          }
+          edges++;
+          uas += gold.words[i].head == system.words[i].head;
+          las += gold.words[i].head == system.words[i].head && gold.words[i].deprel == system.words[i].deprel;
         }
       }
     }
@@ -189,8 +184,7 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
     os << "Tagging from gold tokenization - forms: " << words << ", upostag: " << fixed << setprecision(2) << 100. * upostag / words << "%, xpostag: " << 100. * xpostag / words
        << "%, feats: " << 100. * feats / words << "%, all tags: " << 100. * all_tags / words << "%, lemma: " << 100. * lemma / words << '%' << endl;
   if (parser != NONE)
-    os << "Parsing from gold tokenization - UAS: " << fixed << setprecision(2) << 100. * punct_uas / punct << "%, LAS: " << 100. * punct_las / punct << "%, "
-       << "without punctuation - UAS: " << 100. * nopunct_uas / nopunct << "%, LAS: " << 100. * nopunct_las / nopunct << '%' << endl;
+    os << "Parsing from gold tokenization - UAS: " << fixed << setprecision(2) << 100. * uas / edges << "%, LAS: " << 100. * las / edges << '%' << endl;
 
   return true;
 }
