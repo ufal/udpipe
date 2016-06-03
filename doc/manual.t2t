@@ -1,5 +1,5 @@
 UDPipe
-Version 1.0.1-devel
+Version 1.0.0
 
 = Introduction =[introduction]
 
@@ -117,7 +117,7 @@ This work has been using language resources developed and/or stored and/or distr
 }
 ```
 
-== Permanent Identifier ==[permanent_identifier]
+== Persistent Identifier ==[persistent_identifier]
 
-If you prefer to reference UDPipe by a permanent identifier (PID),
+If you prefer to reference UDPipe by a persistent identifier (PID),
 you can use ``http://hdl.handle.net/11234/1-1702``.

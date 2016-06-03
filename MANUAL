@@ -1,5 +1,5 @@
 UDPipe
-Version 1.0.1-devel
+Version 1.0.0
 
 Introduction
 ============
@@ -1145,8 +1145,8 @@ Bibtex for Referencing
   }
 
 
-Permanent Identifier
---------------------
+Persistent Identifier
+---------------------
 
-If you prefer to reference UDPipe by a permanent identifier (PID), you can use
+If you prefer to reference UDPipe by a persistent identifier (PID), you can use
 http://hdl.handle.net/11234/1-1702.
