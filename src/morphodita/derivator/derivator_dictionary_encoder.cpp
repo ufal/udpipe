@@ -87,7 +87,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
     if (matched[0].empty() || matched[1].empty()) {
       if (verbose)
 //        cerr << "Could not match a lemma from line '" << line << "', skipping." << endl;
-        continue;
+      continue;
     }
 
     // Store the possible parents

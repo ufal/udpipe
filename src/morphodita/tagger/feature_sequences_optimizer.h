@@ -61,7 +61,7 @@ void feature_sequences_optimizer<FeatureSequences<ElementaryFeatures<training_el
       if (element.second.gamma) {
         elementary_ids.clear();
         for (const char* key = element.first.c_str(); key != element.first.c_str() + element.first.size(); assert(key <= element.first.c_str() + element.first.size()))
-          elementary_ids.emplace_back(vli<elementary_feature_value>::decode((const unsigned char*&) key));
+          elementary_ids.emplace_back(vli<elementary_feature_value>::decode(key));
 
         assert(elementary_ids.size() == features.sequences[i].elements.size());
         for (unsigned j = 0; j < elementary_ids.size(); j++) {
@@ -111,7 +111,7 @@ void feature_sequences_optimizer<FeatureSequences<ElementaryFeatures<training_el
       if (element.second.gamma) {
         elementary_ids.clear();
         for (const char* key = element.first.c_str(); key < element.first.c_str() + element.first.size(); )
-          elementary_ids.emplace_back(vli<elementary_feature_value>::decode((const unsigned char*&) key));
+          elementary_ids.emplace_back(vli<elementary_feature_value>::decode(key));
 
         assert(elementary_ids.size() == features.sequences[i].elements.size());
         for (unsigned j = 0; j < elementary_ids.size(); j++) {
@@ -123,7 +123,7 @@ void feature_sequences_optimizer<FeatureSequences<ElementaryFeatures<training_el
         key_buffer.resize(elementary_ids.size() * vli<elementary_feature_value>::max_length());
         char* key = key_buffer.data();
         for (unsigned j = 0; j < elementary_ids.size(); j++)
-          vli<elementary_feature_value>::encode(elementary_ids[j], (unsigned char*&) key);
+          vli<elementary_feature_value>::encode(elementary_ids[j], key);
 
         updated_map.emplace(string(key_buffer.data(), key - key_buffer.data()), element.second);
       }

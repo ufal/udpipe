@@ -20,8 +20,8 @@ template <class T>
 class vli {
  public:
   static int max_length();
-  static void encode(T value, unsigned char*& where);
-  static T decode(const unsigned char*& from);
+  static void encode(T value, char*& where);
+  static T decode(const char*& from);
 };
 
 
@@ -32,19 +32,19 @@ inline int vli<uint32_t>::max_length() {
 }
 
 template <>
-inline void vli<uint32_t>::encode(uint32_t value, unsigned char*& where) {
+inline void vli<uint32_t>::encode(uint32_t value, char*& where) {
   if (value < 0x80) *where++ = value;
-  else if (value < 0x4000) *where++ = (value >> 7) | 0x80, *where++ = value & 0x7F;
-  else if (value < 0x200000) *where++ = (value >> 14) | 0x80, *where++ = ((value >> 7) & 0x7F) | 0x80, *where++ = value & 0x7F;
-  else if (value < 0x10000000) *where++ = (value >> 21) | 0x80, *where++ = ((value >> 14) & 0x7F) | 0x80, *where++ = ((value >> 7) & 0x7F) | 0x80, *where++ = value & 0x7F;
-  else *where++ = (value >> 28) | 0x80, *where++ = ((value >> 21) & 0x7F) | 0x80, *where++ = ((value >> 14) & 0x7F) | 0x80, *where++ = ((value >> 7) & 0x7F) | 0x80, *where++ = value & 0x7F;
+  else if (value < 0x4000) *where++ = (value >> 7) | 0x80u, *where++ = value & 0x7Fu;
+  else if (value < 0x200000) *where++ = (value >> 14) | 0x80u, *where++ = ((value >> 7) & 0x7Fu) | 0x80u, *where++ = value & 0x7Fu;
+  else if (value < 0x10000000) *where++ = (value >> 21) | 0x80u, *where++ = ((value >> 14) & 0x7Fu) | 0x80u, *where++ = ((value >> 7) & 0x7Fu) | 0x80u, *where++ = value & 0x7Fu;
+  else *where++ = (value >> 28) | 0x80u, *where++ = ((value >> 21) & 0x7Fu) | 0x80u, *where++ = ((value >> 14) & 0x7Fu) | 0x80u, *where++ = ((value >> 7) & 0x7Fu) | 0x80u, *where++ = value & 0x7Fu;
 }
 
 template <>
-inline uint32_t vli<uint32_t>::decode(const unsigned char*& from) {
+inline uint32_t vli<uint32_t>::decode(const char*& from) {
   uint32_t value = 0;
-  while (*from & 0x80) value = (value << 7) | ((*from++) ^ 0x80);
-  value = (value << 7) | (*from++);
+  while (((unsigned char)(*from)) & 0x80u) value = (value << 7) | (((unsigned char)(*from++)) ^ 0x80u);
+  value = (value << 7) | ((unsigned char)(*from++));
   return value;
 }
 

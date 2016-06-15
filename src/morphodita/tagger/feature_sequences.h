@@ -200,7 +200,7 @@ feature_sequences_score feature_sequences<ElementaryFeatures, Map>::score(int fo
         key = c.key.data();
         break;
       }
-      vli<elementary_feature_value>::encode(value, (unsigned char*&) key);
+      vli<elementary_feature_value>::encode(value, key);
     }
 
     result -= c.caches[i].score;
