@@ -205,11 +205,11 @@ void gru_tokenizer_network_implementation<D>::cache_embeddings() {
 
     fill_n(cache.w[0], 6*D, 0.f);
     for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][i] += e.w[0][j] * gru_fwd.X.w[i][j];
-    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][D+i] += e.w[0][j] * gru_fwd.X_r.w[i][j];
-    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][2*D+i] += e.w[0][j] * gru_fwd.X_z.w[i][j];
-    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][3*D+i] += e.w[0][j] * gru_bwd.X.w[i][j];
-    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][4*D+i] += e.w[0][j] * gru_bwd.X_r.w[i][j];
-    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[0][5*D+i] += e.w[0][j] * gru_bwd.X_z.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[1][i] += e.w[0][j] * gru_fwd.X_r.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[2][i] += e.w[0][j] * gru_fwd.X_z.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[3][i] += e.w[0][j] * gru_bwd.X.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[4][i] += e.w[0][j] * gru_bwd.X_r.w[i][j];
+    for (int i = 0; i < D; i++) for (int j = 0; j < D; j++) cache.w[5][i] += e.w[0][j] * gru_bwd.X_z.w[i][j];
   }
   fill_n(empty_embedding.cache.w[0], 6*D, 0.f);
 }
