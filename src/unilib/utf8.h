@@ -7,7 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// UniLib version: 3.1.0
+// UniLib version: 3.1.1
 // Unicode version: 8.0.0
 
 #pragma once
@@ -80,54 +80,53 @@ bool utf8::valid(const std::string& str) {
 }
 
 char32_t utf8::decode(const char*& str) {
-  const unsigned char*& ptr = (const unsigned char*&) str;
-  if (*ptr < 0x80) return *ptr++;
-  else if (*ptr < 0xC0) return ++ptr, REPLACEMENT_CHAR;
-  else if (*ptr < 0xE0) {
-    char32_t res = (*ptr++ & 0x1F) << 6;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((*ptr++) & 0x3F);
-  } else if (*ptr < 0xF0) {
-    char32_t res = (*ptr++ & 0x0F) << 12;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((*ptr++) & 0x3F) << 6;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((*ptr++) & 0x3F);
-  } else if (*ptr < 0xF8) {
-    char32_t res = (*ptr++ & 0x07) << 18;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((*ptr++) & 0x3F) << 12;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((*ptr++) & 0x3F) << 6;
-    if (*ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((*ptr++) & 0x3F);
-  } else return ++ptr, REPLACEMENT_CHAR;
+  if (((unsigned char)*str) < 0x80) return (unsigned char)*str++;
+  else if (((unsigned char)*str) < 0xC0) return ++str, REPLACEMENT_CHAR;
+  else if (((unsigned char)*str) < 0xE0) {
+    char32_t res = (((unsigned char)*str++) & 0x1F) << 6;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + (((unsigned char)*str++) & 0x3F);
+  } else if (((unsigned char)*str) < 0xF0) {
+    char32_t res = (((unsigned char)*str++) & 0x0F) << 12;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += (((unsigned char)*str++) & 0x3F) << 6;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + (((unsigned char)*str++) & 0x3F);
+  } else if (((unsigned char)*str) < 0xF8) {
+    char32_t res = (((unsigned char)*str++) & 0x07) << 18;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += (((unsigned char)*str++) & 0x3F) << 12;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += (((unsigned char)*str++) & 0x3F) << 6;
+    if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + (((unsigned char)*str++) & 0x3F);
+  } else return ++str, REPLACEMENT_CHAR;
 }
 
 char32_t utf8::decode(const char*& str, size_t& len) {
-  const unsigned char*& ptr = (const unsigned char*&) str;
-  if (!len) return 0; len--;
-  if (*ptr < 0x80) return *ptr++;
-  else if (*ptr < 0xC0) return ++ptr, REPLACEMENT_CHAR;
-  else if (*ptr < 0xE0) {
-    char32_t res = (*ptr++ & 0x1F) << 6;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((--len, *ptr++) & 0x3F);
-  } else if (*ptr < 0xF0) {
-    char32_t res = (*ptr++ & 0x0F) << 12;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((--len, *ptr++) & 0x3F) << 6;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((--len, *ptr++) & 0x3F);
-  } else if (*ptr < 0xF8) {
-    char32_t res = (*ptr++ & 0x07) << 18;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((--len, *ptr++) & 0x3F) << 12;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    res += ((--len, *ptr++) & 0x3F) << 6;
-    if (len <= 0 || *ptr < 0x80 || *ptr >= 0xC0) return REPLACEMENT_CHAR;
-    return res + ((--len, *ptr++) & 0x3F);
-  } else return ++ptr, REPLACEMENT_CHAR;
+  if (!len) return 0;
+  --len;
+  if (((unsigned char)*str) < 0x80) return (unsigned char)*str++;
+  else if (((unsigned char)*str) < 0xC0) return ++str, REPLACEMENT_CHAR;
+  else if (((unsigned char)*str) < 0xE0) {
+    char32_t res = (((unsigned char)*str++) & 0x1F) << 6;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + ((--len, ((unsigned char)*str++)) & 0x3F);
+  } else if (((unsigned char)*str) < 0xF0) {
+    char32_t res = (((unsigned char)*str++) & 0x0F) << 12;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += ((--len, ((unsigned char)*str++)) & 0x3F) << 6;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + ((--len, ((unsigned char)*str++)) & 0x3F);
+  } else if (((unsigned char)*str) < 0xF8) {
+    char32_t res = (((unsigned char)*str++) & 0x07) << 18;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += ((--len, ((unsigned char)*str++)) & 0x3F) << 12;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    res += ((--len, ((unsigned char)*str++)) & 0x3F) << 6;
+    if (len <= 0 || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return REPLACEMENT_CHAR;
+    return res + ((--len, ((unsigned char)*str++)) & 0x3F);
+  } else return ++str, REPLACEMENT_CHAR;
 }
 
 char32_t utf8::first(const char* str) {

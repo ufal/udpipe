@@ -1,3 +1,8 @@
+Version 3.1.1 [15 Jun 2016]
+---------------------------
+- Fix warnings of G++ 6.
+
+
 Version 3.1.0 [29 Jun 2015]
 ---------------------------
 - Update Unicode to 8.0.0.

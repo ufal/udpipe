@@ -7,7 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// UniLib version: 3.1.0
+// UniLib version: 3.1.1
 // Unicode version: 8.0.0
 
 #include "utf8.h"
@@ -17,36 +17,36 @@ namespace udpipe {
 namespace unilib {
 
 bool utf8::valid(const char* str) {
-  for (const unsigned char*& ptr = (const unsigned char*&) str; *ptr; ptr++)
-    if (*ptr >= 0x80) {
-      if (*ptr < 0xC0) return false;
-      else if (*ptr < 0xE0) {
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
-      } else if (*ptr < 0xF0) {
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
-      } else if (*ptr < 0xF8) {
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (*ptr < 0x80 || *ptr >= 0xC0) return false;
+  for (; *str; str++)
+    if (((unsigned char)*str) >= 0x80) {
+      if (((unsigned char)*str) < 0xC0) return false;
+      else if (((unsigned char)*str) < 0xE0) {
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+      } else if (((unsigned char)*str) < 0xF0) {
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+      } else if (((unsigned char)*str) < 0xF8) {
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
       } else return false;
     }
   return true;
 }
 
 bool utf8::valid(const char* str, size_t len) {
-  for (const unsigned char*& ptr = (const unsigned char*&) str; len > 0; ptr++, len--)
-    if (*ptr >= 0x80) {
-      if (*ptr < 0xC0) return false;
-      else if (*ptr < 0xE0) {
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
-      } else if (*ptr < 0xF0) {
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
-      } else if (*ptr < 0xF8) {
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
-        ptr++; if (!--len || *ptr < 0x80 || *ptr >= 0xC0) return false;
+  for (; len > 0; str++, len--)
+    if (((unsigned char)*str) >= 0x80) {
+      if (((unsigned char)*str) < 0xC0) return false;
+      else if (((unsigned char)*str) < 0xE0) {
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+      } else if (((unsigned char)*str) < 0xF0) {
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+      } else if (((unsigned char)*str) < 0xF8) {
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
+        str++; if (!--len || ((unsigned char)*str) < 0x80 || ((unsigned char)*str) >= 0xC0) return false;
       } else return false;
     }
   return true;
