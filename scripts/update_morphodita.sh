@@ -28,7 +28,7 @@ sed '
 };s/runtime_failure/training_failure/
   ' -i `grep -Rl runtime_failure ../src/morphodita`
 
-# Disable all logging except for accuracy reporting during tagger training.
-sed 's#^.*\bcerr\b.*$#//&#' -i ../src/morphodita/*/*
+# Disable all logging except for accuracy reporting during tagger and tokenizer training.
+sed 's#^.*\bcerr\b.*$#//&#' -i `ls ../src/morphodita/*/* | grep -v ../src/morphodita/tokenizer/gru_tokenizer_network_trainer.h`
 sed 's#^//\(.*\bcerr\b\(.*[Ii]teration\|.*accuracy\| *<< *endl\).*\)$#\1#' -i ../src/morphodita/tagger/perceptron_tagger_trainer.h
 sed 's#^//\( *\).*cerr\b.*\(load_data([^)]*)\).*$#&\n\1\2;#' -i ../src/morphodita/tagger/tagger_trainer.h
