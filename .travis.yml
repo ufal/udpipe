@@ -33,5 +33,5 @@ matrix:
 #       env: COMPILER=clang++-3.8
 #       addons: {apt: {packages: [clang-3.8], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.8]}}
 script:
-  - CXX=$COMPILER make -C src full
-  - CXX=$COMPILER make -C tests udpipe_bundle
+  - CXX=$COMPILER C_FLAGS=-Werror make -k -C src full
+  - CXX=$COMPILER C_FLAGS=-Werror make -k -C tests udpipe_bundle
