@@ -14,21 +14,24 @@ matrix:
     - compiler: gcc
       env: COMPILER=g++-5
       addons: {apt: {packages: [g++-5], sources: [ubuntu-toolchain-r-test]}}
+    - compiler: gcc
+      env: COMPILER=g++-6
+      addons: {apt: {packages: [g++-6], sources: [ubuntu-toolchain-r-test]}}
     - compiler: clang
       env: COMPILER=clang++
       addons: {apt: {packages: [g++-4.7], sources: [ubuntu-toolchain-r-test]}}
-    - compiler: clang
-      env: COMPILER=clang++-3.5
-      addons: {apt: {packages: [clang-3.5], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.5]}}
-    - compiler: clang
-      env: COMPILER=clang++-3.6
-      addons: {apt: {packages: [clang-3.6], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.6]}}
-    - compiler: clang
-      env: COMPILER=clang++-3.7
-      addons: {apt: {packages: [clang-3.7], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.7]}}
-    - compiler: clang
-      env: COMPILER=clang++-3.8
-      addons: {apt: {packages: [clang-3.8], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.8]}}
+#     - compiler: clang
+#       env: COMPILER=clang++-3.5
+#       addons: {apt: {packages: [clang-3.5], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.5]}}
+#     - compiler: clang
+#       env: COMPILER=clang++-3.6
+#       addons: {apt: {packages: [clang-3.6], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.6]}}
+#     - compiler: clang
+#       env: COMPILER=clang++-3.7
+#       addons: {apt: {packages: [clang-3.7], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.7]}}
+#     - compiler: clang
+#       env: COMPILER=clang++-3.8
+#       addons: {apt: {packages: [clang-3.8], sources: [ubuntu-toolchain-r-test,llvm-toolchain-precise-3.8]}}
 script:
   - CXX=$COMPILER make -C src full
   - CXX=$COMPILER make -C tests udpipe_bundle
