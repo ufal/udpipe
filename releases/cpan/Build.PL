@@ -31,6 +31,14 @@ my $builder = $class->new(
     extra_compiler_flags => ['-x', 'c++', '-std=c++11', '-fvisibility=hidden', '-w', '-Wno-reserved-user-defined-literal'],
     extra_linker_flags   => ['-lstdc++'],
     c_source             => 'udpipe',
+    meta_merge => {
+        resources => {
+            license => 'https://www.mozilla.org/en-US/MPL/2.0/',
+            homepage => 'http://ufal.mff.cuni.cz/udpipe',
+            repository => 'https://github.com/ufal/udpipe.git',
+            bugtracker => 'https://github.com/ufal/udpipe/issues',
+        },
+    },
 );
 
 $builder->create_build_script();
