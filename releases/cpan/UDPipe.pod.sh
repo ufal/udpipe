@@ -19,7 +19,7 @@ Ufal::UDPipe - bindings to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
 
   my $tokenizer = $model->newTokenizer($Ufal::UDPipe::Model::DEFAULT);
   my $conllu_output = Ufal::UDPipe::OutputFormat::newOutputFormat("conllu");
-  my $sentence = Ufal::UDPipe::Tree->new();
+  my $sentence = Ufal::UDPipe::Sentence->new();
 
   $tokenizer->setText(join('', <>));
   while ($tokenizer->nextSentence($sentence)) {
