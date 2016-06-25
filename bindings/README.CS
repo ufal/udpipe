@@ -7,7 +7,7 @@ Installation
 Binary C# bindings are available in UDPipe binary packages.
 
 To compile C# bindings manually, run make in the bindings/csharp directory,
-optionally with the options descriged in UDPipe Installation.
+optionally with the options described in UDPipe Installation.
 
 
 C# Bindings API

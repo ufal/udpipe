@@ -4,7 +4,7 @@ Python UDPipe Bindings
 The Python bindings are available as ``ufal.udpipe`` package on PyPI.
 
 To compile Python bindings manually, run ``make`` in the ``bindings/python``
-directory, optionally with options descriged in UDPipe Installation. Both
+directory, optionally with options described in UDPipe Installation. Both
 Python 2.6+ and Python 3+ are supported.
 
 Path to the include headers of the required Python version must be specified

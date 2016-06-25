@@ -7,7 +7,7 @@ Installation
 Binary Java bindings are available in UDPipe binary packages.
 
 To compile Java bindings manually, run make in the bindings/java directory,
-optionally with the options descriged in UDPipe Installation. Java 6 and newer
+optionally with the options described in UDPipe Installation. Java 6 and newer
 is supported.
 
 The Java installation specified in the environment variable JAVA_HOME is used.

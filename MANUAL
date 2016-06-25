@@ -176,7 +176,7 @@ C#
 Binary C# bindings are available in UDPipe binary packages.
 
 To compile C# bindings manually, run make in the bindings/csharp directory,
-optionally with the options descriged in UDPipe Installation.
+optionally with the options described in UDPipe Installation.
 
 
 Java
@@ -185,7 +185,7 @@ Java
 Binary Java bindings are available in UDPipe binary packages.
 
 To compile Java bindings manually, run make in the bindings/java directory,
-optionally with the options descriged in UDPipe Installation. Java 6 and newer
+optionally with the options described in UDPipe Installation. Java 6 and newer
 is supported.
 
 The Java installation specified in the environment variable JAVA_HOME is used.
@@ -199,7 +199,7 @@ Perl
 The Perl bindings are available as Ufal-UDPipe package on CPAN.
 
 To compile Perl bindings manually, run make in the bindings/perl directory,
-optionally with the options descriged in UDPipe Installation. Perl 5.10 and
+optionally with the options described in UDPipe Installation. Perl 5.10 and
 later is supported.
 
 Path to the include headers of the required Perl version must be specified in
@@ -213,7 +213,7 @@ Python
 The Python bindings are available as ufal.udpipe package on PyPI.
 
 To compile Python bindings manually, run make in the bindings/python directory,
-optionally with options descriged in UDPipe Installation. Both Python 2.6+ and
+optionally with options described in UDPipe Installation. Both Python 2.6+ and
 Python 3+ are supported.
 
 Path to the include headers of the required Python version must be specified in
