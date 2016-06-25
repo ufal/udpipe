@@ -32,14 +32,14 @@ Ufal::UDPipe - bindings to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
 
 =head1 REQUIREMENTS
 
-To compile the module, C++11 compiler is needed, either C<g++> 4.7 or newer,
+To compile the module, a C++11 compiler is needed, either C<g++> 4.7 or newer,
 alternatively C<clang> 3.2 or newer or C<Visual C++> 2015.
 
 =head1 DESCRIPTION
 
 C<Ufal::UDPipe> is a Perl binding to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
 
-The bindings is a straightforward conversion of the C++ bindings API.
+The binding is a straightforward conversion of the C++ bindings API.
 Vectors do not have native Perl interface, see L<Ufal::UDPipe::Words>
 source for reference. Static methods and enumerations are available only
 through the module, not through object instance.
@@ -47,7 +47,7 @@ through the module, not through object instance.
 =head2 Wrapped C++ API
 
 The C++ API being wrapped follows. For a API reference of the original
-C++ API, see L\<http://ufal.mff.cuni.cz/udpipe/api-reference\>.
+C++ API, see L<http://ufal.mff.cuni.cz/udpipe/api-reference>.
 
 EOF
 tail -n+4 ../../doc/manual_bindings_api.txt | sed 's/^/  /'
