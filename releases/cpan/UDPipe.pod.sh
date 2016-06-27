@@ -13,13 +13,15 @@ Ufal::UDPipe - bindings to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
 =head1 SYNOPSIS
 
   use Ufal::UDPipe;
+  use open qw(:std :utf8);
 
   my $model_file = '...';
-  my $model = Ufal::UDPipe::Model::load($model_file) or die "Cannot load model from file '$model_file'\n";
+  my $model = Ufal::UDPipe::Model::load($model_file)
+     or die "Cannot load model from file '$model_file'\n";
 
   my $tokenizer = $model->newTokenizer($Ufal::UDPipe::Model::DEFAULT);
   my $conllu_output = Ufal::UDPipe::OutputFormat::newOutputFormat("conllu");
-  my $sentence = Ufal::UDPipe::Tree->new();
+  my $sentence = Ufal::UDPipe::Sentence->new();
 
   $tokenizer->setText(join('', <>));
   while ($tokenizer->nextSentence($sentence)) {
@@ -57,10 +59,24 @@ cat <<EOF
 
 =head2 run_udpipe
 
-Simple pipeline loading data (tokenizing on request), tagging, parsing and writing to specified output format.
+A simple pipeline loading data from the specified input format
+(vertical, horizontal or conllu), tagging, parsing
+and writing to the specified output format.
 
 EOF
-sed '1,/^[^#]/d' ../../bindings/perl/examples/run_udpipe.pl | sed 's/^/  /'
+sed '1,/^$/d' ../../bindings/perl/examples/run_udpipe.pl | sed 's/^/  /'
+cat <<EOF
+
+=head2 no_segmentation
+
+The example in synopsis does both segmentation to sentences and tokenization
+(plus tagging and parsing). Sometimes we have the input already segmented
+one sentence per line. This is an adapted example which respects the input
+sentence segmentation (but still does tokenization and allows untokenized
+plain-text input, unlike the C<run_udpipe> example above).
+
+EOF
+sed '1,/^$/d' ../../bindings/perl/examples/no_segmentation.pl | sed 's/^/  /'
 cat <<EOF
 
 =head1 AUTHORS

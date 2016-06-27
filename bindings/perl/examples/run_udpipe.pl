@@ -7,8 +7,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use warnings;
 use strict;
+use warnings;
 use open qw(:std :utf8);
 
 use Ufal::UDPipe;
@@ -23,7 +23,9 @@ my $model = Ufal::UDPipe::Model::load($model_file);
 $model or die "Cannot load model from file '$model_file'\n";
 print STDERR "done\n";
 
-my $pipeline = Ufal::UDPipe::Pipeline->new($model, $input, $Ufal::UDPipe::Pipeline::DEFAULT, $Ufal::UDPipe::Pipeline::DEFAULT, $output);
+my $pipeline = Ufal::UDPipe::Pipeline->new(
+                 $model, $input, $Ufal::UDPipe::Pipeline::DEFAULT,
+                 $Ufal::UDPipe::Pipeline::DEFAULT, $output);
 my $error = Ufal::UDPipe::ProcessingError->new();
 
 for (my $not_eof = 1; $not_eof; ) {

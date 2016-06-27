@@ -7,7 +7,7 @@ Installation
 The Perl bindings are available as Ufal-UDPipe package on CPAN.
 
 To compile Perl bindings manually, run make in the bindings/perl directory,
-optionally with the options descriged in UDPipe Installation. Perl 5.10 and
+optionally with the options described in UDPipe Installation. Perl 5.10 and
 later is supported.
 
 Path to the include headers of the required Perl version must be specified in
