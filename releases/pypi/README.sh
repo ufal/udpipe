@@ -38,7 +38,7 @@ writing to specified output format::
 
 
 EOF
-sed '1,/^[^#]/d' ../../bindings/python/examples/run_udpipe.py | sed 's/^/  /'
+sed '1,/^$/d' ../../bindings/python/examples/run_udpipe.py | sed 's/^/  /'
 cat <<EOF
 
 
