@@ -16,7 +16,8 @@ Ufal::UDPipe - bindings to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
   use open qw(:std :utf8);
 
   my $model_file = '...';
-  my $model = Ufal::UDPipe::Model::load($model_file) or die "Cannot load model from file '$model_file'\n";
+  my $model = Ufal::UDPipe::Model::load($model_file);
+  $model or die "Cannot load model from file '$model_file'\n";
 
   my $tokenizer = $model->newTokenizer($Ufal::UDPipe::Model::DEFAULT);
   my $conllu_output = Ufal::UDPipe::OutputFormat::newOutputFormat("conllu");
@@ -58,7 +59,8 @@ cat <<EOF
 
 =head2 run_udpipe
 
-Simple pipeline loading data (tokenizing on request), tagging, parsing and writing to specified output format.
+Simple pipeline loading data (tokenizing on request), tagging,
+parsing and writing to specified output format.
 
 EOF
 sed '1,/^$/d' ../../bindings/perl/examples/run_udpipe.pl | sed 's/^/  /'
