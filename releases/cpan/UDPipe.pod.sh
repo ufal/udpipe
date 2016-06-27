@@ -61,7 +61,7 @@ cat <<EOF
 Simple pipeline loading data (tokenizing on request), tagging, parsing and writing to specified output format.
 
 EOF
-sed '1,/^[^#]/d' ../../bindings/perl/examples/run_udpipe.pl | sed 's/^/  /'
+sed '1,/^$/d' ../../bindings/perl/examples/run_udpipe.pl | sed 's/^/  /'
 cat <<EOF
 
 =head1 AUTHORS
