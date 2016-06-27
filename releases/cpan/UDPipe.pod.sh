@@ -13,6 +13,7 @@ Ufal::UDPipe - bindings to UDPipe library L<http://ufal.mff.cuni.cz/udpipe>.
 =head1 SYNOPSIS
 
   use Ufal::UDPipe;
+  use open qw(:std :utf8);
 
   my $model_file = '...';
   my $model = Ufal::UDPipe::Model::load($model_file) or die "Cannot load model from file '$model_file'\n";
