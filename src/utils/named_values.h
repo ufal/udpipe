@@ -44,46 +44,53 @@ bool named_values::parse(const string& values, map& parsed_values, string& error
     while (start < values.size() && values[start] == ';') start++;
     if (start >= values.size()) break;
 
-    size_t equal_sign = values.find('=', start);
-    if (equal_sign == string::npos) return error.assign("Cannot parse named values, equal sign was not found!"), false;
-    name.assign(values, start, equal_sign - start);
+    size_t name_end = values.find_first_of("=;", start);
+    name.assign(values, start, name_end - start);
+    string& value = parsed_values[name];
 
-    if (equal_sign + 1 + 5 <= values.size() && values.compare(equal_sign + 1, 5, "file:") == 0) {
-      // Value of type file:
-      size_t file_name = equal_sign + 1 + 5;
-      size_t semicolon = min(values.find(';', file_name), values.size());
+    if (name_end == string::npos) {
+      start = name_end;
+    } else if (values[name_end] == ';') {
+      start = name_end + 1;
+    } else /* if (values[name_end] == '=') */ {
+      size_t equal_sign = name_end;
 
-      file.assign(values, file_name, semicolon - file_name);
-      ifstream is(file.c_str());
-      if (!is.is_open()) return error.assign("Cannot open file '").append(file).append("'!"), false;
+      if (equal_sign + 1 + 5 <= values.size() && values.compare(equal_sign + 1, 5, "file:") == 0) {
+        // Value of type file:
+        size_t file_name = equal_sign + 1 + 5;
+        size_t semicolon = min(values.find(';', file_name), values.size());
 
-      string& value = parsed_values[name];
-      char buffer[1024];
-      for (value.clear(); is.read(buffer, sizeof(buffer)); )
-        value.append(buffer, sizeof(buffer));
-      value.append(buffer, is.gcount());
+        file.assign(values, file_name, semicolon - file_name);
+        ifstream is(file.c_str());
+        if (!is.is_open()) return error.assign("Cannot open file '").append(file).append("'!"), false;
 
-      start = semicolon + 1;
-    } else if (equal_sign + 1 + 5 <= values.size() && values.compare(equal_sign + 1, 5, "data:") == 0) {
-      // Value of type data:
-      size_t data_size_start = equal_sign + 1 + 5;
-      size_t data_size_end = values.find(':', data_size_start);
-      if (data_size_end == string::npos) return error.assign("Cannot parse named values, data size of value '").append(name).append("' not terminated!"), false;
+        char buffer[1024];
+        for (value.clear(); is.read(buffer, sizeof(buffer)); )
+          value.append(buffer, sizeof(buffer));
+        value.append(buffer, is.gcount());
 
-      int data_size;
-      if (!parse_int(string_piece(values.c_str() + data_size_start, data_size_end - data_size_start), "data_size", data_size, error)) return false;
+        start = semicolon + 1;
+      } else if (equal_sign + 1 + 5 <= values.size() && values.compare(equal_sign + 1, 5, "data:") == 0) {
+        // Value of type data:
+        size_t data_size_start = equal_sign + 1 + 5;
+        size_t data_size_end = values.find(':', data_size_start);
+        if (data_size_end == string::npos) return error.assign("Cannot parse named values, data size of value '").append(name).append("' not terminated!"), false;
 
-      size_t data_start = data_size_end + 1, data_end = data_start + data_size;
-      if (data_end > values.size()) return error.assign("Cannot parse named values, value '").append(name).append("' shorter than specified length!"), false;
-      if (data_end < values.size() && values[data_end] != ';') return error.assign("Cannot parse named values, value '").append(name).append("' not terminated by semicolon!"), false;
+        int data_size;
+        if (!parse_int(string_piece(values.c_str() + data_size_start, data_size_end - data_size_start), "data_size", data_size, error)) return false;
 
-      parsed_values[name].assign(values, data_start, data_end - data_start);
-      start = data_end + 1;
-    } else {
-      // Value of string type
-      size_t semicolon = min(values.find(';', equal_sign), values.size());
-      parsed_values[name].assign(values, equal_sign + 1, semicolon - equal_sign - 1);
-      start = semicolon + 1;
+        size_t data_start = data_size_end + 1, data_end = data_start + data_size;
+        if (data_end > values.size()) return error.assign("Cannot parse named values, value '").append(name).append("' shorter than specified length!"), false;
+        if (data_end < values.size() && values[data_end] != ';') return error.assign("Cannot parse named values, value '").append(name).append("' not terminated by semicolon!"), false;
+
+        value.assign(values, data_start, data_end - data_start);
+        start = data_end + 1;
+      } else {
+        // Value of string type
+        size_t semicolon = min(values.find(';', equal_sign), values.size());
+        value.assign(values, equal_sign + 1, semicolon - equal_sign - 1);
+        start = semicolon + 1;
+      }
     }
   }
 

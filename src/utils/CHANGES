@@ -1,3 +1,8 @@
+Version 2.1.0 [29 Jun 2016]
+---------------------------
+- Allow named values with name only.
+
+
 Version 2.0.1 [22 May 2016]
 ---------------------------
 - Make named_values.h compile on VS 2015.
