@@ -11,6 +11,9 @@
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
+#include <map>
+#include <vector>
+
 namespace ufal {
 namespace udpipe {
 
@@ -24,7 +27,74 @@ class output_format_conllu : public output_format {
   const string& underscore_on_empty(const string& str) const { return str.empty() ? underscore : str; }
 };
 
+// Matxin output format
+class output_format_matxin : public output_format {
+ public:
+  virtual void write_sentence(const sentence& s, ostream& os) const override;
+
+ private:
+  void proc_sentence(const sentence& s, ostream& os, int pos, std::map<int, std::vector<int> > &deps, int &depth) const ;
+};
+
+
 const string output_format_conllu::underscore = "_";
+
+void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, std::map<int, std::vector<int> > &deps, int &depth) const {
+  // '<NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">'
+  depth = depth + 1;
+  string pad = "";
+  for(int i = 0; i < depth; i++) {
+    pad = pad + "  ";
+  }
+  if(pos != 0) {
+    if(deps[pos].size() > 0) {
+      os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form 
+         << "\" lem=\"" << s.words[pos].lemma 
+         << "\" mi=\"" << s.words[pos].feats
+         << "\" si=\"" << s.words[pos].deprel << "\">" << '\n';
+    } else {
+      os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form 
+         << "\" lem=\"" << s.words[pos].lemma 
+         << "\" mi=\"" << s.words[pos].feats
+         << "\" si=\"" << s.words[pos].deprel << "\"/>" << '\n';
+    }
+  }
+  if(deps.count(pos) > 0) {
+    for(std::vector<int>::iterator it = deps[pos].begin() ; it != deps[pos].end(); ++it) {
+      proc_sentence(s, os, *it, deps, depth);
+    }
+  } else {
+    return;
+  } 
+  if(pos != 0 && deps[pos].size() > 0) {
+    os << pad << "</NODE>" << '\n';
+  }
+  depth = depth - 1;
+}
+
+void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
+  std::map<int, std::vector<int> > deps;
+  
+  os << "<SENTENCE ord=\"\" alloc=\"0\">" << '\n';
+
+  // find root
+  int root = -1;
+  for(int i = 1; i < int(s.words.size()); i++) {
+    int head = s.words[i].head;
+    if(head == 0) {
+      root = i;
+    }
+    
+    deps[head].push_back(i);
+  }  
+  int depth = 0;
+  proc_sentence(s, os, root, deps, depth);
+
+  os << "</SENTENCE>" << '\n';
+  os << endl;
+}
+
+
 
 void output_format_conllu::write_sentence(const sentence& s, ostream& os) const {
   // Comments
@@ -86,6 +156,10 @@ void output_format_vertical::write_sentence(const sentence& s, ostream& os) cons
 }
 
 // Static factory methods
+output_format* output_format::new_matxin_output_format() {
+  return new output_format_matxin();
+}
+
 output_format* output_format::new_conllu_output_format() {
   return new output_format_conllu();
 }
@@ -100,6 +174,7 @@ output_format* output_format::new_vertical_output_format() {
 
 output_format* output_format::new_output_format(const string& name) {
   if (name == "conllu") return new_conllu_output_format();
+  if (name == "matxin") return new_matxin_output_format();
   if (name == "horizontal") return new_horizontal_output_format();
   if (name == "vertical") return new_vertical_output_format();
   return nullptr;
