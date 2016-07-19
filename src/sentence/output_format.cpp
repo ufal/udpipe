@@ -65,43 +65,37 @@ class output_format_matxin : public output_format {
   virtual void write_sentence(const sentence& s, ostream& os) const override;
 
  private:
-  void proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const ;
+  void write_node(const sentence& s, int node, string& pad, ostream& os) const ;
 };
 
 void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
-  os << "<SENTENCE ord=\"\" alloc=\"0\">" << '\n';
+  os << "<SENTENCE ord=\"\" alloc=\"0\">\n";
 
-  for (auto&& node : s.words[0].children) {
-    int depth = 0;
-    proc_sentence(s, os, node, depth);
-  }
+  string pad;
+  for (auto&& node : s.words[0].children)
+    write_node(s, node, pad, os);
 
-  os << "</SENTENCE>" << '\n';
-  os << endl;
+  os << "</SENTENCE>\n" << endl;
 }
 
-void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const {
-  // '<NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">'
-  depth = depth + 1;
-  string pad = "";
-  for(int i = 0; i < depth; i++) {
-    pad = pad + "  ";
-  }
+void output_format_matxin::write_node(const sentence& s, int node, string& pad, ostream& os) const {
+  // <NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">
+  pad.push_back(' ');
 
-  os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form
-     << "\" lem=\"" << s.words[pos].lemma << "\" mi=\"" << s.words[pos].feats
-     << "\" si=\"" << s.words[pos].deprel << '"';
+  os << pad << "<NODE ord=\"" << node << "\" alloc=\"0\" form=\"" << s.words[node].form
+     << "\" lem=\"" << s.words[node].lemma << "\" mi=\"" << s.words[node].feats
+     << "\" si=\"" << s.words[node].deprel << '"';
 
-  if (s.words[pos].children.empty()) {
+  if (s.words[node].children.empty()) {
     os << "/>\n";
   } else {
     os << ">\n";
-    for (auto&& child : s.words[pos].children)
-      proc_sentence(s, os, child, depth);
+    for (auto&& child : s.words[node].children)
+      write_node(s, child, pad, os);
     os << pad << "</NODE>\n";
   }
 
-  depth = depth - 1;
+  pad.pop_back();
 }
 
 // Horizontal output format
