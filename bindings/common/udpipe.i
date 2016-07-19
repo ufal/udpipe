@@ -160,6 +160,9 @@ class output_format {
   %rename(newConlluOutputFormat) new_conllu_output_format;
   %newobject new_conllu_output_format;
   static output_format* new_conllu_output_format();
+  %rename(newMatxinOutputFormat) new_matxin_output_format;
+  %newobject new_matxin_output_format;
+  static output_format* new_matxin_output_format();
   %rename(newHorizontalOutputFormat) new_horizontal_output_format;
   %newobject new_horizontal_output_format;
   static output_format* new_horizontal_output_format();

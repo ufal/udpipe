@@ -105,6 +105,7 @@ Main Classes
 
     static OutputFormat* newOutputFormat(const string& name);
     static OutputFormat* newConlluOutputFormat();
+    static OutputFormat* newMatxinOutputFormat();
     static OutputFormat* newHorizontalOutputFormat();
     static OutputFormat* newVerticalOutputFormat();
   };
