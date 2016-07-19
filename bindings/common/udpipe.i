@@ -140,9 +140,16 @@ class output_format {
 
   %extend {
     %rename(writeSentence) write_sentence;
-    virtual std::string write_sentence(const sentence& s) const {
+    virtual std::string write_sentence(const sentence& s) {
       std::ostringstream ostr;
       $self->write_sentence(s, ostr);
+      return ostr.str();
+    }
+
+    %rename(finishDocument) finish_document;
+    virtual std::string finish_document() {
+      std::ostringstream ostr;
+      $self->finish_document(ostr);
       return ostr.str();
     }
   }

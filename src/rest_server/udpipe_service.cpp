@@ -137,7 +137,12 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
 
     bool generate() {
       if (!input->next_sentence(s, error)) {
+        output->finish_document(os);
+        json.value(os.str(), true);
+        os.str(string());
+
         json.finish(true);
+
         return false;
       }
 

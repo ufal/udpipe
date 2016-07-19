@@ -1465,7 +1465,8 @@ class output_format {
  public:
   virtual ~output_format() {}
 
-  virtual void write_sentence(const sentence&amp; s, ostream&amp; os) const = 0;
+  virtual void write_sentence(const sentence&amp; s, ostream&amp; os) = 0;
+  virtual void finish_document(ostream&amp; os) {};
 
   // Static factory methods
   static output_format* new_output_format(const string&amp; name);
@@ -1670,7 +1671,8 @@ class InputFormat {
 
 class OutputFormat {
  public:
-  virtual string writeSentence(const Sentence&amp; s) const;
+  virtual string writeSentence(const Sentence&amp; s);
+  virtual string finishDocument();
 
   static OutputFormat* newOutputFormat(const string&amp; name);
   static OutputFormat* newConlluOutputFormat();

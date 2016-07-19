@@ -98,7 +98,8 @@ class output_format {
  public:
   virtual ~output_format() {}
 
-  virtual void write_sentence(const sentence& s, std::ostream& os) const = 0;
+  virtual void write_sentence(const sentence& s, std::ostream& os) = 0;
+  virtual void finish_document(std::ostream& /*os*/) {};
 
   // Static factory methods
   static output_format* new_output_format(const std::string& name);

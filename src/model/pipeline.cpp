@@ -90,6 +90,7 @@ bool pipeline::process(istream& is, ostream& os, string& error) const {
     }
     if (!error.empty()) return false;
   }
+  writer->finish_document(os);
 
   return true;
 }

@@ -18,7 +18,7 @@ namespace udpipe {
 // CoNLL-U output format
 class output_format_conllu : public output_format {
  public:
-  virtual void write_sentence(const sentence& s, ostream& os) const override;
+  virtual void write_sentence(const sentence& s, ostream& os) override;
 
  private:
   static const string underscore;
@@ -27,7 +27,7 @@ class output_format_conllu : public output_format {
 
 const string output_format_conllu::underscore = "_";
 
-void output_format_conllu::write_sentence(const sentence& s, ostream& os) const {
+void output_format_conllu::write_sentence(const sentence& s, ostream& os) {
   // Comments
   for (auto&& comment : s.comments)
     os << comment << '\n';
@@ -63,13 +63,13 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) const 
 // Matxin output format
 class output_format_matxin : public output_format {
  public:
-  virtual void write_sentence(const sentence& s, ostream& os) const override;
+  virtual void write_sentence(const sentence& s, ostream& os) override;
 
  private:
-  void write_node(const sentence& s, int node, string& pad, ostream& os) const ;
+  void write_node(const sentence& s, int node, string& pad, ostream& os);
 };
 
-void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
+void output_format_matxin::write_sentence(const sentence& s, ostream& os) {
   os << "<SENTENCE ord=\"\" alloc=\"0\">\n";
 
   string pad;
@@ -79,7 +79,7 @@ void output_format_matxin::write_sentence(const sentence& s, ostream& os) const 
   os << "</SENTENCE>\n" << endl;
 }
 
-void output_format_matxin::write_node(const sentence& s, int node, string& pad, ostream& os) const {
+void output_format_matxin::write_node(const sentence& s, int node, string& pad, ostream& os) {
   // <NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">
   pad.push_back(' ');
 
@@ -104,10 +104,10 @@ void output_format_matxin::write_node(const sentence& s, int node, string& pad, 
 // Horizontal output format
 class output_format_horizontal : public output_format {
  public:
-  virtual void write_sentence(const sentence& s, ostream& os) const override;
+  virtual void write_sentence(const sentence& s, ostream& os) override;
 };
 
-void output_format_horizontal::write_sentence(const sentence& s, ostream& os) const {
+void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
   for (size_t i = 1; i < s.words.size(); i++) {
     os << s.words[i].form;
     if (i+1 < s.words.size()) os << ' ';
@@ -118,10 +118,10 @@ void output_format_horizontal::write_sentence(const sentence& s, ostream& os) co
 // Vertical output format
 class output_format_vertical : public output_format {
  public:
-  virtual void write_sentence(const sentence& s, ostream& os) const override;
+  virtual void write_sentence(const sentence& s, ostream& os) override;
 };
 
-void output_format_vertical::write_sentence(const sentence& s, ostream& os) const {
+void output_format_vertical::write_sentence(const sentence& s, ostream& os) {
   for (size_t i = 1; i < s.words.size(); i++)
     os << s.words[i].form << '\n';
   os << endl;

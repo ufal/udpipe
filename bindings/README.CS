@@ -100,7 +100,8 @@ Main Classes
 
   class OutputFormat {
    public:
-    virtual string writeSentence(const Sentence& s) const;
+    virtual string writeSentence(const Sentence& s);
+    virtual string finishDocument();
 
     static OutputFormat* newOutputFormat(const string& name);
     static OutputFormat* newConlluOutputFormat();
