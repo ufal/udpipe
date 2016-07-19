@@ -64,19 +64,31 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) {
 class output_format_matxin : public output_format {
  public:
   virtual void write_sentence(const sentence& s, ostream& os) override;
+  virtual void finish_document(ostream& os) override;
 
  private:
   void write_node(const sentence& s, int node, string& pad, ostream& os);
+
+  int sentences = 0;
 };
 
 void output_format_matxin::write_sentence(const sentence& s, ostream& os) {
-  os << "<SENTENCE ord=\"\" alloc=\"0\">\n";
+  if (!sentences) {
+    os << "<corpus>";
+  }
+  os << "\n<SENTENCE ord=\"" << ++sentences << "\" alloc=\"" << 0 << "\">\n";
 
   string pad;
   for (auto&& node : s.words[0].children)
     write_node(s, node, pad, os);
 
-  os << "</SENTENCE>\n" << endl;
+  os << "</SENTENCE>" << endl;
+}
+
+void output_format_matxin::finish_document(ostream& os) {
+  os << "</corpus>\n";
+
+  sentences = 0;
 }
 
 void output_format_matxin::write_node(const sentence& s, int node, string& pad, ostream& os) {

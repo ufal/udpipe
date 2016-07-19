@@ -138,9 +138,6 @@ int main(int argc, char* argv[]) {
       });
     } else {
       // Prepare the pipeline
-      if(options["output"] == "matxin") {
-        cout << "<corpus>" << '\n';
-      }
       pipeline pipeline(model.get(), options.count("tokenizer") ? "tokenizer=" + options["tokenizer"] : options.count("tokenize") ? "tokenizer" : options.count("input") ? options["input"] : "conllu",
                         options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
                         options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE,
@@ -152,9 +149,6 @@ int main(int argc, char* argv[]) {
         if (!pipeline.process(is, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
       });
-      if(options["output"] == "matxin") {
-        cout << "</corpus>" << '\n';
-      }
     }
   }
 
