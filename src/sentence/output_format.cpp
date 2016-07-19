@@ -11,9 +11,6 @@
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
-#include <map>
-#include <vector>
-
 namespace ufal {
 namespace udpipe {
 
@@ -33,62 +30,43 @@ class output_format_matxin : public output_format {
   virtual void write_sentence(const sentence& s, ostream& os) const override;
 
  private:
-  void proc_sentence(const sentence& s, ostream& os, int pos, std::map<int, std::vector<int> > &deps, int &depth) const ;
+  void proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const ;
 };
 
 
 const string output_format_conllu::underscore = "_";
 
-void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, std::map<int, std::vector<int> > &deps, int &depth) const {
+void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const {
   // '<NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">'
   depth = depth + 1;
   string pad = "";
   for(int i = 0; i < depth; i++) {
     pad = pad + "  ";
   }
-  if(pos != 0) {
-    if(deps[pos].size() > 0) {
-      os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form 
-         << "\" lem=\"" << s.words[pos].lemma 
-         << "\" mi=\"" << s.words[pos].feats
-         << "\" si=\"" << s.words[pos].deprel << "\">" << '\n';
-    } else {
-      os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form 
-         << "\" lem=\"" << s.words[pos].lemma 
-         << "\" mi=\"" << s.words[pos].feats
-         << "\" si=\"" << s.words[pos].deprel << "\"/>" << '\n';
-    }
-  }
-  if(deps.count(pos) > 0) {
-    for(std::vector<int>::iterator it = deps[pos].begin() ; it != deps[pos].end(); ++it) {
-      proc_sentence(s, os, *it, deps, depth);
-    }
+
+  os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form
+     << "\" lem=\"" << s.words[pos].lemma << "\" mi=\"" << s.words[pos].feats
+     << "\" si=\"" << s.words[pos].deprel << '"';
+
+  if (s.words[pos].children.empty()) {
+    os << "/>\n";
   } else {
-    return;
-  } 
-  if(pos != 0 && deps[pos].size() > 0) {
-    os << pad << "</NODE>" << '\n';
+    os << ">\n";
+    for (auto&& child : s.words[pos].children)
+      proc_sentence(s, os, child, depth);
+    os << pad << "</NODE>\n";
   }
+
   depth = depth - 1;
 }
 
 void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
-  std::map<int, std::vector<int> > deps;
-  
   os << "<SENTENCE ord=\"\" alloc=\"0\">" << '\n';
 
-  // find root
-  int root = -1;
-  for(int i = 1; i < int(s.words.size()); i++) {
-    int head = s.words[i].head;
-    if(head == 0) {
-      root = i;
-    }
-    
-    deps[head].push_back(i);
-  }  
-  int depth = 0;
-  proc_sentence(s, os, root, deps, depth);
+  for (auto&& node : s.words[0].children) {
+    int depth = 0;
+    proc_sentence(s, os, node, depth);
+  }
 
   os << "</SENTENCE>" << '\n';
   os << endl;
