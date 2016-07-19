@@ -28,26 +28,23 @@ class RunUDPipe {
 
         Pipeline pipeline = new Pipeline(model, args[0], Pipeline.DEFAULT, Pipeline.DEFAULT, args[1]);
         ProcessingError error = new ProcessingError();
-        for (bool not_eof = true; not_eof; ) {
-            string line;
-            StringBuilder textBuilder = new StringBuilder();
 
-            // Read block
-            while ((not_eof = (line = Console.In.ReadLine()) != null) && line.Length > 0) {
-                textBuilder.Append(line).Append('\n');
-            }
-            if (not_eof) textBuilder.Append('\n');
+        // Read whole input
+        StringBuilder textBuilder = new StringBuilder();
+        string line;
+        while ((line = Console.In.ReadLine()) != null)
+            textBuilder.Append(line).Append('\n');
 
-            // Process data
-            string text = textBuilder.ToString();
-            string processed = pipeline.process(text, error);
+        // Process data
+        string text = textBuilder.ToString();
+        string processed = pipeline.process(text, error);
 
-            if (error.occurred()) {
-                Console.Error.WriteLine("An error occurred in RunUDPipe: {0}", error.message);
-                return 1;
-            }
-            Console.Write(processed);
+        if (error.occurred()) {
+            Console.Error.WriteLine("An error occurred in RunUDPipe: {0}", error.message);
+            return 1;
         }
+        Console.Write(processed);
+
         return 0;
     }
 }

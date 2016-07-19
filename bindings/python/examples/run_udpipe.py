@@ -33,26 +33,14 @@ sys.stderr.write('done\n')
 pipeline = Pipeline(model, sys.argv[1], Pipeline.DEFAULT, Pipeline.DEFAULT, sys.argv[2])
 error = ProcessingError()
 
-not_eof = True
-while not_eof:
-    text = ''
+# Read whole input
+text = ''.join(sys.stdin.readlines())
 
-    # Read block
-    while True:
-        line = sys.stdin.readline()
-        not_eof = bool(line)
-        if not not_eof: break
-        line = line.rstrip('\r\n')
-        text += line
-        text += '\n';
-        if not line: break
-
-    # Process data
-    print "Processing %s" % text
-    processed = pipeline.process(text, error)
-    if error.occurred():
-        sys.stderr.write("An error occurred when running run_udpipe: ")
-        sys.stderr.write(error.message)
-        sys.stderr.write("\n")
-        sys.exit(1)
-    sys.stdout.write(processed)
+# Process data
+processed = pipeline.process(text, error)
+if error.occurred():
+    sys.stderr.write("An error occurred when running run_udpipe: ")
+    sys.stderr.write(error.message)
+    sys.stderr.write("\n")
+    sys.exit(1)
+sys.stdout.write(processed)

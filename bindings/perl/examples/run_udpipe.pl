@@ -26,20 +26,13 @@ print STDERR "done\n";
 my $pipeline = Ufal::UDPipe::Pipeline->new($model, $input, $Ufal::UDPipe::Pipeline::DEFAULT, $Ufal::UDPipe::Pipeline::DEFAULT, $output);
 my $error = Ufal::UDPipe::ProcessingError->new();
 
-for (my $not_eof = 1; $not_eof; ) {
-  my $text = '';
-
-  # Read block
-  while (1) {
-    my $line = <>;
-    last unless ($not_eof = defined $line);
-    $text .= $line;
-    chomp($line);
-    last unless length $line;
-  }
-
-  # Process data
-  my $processed = $pipeline->process($text, $error);
-  $error->occurred() and die "An error occurred in run_udpipe: " . $error->{message};
-  print $processed;
+# Read whole input
+my $text = '';
+for (my $line; $line = <>; ) {
+  $text .= $line;
 }
+
+# Process data
+my $processed = $pipeline->process($text, $error);
+$error->occurred() and die "An error occurred in run_udpipe: " . $error->{message};
+print $processed;

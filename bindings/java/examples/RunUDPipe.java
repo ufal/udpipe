@@ -30,27 +30,21 @@ class RunUDPipe {
     ProcessingError error = new ProcessingError();
     Scanner reader = new Scanner(System.in);
 
-    boolean not_eof = true;
-    while (not_eof) {
-      StringBuilder textBuilder = new StringBuilder();
-      String line;
-
-      // Read block
-      while ((not_eof = reader.hasNextLine()) && !(line = reader.nextLine()).isEmpty()) {
-        textBuilder.append(line);
-        textBuilder.append('\n');
-      }
-      if (not_eof) textBuilder.append('\n');
-
-      // Tokenize and tag
-      String text = textBuilder.toString();
-      String processed = pipeline.process(text, error);
-
-      if (error.occurred()) {
-        System.err.println("Cannot read input CoNLL-U: " + error.getMessage());
-        System.exit(1);
-      }
-      System.out.print(processed);
+    // Read while input
+    StringBuilder textBuilder = new StringBuilder();
+    while (reader.hasNextLine()) {
+      textBuilder.append(reader.nextLine());
+      textBuilder.append('\n');
     }
+
+    // Tokenize and tag
+    String text = textBuilder.toString();
+    String processed = pipeline.process(text, error);
+
+    if (error.occurred()) {
+      System.err.println("Cannot read input CoNLL-U: " + error.getMessage());
+      System.exit(1);
+    }
+    System.out.print(processed);
   }
 }
