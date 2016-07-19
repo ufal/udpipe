@@ -24,55 +24,7 @@ class output_format_conllu : public output_format {
   const string& underscore_on_empty(const string& str) const { return str.empty() ? underscore : str; }
 };
 
-// Matxin output format
-class output_format_matxin : public output_format {
- public:
-  virtual void write_sentence(const sentence& s, ostream& os) const override;
-
- private:
-  void proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const ;
-};
-
-
 const string output_format_conllu::underscore = "_";
-
-void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const {
-  // '<NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">'
-  depth = depth + 1;
-  string pad = "";
-  for(int i = 0; i < depth; i++) {
-    pad = pad + "  ";
-  }
-
-  os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form
-     << "\" lem=\"" << s.words[pos].lemma << "\" mi=\"" << s.words[pos].feats
-     << "\" si=\"" << s.words[pos].deprel << '"';
-
-  if (s.words[pos].children.empty()) {
-    os << "/>\n";
-  } else {
-    os << ">\n";
-    for (auto&& child : s.words[pos].children)
-      proc_sentence(s, os, child, depth);
-    os << pad << "</NODE>\n";
-  }
-
-  depth = depth - 1;
-}
-
-void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
-  os << "<SENTENCE ord=\"\" alloc=\"0\">" << '\n';
-
-  for (auto&& node : s.words[0].children) {
-    int depth = 0;
-    proc_sentence(s, os, node, depth);
-  }
-
-  os << "</SENTENCE>" << '\n';
-  os << endl;
-}
-
-
 
 void output_format_conllu::write_sentence(const sentence& s, ostream& os) const {
   // Comments
@@ -107,6 +59,51 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) const 
   os << endl;
 }
 
+// Matxin output format
+class output_format_matxin : public output_format {
+ public:
+  virtual void write_sentence(const sentence& s, ostream& os) const override;
+
+ private:
+  void proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const ;
+};
+
+void output_format_matxin::write_sentence(const sentence& s, ostream& os) const {
+  os << "<SENTENCE ord=\"\" alloc=\"0\">" << '\n';
+
+  for (auto&& node : s.words[0].children) {
+    int depth = 0;
+    proc_sentence(s, os, node, depth);
+  }
+
+  os << "</SENTENCE>" << '\n';
+  os << endl;
+}
+
+void output_format_matxin::proc_sentence(const sentence& s, ostream& os, int pos, int &depth) const {
+  // '<NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">'
+  depth = depth + 1;
+  string pad = "";
+  for(int i = 0; i < depth; i++) {
+    pad = pad + "  ";
+  }
+
+  os << pad << "<NODE ord=\"" << pos << "\" alloc=\"0\" form=\"" << s.words[pos].form
+     << "\" lem=\"" << s.words[pos].lemma << "\" mi=\"" << s.words[pos].feats
+     << "\" si=\"" << s.words[pos].deprel << '"';
+
+  if (s.words[pos].children.empty()) {
+    os << "/>\n";
+  } else {
+    os << ">\n";
+    for (auto&& child : s.words[pos].children)
+      proc_sentence(s, os, child, depth);
+    os << pad << "</NODE>\n";
+  }
+
+  depth = depth - 1;
+}
+
 // Horizontal output format
 class output_format_horizontal : public output_format {
  public:
@@ -134,12 +131,12 @@ void output_format_vertical::write_sentence(const sentence& s, ostream& os) cons
 }
 
 // Static factory methods
-output_format* output_format::new_matxin_output_format() {
-  return new output_format_matxin();
-}
-
 output_format* output_format::new_conllu_output_format() {
   return new output_format_conllu();
+}
+
+output_format* output_format::new_matxin_output_format() {
+  return new output_format_matxin();
 }
 
 output_format* output_format::new_horizontal_output_format() {
