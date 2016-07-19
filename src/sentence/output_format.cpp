@@ -10,6 +10,7 @@
 #include "output_format.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
+#include "utils/xml_encoded.h"
 
 namespace ufal {
 namespace udpipe {
@@ -82,9 +83,11 @@ void output_format_matxin::write_node(const sentence& s, int node, string& pad, 
   // <NODE ord="%d" alloc="%d" form="%s" lem="%s" mi="%s" si="%s">
   pad.push_back(' ');
 
-  os << pad << "<NODE ord=\"" << node << "\" alloc=\"0\" form=\"" << s.words[node].form
-     << "\" lem=\"" << s.words[node].lemma << "\" mi=\"" << s.words[node].feats
-     << "\" si=\"" << s.words[node].deprel << '"';
+  os << pad << "<NODE ord=\"" << node << "\" alloc=\"" << 0
+     << "\" form=\"" << xml_encoded(s.words[node].form, true)
+     << "\" lem=\"" << xml_encoded(s.words[node].lemma, true)
+     << "\" mi=\"" << xml_encoded(s.words[node].feats, true)
+     << "\" si=\"" << xml_encoded(s.words[node].deprel, true) << '"';
 
   if (s.words[node].children.empty()) {
     os << "/>\n";
