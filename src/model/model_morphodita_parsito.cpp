@@ -16,8 +16,15 @@
 namespace ufal {
 namespace udpipe {
 
-input_format* model_morphodita_parsito::new_tokenizer(const string& /*options*/) const {
-  return tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get()) : nullptr;
+input_format* model_morphodita_parsito::new_tokenizer(const string& options) const {
+  named_values::map parsed_options;
+  string parse_error;
+  if (!named_values::parse(options, parsed_options, parse_error))
+    return nullptr;
+
+  input_format* result = tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get()) : nullptr;
+
+  return parsed_options.count("presegmented") ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
