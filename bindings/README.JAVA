@@ -106,6 +106,8 @@ Main Classes
     static InputFormat* newConlluInputFormat();
     static InputFormat* newHorizontalInputFormat();
     static InputFormat* newVerticalInputFormat();
+
+    static InputFormat* newPresegmentedTokenizer(InputFormat tokenizer);
   };
 
   class OutputFormat {

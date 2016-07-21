@@ -242,6 +242,79 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
   return !s.empty();
 }
 
+// Presegmented tokenizer
+class input_format_presegmented_tokenizer : public input_format {
+ public:
+  input_format_presegmented_tokenizer(input_format* tokenizer) : tokenizer(tokenizer) {}
+
+  virtual bool read_block(istream& is, string& block) const override;
+  virtual void set_text(string_piece text, bool make_copy = false) override;
+  virtual bool next_sentence(sentence& s, string& error) override;
+
+ private:
+  unique_ptr<input_format> tokenizer;
+  string_piece text;
+  string text_copy;
+};
+
+bool input_format_presegmented_tokenizer::read_block(istream& is, string& block) const {
+  return bool(getline(is, block));
+}
+
+void input_format_presegmented_tokenizer::set_text(string_piece text, bool make_copy) {
+  if (make_copy) {
+    text_copy.assign(text.str, text.len);
+    text = string_piece(text_copy.c_str(), text_copy.size());
+  }
+  this->text = text;
+}
+
+bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& error) {
+  error.clear();
+  s.clear();
+
+  sentence partial;
+  while (text.len && s.empty()) {
+    // Skip newlines
+    while (text.len && (text.str[0] == '\n' && text.str[0] == '\r'))
+      text.str++, text.len--;
+    if (!text.len) break;
+
+    // Move next line from `text' to `line'
+    string_piece line(text.str, 0);
+    while (line.len < text.len && (line.str[line.len] != '\n' && line.str[line.len] != '\r'))
+      line.len++;
+    text.str += line.len, text.len -= line.len;
+
+    // Add all tokens from the line to `s'
+    tokenizer->set_text(line, false);
+    while (tokenizer->next_sentence(partial, error)) {
+      // Append words
+      size_t words = s.words.size() - 1;
+      for (size_t i = 1; i < partial.words.size(); i++) {
+        s.words.push_back(move(partial.words[i]));
+        s.words.back().id += words;
+        if (s.words.back().head > 0) s.words.back().head += words;
+      }
+
+      // Append multiword_tokens
+      for (auto&& multiword_token : partial.multiword_tokens) {
+        s.multiword_tokens.push_back(move(multiword_token));
+        s.multiword_tokens.back().id_first += words;
+        s.multiword_tokens.back().id_last += words;
+      }
+
+      // Append comments
+      for (auto&& comment : partial.comments) {
+        s.comments.push_back(move(comment));
+      }
+    }
+    if (!error.empty()) return false;
+  }
+
+  return !s.empty();
+}
+
 // Static factory methods
 input_format* input_format::new_conllu_input_format() {
   return new input_format_conllu();
@@ -260,6 +333,10 @@ input_format* input_format::new_input_format(const string& name) {
   if (name == "horizontal") return new_horizontal_input_format();
   if (name == "vertical") return new_vertical_input_format();
   return nullptr;
+}
+
+input_format* input_format::new_presegmented_tokenizer(input_format* tokenizer) {
+  return new input_format_presegmented_tokenizer(tokenizer);
 }
 
 } // namespace udpipe

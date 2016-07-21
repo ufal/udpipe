@@ -1,5 +1,14 @@
 %module udpipe_csharp
 
+/* Implement DISOWN */
+%typemap(cscode) input_format %{
+  internal static global::System.Runtime.InteropServices.HandleRef getCPtrAndDisown(InputFormat obj) {
+    if (obj != null) obj.swigCMemOwn = false;
+    return getCPtr(obj);
+  }
+%}
+%typemap(csin) SWIGTYPE* DISOWN "$csclassname.getCPtrAndDisown($csinput)"
+
 %include "../common/udpipe_stl.i"
 
 namespace std {

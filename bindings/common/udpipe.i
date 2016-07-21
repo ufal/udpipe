@@ -129,6 +129,10 @@ class input_format {
   %rename(newVerticalInputFormat) new_vertical_input_format;
   %newobject new_vertical_input_format;
   static input_format* new_vertical_input_format();
+
+  %rename(newPresegmentedTokenizer) new_presegmented_tokenizer;
+  %newobject new_presegmented_tokenizer;
+  static input_format* new_presegmented_tokenizer(input_format* DISOWN);
 };
 
 
