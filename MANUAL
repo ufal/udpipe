@@ -722,7 +722,8 @@ Class word
 
 The word class represents a sentence word. The word fields correspond to CoNLL-U
 fields (http://universaldependencies.org/docs/format.html), with the children
-field representing the opposite direction of head links.
+field representing the opposite direction of head links (the elements of the
+children array are in ascending order).
 
 
 Class multiword_token
@@ -736,6 +737,12 @@ Class multiword_token
 
     multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece());
   };
+
+The multiword_token represents a multi-word token described in CoNLL-U format
+(http://universaldependencies.org/docs/format.html). The multi-word token
+references underlying words, it has a form and a misc field (which may contain
+for example `SpaceAfter=No` feature). Other CoNLL-U word fields are guaranteed
+to be empty.
 
 
 Class sentence
@@ -756,6 +763,61 @@ Class sentence
     void set_head(int id, int head, const string& deprel);
     void unlink_all_words();
   };
+
+The sentence class represents a sentence CoNLL-U sentence
+(http://universaldependencies.org/docs/format.html), which consists of:
+- sequence of words stored in ascending order, with the first word (with index
+  0) always being a technical root with form root_form
+- sequence of multiword_tokens also stored in ascending order
+- comments
+
+Although you can manipulate the words directly, the sentence class offers
+several simple node manipulation methods.
+
+
+sentence::empty()
+-----------------
+
+  bool empty();
+
+Returns true if the sentence is empty. i.e., if it contains only a technical
+root node.
+
+
+sentence::clear()
+-----------------
+
+  void clear();
+
+Removes all words, multi-word tokens and comments (only the technical root word
+is kept).
+
+
+sentence::add_word()
+--------------------
+
+  word& add_word(string_piece form = string_piece());
+
+Adds a new word to the sentence. The new word has first unused id, specified
+form and is not linked to any other node. Reference to the new word is returned
+so that other fields can be also filled.
+
+
+sentence:set_head()
+-------------------
+
+  void set_head(int id, int head, const std::string& deprel);
+
+Link the word id to the word head, with the specified dependency relation. If
+the head is negative, the word id is unlinked from its current head, if any.
+
+
+sentence::unlink_all_words()
+----------------------------
+
+  void unlink_all_words();
+
+Unlink all words.
 
 
 Class input_format
@@ -778,6 +840,104 @@ Class input_format
     static input_format* new_presegmented_tokenizer(input_format* tokenizer);
   };
 
+The input_format class allows loading sentences in various formats.
+
+Th class instances may store internal state and are not thread-safe.
+
+
+input_format::read_block()
+--------------------------
+
+  virtual bool read_block(istream& is, string& block) const = 0;
+
+Read a portion of input, which is guaranteed to contain only complete sentences.
+Such portion is usually a paragraph (text followed by an empty line) or a line,
+but it may be more complex (i.e., in a XML-like format).
+
+
+input_format::set_text()
+------------------------
+
+  virtual void set_text(string_piece text, bool make_copy = false) = 0;
+
+Set the text from which the sentences will be read.
+
+If make_copy is false, only a reference to the given text is stored and the user
+has to make sure it exists until the instance is destroyed or set_text is called
+again. If make_copy is true, a copy of the given text is made and retained until
+the instance is destroyed or set_text is called again.
+
+
+input_format::next_sentence()
+-----------------------------
+
+  virtual bool next_sentence(sentence& s, string& error) = 0;
+
+Try reading another sentence from the text specified by set_text. Returns ``true
+if the sentence was read and false if the text ended or there was a read error.
+The latter two conditions can be distinguished by the error parameter - if it is
+empty, the text ended, if it is nonempty, it contains a description of the read
+error.
+
+
+input_format::new_input_format()
+--------------------------------
+
+  static input_format* new_input_format(const string& name);
+
+Create new input_format instance, given its name. The following input formats
+are currently supported:
+- conllu: return the new_conllu_input_format
+- horizontal: return the new_horizontal_input_format
+- vertical: return the new_vertical_input_format
+
+The new instance must be deleted after use.
+
+
+input_format::new_conllu_input_format()
+---------------------------------------
+
+  static input_format* new_conllu_input_format();
+
+Create input_format instance which loads sentences in the CoNLL-U format
+(http://universaldependencies.github.io/docs/format.html). The new instance must
+be deleted after use.
+
+
+input_format::new_horizontal_input_format()
+-------------------------------------------
+
+  static input_format* new_horizontal_input_format();
+
+Create input_format instance which loads forms from a simple horizontal format -
+each sentence on a line, with word forms separated by spaces. The new instance
+must be deleted after use.
+
+
+input_format::new_vertical_input_format()
+-----------------------------------------
+
+  static input_format* new_vertical_input_format();
+
+Create input_format instance which loads forms from a simple vertical format -
+each word on a line, with empty line denoting end of sentence. The new instance
+must be deleted after use.
+
+
+input_format::new_presegmented_tokenizer()
+------------------------------------------
+
+  static input_format* new_presegmented_tokenizer(input_format* tokenizer);
+
+Create input_format instance which acts as a tokenizer adapter - given a
+tokenizer which segments anywhere, it creates a tokenizer which segments on
+newline characters (by calling the tokenizer on individual lines, and if the
+tokenizer segments in the middle of the line, it calls it repeatedly and merges
+the results).
+
+The new instance must be deleted after use. Note that the new instance takes
+ownership of the given tokenizer and deletes it during its own deletion.
+
 
 Class output_format
 -------------------
@@ -797,6 +957,100 @@ Class output_format
     static output_format* new_vertical_output_format();
   };
 
+The output_format class allows printing sentences in various formats.
+
+The class instances may store internal state and are not thread-safe.
+
+
+output_format::write_sentence()
+-------------------------------
+
+  virtual void write_sentence(const sentence& s, ostream& os) = 0;
+
+Write given sentence to the given output stream.
+
+When the output format requires document-level markup, it is written
+automatically when the first sentence is written using this output_format
+instance (or after finish_document call).
+
+
+output_format::finish_document()
+--------------------------------
+
+  virtual void finish_document(ostream& os) {};
+
+When the output format requires document-level markup, write the end-of-document
+mark and reset the output_format instance state (i.e., the next write_sentence
+will write start-of-document mark).
+
+
+output_format::new_output_format()
+----------------------------------
+
+  static output_format* new_output_format(const string& name);
+
+Create new output_format instance, given its name. The following output formats
+are currently supported:
+- conllu: return the new_conllu_output_format
+- matxin: return the new_matxin_output_format
+- horizontal: return the new_horizontal_output_format
+- vertical: return the new_vertical_output_format
+
+The new instance must be deleted after use.
+
+
+output_format::new_conllu_output_format()
+-----------------------------------------
+
+  static output_format* new_conllu_output_format();
+
+Creates output_format instance for writing sentences in the CoNLL-U format
+(http://universaldependencies.github.io/docs/format.html). The new instance must
+be deleted after use.
+
+
+output_format::new_matxin_output_format()
+-----------------------------------------
+
+  static output_format* new_matxin_output_format();
+
+Creates output_format instance for writing sentences in the Matxin format -
+UDPipe produces a XML with the following DTD:
+  <!ELEMENT    corpus     (SENTENCE*)>
+  <!ELEMENT    SENTENCE   (NODE*)>
+  <!ATTLIST    SENTENCE    ord           CDATA        #REQUIRED
+                           alloc         CDATA        #REQUIRED>
+  <!ELEMENT    NODE   (NODE*)>
+  <!ATTLIST    NODE        ord           CDATA        #REQUIRED
+                           alloc         CDATA        #REQUIRED
+                           form          CDATA        #REQUIRED
+                           lem           CDATA        #REQUIRED
+                           mi            CDATA        #REQUIRED
+                           si            CDATA        #REQUIRED
+                           sub           CDATA        #REQUIRED>
+
+The new instance must be deleted after use.
+
+
+output_format::new_horizontal_output_format()
+---------------------------------------------
+
+  static output_format* new_horizontal_output_format();
+
+Creates output_format instance for writing sentences in a simple horizontal
+format - each sentence on a line, with word forms separated by spaces. The new
+instance must be deleted after use.
+
+
+output_format::new_vertical_output_format()
+-------------------------------------------
+
+  static output_format* new_vertical_output_format();
+
+Creates output_format instance for writing sentences in a simple vertical format
+- each word form on a line, with empty line denoting end of sentence. The new
+instance must be deleted after use.
+
 
 Class model
 -----------
@@ -814,6 +1068,36 @@ Class model
 
     static const string DEFAULT;
   };
+
+
+model::load(const char*)
+------------------------
+
+  static model* load(const char* fname);
+
+
+model::load(istream&)
+---------------------
+
+  static model* load(istream& is);
+
+
+model::new_tokenizer()
+----------------------
+
+  virtual input_format* new_tokenizer(const string& options) const = 0;
+
+
+model::tag()
+------------
+
+  virtual bool tag(sentence& s, const string& options, string& error) const = 0;
+
+
+model::parse()
+--------------
+
+  virtual bool parse(sentence& s, const string& options, string& error) const = 0;
 
 
 Class pipeline
@@ -836,6 +1120,42 @@ Class pipeline
   };
 
 
+pipeline::set_model()
+---------------------
+
+  void set_model(const model* m);
+
+
+pipeline::set_input()
+---------------------
+
+  void set_input(const string& input);
+
+
+pipeline::set_tagger()
+----------------------
+
+  void set_tagger(const string& tagger);
+
+
+pipeline::set_parser()
+----------------------
+
+  void set_parser(const string& parser);
+
+
+pipeline::set_output()
+----------------------
+
+  void set_output(const string& output);
+
+
+pipeline::process()
+-------------------
+
+  bool process(istream& is, ostream& os, string& error) const;
+
+
 Class trainer
 -------------
 
@@ -848,6 +1168,14 @@ Class trainer
     static const string DEFAULT;
     static const string NONE;
   };
+
+
+trainer::train()
+----------------
+
+  static bool train(const string& method, const vector<sentence>& train, const vector<sentence>& heldout,
+                    const string& tokenizer, const string& tagger, const string& parser,
+                    ostream& os, string& error);
 
 
 Class evaluator
@@ -867,6 +1195,36 @@ Class evaluator
     static const string DEFAULT;
     static const string NONE;
   };
+
+
+evaluator::set_model()
+----------------------
+
+  void set_model(const model* m);
+
+
+evaluator::set_tokenizer()
+--------------------------
+
+  void set_tokenizer(const string& tokenizer);
+
+
+evaluator::set_tagger()
+-----------------------
+
+  void set_tagger(const string& tagger);
+
+
+evaluator::set_parser()
+-----------------------
+
+  void set_parser(const string& parser);
+
+
+evaluator::evaluate()
+---------------------
+
+  bool evaluate(istream& is, ostream& os, string& error) const;
 
 
 Class version
