@@ -138,10 +138,10 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
           if (sentence.tokens.empty()) continue;
 
           training_offset = training_input.size();
-          training_input.resize(training_offset + sentence.sentence.size() + 1);
-          training_output.resize(training_offset + sentence.sentence.size() + 1);
-          for (size_t i = 0; i <= sentence.sentence.size(); i++) {
-            training_input[training_offset + i].chr = i < sentence.sentence.size() ? sentence.sentence[i] : ' ';
+          training_input.resize(training_offset + sentence.sentence.size());
+          training_output.resize(training_offset + sentence.sentence.size());
+          for (size_t i = 0; i < sentence.sentence.size(); i++) {
+            training_input[training_offset + i].chr = sentence.sentence[i];
             training_output[training_offset + i].outcome = gru_tokenizer_network::NO_SPLIT;
           }
           for (size_t i = 0; i < sentence.tokens.size(); i++)
