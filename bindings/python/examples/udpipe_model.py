@@ -17,14 +17,14 @@ class Model:
             raise Exception("Cannot load UDPipe model from file '%s'" % path)
 
     def tokenize(self, text):
-        """Tokenize the text and generate ufal.udpipe.Sentence-s."""
+        """Tokenize the text and return list of ufal.udpipe.Sentence-s."""
         tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
             raise Exception("The model does not have a tokenizer")
         return self._read(text, tokenizer)
 
     def read(self, text, format):
-        """Load text in the given format (conllu|horizontal|vertical) and generate ufal.udpipe.Sentence-s."""
+        """Load text in the given format (conllu|horizontal|vertical) and return list of ufal.udpipe.Sentence-s."""
         input_format = ufal.udpipe.InputFormat.newInputFormat(format)
         if not input_format:
             raise Exception("Cannot create input format '%s'" % format)
@@ -33,13 +33,16 @@ class Model:
     def _read(self, text, input_format):
         input_format.setText(text)
         error = ufal.udpipe.ProcessingError()
+        sentences = []
 
         sentence = ufal.udpipe.Sentence()
         while input_format.nextSentence(sentence, error):
-            yield sentence
+            sentences.append(sentence)
             sentence = ufal.udpipe.Sentence()
         if error.occurred():
             raise Exception(error.message)
+
+        return sentences
 
     def tag(self, sentence):
         """Tag the given ufal.udpipe.Sentence (inplace)."""
@@ -59,3 +62,11 @@ class Model:
         output += output_format.finishDocument()
 
         return output
+
+# Can be used as
+#  model = Model('english-ud-1.2-160523.udpipe')
+#  sentences = model.tokenize("Hi there. How are you?")
+#  for s in sentences:
+#      model.tag(s)
+#      model.parse(s)
+#  conllu = model.write(sentences, "conllu")
