@@ -18,7 +18,7 @@ class Model:
 
     def tokenize(self, text):
         """Tokenize the text and generate ufal.udpipe.Sentence-s."""
-        tokenizer = ufal.udpipe.InputFormat.newInputFormat(format)
+        tokenizer = self.model.newTokenizer(self.model.DEFAULT)
         if not tokenizer:
             raise Exception("The model does not have a tokenizer")
         return self._read(text, tokenizer)
