@@ -13,7 +13,7 @@ use open qw(:std :utf8);
 
 use Ufal::UDPipe;
 
-@ARGV >= 3 or die "Usage: $0 input_format output_format model_file\n";
+@ARGV >= 3 or die "Usage: $0 input_format(tokenize|conllu|horizontal|vertical) output_format(conllu) model_file\n";
 my $input = shift @ARGV;
 my $output = shift @ARGV;
 my $model_file = shift @ARGV;

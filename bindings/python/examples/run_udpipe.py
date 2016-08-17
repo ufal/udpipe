@@ -20,7 +20,7 @@ if sys.version_info[0] < 3:
     sys.stdout = codecs.getwriter(encoding)(sys.stdout)
 
 if len(sys.argv) < 4:
-    sys.stderr.write('Usage: %s input_format output_format model_file\n' % sys.argv[0])
+    sys.stderr.write('Usage: %s input_format(tokenize|conllu|horizontal|vertical) output_format(conllu) model_file\n' % sys.argv[0])
     sys.exit(1)
 
 sys.stderr.write('Loading model: ')

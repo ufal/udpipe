@@ -13,7 +13,7 @@ import java.util.Scanner;
 class RunUDPipe {
   public static void main(String[] args) {
     if (args.length < 3) {
-      System.err.println("Usage: RunUDPipe input_format output_format model_file");
+      System.err.println("Usage: RunUDPipe input_format(tokenize|conllu|horizontal|vertical) output_format(conllu) model_file");
       System.exit(1);
     }
 

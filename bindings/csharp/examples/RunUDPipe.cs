@@ -14,7 +14,7 @@ using System.Text;
 class RunUDPipe {
     public static int Main(string[] args) {
         if (args.Length < 3) {
-            Console.Error.WriteLine("Usage: RunUDPipe input_format output_format model");
+            Console.Error.WriteLine("Usage: RunUDPipe input_format(tokenize|conllu|horizontal|vertical) output_format(conllu) model");
             return 1;
         }
 
