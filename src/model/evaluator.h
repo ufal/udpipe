@@ -39,6 +39,41 @@ class evaluator {
   template <class T>
   static f1_info evaluate_f1(const vector<pair<size_t, T>>& system, const vector<pair<size_t, T>>& gold);
 
+  class evaluation_data {
+   public:
+    struct word_data {
+      size_t start, end;
+      bool is_multiword;
+      word w;
+
+      word_data(size_t start, size_t end, bool is_multiword, const word& w)
+          : start(start), end(end), is_multiword(is_multiword), w(w) {}
+    };
+
+    void add_sentence(const sentence& s);
+
+    u32string chars;
+    vector<pair<size_t, size_t>> sentences, tokens;
+    vector<pair<size_t, string>> multiwords;
+    vector<word_data> words;
+  };
+
+  class word_alignment {
+   public:
+    struct pair_system_gold {
+      const word& system; const word& gold;
+      pair_system_gold(const word& system, const word& gold) : system(system), gold(gold) {}
+    };
+    vector<pair_system_gold> matched;
+    size_t total_system, total_gold;
+
+    template <class Equals>
+    f1_info evaluate_f1(Equals equals);
+
+    static bool perfect_alignment(const evaluation_data& system, const evaluation_data& gold, word_alignment& alignment);
+    static void best_alignment(const evaluation_data& system, const evaluation_data& gold, word_alignment& alignment);
+  };
+
   static const string space_after_no;
 };
 
