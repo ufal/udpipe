@@ -17,6 +17,8 @@ namespace udpipe {
 
 const string model::DEFAULT;
 
+const string model::TOKENIZER_PRESEGMENTED = "presegmented";
+
 model* model::load(const char* fname) {
   ifstream in(fname, ifstream::in | ifstream::binary);
   if (!in.is_open()) return nullptr;

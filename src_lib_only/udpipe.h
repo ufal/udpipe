@@ -123,6 +123,7 @@ class model {
   virtual bool parse(sentence& s, const std::string& options, std::string& error) const = 0;
 
   static const std::string DEFAULT;
+  static const std::string TOKENIZER_PRESEGMENTED;
 };
 
 class pipeline {

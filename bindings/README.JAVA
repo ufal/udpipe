@@ -131,6 +131,7 @@ Main Classes
     virtual bool parse(Sentence& s, const string& options, ProcessingError* error) const;
 
     static const string DEFAULT;
+    static const string TOKENIZER_PRESEGMENTED;
   };
 
   class Pipeline {

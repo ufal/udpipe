@@ -1942,6 +1942,7 @@ class model {
   virtual bool <A HREF="#model_parse">parse</A>(<A HREF="#sentence">sentence</A>&amp; s, const string&amp; options, string&amp; error) const = 0;
 
   static const string DEFAULT;
+  static const string TOKENIZER_PRESEGMENTED;
 };
 </pre>
 
@@ -2263,6 +2264,7 @@ class Model {
   virtual bool parse(Sentence&amp; s, const string&amp; options, ProcessingError* error) const;
 
   static const string DEFAULT;
+  static const string TOKENIZER_PRESEGMENTED;
 };
 
 class Pipeline {

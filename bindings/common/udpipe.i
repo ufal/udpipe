@@ -204,6 +204,7 @@ class model {
   }
 
   static const std::string DEFAULT;
+  static const std::string TOKENIZER_PRESEGMENTED;
 };
 
 
