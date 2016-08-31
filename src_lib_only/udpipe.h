@@ -23,7 +23,7 @@ struct string_piece {
   const char* str;
   size_t len;
 
-  string_piece() : str(nullptr), len(0) {}
+  string_piece() : str(NULL), len(0) {}
   string_piece(const char* str) : str(str), len(strlen(str)) {}
   string_piece(const char* str, size_t len) : str(str), len(len) {}
   string_piece(const std::string& str) : str(str.c_str()), len(str.size()) {}
