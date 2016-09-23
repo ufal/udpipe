@@ -10,6 +10,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <utility>
 
 #include "common.h"
 #include "utils/binary_decoder.h"
@@ -33,7 +34,9 @@ class embedding {
 
   void load(binary_decoder& data);
   void save(binary_encoder& enc) const;
+
   void create(unsigned dimension, int updatable_index, const vector<pair<string, vector<float>>>& words, const vector<float>& unknown_weights);
+  void export_embeddings(vector<pair<string, vector<float>>>& words, vector<float>& unknown_weights) const;
  private:
   int updatable_index, unknown_index;
 

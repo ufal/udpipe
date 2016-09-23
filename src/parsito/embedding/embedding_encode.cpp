@@ -58,6 +58,23 @@ void embedding::create(unsigned dimension, int updatable_index, const vector<pai
   }
 }
 
+void embedding::export_embeddings(vector<pair<string, vector<float>>>& words, vector<float>& unknown_weights) const {
+  words.clear();
+  unknown_weights.clear();
+
+  if (dictionary.empty()) return;
+
+  assert(unknown_index < 0 || unknown_index == int(dictionary.size()));
+
+  words.resize(dictionary.size());
+  for (auto&& entry : dictionary) {
+    words[entry.second].first = entry.first;
+    words[entry.second].second.assign(weights.data() + entry.second * dimension, weights.data() + entry.second * dimension + dimension);
+  }
+  if (unknown_index >= 0)
+    unknown_weights.assign(weights.data() + unknown_index * dimension, weights.data() + unknown_index * dimension + dimension);
+}
+
 } // namespace parsito
 } // namespace udpipe
 } // namespace ufal
