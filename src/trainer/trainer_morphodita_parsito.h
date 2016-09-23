@@ -41,7 +41,7 @@ class trainer_morphodita_parsito : public trainer {
   static bool can_combine_tag(const word& w, string& error);
   static const string& combine_tag(const word& w, bool xpostag, bool feats, string& combined_tag);
   static const string& most_frequent_tag(const vector<sentence>& data, const string& upostag, bool xpostag, bool feats, string& combined_tag);
-  static const string& combine_lemma(const word& w, bool use_lemma, const unordered_set<string>& drop_lemmas = unordered_set<string>());
+  static const string& combine_lemma(const word& w, int use_lemma, string& combined_lemma, const unordered_set<string>& flat_lemmas = unordered_set<string>());
 
   // Generic options handling
   static const string& option_str(const named_values::map& options, const string& name, int model = -1);

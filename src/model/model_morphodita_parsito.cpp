@@ -118,7 +118,7 @@ model* model_morphodita_parsito::load(istream& is) {
     char feats; if (!is.get(feats)) return nullptr;
     morphodita::tagger* tagger = morphodita::tagger::load(is);
     if (!tagger) return nullptr;
-    m->taggers.emplace_back(i == 0, bool(lemma), bool(xpostag), bool(feats), tagger);
+    m->taggers.emplace_back(i == 0, int(lemma), bool(xpostag), bool(feats), tagger);
   }
 
   char parser;
@@ -152,9 +152,20 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   return false;
 }
 
-void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, bool lemma, bool xpostag, bool feats, word& word){
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word){
   // Lemma
-  if (lemma) word.lemma.assign(analysis.lemma);
+  if (lemma == 1) {
+    word.lemma.assign(analysis.lemma);
+  } else if (lemma == 2) {
+    word.lemma.assign(analysis.lemma);
+
+    // Lemma matching ~replacement~original_form is changed to replacement.
+    if (analysis.lemma[0] == '~') {
+      auto end = analysis.lemma.find('~', 1);
+      if (end != string::npos && analysis.lemma.compare(end + 1, string::npos, word.form) == 0)
+        word.lemma.assign(analysis.lemma, 1, end - 1);
+    }
+  }
 
   if (!upostag && !xpostag && !feats) return;
 

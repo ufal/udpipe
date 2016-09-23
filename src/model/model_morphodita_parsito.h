@@ -34,10 +34,10 @@ class model_morphodita_parsito : public model {
   unique_ptr<morphodita::tokenizer_factory> tokenizer_factory;
   unique_ptr<multiword_splitter> splitter;
   struct tagger_model {
-    bool upostag, lemma, xpostag, feats;
+    bool upostag; int lemma; bool xpostag, feats;
     unique_ptr<morphodita::tagger> tagger;
 
-    tagger_model(bool upostag, bool lemma, bool xpostag, bool feats, morphodita::tagger* tagger)
+    tagger_model(bool upostag, int lemma, bool xpostag, bool feats, morphodita::tagger* tagger)
         : upostag(upostag), lemma(lemma), xpostag(xpostag), feats(feats), tagger(tagger) {}
   };
   vector<tagger_model> taggers;
@@ -69,7 +69,7 @@ class model_morphodita_parsito : public model {
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 
-  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, bool lemma, bool xpostag, bool feats, word& word);
+  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word);
   friend class trainer_morphodita_parsito;
 };
 

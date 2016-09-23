@@ -442,22 +442,22 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     for (size_t i = 1; !have_lemma && i < sentence.words.size(); i++)
       if (!sentence.words[i].lemma.empty() && sentence.words[i].lemma != "_")
         have_lemma = true;
-
-  bool use_lemma = model == 1 || models == 1; if (!option_bool(tagger, "use_lemma", use_lemma, error, model)) return false;
+  bool use_lemma_flag = model == 1 || models == 1; if (!option_bool(tagger, "use_lemma", use_lemma_flag, error, model)) return false;
+  int lemma_encoding = 2; if (!option_int(tagger, "dictionary_lemma_encoding", lemma_encoding, error, model)) return false;
+  int use_lemma = have_lemma && use_lemma_flag ? lemma_encoding : 0;
   bool use_xpostag = model == 0; if (!option_bool(tagger, "use_xpostag", use_xpostag, error, model)) return false;
   bool use_feats = model == 0; if (!option_bool(tagger, "use_feats", use_feats, error, model)) return false;
-  use_lemma = use_lemma && have_lemma;
 
   bool provide_lemma = model == 1 || models == 1; if (!option_bool(tagger, "provide_lemma", provide_lemma, error, model)) return false;
   bool provide_xpostag = model == 0; if (!option_bool(tagger, "provide_xpostag", provide_xpostag, error, model)) return false;
   bool provide_feats = model == 0; if (!option_bool(tagger, "provide_feats", provide_feats, error, model)) return false;
-  os.put(char(provide_lemma && use_lemma));
+  os.put(char(provide_lemma ? use_lemma : 0));
   os.put(char(provide_xpostag && use_xpostag));
   os.put(char(provide_feats && use_feats));
 
   // Start by creating the morphological dictionary
   stringstream morpho_description;
-  string combined_tag;
+  string combined_tag, combined_lemma;
 
   // Generic options
   const string& dictionary = option_str(tagger, "dictionary_model", model);
@@ -483,11 +483,15 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
 
     // Dictionary options
     int dictionary_suffix_len = 8; if (!option_int(tagger, "dictionary_suffix_len", dictionary_suffix_len, error, model)) return false;
-    unordered_set<string> drop_lemmas;
-    if (!option_str(tagger, "dictionary_drop_lemmas", model).empty()) {
+    unordered_set<string> flat_lemmas;
+    if (!option_str(tagger, "dictionary_flat_lemmas", model).empty()) {
       vector<string> lemmas;
-      split(option_str(tagger, "dictionary_drop_lemmas", model), ',', lemmas);
-      drop_lemmas.insert(lemmas.begin(), lemmas.end());
+      split(option_str(tagger, "dictionary_flat_lemmas", model), ',', lemmas);
+      for (auto&& lemma : lemmas) {
+        if (lemma.find('~') != string::npos)
+          return error.assign("Dictionary_flat_lemmas cannot contain '~' character!"), false;
+        flat_lemmas.insert(lemma);
+      }
     }
 
     // Start by generating statistical guesser
@@ -496,7 +500,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
       stringstream guesser_input;
       for (auto&& sentence : training) {
         for (size_t i = 1; i < sentence.words.size(); i++)
-          guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, drop_lemmas) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+          guesser_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
         guesser_input << '\n';
       }
       morphodita::morpho_statistical_guesser_trainer::train(guesser_input, guesser_suffix_len, guesser_suffix_rules, guesser_prefixes_max, guesser_prefix_min_count, guesser_description);
@@ -508,7 +512,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
       string entry;
       for (auto&& sentence : training)
         for (size_t i = 1; i < sentence.words.size(); i++)
-          dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i], use_lemma, drop_lemmas)).append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag)).append("\t").append(sentence.words[i].form));
+          dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas)).append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag)).append("\t").append(sentence.words[i].form));
     }
 
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
@@ -581,7 +585,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
         unsigned upostag_ok = 0, xpostag_ok = 0, feats_ok = 0, all_tags_ok = 0, lemma_ok = 0;
         for (auto&& analysis : analyses) {
           w.lemma.assign("_");
-          model_morphodita_parsito::fill_word_analysis(analysis, true, have_lemma, true, true, w);
+          model_morphodita_parsito::fill_word_analysis(analysis, true, use_lemma, true, true, w);
           upostag_ok |= int(sentence.words[i].upostag == w.upostag);
           xpostag_ok |= int(sentence.words[i].xpostag == w.xpostag);
           feats_ok |= int(sentence.words[i].feats == w.feats);
@@ -627,13 +631,13 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
   stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
   for (auto&& sentence : training) {
     for (size_t i = 1; i < sentence.words.size(); i++)
-      input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+      input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, combined_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     input << '\n';
   }
 
   for (auto&& sentence : heldout) {
     for (size_t i = 1; i < sentence.words.size(); i++)
-      heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
+      heldout_input << sentence.words[i].form << '\t' << combine_lemma(sentence.words[i], use_lemma, combined_lemma) << '\t' << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     heldout_input << '\n';
   }
 
@@ -697,8 +701,18 @@ const string& trainer_morphodita_parsito::most_frequent_tag(const vector<sentenc
   return combined_tag;
 }
 
-const string& trainer_morphodita_parsito::combine_lemma(const word& w, bool use_lemma, const unordered_set<string>& drop_lemmas) {
-  return use_lemma && !drop_lemmas.count(w.lemma) ? w.lemma : w.form;
+const string& trainer_morphodita_parsito::combine_lemma(const word& w, int use_lemma, string& combined_lemma, const unordered_set<string>& flat_lemmas) {
+  switch (use_lemma) {
+    case 0:
+      return w.form;
+    case 1:
+      return flat_lemmas.count(w.lemma) ? w.form : w.lemma;
+    default: /*2*/
+      if (w.lemma == "") return combined_lemma.assign("~~").append(w.form);
+      if (w.lemma == "_") return combined_lemma.assign("~_~").append(w.form);
+      if (flat_lemmas.count(w.lemma)) return combined_lemma.assign("~").append(w.lemma).append("~").append(w.form);
+      return w.lemma;
+  }
 }
 
 // Generic options handling
