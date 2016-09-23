@@ -24,6 +24,10 @@ bool raw_morpho_dictionary_reader::next_lemma(string& lemma, vector<pair<string,
   }
 
   lemma = tokens[0];
+  if (seen_lemmas.count(lemma))
+    training_failure("Raw morphological dictionary contains lemma '" << lemma << "' multiple times - all forms of one lemma must be in continuous region!");
+  seen_lemmas.insert(lemma);
+
   tagged_forms.clear();
   tagged_forms.emplace_back(tokens[2], tokens[1]);
   while (getline(in, line)) {

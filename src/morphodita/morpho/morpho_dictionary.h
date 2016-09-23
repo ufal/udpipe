@@ -67,9 +67,9 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
       unsigned lemma_offset /* to keep compiler happy */ = 0;
 
       if (pass == 1) {
-        lemmas.add(lemma.data(), lemma_len, 1 + lemma_info_len + 1 + lemma_roots * (sizeof(uint32_t) + sizeof(uint16_t)));
+        lemmas.add(lemma.data(), lemma_len, 1 + lemma_info_len + 1 + lemma_roots * (sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t)));
       } else /*if (pass == 2)*/ {
-        lemma_data = lemmas.fill(lemma.data(), lemma_len, 1 + lemma_info_len + 1 + lemma_roots * (sizeof(uint32_t) + sizeof(uint16_t)));
+        lemma_data = lemmas.fill(lemma.data(), lemma_len, 1 + lemma_info_len + 1 + lemma_roots * (sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t)));
         lemma_offset = lemma_data - lemma_len - lemmas.data_start(lemma_len);
 
         *lemma_data++ = lemma_info_len;
@@ -93,18 +93,20 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
         uint16_t clas = data.next_2B();
 
         if (pass == 1) { // for each root
-          roots.add(root.data(), root_len, sizeof(uint16_t) + sizeof(uint32_t));
+          roots.add(root.data(), root_len, sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint8_t));
         } else /*if (pass == 2)*/ {
-          unsigned char* root_data = roots.fill(root.data(), root_len, sizeof(uint16_t) + sizeof(uint32_t));
+          unsigned char* root_data = roots.fill(root.data(), root_len, sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint8_t));
           unsigned root_offset = root_data - root_len - roots.data_start(root_len);
 
           *(uint16_t*)(root_data) = clas; root_data += sizeof(uint16_t);
-          *(uint32_t*)(root_data) = (lemma_offset << 8) | lemma_len; root_data += sizeof(uint32_t);
-          assert(lemma_offset < (1<<24) && lemma_len < (1<<8));
+          *(uint32_t*)(root_data) = lemma_offset; root_data += sizeof(uint32_t);
+          *(uint8_t*)(root_data) = lemma_len; root_data += sizeof(uint8_t);
+          assert(uint8_t(lemma_len) == lemma_len);
 
-          *(uint32_t*)(lemma_data) = (root_offset << 8) | root_len; lemma_data += sizeof(uint32_t);
+          *(uint32_t*)(lemma_data) = root_offset; lemma_data += sizeof(uint32_t);
+          *(uint8_t*)(lemma_data) = root_len; lemma_data += sizeof(uint8_t);
           *(uint16_t*)(lemma_data) = clas; lemma_data += sizeof(uint16_t);
-          assert(root_offset < (1<<24) && root_len < (1<<8));
+          assert(uint8_t(root_len) == root_len);
         }
       }
     }
@@ -166,13 +168,13 @@ void morpho_dictionary<LemmaAddinfo>::analyze(string_piece form, vector<tagged_l
 
       roots.iter(form.str, root_len, [&](const char* root, pointer_decoder& root_data) {
         unsigned root_class = root_data.next_2B();
-        unsigned lemma_encoded = root_data.next_4B();
+        unsigned lemma_offset = root_data.next_4B();
+        unsigned lemma_len = root_data.next_1B();
 
         if (small_memeq(form.str, root, root_len)) {
           uint16_t* suffix_class_ptr = lower_bound(suff_data, suff_data + suff_classes, root_class);
           if (suffix_class_ptr < suff_data + suff_classes && *suffix_class_ptr == root_class) {
-            unsigned lemma_len = lemma_encoded & 0xFF;
-            const unsigned char* lemma_data = this->lemmas.data_start(lemma_len) + (lemma_encoded >> 8);
+            const unsigned char* lemma_data = this->lemmas.data_start(lemma_len) + lemma_offset;
             string lemma((const char*)lemma_data, lemma_len);
             if (lemma_data[lemma_len]) lemma += LemmaAddinfo::format(lemma_data + lemma_len + 1, lemma_data[lemma_len]);
 
@@ -196,7 +198,7 @@ bool morpho_dictionary<LemmaAddinfo>::generate(string_piece lemma, const tag_fil
     unsigned lemma_info_len = data.next_1B();
     const auto* lemma_info = data.next<unsigned char>(lemma_info_len);
     unsigned lemma_roots_len = data.next_1B();
-    auto* lemma_roots_ptr = data.next<unsigned char>(lemma_roots_len * (sizeof(uint32_t) + sizeof(uint16_t)));
+    auto* lemma_roots_ptr = data.next<unsigned char>(lemma_roots_len * (sizeof(uint32_t) + sizeof(uint8_t) + sizeof(uint16_t)));
 
     if (small_memeq(lemma.str, lemma_str, raw_lemma_len) && addinfo.match_lemma_id(lemma_info, lemma_info_len) && LemmaAddinfo::generatable(lemma_info, lemma_info_len)) {
       matched_lemma = true;
@@ -204,11 +206,11 @@ bool morpho_dictionary<LemmaAddinfo>::generate(string_piece lemma, const tag_fil
       vector<tagged_form>* forms = nullptr;
       pointer_decoder lemma_roots(lemma_roots_ptr);
       for (unsigned i = 0; i < lemma_roots_len; i++) {
-        unsigned root_encoded = lemma_roots.next_4B();
+        unsigned root_offset = lemma_roots.next_4B();
+        unsigned root_len = lemma_roots.next_1B();
         unsigned clas = lemma_roots.next_2B();
 
-        unsigned root_len = root_encoded & 0xFF;
-        const unsigned char* root_data = roots.data_start(root_len) + (root_encoded >> 8);
+        const unsigned char* root_data = roots.data_start(root_len) + root_offset;
         for (auto&& suffix : classes[clas]) {
           string root_with_suffix;
           for (auto&& tag : suffix.second)

@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <unordered_set>
 #include <utility>
 
 #include "common.h"
@@ -25,6 +26,7 @@ class raw_morpho_dictionary_reader {
   istream& in;
   string line;
   vector<string> tokens;
+  unordered_set<string> seen_lemmas;
 };
 
 } // namespace morphodita

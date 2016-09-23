@@ -1,8 +1,17 @@
-Version 1.9.1-devel
--------------------
+Version 1.9.2 [22 Sep 16]
+-------------------------
+- Fix regression in morpho::generate caused in 1.9.1.
+- Add check in encode_dictionary that no lemma is repeated.
 
 
-Version 1.9.0-prerelease [15 May 15]
+Version 1.9.1 [20 Sep 16]
+-------------------------
+- Allow loading larger dictionaries by increasing the internal
+  limit of size of search structures created during loading.
+- Export string_piece using correct namespace in src_lib_only/morphodita.h.
+
+
+Version 1.9.0-prerelease [15 May 16]
 ------------------------------------
 - Use t2t_docsys http://github.com/ufal/t2t_docsys as documentation system.
 - Use C++ Builtem http://github.com/ufal/cpp_builtem as build system.
