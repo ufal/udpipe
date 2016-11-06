@@ -13,11 +13,23 @@
 
 %pragma(java) jniclasscode=%{
   static {
-    java.io.File localUDPipe = new java.io.File(System.mapLibraryName("udpipe_java"));
+    java.io.File libraryFile = new java.io.File(udpipe_java.libraryPath);
 
-    if (localUDPipe.exists())
-      System.load(localUDPipe.getAbsolutePath());
+    if (libraryFile.exists())
+      System.load(libraryFile.getAbsolutePath());
     else
       System.loadLibrary("udpipe_java");
+  }
+%}
+
+%pragma(java) modulecode=%{
+  static String libraryPath;
+
+  static {
+    libraryPath = System.mapLibraryName("udpipe_java");
+  }
+
+  public static void setLibraryPath(String path) {
+    libraryPath = path;
   }
 %}
