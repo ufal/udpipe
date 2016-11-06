@@ -1437,7 +1437,9 @@ getField and setField wrappers.
 
 The bindings require native C++ library libudpipe_java (called udpipe_java on
 Windows). If the library is found in the current directory, it is used,
-otherwise standard library search process is used.
+otherwise standard library search process is used. The path to the C++ library
+can also be specified using static udpipe_java.setLibraryPath(String path) call
+(before the first call inside the C++ library, of course).
 
 
 Perl Bindings

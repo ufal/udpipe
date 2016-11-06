@@ -2349,6 +2349,9 @@ wrappers.
 The bindings require native C++ library <code>libudpipe_java</code> (called
 <code>udpipe_java</code> on Windows). If the library is found in the current
 directory, it is used, otherwise standard library search process is used.
+The path to the C++ library can also be specified using static
+<code>udpipe_java.setLibraryPath(String path)</code> call (before the first call
+inside the C++ library, of course).
 </p>
 
 <a id="perl_bindings" name="perl_bindings"></a>
