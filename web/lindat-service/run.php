@@ -208,7 +208,7 @@ Documentation</a> and the models are described in the
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline"><input name="modelset" type="radio" value="ud1.2" checked /><a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">Universal Dependencies 1.2</a></label>
+          <label class="radio-inline"><input name="modelset" type="radio" value="ud1.2" checked />Universal Dependencies 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">description</a>)</label>
         </div>
       </div>
       <div class="form-group row">
