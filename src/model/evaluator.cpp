@@ -279,13 +279,12 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
   alignment.matched.clear();
 
   for (size_t si = 0, gi = 0; si < system.words.size() && gi < gold.words.size(); )
-    if (!system.words[si].is_multiword && !gold.words[gi].is_multiword) {
+    if ((system.words[si].start > gold.words[gi].start || !system.words[si].is_multiword) &&
+        (gold.words[gi].start > system.words[si].start || !gold.words[gi].is_multiword)) {
       // No multiword, align using start+end indices
       if (system.words[si].start == gold.words[gi].start && system.words[si].end == gold.words[gi].end)
         alignment.matched.emplace_back(system.words[si++].w, gold.words[gi++].w);
-      else if (system.words[si].start == gold.words[gi].start)
-        si++, gi++;
-      else if (system.words[si].start < gold.words[gi].start)
+      else if (system.words[si].start <= gold.words[gi].start)
         si++;
       else
         gi++;
@@ -294,8 +293,10 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
       size_t ss = si, gs = gi, multiword_range_end = system.words[si].is_multiword ? system.words[si].end : gold.words[gi].end;
 
       // Find all words in the multiword range
-      while ((si < system.words.size() && system.words[si].start < multiword_range_end) ||
-             (gi < gold.words.size() && gold.words[gi].start < multiword_range_end)) {
+      while ((si < system.words.size() && (system.words[si].is_multiword ? system.words[si].start < multiword_range_end :
+                                           system.words[si].end <= multiword_range_end)) ||
+             (gi < gold.words.size() && (gold.words[gi].is_multiword ? gold.words[gi].start < multiword_range_end :
+                                         gold.words[gi].end <= multiword_range_end))) {
         // Extend the multiword range
         if (si < system.words.size() && (gi >= gold.words.size() || system.words[si].start <= gold.words[gi].start)) {
           if (system.words[si].is_multiword) multiword_range_end = max(multiword_range_end, system.words[si].end);
@@ -304,14 +305,6 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
           if (gold.words[gi].is_multiword) multiword_range_end = max(multiword_range_end, gold.words[gi].end);
           gi++;
         }
-
-        // Merge adjacent multiword tokens if they both intersect a non-multiword token
-        if (si < system.words.size() && system.words[si].is_multiword && system.words[si].start == multiword_range_end &&
-            (gi >= gold.words.size() || gold.words[gi].start > multiword_range_end))
-            multiword_range_end = system.words[si].end;
-        else if (gi < gold.words.size() && gold.words[gi].is_multiword && gold.words[gi].start == multiword_range_end &&
-            (si >= system.words.size() || system.words[si].start > multiword_range_end))
-            multiword_range_end = gold.words[gi].end;
       }
 
       // LCS on the chosen words
