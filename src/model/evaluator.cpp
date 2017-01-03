@@ -326,12 +326,6 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
         }
       }
 
-      for (unsigned s = 0; s < si - ss; s++) {
-        for (unsigned g = 0; g < gi - gs; g++)
-          cerr << lcs[s][g] << ' ';
-        cerr << '\n';
-      }
-
       for (unsigned s = 0, g = 0; s < si - ss && g < gi - gs; ) {
         if (lcs[s][g] == 1 + (s+1 < lcs.size() && g+1 < lcs[s].size() ? lcs[s+1][g+1] : 0))
           alignment.matched.emplace_back(system.words[ss + s++].w, gold.words[gs + g++].w);
