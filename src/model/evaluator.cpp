@@ -320,7 +320,7 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
       }
 
       for (unsigned s = 0, g = 0; s < si - ss && g < gi - gs; ) {
-        if (lcs[s][g] == 1 + (s+1 < lcs.size() && g+1 < lcs[s].size() ? lcs[s+1][g+1] : 0))
+        if (system.words[ss + s].w.form == gold.words[gs + g].w.form)
           alignment.matched.emplace_back(system.words[ss + s++].w, gold.words[gs + g++].w);
         else if (lcs[s][g] == (s+1 < lcs.size() ? lcs[s+1][g] : 0))
           s++;
