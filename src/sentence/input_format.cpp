@@ -280,14 +280,13 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
 
   sentence partial;
   while (text.len && s.empty()) {
-    // Skip newlines
-    while (text.len && (text.str[0] == '\n' && text.str[0] == '\r'))
-      text.str++, text.len--;
-    if (!text.len) break;
-
-    // Move next line from `text' to `line'
+    // Move next line from `text' to `line', including leading and following newlines
     string_piece line(text.str, 0);
+    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r'))
+      line.len++;
     while (line.len < text.len && (line.str[line.len] != '\n' && line.str[line.len] != '\r'))
+      line.len++;
+    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r'))
       line.len++;
     text.str += line.len, text.len -= line.len;
 
