@@ -20,6 +20,7 @@ class input_format {
   virtual ~input_format() {}
 
   virtual bool read_block(istream& is, string& block) const = 0;
+  virtual void reset_document();
   virtual void set_text(string_piece text, bool make_copy = false) = 0;
   virtual bool next_sentence(sentence& s, string& error) = 0;
 

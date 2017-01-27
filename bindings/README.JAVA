@@ -101,6 +101,7 @@ Main Classes
 
   class InputFormat {
    public:
+    virtual void resetDocument();
     virtual void setText(const char* text);
     virtual bool nextSentence(Sentence& s, ProcessingError* error = nullptr);
 

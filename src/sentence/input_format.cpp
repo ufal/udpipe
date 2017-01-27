@@ -248,6 +248,7 @@ class input_format_presegmented_tokenizer : public input_format {
   input_format_presegmented_tokenizer(input_format* tokenizer) : tokenizer(tokenizer) {}
 
   virtual bool read_block(istream& is, string& block) const override;
+  virtual void reset_document() override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
@@ -259,6 +260,10 @@ class input_format_presegmented_tokenizer : public input_format {
 
 bool input_format_presegmented_tokenizer::read_block(istream& is, string& block) const {
   return bool(getline(is, block));
+}
+
+void input_format_presegmented_tokenizer::reset_document() {
+  tokenizer->reset_document();
 }
 
 void input_format_presegmented_tokenizer::set_text(string_piece text, bool make_copy) {
@@ -313,6 +318,11 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
   }
 
   return !s.empty();
+}
+
+// Default implementation of virtual methods
+void input_format::reset_document() {
+  set_text("");
 }
 
 // Static factory methods
