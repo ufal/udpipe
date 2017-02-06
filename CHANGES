@@ -1,5 +1,7 @@
 Version 1.0.1-devel
 -------------------
+- Improve input_format API to allow inter-block state (for correct
+  tracking of inter-sentence spaces or document-level offsets).
 - Improve output_format API to support begin/end document marks
   and to allow state in the output_format instance (to allow
   numbering output sentences, for example).

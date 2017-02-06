@@ -141,19 +141,21 @@
       <ul>
       <li><a href="#input_format_read_block">6.6.1. input_format::read_block()</a>
       </li>
-      <li><a href="#input_format_set_text">6.6.2. input_format::set_text()</a>
+      <li><a href="#input_format_reset_document">6.6.2. input_format::reset_document()</a>
       </li>
-      <li><a href="#input_format_next_sentence">6.6.3. input_format::next_sentence()</a>
+      <li><a href="#input_format_set_text">6.6.3. input_format::set_text()</a>
       </li>
-      <li><a href="#input_format_new_input_format">6.6.4. input_format::new_input_format()</a>
+      <li><a href="#input_format_next_sentence">6.6.4. input_format::next_sentence()</a>
       </li>
-      <li><a href="#input_format_new_conllu_input_format">6.6.5. input_format::new_conllu_input_format()</a>
+      <li><a href="#input_format_new_input_format">6.6.5. input_format::new_input_format()</a>
       </li>
-      <li><a href="#input_format_new_horizontal_input_format">6.6.6. input_format::new_horizontal_input_format()</a>
+      <li><a href="#input_format_new_conllu_input_format">6.6.6. input_format::new_conllu_input_format()</a>
       </li>
-      <li><a href="#input_format_new_vertical_input_format">6.6.7. input_format::new_vertical_input_format()</a>
+      <li><a href="#input_format_new_horizontal_input_format">6.6.7. input_format::new_horizontal_input_format()</a>
       </li>
-      <li><a href="#input_format_new_presegmented_tokenizer">6.6.8. input_format::new_presegmented_tokenizer()</a>
+      <li><a href="#input_format_new_vertical_input_format">6.6.8. input_format::new_vertical_input_format()</a>
+      </li>
+      <li><a href="#input_format_new_presegmented_tokenizer">6.6.9. input_format::new_presegmented_tokenizer()</a>
       </li>
       </ul>
     </li>
@@ -296,16 +298,14 @@ Mathematics and Physics, Charles University in Prague, Czech Republic.
 <h2>2.1. Online Demo</h2>
 
 <p>
-<a href="http://lindat.mff.cuni.cz/services/udpipe/">Online demo</a> is available as
-one of <a href="http://lindat.mff.cuni.cz/services/">LINDAT/CLARIN services</a>.
+<a href="http://lindat.cz">LINDAT/CLARIN</a> hosts <a href="http://lindat.mff.cuni.cz/services/udpipe/">UDPipe Online Demo</a>.
 </p>
 
 <a id="web_service" name="web_service"></a>
 <h2>2.2. Web Service</h2>
 
 <p>
-<a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">Web service</a> is also
-available as one of <a href="http://lindat.mff.cuni.cz/services/">LINDAT/CLARIN services</a>.
+<a href="http://lindat.cz">LINDAT/CLARIN</a> also hosts <a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">UDPipe Web Service</a>.
 </p>
 
 <a id="release" name="release"></a>
@@ -1622,6 +1622,7 @@ class input_format {
   virtual ~input_format() {}
 
   virtual bool <A HREF="#input_format_read_block">read_block</A>(istream&amp; is, string&amp; block) const = 0;
+  virtual void <A HREF="#input_format_reset_document">reset_document</A>() {};
   virtual void <A HREF="#input_format_set_text">set_text</A>(<A HREF="#string_piece">string_piece</A> text, bool make_copy = false) = 0;
   virtual bool <A HREF="#input_format_next_sentence">next_sentence</A>(<A HREF="#sentence">sentence</A>&amp; s, string&amp; error) = 0;
 
@@ -1655,8 +1656,25 @@ sentences. Such portion is usually a paragraph (text followed by an empty line)
 or a line, but it may be more complex (i.e., in a XML-like format).
 </p>
 
+<a id="input_format_reset_document" name="input_format_reset_document"></a>
+<h3>6.6.2. input_format::reset_document()</h3>
+
+<pre>
+virtual void reset_document() {};
+</pre>
+
+<p>
+Resets the <a href="#input_format"><code>input_format</code></a> instance state. Such state
+is needed not only for remembering unprocessed text of the last
+<a href="#input_format_set_text"><code>set_text</code></a> call, but also for correct inter-block
+state tracking (for example in a tokenizer which returns document-level offsets,
+or in a tokenizer which tracks inter-sentence spaces &ndash; if you pass only spaces
+to <a href="#input_format_set_text"><code>set_text</code></a>, these spaces has to accumulate and be
+returned as preceeding spaces of the next sentence).
+</p>
+
 <a id="input_format_set_text" name="input_format_set_text"></a>
-<h3>6.6.2. input_format::set_text()</h3>
+<h3>6.6.3. input_format::set_text()</h3>
 
 <pre>
 virtual void set_text(<A HREF="#string_piece">string_piece</A> text, bool make_copy = false) = 0;
@@ -1674,7 +1692,7 @@ instance is destroyed or <code>set_text</code> is called again.
 </p>
 
 <a id="input_format_next_sentence" name="input_format_next_sentence"></a>
-<h3>6.6.3. input_format::next_sentence()</h3>
+<h3>6.6.4. input_format::next_sentence()</h3>
 
 <pre>
 virtual bool next_sentence(<A HREF="#sentence">sentence</A>&amp; s, string&amp; error) = 0;
@@ -1690,7 +1708,7 @@ read error.
 </p>
 
 <a id="input_format_new_input_format" name="input_format_new_input_format"></a>
-<h3>6.6.4. input_format::new_input_format()</h3>
+<h3>6.6.5. input_format::new_input_format()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_input_format(const string&amp; name);
@@ -1714,7 +1732,7 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_conllu_input_format" name="input_format_new_conllu_input_format"></a>
-<h3>6.6.5. input_format::new_conllu_input_format()</h3>
+<h3>6.6.6. input_format::new_conllu_input_format()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_conllu_input_format();
@@ -1727,7 +1745,7 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_horizontal_input_format" name="input_format_new_horizontal_input_format"></a>
-<h3>6.6.6. input_format::new_horizontal_input_format()</h3>
+<h3>6.6.7. input_format::new_horizontal_input_format()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_horizontal_input_format();
@@ -1740,7 +1758,7 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_vertical_input_format" name="input_format_new_vertical_input_format"></a>
-<h3>6.6.7. input_format::new_vertical_input_format()</h3>
+<h3>6.6.8. input_format::new_vertical_input_format()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_vertical_input_format();
@@ -1753,7 +1771,7 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_presegmented_tokenizer" name="input_format_new_presegmented_tokenizer"></a>
-<h3>6.6.8. input_format::new_presegmented_tokenizer()</h3>
+<h3>6.6.9. input_format::new_presegmented_tokenizer()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_presegmented_tokenizer(<A HREF="#input_format">input_format</A>* tokenizer);
@@ -2232,6 +2250,7 @@ typedef vector&lt;Sentence&gt; Sentences;
 <pre>
 class InputFormat {
  public:
+  virtual void resetDocument();
   virtual void setText(const char* text);
   virtual bool nextSentence(Sentence&amp; s, ProcessingError* error = nullptr);
 
@@ -2351,6 +2370,9 @@ wrappers.
 The bindings require native C++ library <code>libudpipe_java</code> (called
 <code>udpipe_java</code> on Windows). If the library is found in the current
 directory, it is used, otherwise standard library search process is used.
+The path to the C++ library can also be specified using static
+<code>udpipe_java.setLibraryPath(String path)</code> call (before the first call
+inside the C++ library, of course).
 </p>
 
 <a id="perl_bindings" name="perl_bindings"></a>

@@ -163,6 +163,7 @@ class input_format {
   virtual ~input_format() {}
 
   virtual bool [read_block #input_format_read_block](istream& is, string& block) const = 0;
+  virtual void [reset_document #input_format_reset_document]() {};
   virtual void [set_text #input_format_set_text]([string_piece #string_piece] text, bool make_copy = false) = 0;
   virtual bool [next_sentence #input_format_next_sentence]([sentence #sentence]& s, string& error) = 0;
 
@@ -187,6 +188,19 @@ Th class instances may store internal state and are not thread-safe.
 Read a portion of input, which is guaranteed to contain only complete
 sentences. Such portion is usually a paragraph (text followed by an empty line)
 or a line, but it may be more complex (i.e., in a XML-like format).
+
+
+=== input_format::reset_document() ===[input_format_reset_document]
+
+``` virtual void reset_document() {};
+
+Resets the [``input_format`` #input_format] instance state. Such state
+is needed not only for remembering unprocessed text of the last
+[``set_text`` #input_format_set_text] call, but also for correct inter-block
+state tracking (for example in a tokenizer which returns document-level offsets,
+or in a tokenizer which tracks inter-sentence spaces -- if you pass only spaces
+to [``set_text`` #input_format_set_text], these spaces has to accumulate and be
+returned as preceeding spaces of the next sentence).
 
 
 === input_format::set_text() ===[input_format_set_text]

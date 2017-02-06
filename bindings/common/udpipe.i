@@ -103,6 +103,8 @@ class input_format {
  public:
   virtual ~input_format() {}
 
+  %rename(resetDocument) reset_document;
+  virtual void reset_document();
   %extend {
     %rename(setText) set_text;
     virtual void set_text(const char* text) {
