@@ -99,6 +99,7 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
 model* model_morphodita_parsito::load(istream& is) {
   char version;
   if (!is.get(version)) return nullptr;
+  if (version != 1) return nullptr;
 
   unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito());
   if (!m) return nullptr;
