@@ -104,7 +104,7 @@ This work has been using language resources developed and/or stored and/or distr
 
 ```
 @InProceedings{udpipe:2016,
-  author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}},
+  author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}, Jana},
   title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
   booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16),
   year      = {2016},
