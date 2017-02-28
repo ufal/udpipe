@@ -10,11 +10,17 @@
 #include <algorithm>
 
 #include "model_morphodita_parsito.h"
+#include "unilib/utf8.h"
 #include "utils/getpara.h"
 #include "utils/parse_int.h"
 
 namespace ufal {
 namespace udpipe {
+
+// Versions:
+// 1 - initial version
+// 2 - add absolute lemmas (tagger_model::lemma == 2)
+//   - use Arabic and space normalization
 
 input_format* model_morphodita_parsito::new_tokenizer(const string& options) const {
   named_values::map parsed_options;
@@ -31,14 +37,16 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
   error.clear();
 
   if (taggers.empty()) return error.assign("No tagger defined for the UDPipe model!"), false;
+  if (s.empty()) return true;
 
   tagger_cache* c = tagger_caches.pop();
   if (!c) c = new tagger_cache();
 
   // Prepare input forms
-  c->forms.clear();
+  c->forms_normalized.resize(s.words.size() - 1);
+  c->forms_string_pieces.resize(s.words.size() - 1);
   for (size_t i = 1; i < s.words.size(); i++)
-    c->forms.emplace_back(s.words[i].form);
+    c->forms_string_pieces[i - 1] = normalize_form(s.words[i].form, c->forms_normalized[i - 1], true);
 
   // Clear first
   for (size_t i = 1; i < s.words.size(); i++) {
@@ -52,7 +60,7 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
   for (auto&& tagger : taggers) {
     if (!tagger.tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
 
-    tagger.tagger->tag(c->forms, c->lemmas);
+    tagger.tagger->tag(c->forms_string_pieces, c->lemmas);
 
     for (size_t i = 0; i < c->lemmas.size(); i++)
       fill_word_analysis(c->lemmas[i], tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats, s.words[i+1]);
@@ -66,6 +74,7 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
   error.clear();
 
   if (!parser) return error.assign("No parser defined for the UDPipe model!"), false;
+  if (s.empty()) return true;
 
   parser_cache* c = parser_caches.pop();
   if (!c) c = new parser_cache();
@@ -79,7 +88,8 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
 
   c->tree.clear();
   for (size_t i = 1; i < s.words.size(); i++) {
-    c->tree.add_node(s.words[i].form);
+    c->tree.add_node(string());
+    normalize_form(s.words[i].form, c->tree.nodes.back().form, false);
     c->tree.nodes.back().lemma.assign(s.words[i].lemma);
     c->tree.nodes.back().upostag.assign(s.words[i].upostag);
     c->tree.nodes.back().xpostag.assign(s.words[i].xpostag);
@@ -99,9 +109,18 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
 model* model_morphodita_parsito::load(istream& is) {
   char version;
   if (!is.get(version)) return nullptr;
-  if (version != 1) return nullptr;
+  if (!(version >= 1 && version <= VERSION_LATEST)) return nullptr;
 
-  unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito());
+  // Because UDPipe 1.0 does not check the model version,
+  // a specific sentinel was added since version 2 so that
+  // loading of such model fail on UDPipe 1.0
+  if (version >= 2) {
+    char sentinel;
+    if (!is.get(sentinel) || sentinel != 0x7F) return nullptr;
+    if (!is.get(sentinel) || sentinel != 0x7F) return nullptr;
+  }
+
+  unique_ptr<model_morphodita_parsito> m(new model_morphodita_parsito((unsigned char)version));
   if (!m) return nullptr;
 
   char tokenizer;
@@ -130,6 +149,8 @@ model* model_morphodita_parsito::load(istream& is) {
   return m.release();
 }
 
+model_morphodita_parsito::model_morphodita_parsito(unsigned version) : version(version) {}
+
 model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter)
   : tokenizer(tokenizer), splitter(splitter) {}
 
@@ -153,7 +174,7 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   return false;
 }
 
-void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word){
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const {
   // Lemma
   if (lemma == 1) {
     word.lemma.assign(analysis.lemma);
@@ -166,6 +187,12 @@ void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma
       if (end != string::npos && analysis.lemma.compare(end + 1, string::npos, word.form) == 0)
         word.lemma.assign(analysis.lemma, 1, end - 1);
     }
+  }
+  if (version >= 2) {
+    // Replace '\001' back to spaces
+    for (auto && chr : word.lemma)
+      if (chr == '\001')
+        chr = ' ';
   }
 
   if (!upostag && !xpostag && !feats) return;
@@ -187,6 +214,73 @@ void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma
   // Features
   start = min(end + 1, analysis.tag.size());
   word.feats.assign(analysis.tag, start, analysis.tag.size() - start);
+}
+
+const string& model_morphodita_parsito::normalize_form(string_piece form, string& output, bool also_spaces) const {
+  using unilib::utf8;
+
+  // No normalization on version 1
+  if (version <= 1) return output.assign(form.str, form.len);
+
+  // If requested, replace space by \001 since version 2.
+
+  // Arabic normalization since version 2, implementation resulted from
+  // discussion with Otakar Smrz and Nasrin Taghizadeh.
+  // 1. Remove https://codepoints.net/U+0640 without any reasonable doubt :)
+  // 2. Remove https://codepoints.net/U+0652
+  // 3. Remove https://codepoints.net/U+0670
+  // 4. Remove everything from https://codepoints.net/U+0653 to
+  //    https://codepoints.net/U+0657 though they are probably very rare in date
+  // 5. Remove everything from https://codepoints.net/U+064B to
+  //    https://codepoints.net/U+0650
+  // 6. Remove https://codepoints.net/U+0651
+  // 7. Replace https://codepoints.net/U+0671 with https://codepoints.net/U+0627
+  // 8. Replace https://codepoints.net/U+0622 with https://codepoints.net/U+0627
+  // 9. Replace https://codepoints.net/U+0623 with https://codepoints.net/U+0627
+  // 10. Replace https://codepoints.net/U+0625 with https://codepoints.net/U+0627
+  // 11. Replace https://codepoints.net/U+0624 with https://codepoints.net/U+0648
+  // 12. Replace https://codepoints.net/U+0626 with https://codepoints.net/U+064A
+  // One might also consider replacing some Farsi characters that might be typed
+  // unintentionally (by Iranians writing Arabic language texts):
+  // 13. Replace https://codepoints.net/U+06CC with https://codepoints.net/U+064A
+  // 14. Replace https://codepoints.net/U+06A9 with https://codepoints.net/U+0643
+  // 15. Replace https://codepoints.net/U+06AA with https://codepoints.net/U+0643
+  //
+  // Not implemented:
+  // There is additional challenge with data coming from Egypt (such as printed
+  // or online newspapers), where the word-final https://codepoints.net/U+064A
+  // may be switched for https://codepoints.net/U+0649 and visa versa. Also, the
+  // word-final https://codepoints.net/U+0647 could actually represent https://
+  // codepoints.net/U+0629. You can experiment with the following replacements,
+  // but I would rather apply them only after classifying the whole document as
+  // following such convention:
+  // 1. Replace https://codepoints.net/U+0629 with https://codepoints.net/U+0647
+  //    (frequent femine ending markers would appear like a third-person
+  //    masculine pronoun clitic instead)
+  // 2. Replace https://codepoints.net/U+0649 with https://codepoints.net/U+064A
+  //    (some "weak" words would become even more ambiguous or appear as if
+  //    with a first-person pronoun clitic)
+
+  output.clear();
+  for (auto chr : utf8::decoder(form.str, form.len)) {
+    // Arabic normalization
+    if (chr == 0x640 || (chr >= 0x64B && chr <= 0x657) || chr == 0x670) {}
+    else if (chr == 0x622) utf8::append(output, 0x627);
+    else if (chr == 0x623) utf8::append(output, 0x627);
+    else if (chr == 0x624) utf8::append(output, 0x648);
+    else if (chr == 0x625) utf8::append(output, 0x627);
+    else if (chr == 0x626) utf8::append(output, 0x64A);
+    else if (chr == 0x671) utf8::append(output, 0x627);
+    else if (chr == 0x6A9) utf8::append(output, 0x643);
+    else if (chr == 0x6AA) utf8::append(output, 0x643);
+    else if (chr == 0x6CC) utf8::append(output, 0x64A);
+    // Space normalization for tagger
+    else if (chr == ' ' && also_spaces) utf8::append(output, 0x01);
+    // Default
+    else utf8::append(output, chr);
+  }
+
+  return output;
 }
 
 } // namespace udpipe

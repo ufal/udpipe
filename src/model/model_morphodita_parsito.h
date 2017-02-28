@@ -29,7 +29,11 @@ class model_morphodita_parsito : public model {
   virtual bool parse(sentence& s, const string& options, string& error) const override;
 
   static model* load(istream& is);
+
  private:
+  model_morphodita_parsito(unsigned version);
+  unsigned version;
+  enum { VERSION_LATEST = 2 };
 
   unique_ptr<morphodita::tokenizer_factory> tokenizer_factory;
   unique_ptr<multiword_splitter> splitter;
@@ -58,7 +62,8 @@ class model_morphodita_parsito : public model {
   };
 
   struct tagger_cache {
-    vector<string_piece> forms;
+    vector<string> forms_normalized;
+    vector<string_piece> forms_string_pieces;
     vector<morphodita::tagged_lemma> lemmas;
   };
   mutable threadsafe_stack<tagger_cache> tagger_caches;
@@ -69,7 +74,8 @@ class model_morphodita_parsito : public model {
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 
-  static void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word);
+  void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const;
+  const string& normalize_form(string_piece form, string& output, bool also_spaces) const;
   friend class trainer_morphodita_parsito;
 };
 

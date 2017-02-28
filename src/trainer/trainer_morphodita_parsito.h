@@ -12,6 +12,7 @@
 #include <unordered_set>
 
 #include "common.h"
+#include "model/model_morphodita_parsito.h"
 #include "sentence/sentence.h"
 #include "trainer.h"
 #include "utils/named_values.h"
@@ -32,10 +33,13 @@ class trainer_morphodita_parsito : public trainer {
   static bool train_parser(const vector<sentence>& training, const vector<sentence>& heldout,
                            const string& options, const string& tagger_model, ostream& os, string& error);
 
+  // Generic model methods
   enum model_type { TOKENIZER_MODEL, TAGGER_MODEL, PARSER_MODEL };
   static bool load_model(const string& data, model_type model, string_piece& range);
+  static const string& model_normalize_form(string_piece form, string& output, bool also_spaces);
+  static void model_fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word);
 
-  // Tagger model
+  // Tagger-specific model methods
   static bool train_tagger_model(const vector<sentence>& training, const vector<sentence>& heldout,
                                  unsigned model, unsigned models, const named_values::map& tagger, ostream& os, string& error);
   static bool can_combine_tag(const word& w, string& error);
