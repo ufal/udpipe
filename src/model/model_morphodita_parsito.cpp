@@ -280,6 +280,10 @@ const string& model_morphodita_parsito::normalize_form(string_piece form, string
     else utf8::append(output, chr);
   }
 
+  // Make sure we do not remove everything
+  if (output.empty() && form.len)
+    utf8::append(output, utf8::first(form.str, form.len));
+
   return output;
 }
 
