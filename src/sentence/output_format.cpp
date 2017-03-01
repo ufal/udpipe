@@ -33,29 +33,46 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) {
     os << comment << '\n';
 
   // Words and multiword tokens
-  size_t multiword_token = 0;
-  for (int i = 1 /*skip the root node*/; i < int(s.words.size()); i++) {
-    // Multiword token if present
-    if (multiword_token < s.multiword_tokens.size() &&
-        i == s.multiword_tokens[multiword_token].id_first) {
-      os << s.multiword_tokens[multiword_token].id_first << '-'
-         << s.multiword_tokens[multiword_token].id_last << '\t'
-         << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t"
-         << underscore_on_empty(s.multiword_tokens[multiword_token].misc) << '\n';
-      multiword_token++;
+  size_t multiword_token = 0, empty_node = 0;
+  for (int i = 0; i < int(s.words.size()); i++) {
+    // Write non-root nodes
+    if (i > 0) {
+      // Multiword token if present
+      if (multiword_token < s.multiword_tokens.size() &&
+          i == s.multiword_tokens[multiword_token].id_first) {
+        os << s.multiword_tokens[multiword_token].id_first << '-'
+           << s.multiword_tokens[multiword_token].id_last << '\t'
+           << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t"
+           << underscore_on_empty(s.multiword_tokens[multiword_token].misc) << '\n';
+        multiword_token++;
+      }
+
+      // Write the word
+      os << i << '\t'
+         << s.words[i].form << '\t'
+         << underscore_on_empty(s.words[i].lemma) << '\t'
+         << underscore_on_empty(s.words[i].upostag) << '\t'
+         << underscore_on_empty(s.words[i].xpostag) << '\t'
+         << underscore_on_empty(s.words[i].feats) << '\t';
+      if (s.words[i].head < 0) os << '_'; else os << s.words[i].head; os << '\t'
+         << underscore_on_empty(s.words[i].deprel) << '\t'
+         << underscore_on_empty(s.words[i].deps) << '\t'
+         << underscore_on_empty(s.words[i].misc) << '\n';
     }
 
-    // Write the word
-    os << i << '\t'
-       << s.words[i].form << '\t'
-       << underscore_on_empty(s.words[i].lemma) << '\t'
-       << underscore_on_empty(s.words[i].upostag) << '\t'
-       << underscore_on_empty(s.words[i].xpostag) << '\t'
-       << underscore_on_empty(s.words[i].feats) << '\t';
-    if (s.words[i].head < 0) os << '_'; else os << s.words[i].head; os << '\t'
-       << underscore_on_empty(s.words[i].deprel) << '\t'
-       << underscore_on_empty(s.words[i].deps) << '\t'
-       << underscore_on_empty(s.words[i].misc) << '\n';
+    // Empty nodes
+    for (; empty_node < s.empty_nodes.size() && i == s.empty_nodes[empty_node].id; empty_node++) {
+      os << i << '.' << s.empty_nodes[empty_node].index << '\t'
+         << s.empty_nodes[empty_node].form << '\t'
+         << underscore_on_empty(s.empty_nodes[empty_node].lemma) << '\t'
+         << underscore_on_empty(s.empty_nodes[empty_node].upostag) << '\t'
+         << underscore_on_empty(s.empty_nodes[empty_node].xpostag) << '\t'
+         << underscore_on_empty(s.empty_nodes[empty_node].feats) << '\t'
+         << "_\t"
+         << "_\t"
+         << underscore_on_empty(s.empty_nodes[empty_node].deps) << '\t'
+         << underscore_on_empty(s.empty_nodes[empty_node].misc) << '\n';
+    }
   }
   os << endl;
 }

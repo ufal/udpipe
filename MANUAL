@@ -744,6 +744,30 @@ for example `SpaceAfter=No` feature). Other CoNLL-U word fields are guaranteed
 to be empty.
 
 
+Class empty_node
+----------------
+
+  class empty_node {
+   public:
+    int id;         // 0 is root, >0 is sentence word, <0 is undefined
+    int index;      // index for the current id, should be numbered from 1, 0=undefined
+    string form;    // form
+    string lemma;   // lemma
+    string upostag; // universal part-of-speech tag
+    string xpostag; // language-specific part-of-speech tag
+    string feats;   // list of morphological features
+    string deps;    // secondary dependencies
+    string misc;    // miscellaneous information
+
+    empty_node(int id = -1, int index = 0) : id(id), index(index) {}
+  };
+
+The empty_node class represents an empty node from CoNLL-U 2.0, with the fields
+corresponding to CoNLL-U fields
+(http://universaldependencies.org/docs/format.html). For a specified id, the
+index are numbered sequentially from 1.
+
+
 Class sentence
 --------------
 
@@ -753,6 +777,7 @@ Class sentence
 
     vector<word> words;
     vector<multiword_token> multiword_tokens;
+    vector<empty_node> empty_nodes;
     vector<string> comments;
     static const string root_form;
 
@@ -1317,13 +1342,30 @@ Helper Structures
   };
   typedef vector<MultiwordToken> MultiwordTokens;
 
+  class EmptyNode {
+   public:
+    int id;          // 0 is root, >0 is sentence word, <0 is undefined
+    int index;       // index for the current id, should be numbered from 1, 0=undefined
+    string form;     // form
+    string lemma;    // lemma
+    string upostag;  // universal part-of-speech tag
+    string xpostag;  // language-specific part-of-speech tag
+    string feats;    // list of morphological features
+    string deps;     // secondary dependencies
+    string misc;     // miscellaneous information
+
+    EmptyNode(int id = -1, int index = 0) : id(id), index(index) {}
+  };
+  typedef vector<empty_node> EmptyNodes;
+
   class Sentence {
    public:
     Sentence();
 
     Words words;
     MultiwordTokens multiwordTokens;
-    Comments comments
+    EmptyNodes emptyNodes;
+    Comments comments;
     static const string rootForm;
 
     bool empty();

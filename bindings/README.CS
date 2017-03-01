@@ -66,13 +66,30 @@ Helper Structures
   };
   typedef vector<MultiwordToken> MultiwordTokens;
 
+  class EmptyNode {
+   public:
+    int id;          // 0 is root, >0 is sentence word, <0 is undefined
+    int index;       // index for the current id, should be numbered from 1, 0=undefined
+    string form;     // form
+    string lemma;    // lemma
+    string upostag;  // universal part-of-speech tag
+    string xpostag;  // language-specific part-of-speech tag
+    string feats;    // list of morphological features
+    string deps;     // secondary dependencies
+    string misc;     // miscellaneous information
+
+    EmptyNode(int id = -1, int index = 0) : id(id), index(index) {}
+  };
+  typedef vector<empty_node> EmptyNodes;
+
   class Sentence {
    public:
     Sentence();
 
     Words words;
     MultiwordTokens multiwordTokens;
-    Comments comments
+    EmptyNodes emptyNodes;
+    Comments comments;
     static const string rootForm;
 
     bool empty();

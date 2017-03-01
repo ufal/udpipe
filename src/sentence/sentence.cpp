@@ -27,6 +27,7 @@ bool sentence::empty() {
 void sentence::clear() {
   words.clear();
   multiword_tokens.clear();
+  empty_nodes.clear();
   comments.clear();
 
   word& root = add_word(root_form);

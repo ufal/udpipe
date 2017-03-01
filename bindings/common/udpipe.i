@@ -68,6 +68,25 @@ class multiword_token {
 typedef std::vector<multiword_token> MultiwordTokens;
 
 
+%rename(EmptyNode) empty_node;
+class empty_node {
+ public:
+  int id;              // 0 is root, >0 is sentence word, <0 is undefined
+  int index;           // index for the current id, should be numbered from 1, 0=undefined
+  std::string form;    // form
+  std::string lemma;   // lemma
+  std::string upostag; // universal part-of-speech tag
+  std::string xpostag; // language-specific part-of-speech tag
+  std::string feats;   // list of morphological features
+  std::string deps;    // secondary dependencies
+  std::string misc;    // miscellaneous information
+
+  empty_node(int id = -1, int index = 0) : id(id), index(index) {}
+};
+%template(EmptyNodes) std::vector<empty_node>;
+typedef std::vector<empty_node> EmptyNodes;
+
+
 %rename(Sentence) sentence;
 class sentence {
  public:
@@ -76,6 +95,8 @@ class sentence {
   std::vector<word> words;
   %rename(multiwordTokens) multiword_tokens;
   std::vector<multiword_token> multiword_tokens;
+  %rename(emptyNodes) empty_nodes;
+  std::vector<empty_node> empty_nodes;
   std::vector<std::string> comments;
   %rename(rootForm) root_form;
   static const std::string root_form;

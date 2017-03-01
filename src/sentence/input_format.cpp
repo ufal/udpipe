@@ -88,6 +88,33 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       continue;
     }
 
+    // Handle empty nodes
+    if (memchr(tokens[0].str, '.', tokens[0].len)) {
+      split(tokens[0], '.', parts);
+      if (parts.size() != 2)
+        return error.assign("Cannot parse ID of empty node '").append(line.str, line.len).append("'!") , false;
+      int id, index;
+      if (!parse_int(parts[0], "CoNLL-U empty node id", id, error) || !parse_int(parts[1], "CoNLL-U empty node index", index, error))
+        return false;
+      if (id != int(s.words.size()) - 1)
+        return error.assign("Incorrect ID '").append(parts[0].str, parts[0].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+      if (!((s.empty_nodes.empty() && index == 1) || (!s.empty_nodes.empty() && s.empty_nodes.back().id < id && index == 1) ||
+           (!s.empty_nodes.empty() && s.empty_nodes.back().id == id && index == s.empty_nodes.back().index + 1)))
+        return error.assign("Incorrect ID index '").append(parts[1].str, parts[1].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+
+      s.empty_nodes.emplace_back(id, index);
+      s.empty_nodes.back().form.assign(tokens[1].str, tokens[1].len);
+      s.empty_nodes.back().lemma.assign(tokens[2].str, tokens[2].len);
+      if (!(tokens[3].len == 1 && tokens[3].str[0] == '_')) s.empty_nodes.back().upostag.assign(tokens[3].str, tokens[3].len);
+      if (!(tokens[4].len == 1 && tokens[4].str[0] == '_')) s.empty_nodes.back().xpostag.assign(tokens[4].str, tokens[4].len);
+      if (!(tokens[5].len == 1 && tokens[5].str[0] == '_')) s.empty_nodes.back().feats.assign(tokens[5].str, tokens[5].len);
+      if (tokens[6].len != 1 || tokens[6].str[0] != '_') return error.assign("Incorrect HEAD '").append(tokens[6].str, tokens[6].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+      if (tokens[7].len != 1 || tokens[7].str[0] != '_') return error.assign("Incorrect DEPREL '").append(tokens[7].str, tokens[7].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+      if (!(tokens[8].len == 1 && tokens[8].str[0] == '_')) s.empty_nodes.back().deps.assign(tokens[8].str, tokens[8].len);
+      if (!(tokens[9].len == 1 && tokens[9].str[0] == '_')) s.empty_nodes.back().misc.assign(tokens[9].str, tokens[9].len);
+      continue;
+    }
+
     // Parse word ID and head
     int id;
     if (!parse_int(tokens[0], "CoNLL-U id", id, error))
@@ -306,6 +333,12 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
         s.multiword_tokens.push_back(move(multiword_token));
         s.multiword_tokens.back().id_first += words;
         s.multiword_tokens.back().id_last += words;
+      }
+
+      // Append empty nodes
+      for (auto&& empty_node : partial.empty_nodes) {
+        s.empty_nodes.push_back(move(empty_node));
+        s.empty_nodes.back().id += words;
       }
 
       // Append comments

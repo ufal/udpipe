@@ -10,28 +10,23 @@
 #pragma once
 
 #include "common.h"
-#include "empty_node.h"
-#include "multiword_token.h"
-#include "word.h"
 
 namespace ufal {
 namespace udpipe {
 
-class sentence {
+class empty_node {
  public:
-  sentence();
+  int id;         // 0 is root, >0 is sentence word, <0 is undefined
+  int index;      // index for the current id, should be numbered from 1, 0=undefined
+  string form;    // form
+  string lemma;   // lemma
+  string upostag; // universal part-of-speech tag
+  string xpostag; // language-specific part-of-speech tag
+  string feats;   // list of morphological features
+  string deps;    // secondary dependencies
+  string misc;    // miscellaneous information
 
-  vector<word> words;
-  vector<multiword_token> multiword_tokens;
-  vector<empty_node> empty_nodes;
-  vector<string> comments;
-  static const string root_form;
-
-  bool empty();
-  void clear();
-  word& add_word(string_piece form = string_piece());
-  void set_head(int id, int head, const string& deprel);
-  void unlink_all_words();
+  empty_node(int id = -1, int index = 0) : id(id), index(index) {}
 };
 
 } // namespace udpipe
