@@ -135,13 +135,21 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
   suffixes.iter_all([this](const char* suffix, int len, pointer_decoder& data) mutable {
     unsigned classes_len = data.next_2B();
     const uint16_t* classes_ptr = data.next<uint16_t>(classes_len);
-    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len);
-    const uint16_t* tags_ptr = data.next<uint16_t>(data.next_2B());
+    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
+    uint32_t index = indices_ptr[0], prev_index = 0;
+    for (unsigned i = 0; i < classes_len; i++) {
+      prev_index = index;
+      index += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
+    }
+    const uint16_t* tags_ptr = data.next<uint16_t>(index);
 
     string suffix_str(suffix, len);
+    index = indices_ptr[0], prev_index = 0;
     for (unsigned i = 0; i < classes_len; i++) {
       if (classes_ptr[i] >= classes.size()) classes.resize(classes_ptr[i] + 1);
-      classes[classes_ptr[i]].emplace_back(suffix_str, vector<uint16_t>(tags_ptr + indices_ptr[i], tags_ptr + indices_ptr[i+1]));
+      prev_index = index;
+      index += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
+      classes[classes_ptr[i]].emplace_back(suffix_str, vector<uint16_t>(tags_ptr + prev_index, tags_ptr + index));
     }
   });
 }

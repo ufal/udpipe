@@ -270,12 +270,13 @@ void dictionary<LemmaAddinfo>::encode(binary_encoder& enc) {
     enc.add_2B(suffix.size());
     for (auto&& clas : suffix)
       enc.add_2B(clas.first);
-    int tags = 0;
+    uint32_t tags = 0, prev_tags = 0;
     for (auto&& clas : suffix) {
-      enc.add_2B(tags);
+      enc.add_2B(tags - prev_tags < (1<<16) ? uint16_t(tags) : tags);
+      prev_tags = tags;
       tags += clas.second.size();
     }
-    enc.add_2B(tags);
+    enc.add_2B(tags - prev_tags < (1<<16) ? uint16_t(tags) : tags);
     for (auto&& clas : suffix)
       for (auto&& tag : clas.second)
         enc.add_2B(tag);
