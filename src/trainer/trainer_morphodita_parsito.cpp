@@ -503,6 +503,8 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
           return error.assign("Dictionary_flat_lemmas cannot contain '~' character!"), false;
         flat_lemmas.insert(lemma);
       }
+    } else {
+      flat_lemmas.insert("greek.expression");
     }
 
     // Start by generating statistical guesser
