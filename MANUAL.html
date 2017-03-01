@@ -1252,7 +1252,7 @@ Every model utilizes UPOS for disambiguation and the first model is the one prod
 the UPOS tags on output.
 </p>
 <p style="margin-bottom:0">
-The tokenizer recognizes the following options:
+The tagger recognizes the following options:
 </p>
 <ul style="margin-top:0">
 <li><code>use_lemma</code> (default for the second model and also if there is only one model): use the
@@ -1270,6 +1270,10 @@ The tokenizer recognizes the following options:
   Feats internally to perform disambiguation; it may not be outputted
 </li>
 <li><code>provide_feats</code> (default for the first model): produce the disambiguated Feats field on output
+</li>
+<li><code>dictionary_max_form_analyses</code> (default 0 - unlimited): if a morphological dictionary
+  is constructed from the UD data, this sets maximum number of (most frequent)
+  form analyses that are to be kept in the dictionary
 </li>
 <li><code>guesser_suffix_rules</code> (default 8): number of rules generated for every suffix
 </li>

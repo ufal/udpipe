@@ -533,7 +533,7 @@ UDPipe model).
 Every model utilizes UPOS for disambiguation and the first model is the one
 producing the UPOS tags on output.
 
-The tokenizer recognizes the following options:
+The tagger recognizes the following options:
 - use_lemma (default for the second model and also if there is only one model):
   use the lemma field internally to perform disambiguation; the lemma may be not
   outputted
@@ -547,6 +547,9 @@ The tokenizer recognizes the following options:
   disambiguation; it may not be outputted
 - provide_feats (default for the first model): produce the disambiguated Feats
   field on output
+- dictionary_max_form_analyses (default 0 - unlimited): if a morphological
+  dictionary is constructed from the UD data, this sets maximum number of (most
+  frequent) form analyses that are to be kept in the dictionary
 - guesser_suffix_rules (default 8): number of rules generated for every suffix
 - guesser_enrich_dictionary (default 6): number of rules generated for forms
   present in training data (assuming that the analyses from the training data

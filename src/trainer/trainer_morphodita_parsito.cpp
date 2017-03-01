@@ -522,14 +522,33 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     }
 
     // Generate morphological dictionary data from the input
+    int max_form_analyses = 0; if (!option_int(tagger, "dictionary_max_form_analyses", max_form_analyses, error, model)) return false;
+
     unordered_set<string> dictionary_entries;
     {
+      unordered_map<string, unordered_map<string, int>> entries;
       string entry;
       for (auto&& sentence : training)
-        for (size_t i = 1; i < sentence.words.size(); i++)
-          dictionary_entries.insert(entry.assign(combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas))
-                                    .append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag))
-                                    .append("\t").append(model_normalize_form(sentence.words[i].form, normalized_form, true)));
+        for (size_t i = 1; i < sentence.words.size(); i++) {
+          model_normalize_form(sentence.words[i].form, normalized_form, true);
+          entry.assign(combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas))
+              .append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag))
+              .append("\t").append(normalized_form);
+          entries[normalized_form][entry]++;
+        }
+
+      vector<pair<int, string>> analyses;
+      for (auto&& form_analyses : entries) {
+        analyses.clear();
+        for (auto&& analysis : form_analyses.second)
+          analyses.emplace_back(analysis.second, analysis.first);
+        if (max_form_analyses && int(analyses.size()) > max_form_analyses) {
+          sort(analyses.begin(), analyses.end(), greater<pair<int, string>>());
+          analyses.resize(max_form_analyses);
+        }
+        for (auto&& analysis : analyses)
+          dictionary_entries.insert(analysis.second);
+      }
     }
 
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
