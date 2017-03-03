@@ -9,7 +9,7 @@ Czech language, MorphoDiTa achieves state-of-the-art results with a throughput
 around 10-200K words per second. MorphoDiTa is a free software under Mozilla
 Public License 2.0 (http://www.mozilla.org/MPL/2.0/) and the linguistic models
 are free for non-commercial use and distributed under CC BY-NC-SA
-(http://creativecommons.org/licenses/by-nc-sa/3.0/) license, although for some
+(http://creativecommons.org/licenses/by-nc-sa/4.0/) license, although for some
 models the original data used to create the model may impose additional
 licensing conditions. MorphoDiTa is versioned using Semantic Versioning
 (http://semver.org/).

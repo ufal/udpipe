@@ -8,7 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // This code is a reimplementation of morphologic analyzer Morphium
-// by Johanka Spoustová (Treex::Tool::EnglishMorpho::Analysis Perl module)
+// by Johanka Spoustova (Treex::Tool::EnglishMorpho::Analysis Perl module)
 // and reimplementation of morphologic lemmatizer by Martin Popel
 // (Treex::Tool::EnglishMorpho::Lemmatizer Perl module). The latter is based
 // on morpha:

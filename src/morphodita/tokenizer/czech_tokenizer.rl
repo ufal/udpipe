@@ -20,20 +20,25 @@ namespace morphodita {
 }%%
 
 // The list of lower cased words that when preceding eos do not end sentence.
+// Note: because of VS, we cannot list the abbreviations directly in UTF-8,
+// because the compilation of utf-8 encoded sources fail on some locales
+// (e.g., Japanese).
+// perl -CS -ple 'use Encode;s/([^[:ascii:]])/join("", map {sprintf "\\%o", ord($_)} split(m@@, encode("utf-8", $1)))/ge'
+// perl -CS -ple 'use Encode;s/\\([0-7]{3})\\([0-7]{3})/decode("utf-8", chr(oct($1)).chr(oct($2)))/ge'
 const unordered_set<string> czech_tokenizer::abbreviations_czech = {
   // Titles
   "prof", "csc", "drsc", "doc", "phd", "ph", "d",
   "judr", "mddr", "mudr", "mvdr", "paeddr", "paedr", "phdr", "rndr", "rsdr", "dr",
   "ing", "arch", "mgr", "bc", "mag", "mba", "bca", "mga",
   "gen", "plk", "pplk", "npor", "por", "ppor", "kpt", "mjr", "sgt", "pls", "p", "s",
-  "p", "pí", "fa", "fy", "mr", "mrs", "ms", "miss", "tr", "sv",
+  "p", "p\303\255", "fa", "fy", "mr", "mrs", "ms", "miss", "tr", "sv",
   // Geographic names
-  "angl", "fr", "čes", "ces", "čs", "cs", "slov", "něm", "nem", "it", "pol", "maď", "mad", "rus",
-  "sev", "vých", "vych", "již", "jiz", "záp", "zap",
+  "angl", "fr", "\304\215es", "ces", "\304\215s", "cs", "slov", "n\304\233m", "nem", "it", "pol", "ma\304\217", "mad", "rus",
+  "sev", "v\303\275ch", "vych", "ji\305\276", "jiz", "z\303\241p", "zap",
   // Common abbrevs
-  "adr", "č", "c", "eg", "ev", "g", "hod", "j", "kr", "m", "max", "min", "mj", "např", "napr",
-  "okr", "popř", "popr", "pozn", "r", "ř", "red", "rep", "resp", "srov", "st", "stř", "str",
-  "sv", "tel", "tj", "tzv", "ú", "u", "uh", "ul", "um", "zl", "zn",
+  "adr", "\304\215", "c", "eg", "ev", "g", "hod", "j", "kr", "m", "max", "min", "mj", "nap\305\231", "napr",
+  "okr", "pop\305\231", "popr", "pozn", "r", "\305\231", "red", "rep", "resp", "srov", "st", "st\305\231", "str",
+  "sv", "tel", "tj", "tzv", "\303\272", "u", "uh", "ul", "um", "zl", "zn",
 };
 
 const unordered_set<string> czech_tokenizer::abbreviations_slovak = {
@@ -42,14 +47,14 @@ const unordered_set<string> czech_tokenizer::abbreviations_slovak = {
   "judr", "mddr", "mudr", "mvdr", "paeddr", "paedr", "phdr", "rndr", "rsdr", "dr",
   "ing", "arch", "mgr", "bc", "mag", "mba", "bca", "mga",
   "gen", "plk", "pplk", "npor", "por", "ppor", "kpt", "mjr", "sgt", "pls", "p", "s",
-  "p", "pí", "fa", "fy", "mr", "mrs", "ms", "miss", "tr", "sv",
+  "p", "p\303\255", "fa", "fy", "mr", "mrs", "ms", "miss", "tr", "sv",
   // Geographic names
-  "angl", "fr", "čes", "ces", "čs", "cs", "slov", "nem", "it", "poľ", "pol", "maď", "mad",
-  "rus", "sev", "vých", "vych", "juž", "juz", "záp", "zap",
+  "angl", "fr", "\304\215es", "ces", "\304\215s", "cs", "slov", "nem", "it", "po\304\276", "pol", "ma\304\217", "mad",
+  "rus", "sev", "v\303\275ch", "vych", "ju\305\276", "juz", "z\303\241p", "zap",
   // Common abbrevs
-  "adr", "č", "c", "eg", "ev", "g", "hod", "j", "kr", "m", "max", "min", "mj", "napr",
+  "adr", "\304\215", "c", "eg", "ev", "g", "hod", "j", "kr", "m", "max", "min", "mj", "napr",
   "okr", "popr", "pozn", "r", "red", "rep", "resp", "srov", "st", "str",
-  "sv", "tel", "tj", "tzv", "ú", "u", "uh", "ul", "um", "zl", "zn",
+  "sv", "tel", "tj", "tzv", "\303\272", "u", "uh", "ul", "um", "zl", "zn",
 };
 
 czech_tokenizer::czech_tokenizer(tokenizer_language language, unsigned version, const morpho* m)
