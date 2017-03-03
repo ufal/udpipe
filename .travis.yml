@@ -35,3 +35,4 @@ matrix:
 script:
   - CXX=$COMPILER C_FLAGS=-Werror make -k -C src full
   - CXX=$COMPILER C_FLAGS=-Werror make -k -C tests udpipe_bundle
+  - perl tests/ascii_only.pl
