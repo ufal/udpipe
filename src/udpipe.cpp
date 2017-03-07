@@ -115,11 +115,16 @@ int main(int argc, char* argv[]) {
       runtime_failure("An error occurred during model training: " << error);
     cerr << "The trained UDPipe model was saved." << endl;
   } else {
-    // Load the model
-    cerr << "Loading UDPipe model: " << flush;
-    unique_ptr<model> model(model::load(argv[1]));
-    if (!model) runtime_failure("Cannot load UDPipe model '" << argv[1] << "'!");
-    cerr << "done." << endl;
+    // Load the model if needed
+    unique_ptr<model> model;
+    if (options.count("tokenizer") || options.count("tokenize") ||
+        options.count("tagger") || options.count("tag") ||
+        options.count("parser") || options.count("parse")) {
+      cerr << "Loading UDPipe model: " << flush;
+      model.reset(model::load(argv[1]));
+      if (!model) runtime_failure("Cannot load UDPipe model '" << argv[1] << "'!");
+      cerr << "done." << endl;
+    }
 
     if (options.count("accuracy")) {
       if (options.count("input")) runtime_failure("The --input option is unsupported when --accuracy is used!");
