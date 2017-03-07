@@ -27,6 +27,8 @@ class output_format {
   static output_format* new_conllu_output_format();
   static output_format* new_matxin_output_format();
   static output_format* new_horizontal_output_format();
+  static output_format* new_plaintext_output_format();
+  static output_format* new_plaintext_normalized_output_format();
   static output_format* new_vertical_output_format();
 };
 

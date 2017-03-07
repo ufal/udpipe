@@ -144,6 +144,34 @@ void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
   os << endl;
 }
 
+// Plaintext output format
+class output_format_plaintext : public output_format {
+ public:
+  output_format_plaintext(bool normalized): normalized(normalized) {}
+
+  virtual void write_sentence(const sentence& s, ostream& os) override;
+ private:
+  bool normalized;
+};
+
+void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
+  if (normalized) {
+    for (size_t i = 1; i < s.words.size(); i++) {
+      if (i > 1 && s.words[i-1].get_space_after()) os << ' ';
+      os << s.words[i].form;
+    }
+    os << endl;
+  } else {
+    string spaces;
+    for (size_t i = 1; i < s.words.size(); i++) {
+      s.words[i].get_spaces_before(spaces); os << spaces;
+      os << s.words[i].form;
+      s.words[i].get_spaces_after(spaces); os << spaces;
+    }
+    os << flush;
+  }
+}
+
 // Vertical output format
 class output_format_vertical : public output_format {
  public:
@@ -169,6 +197,14 @@ output_format* output_format::new_horizontal_output_format() {
   return new output_format_horizontal();
 }
 
+output_format* output_format::new_plaintext_output_format() {
+  return new output_format_plaintext(false);
+}
+
+output_format* output_format::new_plaintext_normalized_output_format() {
+  return new output_format_plaintext(true);
+}
+
 output_format* output_format::new_vertical_output_format() {
   return new output_format_vertical();
 }
@@ -177,6 +213,8 @@ output_format* output_format::new_output_format(const string& name) {
   if (name == "conllu") return new_conllu_output_format();
   if (name == "matxin") return new_matxin_output_format();
   if (name == "horizontal") return new_horizontal_output_format();
+  if (name == "plaintext") return new_plaintext_output_format();
+  if (name == "plaintext_normalized") return new_plaintext_normalized_output_format();
   if (name == "vertical") return new_vertical_output_format();
   return nullptr;
 }
