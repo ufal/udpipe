@@ -10,21 +10,19 @@
 #pragma once
 
 #include "common.h"
+#include "token.h"
 #include "utils/string_piece.h"
 
 namespace ufal {
 namespace udpipe {
 
-class multiword_token {
+class multiword_token : public token {
  public:
+  // form and misc are inherited from token
   int id_first, id_last;
-  string form;
-  string misc;
 
-  multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece()) : id_first(id_first), id_last(id_last) {
-    if (form.len) this->form.assign(form.str, form.len);
-    if (misc.len) this->misc.assign(misc.str, misc.len);
-  }
+  multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece())
+      : token(form, misc), id_first(id_first), id_last(id_last) {}
 };
 
 } // namespace udpipe

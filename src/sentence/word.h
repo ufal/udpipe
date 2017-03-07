@@ -10,15 +10,16 @@
 #pragma once
 
 #include "common.h"
+#include "token.h"
 #include "utils/string_piece.h"
 
 namespace ufal {
 namespace udpipe {
 
-class word {
+class word : public token {
  public:
+  // form and misc are inherited from token
   int id;         // 0 is root, >0 is sentence word, <0 is undefined
-  string form;    // form
   string lemma;   // lemma
   string upostag; // universal part-of-speech tag
   string xpostag; // language-specific part-of-speech tag
@@ -26,13 +27,10 @@ class word {
   int head;       // head, 0 is root, <0 is undefined
   string deprel;  // dependency relation to the head
   string deps;    // secondary dependencies
-  string misc;    // miscellaneous information
 
   vector<int> children;
 
-  word(int id = -1, string_piece form = string_piece()) : id(id), head(-1) {
-    if (form.len) this->form.assign(form.str, form.len);
-  }
+  word(int id = -1, string_piece form = string_piece()) : token(form), id(id), head(-1) {}
 };
 
 } // namespace udpipe
