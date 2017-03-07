@@ -28,9 +28,11 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  input_format* result = tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get()) : nullptr;
+  bool normalized_spaces = parsed_options.count("normalized_spaces") && parsed_options["normalized_spaces"] != "0";
 
-  return parsed_options.count("presegmented") ? input_format::new_presegmented_tokenizer(result) : result;
+  input_format* result = tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get(), normalized_spaces) : nullptr;
+
+  return (parsed_options.count("presegmented") && parsed_options["presegmented"] != "0") ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
@@ -151,8 +153,8 @@ model* model_morphodita_parsito::load(istream& is) {
 
 model_morphodita_parsito::model_morphodita_parsito(unsigned version) : version(version) {}
 
-model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter)
-  : tokenizer(tokenizer), splitter(splitter) {}
+model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter, bool normalized_spaces)
+  : tokenizer(tokenizer), splitter(splitter), normalized_spaces(normalized_spaces) {}
 
 bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
@@ -166,8 +168,13 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   s.clear();
   error.clear();
   if (tokenizer->next_sentence(&forms, nullptr)) {
-    for (size_t i = 0; i < forms.size(); i++)
-      splitter.append_token(forms[i], i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len ? "SpaceAfter=No" : "", s);
+    for (size_t i = 0; i < forms.size(); i++) {
+      if (normalized_spaces)
+        token_with_spaces.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
+      else
+        token_with_spaces.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
+      splitter.append_token(forms[i], token_with_spaces.misc, s);
+    }
     return true;
   }
 
