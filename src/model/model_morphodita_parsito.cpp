@@ -175,6 +175,14 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
         token_with_spaces.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
       splitter.append_token(forms[i], token_with_spaces.misc, s);
     }
+
+    // Fill "# text" comment
+    s.comments.emplace_back("# text =");
+    for (unsigned i = 1; i < s.words.size(); i++) {
+      if (i == 1 || s.words[i-1].get_space_after()) s.comments.back().push_back(' ');
+      s.comments.back().append(s.words[i].form);
+    }
+
     return true;
   }
 
