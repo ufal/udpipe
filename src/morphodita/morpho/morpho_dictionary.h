@@ -135,16 +135,15 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
   suffixes.iter_all([this](const char* suffix, int len, pointer_decoder& data) mutable {
     unsigned classes_len = data.next_2B();
     const uint16_t* classes_ptr = data.next<uint16_t>(classes_len);
-    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
-    uint32_t index = indices_ptr[0], prev_index = 0;
-    for (unsigned i = 0; i < classes_len; i++) {
-      prev_index = index;
-      index += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
-    }
-    const uint16_t* tags_ptr = data.next<uint16_t>(index);
+    // Following volatile is needed to overcome vectorizer bug in g++ 6.3.0 (among other versions).
+    volatile const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
+    uint32_t tags_len = indices_ptr[0];
+    for (unsigned i = 0; i < classes_len; i++)
+      tags_len += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
+    const uint16_t* tags_ptr = data.next<uint16_t>(tags_len);
 
     string suffix_str(suffix, len);
-    index = indices_ptr[0], prev_index = 0;
+    uint32_t index = indices_ptr[0], prev_index = 0;
     for (unsigned i = 0; i < classes_len; i++) {
       if (classes_ptr[i] >= classes.size()) classes.resize(classes_ptr[i] + 1);
       prev_index = index;
