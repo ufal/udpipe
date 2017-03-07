@@ -26,26 +26,26 @@ class token {
   }
 
   // CoNLL-U defined SpaceAfter=No feature
-  bool get_space_after();
+  bool get_space_after() const;
   void set_space_after(bool space_after);
 
   // UDPipe-specific all-spaces-preserving SpacesBefore and SpacesAfter features
-  void get_spaces_before(string& spaces_before);
+  void get_spaces_before(string& spaces_before) const;
   void set_spaces_before(string_piece spaces_before);
-  void get_spaces_after(string& spaces_after);
+  void get_spaces_after(string& spaces_after) const;
   void set_spaces_after(string_piece spaces_after);
 
   // UDPipe-specific TokenRange feature
-  bool get_token_range(size_t& start, size_t& end);
+  bool get_token_range(size_t& start, size_t& end) const;
   void set_token_range(size_t start, size_t end);
 
  private:
-  bool get_misc_field(const char* name, string_piece& value);
+  bool get_misc_field(const char* name, string_piece& value) const;
   void remove_misc_field(const char* name);
   string& start_misc_field(const char* name);
 
-  void append_escaped_spaces(string_piece spaces, string& escaped_spaces);
-  void unescape_spaces(string_piece escaped_spaces, string& spaces);
+  void append_escaped_spaces(string_piece spaces, string& escaped_spaces) const;
+  void unescape_spaces(string_piece escaped_spaces, string& spaces) const;
 };
 
 } // namespace udpipe

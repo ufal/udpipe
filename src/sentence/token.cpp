@@ -15,7 +15,7 @@ namespace ufal {
 namespace udpipe {
 
 // CoNLL-U defined SpaceAfter=No feature
-bool token::get_space_after() {
+bool token::get_space_after() const {
   string_piece value;
 
   return !(get_misc_field("SpaceAfter", value) && value.len == 2 && memcmp(value.str, "No", 2) == 0);
@@ -29,7 +29,7 @@ void token::set_space_after(bool space_after) {
 }
 
 // UDPipe-specific all-spaces-preserving SpacesBefore and SpacesAfter features
-void token::get_spaces_before(string& spaces_before) {
+void token::get_spaces_before(string& spaces_before) const {
   string_piece value;
 
   if (get_misc_field("SpacesBefore", value))
@@ -45,7 +45,7 @@ void token::set_spaces_before(string_piece spaces_before) {
     append_escaped_spaces(spaces_before, start_misc_field("SpacesBefore"));
 }
 
-void token::get_spaces_after(string& spaces_after) {
+void token::get_spaces_after(string& spaces_after) const {
   string_piece value;
 
   if (get_misc_field("SpacesAfter", value))
@@ -68,7 +68,7 @@ void token::set_spaces_after(string_piece spaces_after) {
 }
 
 // UDPipe-specific TokenRange feature
-bool token::get_token_range(size_t& start, size_t& end) {
+bool token::get_token_range(size_t& start, size_t& end) const {
   string_piece value;
 
   if (!get_misc_field("TokenRange", value)) return false;
@@ -103,7 +103,7 @@ void token::set_token_range(size_t start, size_t end) {
 }
 
 // Private MISC field helpers
-bool token::get_misc_field(const char* name, string_piece& value) {
+bool token::get_misc_field(const char* name, string_piece& value) const {
   size_t name_len = strlen(name);
 
   for (size_t index = 0; index < misc.size(); ) {
@@ -146,7 +146,7 @@ string& token::start_misc_field(const char* name) {
   return misc;
 }
 
-void token::append_escaped_spaces(string_piece spaces, string& escaped_spaces) {
+void token::append_escaped_spaces(string_piece spaces, string& escaped_spaces) const {
   for (unsigned i = 0; i < spaces.len; i++)
     switch (spaces.str[i]) {
       case ' ':
@@ -166,7 +166,7 @@ void token::append_escaped_spaces(string_piece spaces, string& escaped_spaces) {
     }
 }
 
-void token::unescape_spaces(string_piece escaped_spaces, string& spaces) {
+void token::unescape_spaces(string_piece escaped_spaces, string& spaces) const {
   spaces.clear();
 
   for (unsigned i = 0; i < escaped_spaces.len; i++)
