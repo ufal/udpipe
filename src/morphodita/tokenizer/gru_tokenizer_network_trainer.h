@@ -206,10 +206,10 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
       }
 
       for (auto&& output : instance_output) {
-        float sum = 0;
         int best = output.w[1] > output.w[0];
         if (output.w[2] > output.w[best]) best = 2;
-        for (int j = 0; j < 3; j++) sum += (output.w[j] = exp(output.w[j] - output.w[best]));
+        float maximum = output.w[best], sum = 0;
+        for (int j = 0; j < 3; j++) sum += (output.w[j] = exp(output.w[j] - maximum));
         sum = 1.f / sum;
         for (int j = 0; j < 3; j++) output.w[j] *= sum;
 
