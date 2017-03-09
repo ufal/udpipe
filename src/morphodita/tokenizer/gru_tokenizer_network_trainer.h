@@ -118,8 +118,8 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   matrix_trainer<3, D> projection_fwd(this->projection_fwd), projection_bwd(this->projection_bwd);
   float learning_rate = learning_rate_initial, b1t = 1.f, b2t = 1.f;
 
-  float best_sentence_f1 = 0.f; unsigned best_sentence_f1_epoch = 0;
-  gru_tokenizer_network_trainer<D> best_sentence_f1_network;
+  float best_combined_f1 = 0.f; unsigned best_combined_f1_epoch = 0;
+  gru_tokenizer_network_trainer<D> best_combined_f1_network;
 
   size_t training_offset = 0, training_shift;
   vector<gru_tokenizer_network::char_info> training_input, instance_input(segment);
@@ -317,13 +317,13 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
            << 100. * tokens.f1 << "%, sentences: " << 100. * sentences.precision << "%P/"
            << 100. * sentences.recall << "%R/" << 100. * sentences.f1 << "%";
 
-      if (early_stopping && sentences.f1 > best_sentence_f1) {
-        best_sentence_f1 = sentences.f1;
-        best_sentence_f1_epoch = epoch;
-        best_sentence_f1_network = *this;
+      if (early_stopping && sentences.f1 + tokens.f1 > best_combined_f1) {
+        best_combined_f1 = sentences.f1 + tokens.f1;
+        best_combined_f1_epoch = epoch;
+        best_combined_f1_network = *this;
       }
-      if (early_stopping && best_sentence_f1 && epoch - best_sentence_f1_epoch > 30) {
-        cerr << endl << "Stopping after 30 iterations of not improving sentence f1." << endl;
+      if (early_stopping && best_combined_f1 && epoch - best_combined_f1_epoch > 30) {
+        cerr << endl << "Stopping after 30 iterations of not improving sum of sentence and token f1." << endl;
         break;
       }
     }
@@ -331,13 +331,13 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
   }
 
   // Choose best network if desired
-  if (early_stopping && best_sentence_f1) {
-    cerr << "Choosing parameters from epoch " << best_sentence_f1_epoch+1 << "." << endl;
-    this->embeddings = best_sentence_f1_network.embeddings;
-    this->gru_fwd = best_sentence_f1_network.gru_fwd;
-    this->gru_bwd = best_sentence_f1_network.gru_bwd;
-    this->projection_fwd = best_sentence_f1_network.projection_fwd;
-    this->projection_bwd = best_sentence_f1_network.projection_bwd;
+  if (early_stopping && best_combined_f1) {
+    cerr << "Choosing parameters from epoch " << best_combined_f1_epoch+1 << "." << endl;
+    this->embeddings = best_combined_f1_network.embeddings;
+    this->gru_fwd = best_combined_f1_network.gru_fwd;
+    this->gru_bwd = best_combined_f1_network.gru_bwd;
+    this->projection_fwd = best_combined_f1_network.projection_fwd;
+    this->projection_bwd = best_combined_f1_network.projection_bwd;
   }
 
   // Encode the network
