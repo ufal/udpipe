@@ -19,7 +19,7 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment, unsigned dimension, unsigned epochs,
+bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, unsigned dimension, unsigned epochs,
                                   unsigned batch_size, float learning_rate, float learning_rate_final, float dropout,
                                   float initialization_range, bool early_stopping, const vector<tokenized_sentence>& data,
                                   const vector<tokenized_sentence>& heldout, ostream& os, string& error) {
@@ -28,20 +28,21 @@ bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment
   error.clear();
 
   // Start encoding the tokenizer
-  os.put(1);
+  os.put(2);
 
   binary_encoder enc;
   enc.add_1B(url_email_tokenizer);
   enc.add_2B(segment);
+  enc.add_1B(allow_spaces);
 
   // Train the GRU network
   if (dimension == 16) {
     gru_tokenizer_network_trainer<16> network;
-    if (!network.train(url_email_tokenizer, segment, epochs, batch_size, learning_rate, learning_rate_final,
+    if (!network.train(url_email_tokenizer, segment, allow_spaces, epochs, batch_size, learning_rate, learning_rate_final,
                        dropout, initialization_range, early_stopping, data, heldout, enc, error)) return false;
   } else if (dimension == 24) {
     gru_tokenizer_network_trainer<24> network;
-    if (!network.train(url_email_tokenizer, segment, epochs, batch_size, learning_rate, learning_rate_final,
+    if (!network.train(url_email_tokenizer, segment, allow_spaces, epochs, batch_size, learning_rate, learning_rate_final,
                        dropout, initialization_range, early_stopping, data, heldout, enc, error)) return false;
   } else {
     return error.assign("Gru tokenizer dimension '").append(to_string(dimension)).append("' is not supported!"), false;

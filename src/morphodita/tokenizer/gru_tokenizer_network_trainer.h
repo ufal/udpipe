@@ -31,7 +31,7 @@ namespace morphodita {
 template <int D>
 class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementation<D> {
  public:
-  bool train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
+  bool train(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, unsigned epochs, unsigned batch_size,
              float learning_rate, float learning_rate_final, float dropout, float initialization_range,
              bool early_stopping, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout,
              binary_encoder& enc, string& error);
@@ -62,7 +62,8 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
   };
 
   struct f1_info { double precision, recall, f1; };
-  void evaluate(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& heldout, f1_info& tokens_f1, f1_info& sentences_f1);
+  void evaluate(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, const vector<tokenized_sentence>& heldout,
+                f1_info& tokens_f1, f1_info& sentences_f1);
   void evaluate_f1(const vector<token_range>& system, const vector<token_range>& gold, f1_info& f1);
 
   template <int R, int C> void random_matrix(matrix<R,C>& m, mt19937& generator, float range, float bias);
@@ -77,7 +78,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 //
 
 template <int D>
-bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
+bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, unsigned epochs, unsigned batch_size,
                                              float learning_rate_initial, float learning_rate_final, float dropout,
                                              float initialization_range, bool early_stopping, const vector<tokenized_sentence>& data,
                                              const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
@@ -311,7 +312,7 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
          << ", training acc: " << fixed << setprecision(2) << 100. * correct / double(total) << "%";
     if (!heldout.empty()) {
       f1_info tokens, sentences;
-      evaluate(url_email_tokenizer, segment, heldout, tokens, sentences);
+      evaluate(url_email_tokenizer, segment, allow_spaces, heldout, tokens, sentences);
       cerr << ", heldout tokens: " << 100. * tokens.precision << "%P/" << 100. * tokens.recall << "%R/"
            << 100. * tokens.f1 << "%, sentences: " << 100. * sentences.precision << "%P/"
            << 100. * sentences.recall << "%R/" << 100. * sentences.f1 << "%";
@@ -387,7 +388,8 @@ void gru_tokenizer_network_trainer<D>::gru_trainer::update_weights(float learnin
 }
 
 template <int D>
-void gru_tokenizer_network_trainer<D>::evaluate(unsigned url_email_tokenizer, unsigned segment, const vector<tokenized_sentence>& heldout, f1_info& tokens_f1, f1_info& sentences_f1) {
+void gru_tokenizer_network_trainer<D>::evaluate(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, const vector<tokenized_sentence>& heldout,
+                                                f1_info& tokens_f1, f1_info& sentences_f1) {
   // Generate gold data
   vector<token_range> gold_sentences, gold_tokens;
   u32string text;
@@ -405,7 +407,7 @@ void gru_tokenizer_network_trainer<D>::evaluate(unsigned url_email_tokenizer, un
   string text_utf8;
 
   this->cache_embeddings();
-  gru_tokenizer tokenizer(url_email_tokenizer, segment, *this);
+  gru_tokenizer tokenizer(url_email_tokenizer, segment, allow_spaces, *this);
   unilib::utf8::encode(text, text_utf8);
   tokenizer.set_text(text_utf8);
 

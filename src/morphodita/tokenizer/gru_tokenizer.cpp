@@ -79,13 +79,17 @@ int gru_tokenizer::next_outcome() {
     // Add spacing token/sentence breaks
     for (size_t i = 0; i < network_length - 1; i++)
       if (is_space(network_offsets[i+1])) {
-        // Detect \n\n or \r\n\r\n
+        // Detect EOS on the following space or \n\n or \r\n\r\n
         bool eos = network_outcomes[i+1].outcome == gru_tokenizer_network::END_OF_SENTENCE;
         for (size_t j = network_offsets[i+1]; j + 1 < network_offsets[i+2] && !eos; j++)
           eos = (chars[j].chr == '\n' && chars[j+1].chr == '\n') ||
                 (j + 3 < network_offsets[i+2] && chars[j].chr == '\r' && chars[j+1].chr == '\n' && chars[j+2].chr == '\r' && chars[j+3].chr == '\n');
         if (eos) network_outcomes[i].outcome = gru_tokenizer_network::END_OF_SENTENCE;
-        else if (network_outcomes[i].outcome == gru_tokenizer_network::NO_SPLIT) network_outcomes[i].outcome = gru_tokenizer_network::END_OF_TOKEN;
+
+        if (network_outcomes[i].outcome == gru_tokenizer_network::NO_SPLIT)
+          // Force EOT if not allowing spaces, and also detect EOT on the following space
+          if (!allow_spaces || network_outcomes[i+1].outcome == gru_tokenizer_network::END_OF_TOKEN)
+            network_outcomes[i].outcome = gru_tokenizer_network::END_OF_TOKEN;
       }
 
     // Adjust network_length to suitable break

@@ -19,8 +19,8 @@ namespace morphodita {
 
 class gru_tokenizer : public unicode_tokenizer {
  public:
-  gru_tokenizer(unsigned url_email_tokenizer, unsigned segment, const gru_tokenizer_network& network)
-      : unicode_tokenizer(url_email_tokenizer), segment(segment), network_index(0), network_length(0), network(network) {}
+  gru_tokenizer(unsigned url_email_tokenizer, unsigned segment, bool allow_spaces, const gru_tokenizer_network& network)
+      : unicode_tokenizer(url_email_tokenizer), segment(segment), allow_spaces(allow_spaces), network_index(0), network_length(0), network(network) {}
 
   virtual bool next_sentence(vector<token_range>& tokens) override;
 
@@ -28,7 +28,9 @@ class gru_tokenizer : public unicode_tokenizer {
   inline bool is_space(size_t index);
   int next_outcome();
 
-  unsigned segment, network_index, network_length;
+  unsigned segment;
+  bool allow_spaces;
+  unsigned network_index, network_length;
   vector<gru_tokenizer_network::char_info> network_chars;
   vector<gru_tokenizer_network::outcome_t> network_outcomes;
   vector<size_t> network_offsets;
