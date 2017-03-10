@@ -147,10 +147,8 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
             training_output[training_offset + i].outcome = gru_tokenizer_network::NO_SPLIT;
           }
           for (size_t i = 0; i < sentence.tokens.size(); i++)
-            if (i+1 < sentence.tokens.size() && sentence.tokens[i].start + sentence.tokens[i].length == sentence.tokens[i+1].start)
-              training_output[training_offset + sentence.tokens[i].start + sentence.tokens[i].length - 1].outcome = gru_tokenizer_network::END_OF_TOKEN;
-            else if (i+1 == sentence.tokens.size())
-              training_output[training_offset + sentence.tokens[i].start + sentence.tokens[i].length - 1].outcome = gru_tokenizer_network::END_OF_SENTENCE;
+            training_output[training_offset + sentence.tokens[i].start + sentence.tokens[i].length - 1].outcome =
+                i+1 < sentence.tokens.size() ? gru_tokenizer_network::END_OF_TOKEN : gru_tokenizer_network::END_OF_SENTENCE;
         }
         training_offset = 0;
       }
