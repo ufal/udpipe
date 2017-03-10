@@ -137,11 +137,20 @@ class output_format_horizontal : public output_format {
 };
 
 void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
+  string line;
+
   for (size_t i = 1; i < s.words.size(); i++) {
-    os << s.words[i].form;
-    if (i+1 < s.words.size()) os << ' ';
+    // Append word, but replace spaces by &nbsp;s
+    for (auto&& chr : s.words[i].form)
+      if (chr == ' ')
+        line.append("\302\240");
+      else
+        line.push_back(chr);
+
+    if (i+1 < s.words.size())
+      line.push_back(' ');
   }
-  os << endl;
+  os << line << endl;
 }
 
 // Plaintext output format
