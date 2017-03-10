@@ -277,7 +277,7 @@ const string& model_morphodita_parsito::normalize_form(string_piece form, string
   //    with a first-person pronoun clitic)
 
   output.clear();
-  for (auto chr : utf8::decoder(form.str, form.len)) {
+  for (auto&& chr : utf8::decoder(form.str, form.len)) {
     // Arabic normalization
     if (chr == 0x640 || (chr >= 0x64B && chr <= 0x657) || chr == 0x670) {}
     else if (chr == 0x622) utf8::append(output, 0x627);
