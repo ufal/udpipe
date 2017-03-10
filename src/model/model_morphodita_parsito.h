@@ -33,7 +33,7 @@ class model_morphodita_parsito : public model {
  private:
   model_morphodita_parsito(unsigned version);
   unsigned version;
-  enum { VERSION_LATEST = 2 };
+  enum { VERSION_LATEST = 3 };
 
   unique_ptr<morphodita::tokenizer_factory> tokenizer_factory;
   unique_ptr<multiword_splitter> splitter;
@@ -77,7 +77,8 @@ class model_morphodita_parsito : public model {
   mutable threadsafe_stack<parser_cache> parser_caches;
 
   void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const;
-  const string& normalize_form(string_piece form, string& output, bool also_spaces) const;
+  const string& normalize_form(string_piece form, string& output) const;
+  const string& normalize_lemma(string_piece lemma, string& output) const;
   friend class trainer_morphodita_parsito;
 };
 

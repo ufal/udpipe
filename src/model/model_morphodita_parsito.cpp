@@ -48,7 +48,7 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
   c->forms_normalized.resize(s.words.size() - 1);
   c->forms_string_pieces.resize(s.words.size() - 1);
   for (size_t i = 1; i < s.words.size(); i++)
-    c->forms_string_pieces[i - 1] = normalize_form(s.words[i].form, c->forms_normalized[i - 1], true);
+    c->forms_string_pieces[i - 1] = normalize_form(s.words[i].form, c->forms_normalized[i - 1]);
 
   // Clear first
   for (size_t i = 1; i < s.words.size(); i++) {
@@ -91,8 +91,8 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
   c->tree.clear();
   for (size_t i = 1; i < s.words.size(); i++) {
     c->tree.add_node(string());
-    normalize_form(s.words[i].form, c->tree.nodes.back().form, false);
-    c->tree.nodes.back().lemma.assign(s.words[i].lemma);
+    normalize_form(s.words[i].form, c->tree.nodes.back().form);
+    normalize_lemma(s.words[i].lemma, c->tree.nodes.back().lemma);
     c->tree.nodes.back().upostag.assign(s.words[i].upostag);
     c->tree.nodes.back().xpostag.assign(s.words[i].xpostag);
     c->tree.nodes.back().feats.assign(s.words[i].feats);
@@ -196,18 +196,28 @@ void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma
   } else if (lemma == 2) {
     word.lemma.assign(analysis.lemma);
 
-    // Lemma matching ~replacement~original_form is changed to replacement.
+    // Lemma matching ~replacement~normalized_form is changed to replacement.
     if (analysis.lemma[0] == '~') {
       auto end = analysis.lemma.find('~', 1);
-      if (end != string::npos && analysis.lemma.compare(end + 1, string::npos, word.form) == 0)
-        word.lemma.assign(analysis.lemma, 1, end - 1);
+      if (end != string::npos) {
+        normalize_form(word.form, word.lemma);
+        if (analysis.lemma.compare(end + 1, string::npos, word.lemma) == 0)
+          word.lemma.assign(analysis.lemma, 1, end - 1);
+        else
+          word.lemma.assign(analysis.lemma);
+      }
     }
   }
-  if (version >= 2) {
+  if (version == 2) {
     // Replace '\001' back to spaces
     for (auto && chr : word.lemma)
       if (chr == '\001')
         chr = ' ';
+  } else if (version >= 3) {
+    // Replace '0xC2 0xA0' back to spaces
+    for (size_t i = 0; i + 1 < word.lemma.size(); i++)
+      if (word.lemma[i] == char(0xC2) && word.lemma[i+1] == char(0xA0))
+        word.lemma.replace(i, 2, 1, ' ');
   }
 
   if (!upostag && !xpostag && !feats) return;
@@ -231,13 +241,13 @@ void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma
   word.feats.assign(analysis.tag, start, analysis.tag.size() - start);
 }
 
-const string& model_morphodita_parsito::normalize_form(string_piece form, string& output, bool also_spaces) const {
+const string& model_morphodita_parsito::normalize_form(string_piece form, string& output) const {
   using unilib::utf8;
 
   // No normalization on version 1
   if (version <= 1) return output.assign(form.str, form.len);
 
-  // If requested, replace space by \001 since version 2.
+  // If requested, replace space by \001 in version 2 and by &nbsp; (\u00a0) since version 3
 
   // Arabic normalization since version 2, implementation resulted from
   // discussion with Otakar Smrz and Nasrin Taghizadeh.
@@ -289,8 +299,9 @@ const string& model_morphodita_parsito::normalize_form(string_piece form, string
     else if (chr == 0x6A9) utf8::append(output, 0x643);
     else if (chr == 0x6AA) utf8::append(output, 0x643);
     else if (chr == 0x6CC) utf8::append(output, 0x64A);
-    // Space normalization for tagger
-    else if (chr == ' ' && also_spaces) utf8::append(output, 0x01);
+    // Space normalization
+    else if (chr == ' ' && version == 2) utf8::append(output, 0x01);
+    else if (chr == ' ' && version >= 3) utf8::append(output, 0xA0);
     // Default
     else utf8::append(output, chr);
   }
@@ -298,6 +309,24 @@ const string& model_morphodita_parsito::normalize_form(string_piece form, string
   // Make sure we do not remove everything
   if (output.empty() && form.len)
     utf8::append(output, utf8::first(form.str, form.len));
+
+  return output;
+}
+
+const string& model_morphodita_parsito::normalize_lemma(string_piece lemma, string& output) const {
+  using unilib::utf8;
+
+  // No normalization on version 1 and 2
+  if (version <= 2) return output.assign(lemma.str, lemma.len);
+
+  // Normalize spaces by &nbsp; since version 3
+  output.clear();
+  for (size_t i = 0; i < lemma.len; i++) {
+    // Space normalization
+    if (lemma.str[i] == ' ') utf8::append(output, 0xA0);
+    // Default
+    else output.push_back(lemma.str[i]);
+  }
 
   return output;
 }

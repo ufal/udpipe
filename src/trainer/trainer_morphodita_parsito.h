@@ -36,7 +36,8 @@ class trainer_morphodita_parsito : public trainer {
   // Generic model methods
   enum model_type { TOKENIZER_MODEL, TAGGER_MODEL, PARSER_MODEL };
   static bool load_model(const string& data, model_type model, string_piece& range);
-  static const string& model_normalize_form(string_piece form, string& output, bool also_spaces);
+  static const string& model_normalize_form(string_piece form, string& output);
+  static const string& model_normalize_lemma(string_piece lemma, string& output);
   static void model_fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word);
 
   // Tagger-specific model methods

@@ -357,7 +357,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
         train_trees.emplace_back();
         for (size_t i = 1; i < tagged.words.size(); i++) {
           train_trees.back().add_node(string());
-          model_normalize_form(tagged.words[i].form, train_trees.back().nodes.back().form, false);
+          model_normalize_form(tagged.words[i].form, train_trees.back().nodes.back().form);
           train_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
           train_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
           train_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
@@ -376,7 +376,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
         heldout_trees.emplace_back();
         for (size_t i = 1; i < tagged.words.size(); i++) {
           heldout_trees.back().add_node(string());
-          model_normalize_form(tagged.words[i].form, heldout_trees.back().nodes.back().form, false);
+          model_normalize_form(tagged.words[i].form, heldout_trees.back().nodes.back().form);
           heldout_trees.back().nodes.back().lemma.assign(tagged.words[i].lemma);
           heldout_trees.back().nodes.back().upostag.assign(tagged.words[i].upostag);
           heldout_trees.back().nodes.back().xpostag.assign(tagged.words[i].xpostag);
@@ -447,8 +447,12 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
   return false;
 }
 
-const string& trainer_morphodita_parsito::model_normalize_form(string_piece form, string& output, bool also_spaces) {
-  return model_morphodita_parsito(model_morphodita_parsito::VERSION_LATEST).normalize_form(form, output, also_spaces);
+const string& trainer_morphodita_parsito::model_normalize_form(string_piece form, string& output) {
+  return model_morphodita_parsito(model_morphodita_parsito::VERSION_LATEST).normalize_form(form, output);
+}
+
+const string& trainer_morphodita_parsito::model_normalize_lemma(string_piece lemma, string& output) {
+  return model_morphodita_parsito(model_morphodita_parsito::VERSION_LATEST).normalize_lemma(lemma, output);
 }
 
 void trainer_morphodita_parsito::model_fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) {
@@ -529,7 +533,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
       stringstream guesser_input;
       for (auto&& sentence : training) {
         for (size_t i = 1; i < sentence.words.size(); i++)
-          guesser_input << model_normalize_form(sentence.words[i].form, normalized_form, true) << '\t'
+          guesser_input << model_normalize_form(sentence.words[i].form, normalized_form) << '\t'
               << combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas) << '\t'
               << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
         guesser_input << '\n';
@@ -546,7 +550,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
       string entry;
       for (auto&& sentence : training)
         for (size_t i = 1; i < sentence.words.size(); i++) {
-          model_normalize_form(sentence.words[i].form, normalized_form, true);
+          model_normalize_form(sentence.words[i].form, normalized_form);
           entry.assign(combine_lemma(sentence.words[i], use_lemma, combined_lemma, flat_lemmas))
               .append("\t").append(combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag))
               .append("\t").append(normalized_form);
@@ -588,7 +592,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
       vector<morphodita::tagged_lemma> analyses;
       for (auto&& sentence : training)
         for (size_t i = 1; i < sentence.words.size(); i++) {
-          const auto& form = model_normalize_form(sentence.words[i].form, normalized_form, true);
+          const auto& form = model_normalize_form(sentence.words[i].form, normalized_form);
           if (!analyzed_forms.count(form)) {
             guesser_only_morpho->analyze(form, morphodita::morpho::GUESSER, analyses);
 
@@ -633,7 +637,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     conllu_input_format->set_text(dictionary_accuracy.c_str());
     for (sentence sentence; conllu_input_format->next_sentence(sentence, error); )
       for (size_t i = 1; i < sentence.words.size(); i++) {
-        morpho->analyze(model_normalize_form(sentence.words[i].form, normalized_form, true), morphodita::morpho::GUESSER, analyses);
+        morpho->analyze(model_normalize_form(sentence.words[i].form, normalized_form), morphodita::morpho::GUESSER, analyses);
         unsigned upostag_ok = 0, xpostag_ok = 0, feats_ok = 0, all_tags_ok = 0, lemma_ok = 0;
         for (auto&& analysis : analyses) {
           w.lemma.assign("_");
@@ -683,7 +687,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
   stringstream input, heldout_input, feature_templates_input(tagger_feature_templates);
   for (auto&& sentence : training) {
     for (size_t i = 1; i < sentence.words.size(); i++)
-      input << model_normalize_form(sentence.words[i].form, normalized_form, true) << '\t'
+      input << model_normalize_form(sentence.words[i].form, normalized_form) << '\t'
           << combine_lemma(sentence.words[i], use_lemma, combined_lemma) << '\t'
           << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     input << '\n';
@@ -691,7 +695,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
 
   for (auto&& sentence : heldout) {
     for (size_t i = 1; i < sentence.words.size(); i++)
-      heldout_input << model_normalize_form(sentence.words[i].form, normalized_form, true) << '\t'
+      heldout_input << model_normalize_form(sentence.words[i].form, normalized_form) << '\t'
           << combine_lemma(sentence.words[i], use_lemma, combined_lemma) << '\t'
           << combine_tag(sentence.words[i], use_xpostag, use_feats, combined_tag) << '\n';
     heldout_input << '\n';
@@ -760,22 +764,25 @@ const string& trainer_morphodita_parsito::most_frequent_tag(const vector<sentenc
 const string& trainer_morphodita_parsito::combine_lemma(const word& w, int use_lemma, string& combined_lemma, const unordered_set<string>& flat_lemmas) {
   switch (use_lemma) {
     case 0:
-      return model_normalize_form(w.form, combined_lemma, true);
+      return model_normalize_form(w.form, combined_lemma);
     case 1:
-      if (flat_lemmas.count(w.lemma))
-        return model_normalize_form(w.form, combined_lemma, true);
-      else
-        return combined_lemma.assign(w.lemma), replace(combined_lemma.begin(), combined_lemma.end(), ' ', '\001'), combined_lemma;
+      model_normalize_lemma(w.lemma, combined_lemma);
+      if (flat_lemmas.count(w.lemma) || flat_lemmas.count(combined_lemma))
+        return model_normalize_form(w.form, combined_lemma);
+      return combined_lemma;
     default: /*2*/
       if (w.lemma == "")
-        return model_normalize_form(w.form, combined_lemma, true), combined_lemma.insert(0, "~~");
+        return model_normalize_form(w.form, combined_lemma), combined_lemma.insert(0, "~~");
       else if (w.lemma == "_")
-        return model_normalize_form(w.form, combined_lemma, true), combined_lemma.insert(0, "~_~");
-      else if (flat_lemmas.count(w.lemma))
-        return model_normalize_form(w.form, combined_lemma, true), combined_lemma.insert(0, "~").insert(0, w.lemma).insert(0, "~"),
-               replace(combined_lemma.begin(), combined_lemma.end(), ' ', '\001'), combined_lemma;
-      else
-        return combined_lemma.assign(w.lemma), replace(combined_lemma.begin(), combined_lemma.end(), ' ', '\001'), combined_lemma;
+        return model_normalize_form(w.form, combined_lemma), combined_lemma.insert(0, "~_~");
+
+      model_normalize_lemma(w.lemma, combined_lemma);
+      if (flat_lemmas.count(w.lemma) || flat_lemmas.count(combined_lemma)) {
+        string normalized_form;
+        model_normalize_form(w.form, normalized_form);
+        return combined_lemma.insert(0, "~").append("~").append(normalized_form);
+      }
+      return combined_lemma;
   }
 }
 
