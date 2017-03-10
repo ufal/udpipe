@@ -233,7 +233,8 @@ void evaluator::evaluation_data::add_sentence(const sentence& s) {
     tokens.emplace_back(chars.size(), chars.size());
     const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
     for (auto&& chr : unilib::utf8::decoder(form))
-      chars.push_back(chr);
+      if (chr != ' ')
+        chars.push_back(chr);
     tokens.back().second = chars.size();
 
     if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i)) {
