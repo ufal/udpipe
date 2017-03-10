@@ -30,6 +30,7 @@
 #include "tokenizer/multiword_splitter_trainer.h"
 #include "trainer.h"
 #include "trainer_morphodita_parsito.h"
+#include "unilib/unicode.h"
 #include "unilib/utf8.h"
 #include "utils/options.h"
 #include "utils/parse_double.h"
@@ -108,6 +109,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
 
         // Prepare training data for the gru_tokenizer
         vector<morphodita::tokenized_sentence> sentences;
+        bool spaces_in_training = false;
         for (size_t training_sentence = 0; training_sentence < training.size(); training_sentence++) {
           sentence s = training[training_sentence];
           if (detokenizer) detokenizer->detokenize(s);
@@ -118,8 +120,10 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
             const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
 
             sentence.tokens.emplace_back(sentence.sentence.size(), 0);
-            for (auto&& chr : unilib::utf8::decoder(form))
+            for (auto&& chr : unilib::utf8::decoder(form)) {
               sentence.sentence.push_back(chr);
+              if (unilib::unicode::category(chr) & unilib::unicode::Zs) spaces_in_training = true;
+            }
             sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
 
             const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
@@ -167,6 +171,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
         // Options
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
         int segment_size = 50; // if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
+        bool allow_spaces = spaces_in_training; if (!option_bool(tokenizer, "allow_spaces", allow_spaces, error)) return false;
         int dimension = 24; // if (!option_int(tokenizer, "dimension", dimension, error)) return false;
         int epochs = 100; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
         int batch_size = run <= 1 ? 50 : 50 + 50 * hyperparameter_integer(run, 1, 0, 1);
@@ -180,11 +185,13 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
 
         if (run >= 1) cerr << "Random search run " << run << ", batch_size=" << batch_size
                            << ", learning_rate=" << fixed << setprecision(8) << learning_rate << endl;
+        if (allow_spaces) cerr << "Allowing tokenizer to return spaces in tokens." << endl;
+
 
         // Train and encode gru_tokenizer
         os.put(morphodita::tokenizer_ids::GRU);
         if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0,
-                                                      segment_size, dimension, epochs, batch_size, learning_rate,
+                                                      segment_size, allow_spaces, dimension, epochs, batch_size, learning_rate,
                                                       learning_rate_final, dropout, initialization_range, early_stopping,
                                                       sentences, heldout_sentences, os, error))
           return false;
