@@ -27,11 +27,27 @@ class sentence {
   vector<string> comments;
   static const string root_form;
 
+  // Basic sentence modifications
   bool empty();
   void clear();
   word& add_word(string_piece form = string_piece());
   void set_head(int id, int head, const string& deprel);
   void unlink_all_words();
+
+  // CoNLL-U defined comments
+  bool get_new_doc(string& id) const;
+  void set_new_doc(bool new_doc, string_piece id = string_piece());
+  bool get_new_par(string& id) const;
+  void set_new_par(bool new_par, string_piece id = string_piece());
+  bool get_sent_id(string& id) const;
+  void set_sent_id(string_piece id);
+  bool get_text(string& text) const;
+  void set_text(string_piece text);
+
+ private:
+  bool get_comment(string_piece name, string& value) const;
+  void remove_comment(string_piece name);
+  void set_comment(string_piece name, string_piece value = string_piece());
 };
 
 } // namespace udpipe
