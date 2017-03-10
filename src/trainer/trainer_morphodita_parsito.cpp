@@ -175,6 +175,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
         if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
         double learning_rate_final = 0.0; // if (!option_double(tokenizer, "learning_rate_final", learning_rate_final, error)) return false;
         double dropout = 0.1; if (!option_double(tokenizer, "dropout", dropout, error)) return false;
+        double initialization_range = 0.5; if (!option_double(tokenizer, "initialization_range", initialization_range, error)) return false;
         bool early_stopping = !heldout_sentences.empty(); if (!option_bool(tokenizer, "early_stopping", early_stopping, error)) return false;
 
         if (run >= 1) cerr << "Random search run " << run << ", batch_size=" << batch_size
