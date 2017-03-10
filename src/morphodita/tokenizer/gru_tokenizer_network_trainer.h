@@ -398,7 +398,7 @@ void gru_tokenizer_network_trainer<D>::evaluate(unsigned url_email_tokenizer, un
     gold_sentences.emplace_back(text.size() + sentence.tokens.front().start, sentence.tokens.back().start + sentence.tokens.back().length - sentence.tokens.front().start);
     for (auto&& token : sentence.tokens)
       gold_tokens.emplace_back(text.size() + token.start, token.length);
-    text.append(sentence.sentence).push_back(' ');
+    text.append(sentence.sentence);
   }
 
   // Generate system data
