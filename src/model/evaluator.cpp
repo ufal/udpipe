@@ -60,7 +60,11 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
 
       // Detokenize the input when tokenizing
       if (tokenizer != NONE) {
-        bool previous_nospace = true;
+        string doc_par_id;
+        if (gold.get_new_doc(doc_par_id) || gold.get_new_par(doc_par_id))
+          if (!plain_text.empty())
+            plain_text.append(2, '\n');
+
         for (size_t i = 1, j = 0; i < gold.words.size(); i++) {
           const token& tok = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? (const token&)gold.multiword_tokens[j] : (const token&)gold.words[i];
           plain_text.append(tok.form);

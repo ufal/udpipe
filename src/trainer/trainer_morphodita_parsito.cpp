@@ -108,8 +108,8 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
 
         // Prepare training data for the gru_tokenizer
         vector<morphodita::tokenized_sentence> sentences;
-        for (auto&& training_sentence : training) {
-          sentence s = training_sentence;
+        for (size_t training_sentence = 0; training_sentence < training.size(); training_sentence++) {
+          sentence s = training[training_sentence];
           if (detokenizer) detokenizer->detokenize(s);
 
           auto& sentence = (sentences.emplace_back(), sentences.back());
@@ -128,14 +128,18 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
           }
+          string doc_par_id;
+          if (training_sentence + 1 < training.size() &&
+              (training[training_sentence + 1].get_new_doc(doc_par_id) || training[training_sentence + 1].get_new_par(doc_par_id)))
+            sentence.sentence.append(2, '\n');
         }
 
         // Heldout data
         vector<morphodita::tokenized_sentence> heldout_sentences;
 
         bool detokenize_handout = true; if (!option_bool(tokenizer, "detokenize_handout", detokenize_handout, error)) return false;
-        for (auto&& heldout_sentence : heldout) {
-          sentence s = heldout_sentence;
+        for (size_t heldout_sentence = 0; heldout_sentence < heldout.size(); heldout_sentence++) {
+          sentence s = heldout[heldout_sentence];
           if (detokenizer && detokenize_handout) detokenizer->detokenize(s);
 
           auto& sentence = (heldout_sentences.emplace_back(), heldout_sentences.back());
@@ -154,6 +158,10 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
           }
+          string doc_par_id;
+          if (heldout_sentence + 1 < heldout.size() &&
+              (heldout[heldout_sentence + 1].get_new_doc(doc_par_id) || heldout[heldout_sentence + 1].get_new_par(doc_par_id)))
+            sentence.sentence.append(2, '\n');
         }
 
         // Options
