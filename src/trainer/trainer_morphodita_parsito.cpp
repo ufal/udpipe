@@ -184,8 +184,8 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
         os.put(morphodita::tokenizer_ids::GRU);
         if (!morphodita::gru_tokenizer_trainer::train(tokenize_url ? morphodita::gru_tokenizer_trainer::URL_EMAIL_LATEST : 0,
                                                       segment_size, dimension, epochs, batch_size, learning_rate,
-                                                      learning_rate_final, dropout, early_stopping, sentences, heldout_sentences,
-                                                      os, error))
+                                                      learning_rate_final, dropout, initialization_range, early_stopping,
+                                                      sentences, heldout_sentences, os, error))
           return false;
       } else {
         return error.assign("Unknown tokenizer model '").append(model).append("'!"), false;

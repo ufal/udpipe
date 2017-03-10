@@ -32,8 +32,9 @@ template <int D>
 class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementation<D> {
  public:
   bool train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
-             float learning_rate, float learning_rate_final, float dropout, bool early_stopping,
-             const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error);
+             float learning_rate, float learning_rate_final, float dropout, float initialization_range,
+             bool early_stopping, const vector<tokenized_sentence>& data, const vector<tokenized_sentence>& heldout,
+             binary_encoder& enc, string& error);
 
  private:
   template <int R, int C> using matrix = gru_tokenizer_network::matrix<R, C>;
@@ -78,7 +79,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
 template <int D>
 bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsigned segment, unsigned epochs, unsigned batch_size,
                                              float learning_rate_initial, float learning_rate_final, float dropout,
-                                             bool early_stopping, const vector<tokenized_sentence>& data,
+                                             float initialization_range, bool early_stopping, const vector<tokenized_sentence>& data,
                                              const vector<tokenized_sentence>& heldout, binary_encoder& enc, string& error) {
   if (segment < 10) return error.assign("Segment size must be at least 10!"), false;
 
@@ -97,16 +98,16 @@ bool gru_tokenizer_network_trainer<D>::train(unsigned url_email_tokenizer, unsig
     for (auto&& chr : sentence.sentence)
       if (!this->embeddings.count(chr)) {
         cached_embedding embedding;
-        random_matrix(embedding.e, generator, 1.f, 0.f);
+        random_matrix(embedding.e, generator, initialization_range, 0.f);
         this->embeddings.emplace(chr, embedding);
       }
   this->empty_embedding.e.clear();
 
   // Initialize weights
-  random_gru(this->gru_fwd, generator, 1.f);
-  random_gru(this->gru_bwd, generator, 1.f);
-  random_matrix(this->projection_fwd, generator, 1.f, 0.f); this->projection_fwd.b[this->NO_SPLIT] = 1.f;
-  random_matrix(this->projection_bwd, generator, 1.f, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
+  random_gru(this->gru_fwd, generator, initialization_range);
+  random_gru(this->gru_bwd, generator, initialization_range);
+  random_matrix(this->projection_fwd, generator, initialization_range, 0.f); this->projection_fwd.b[this->NO_SPLIT] = 1.f;
+  random_matrix(this->projection_bwd, generator, initialization_range, 0.f); this->projection_bwd.b[this->NO_SPLIT] = 1.f;
 
   // Train the network
   unordered_map<char32_t, matrix_trainer<1, D>> embeddings;
