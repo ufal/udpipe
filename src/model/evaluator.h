@@ -73,8 +73,6 @@ class evaluator {
     static bool perfect_alignment(const evaluation_data& system, const evaluation_data& gold, word_alignment& alignment);
     static void best_alignment(const evaluation_data& system, const evaluation_data& gold, word_alignment& alignment);
   };
-
-  static const string space_after_no;
 };
 
 } // namespace udpipe

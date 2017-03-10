@@ -62,15 +62,15 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
       if (tokenizer != NONE) {
         bool previous_nospace = true;
         for (size_t i = 1, j = 0; i < gold.words.size(); i++) {
-          if (!previous_nospace) plain_text.push_back(' ');
-          plain_text.append(j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].form : gold.words[i].form);
-          const string& misc = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? gold.multiword_tokens[j].misc : gold.words[i].misc;
-          previous_nospace = misc.find(space_after_no) != string::npos;
-          space_after_nos += previous_nospace ? 1 : 0;
+          const token& tok = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? (const token&)gold.multiword_tokens[j] : (const token&)gold.words[i];
+          plain_text.append(tok.form);
+          if (tok.get_space_after())
+            plain_text.push_back(' ');
+          else
+            space_after_nos += 1;
           if (j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i))
             i = gold.multiword_tokens[j++].id_last;
         }
-        plain_text.push_back(' ');
       }
 
       // Goldtok data
@@ -329,8 +329,6 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
       }
     }
 }
-
-const string evaluator::space_after_no = "SpaceAfter=No";
 
 } // namespace udpipe
 } // namespace ufal
