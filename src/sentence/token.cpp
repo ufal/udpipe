@@ -103,12 +103,10 @@ void token::set_token_range(size_t start, size_t end) {
 }
 
 // Private MISC field helpers
-bool token::get_misc_field(const char* name, string_piece& value) const {
-  size_t name_len = strlen(name);
-
+bool token::get_misc_field(string_piece name, string_piece& value) const {
   for (size_t index = 0; index < misc.size(); ) {
-    if (misc.compare(index, name_len, name) == 0 && misc[index + name_len] == '=') {
-      index += name_len + 1;
+    if (misc.compare(index, name.len, name.str, name.len) == 0 && misc[index + name.len] == '=') {
+      index += name.len + 1;
       value.str = misc.c_str() + index;
       value.len = misc.find('|', index);
       value.len = (value.len == size_t(string::npos) ? misc.size() : value.len) - index;
@@ -120,12 +118,10 @@ bool token::get_misc_field(const char* name, string_piece& value) const {
   return false;
 }
 
-void token::remove_misc_field(const char* name) {
-  size_t name_len = strlen(name);
-
+void token::remove_misc_field(string_piece name) {
   for (size_t index = 0; index < misc.size(); )
-    if (misc.compare(index, name_len, name) == 0 && misc[index + name_len] == '=') {
-      size_t end_index = misc.find('|', index + name_len + 1);
+    if (misc.compare(index, name.len, name.str, name.len) == 0 && misc[index + name.len] == '=') {
+      size_t end_index = misc.find('|', index + name.len + 1);
       if (end_index == size_t(string::npos)) end_index = misc.size();
 
       // Be careful to delete at most one neighboring '|'
@@ -139,10 +135,10 @@ void token::remove_misc_field(const char* name) {
     }
 }
 
-string& token::start_misc_field(const char* name) {
+string& token::start_misc_field(string_piece name) {
   remove_misc_field(name);
   if (!misc.empty()) misc.push_back('|');
-  misc.append(name).push_back('=');
+  misc.append(name.str, name.len).push_back('=');
   return misc;
 }
 

@@ -40,9 +40,9 @@ class token {
   void set_token_range(size_t start, size_t end);
 
  private:
-  bool get_misc_field(const char* name, string_piece& value) const;
-  void remove_misc_field(const char* name);
-  string& start_misc_field(const char* name);
+  bool get_misc_field(string_piece name, string_piece& value) const;
+  void remove_misc_field(string_piece name);
+  string& start_misc_field(string_piece name);
 
   void append_escaped_spaces(string_piece spaces, string& escaped_spaces) const;
   void unescape_spaces(string_piece escaped_spaces, string& spaces) const;
