@@ -410,6 +410,16 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
 
   char version;
   if (!is.get(version)) return false;
+  if (!(version >= 1 && version <= model_morphodita_parsito::VERSION_LATEST)) return false;
+
+  // Because UDPipe 1.0 does not check the model version,
+  // a specific sentinel was added since version 2 so that
+  // loading of such model fail on UDPipe 1.0
+  if (version >= 2) {
+    char sentinel;
+    if (!is.get(sentinel) || sentinel != 0x7F) return false;
+    if (!is.get(sentinel) || sentinel != 0x7F) return false;
+  }
 
   // Tokenizer
   {
