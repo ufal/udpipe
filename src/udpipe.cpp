@@ -15,6 +15,8 @@
 #include "model/model.h"
 #include "model/pipeline.h"
 #include "sentence/input_format.h"
+#include "sentence/output_format.h"
+#include "tokenizer/detokenizer.h"
 #include "trainer/trainer.h"
 #include "utils/getpara.h"
 #include "utils/iostreams.h"
@@ -42,6 +44,7 @@ int main(int argc, char* argv[]) {
 
   options::map options;
   if (!options::parse({{"accuracy", options::value::none},
+                       {"detokenize", options::value::none},
                        {"method", options::value{"morphodita_parsito"}},
                        {"heldout", options::value::any},
                        {"input", options::value::any},
@@ -58,28 +61,31 @@ int main(int argc, char* argv[]) {
                        {"help", options::value::none}}, argc, argv, options) ||
       options.count("help") ||
       (argc < 2 && !options.count("version")))
-    runtime_failure("Usage: " << argv[0] << " --train [training_options] model_file [input_files]\n"
-                    "       " << argv[0] << " [running_options] model_file [input_files]\n"
-                    "Running options: --accuracy (measure accuracy only)\n"
-                    "                 --input=[conllu|horizontal|vertical]\n"
-                    "                 --outfile=output file template\n"
-                    "                 --output=[conllu|matxin|horizontal|vertical]\n"
-                    "                 --tokenize (perform tokenization)\n"
-                    "                 --tokenizer=tokenizer options, implies --tokenize\n"
-                    "                 --tag (perform tagging)\n"
-                    "                 --tagger=tagger options, implies --tag\n"
-                    "                 --parse (perform parsing)\n"
-                    "                 --parser=parser options, implies --parse\n"
-                    "Training options: --method=[morphodita_parsito] which method to use\n"
-                    "                  --heldout=heldout data file name\n"
-                    "                  --tokenizer=tokenizer options\n"
-                    "                  --tagger=tagger options\n"
-                    "                  --parser=parser options\n"
-                    "Generic options: --version\n"
-                    "                 --help");
+    runtime_failure("Usage: " << argv[0] << " [running_opts] model_file [input_files]\n"
+                    "       " << argv[0] << " --train [training_opts] model_file [input_files]\n"
+                    "       " << argv[0] << " --detokenize [detokenize_opts] raw_text_file [input_files]\n"
+                    "Running opts: --accuracy (measure accuracy only)\n"
+                    "              --input=[conllu|horizontal|vertical]\n"
+                    "              --outfile=output file template\n"
+                    "              --output=[conllu|matxin|horizontal|vertical]\n"
+                    "              --tokenize (perform tokenization)\n"
+                    "              --tokenizer=tokenizer options, implies --tokenize\n"
+                    "              --tag (perform tagging)\n"
+                    "              --tagger=tagger options, implies --tag\n"
+                    "              --parse (perform parsing)\n"
+                    "              --parser=parser options, implies --parse\n"
+                    "Training opts: --method=[morphodita_parsito] which method to use\n"
+                    "               --heldout=heldout data file name\n"
+                    "               --tokenizer=tokenizer options\n"
+                    "               --tagger=tagger options\n"
+                    "               --parser=parser options\n"
+                    "Detokenize opts: --outfile=output file template\n"
+                    "Generic opts: --version\n"
+                    "              --help");
   if (options.count("version"))
     return cout << version::version_and_copyright() << endl, 0;
 
+  // TRAINING
   if (options.count("train")) {
     string error;
 
@@ -114,7 +120,38 @@ int main(int argc, char* argv[]) {
     if (!trainer::train(method, training, heldout, options["tokenizer"], options["tagger"], options["parser"], model, error))
       runtime_failure("An error occurred during model training: " << error);
     cerr << "The trained UDPipe model was saved." << endl;
-  } else {
+  } else
+  // DETOKENIZE
+  if (options.count("detokenize")) {
+    // Detokenize CoNLL-U files
+    ifstream raw_text_file(argv[1]);
+    if (!raw_text_file.is_open()) runtime_failure("Cannot load raw text from file '" << argv[1] << "'.");
+
+    string raw_text;
+    for (char c; raw_text_file.get(c); )
+      raw_text.push_back(c);
+    raw_text_file.close();
+
+    detokenizer detokenizer(raw_text);
+    process_args_with_output_template(2, argc, argv, options["outfile"], [&detokenizer](istream& is, ostream& os) {
+      unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
+      unique_ptr<output_format> conllu_output(output_format::new_conllu_output_format());
+
+      sentence s;
+      string block, error;
+      while (conllu_input->read_block(is, block)) {
+        conllu_input->set_text(block);
+        while (conllu_input->next_sentence(s, error)) {
+          detokenizer.detokenize(s);
+          conllu_output->write_sentence(s, os);
+        }
+        if (!error.empty()) runtime_failure("An error occurred during UDPipe execution: " << error);
+      }
+      conllu_output->finish_document(os);
+    });
+  } else
+  // RUN
+  {
     // Load the model if needed
     unique_ptr<model> model;
     if (options.count("tokenizer") || options.count("tokenize") ||
