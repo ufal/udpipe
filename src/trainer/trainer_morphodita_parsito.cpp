@@ -427,6 +427,7 @@ bool trainer_morphodita_parsito::load_model(const string& data, model_type model
     char tokenizer; if (!is.get(tokenizer)) return false;
     unique_ptr<morphodita::tokenizer_factory> tokenizer_factory(tokenizer ? morphodita::tokenizer_factory::load(is) : nullptr);
     if (tokenizer && !tokenizer_factory) return false;
+    unique_ptr<multiword_splitter> splitter(tokenizer ? multiword_splitter::load(is) : nullptr);
     if (model == TOKENIZER_MODEL) return range.len = is.tellg() - streampos(range.str - data.data()), true;
   }
 
