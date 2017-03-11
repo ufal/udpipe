@@ -16,44 +16,32 @@
 namespace ufal {
 namespace udpipe {
 
-const string detokenizer::space_after_no = "SpaceAfter=No";
-
 detokenizer::detokenizer(const string& plain_text)
     : data_lowercased(perform_lowercase(plain_text)), data_categorized(perform_categorize(plain_text)),
     sa_lowercased(data_lowercased), sa_categorized(data_categorized) {}
 
 void detokenizer::detokenize(sentence& s) const {
-  string* previous_form = nullptr, *previous_misc = nullptr;
+  token* previous_tok = nullptr;
   for (size_t i = 1, j = 0; i < s.words.size(); i++) {
-    string* form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? &s.multiword_tokens[j].form : &s.words[i].form;
-    string* misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? &s.multiword_tokens[j].misc : &s.words[i].misc;
+    token* tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (token*)&s.multiword_tokens[j] : (token*)&s.words[i];
 
-    if (previous_form) {
+    if (previous_tok) {
       // Should we add SpaceAfter=No to the previous form?
-      int score = difference(*previous_form, *form, true, LOWERCASE);
-      if (!score) score = has_letters(*previous_form) && has_letters(*form) ? -1 : 0;
-      if (!score) score = only_digits(*previous_form) && only_digits(*form) ? -1 : 0;
-      if (!score) score = difference(*previous_form, *form, false, LOWERCASE);
-      if (!score) score = difference(*previous_form, *form, false, CATEGORIZE);
-      if (!score) score = difference(*previous_form, *form, true, CATEGORIZE);
+      int score = difference(previous_tok->form, tok->form, true, LOWERCASE);
+      if (!score) score = has_letters(previous_tok->form) && has_letters(tok->form) ? -1 : 0;
+      if (!score) score = only_digits(previous_tok->form) && only_digits(tok->form) ? -1 : 0;
+      if (!score) score = difference(previous_tok->form, tok->form, false, LOWERCASE);
+      if (!score) score = difference(previous_tok->form, tok->form, false, CATEGORIZE);
+      if (!score) score = difference(previous_tok->form, tok->form, true, CATEGORIZE);
 
       if (score > 0)
-        previous_misc->append(!previous_misc->empty() ? "|" : "").append(space_after_no);
+        previous_tok->set_space_after(false);
     }
 
-    // Remove the SpaceAfter attribute if present
-    auto nospace_index = misc->find(space_after_no);
-    if (nospace_index != string::npos) {
-      auto length = space_after_no.size();
-      if (nospace_index > 0 && misc->at(nospace_index-1) == '|')
-        nospace_index--, length++;
-      else if (nospace_index + length < misc->size() && misc->at(nospace_index + length) == '|')
-        length++;
-      misc->replace(nospace_index, length, "");
-    }
+    // Remove the SpaceAfter attribute on current token
+    tok->set_space_after(true);
+    previous_tok = tok;
 
-    previous_form = form;
-    previous_misc = misc;
     if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
       i = s.multiword_tokens[j++].id_last;
   }

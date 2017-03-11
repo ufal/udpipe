@@ -66,8 +66,6 @@ class detokenizer {
 
   string data_lowercased, data_categorized;
   suffix_array sa_lowercased, sa_categorized;
-
-  static const string space_after_no;
 };
 
 } // namespace udpipe
