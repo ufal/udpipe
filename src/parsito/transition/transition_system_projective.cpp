@@ -26,25 +26,29 @@ transition_system_projective::transition_system_projective(const vector<string>&
 // Static oracle
 class transition_system_projective_oracle_static : public transition_oracle {
  public:
-  transition_system_projective_oracle_static(const vector<string>& labels) : labels(labels) {}
+  transition_system_projective_oracle_static(const vector<string>& labels) : labels(labels) {
+    for (root_label = 0; root_label < labels.size(); root_label++) if (labels[root_label] == "root") break;
+  }
 
   class tree_oracle_static : public transition_oracle::tree_oracle {
    public:
-    tree_oracle_static(const vector<string>& labels, const tree& gold) : labels(labels), gold(gold) {}
+    tree_oracle_static(const vector<string>& labels, unsigned root_label, const tree& gold) : labels(labels), root_label(root_label), gold(gold) {}
     virtual predicted_transition predict(const configuration& conf, unsigned network_outcome, unsigned iteration) const override;
     virtual void interesting_transitions(const configuration& conf, vector<unsigned>& transitions) const override;
    private:
     const vector<string>& labels;
+    unsigned root_label;
     const tree& gold;
   };
 
   virtual unique_ptr<tree_oracle> create_tree_oracle(const tree& gold) const override;
  private:
   const vector<string>& labels;
+  unsigned root_label;
 };
 
 unique_ptr<transition_oracle::tree_oracle> transition_system_projective_oracle_static::create_tree_oracle(const tree& gold) const {
-  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, gold));
+  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, root_label, gold));
 }
 
 void transition_system_projective_oracle_static::tree_oracle_static::interesting_transitions(const configuration& conf, vector<unsigned>& transitions) const {
@@ -55,7 +59,10 @@ void transition_system_projective_oracle_static::tree_oracle_static::interesting
       int child = conf.stack[conf.stack.size() - 2 + direction];
       for (size_t i = 0; i < labels.size(); i++)
         if (gold.nodes[child].deprel == labels[i])
-          transitions.push_back(1 + 2*i + direction);
+          if (!conf.single_root ||
+              (i == root_label && conf.stack.size() == 2 && conf.buffer.empty() && direction == 1) ||
+              (i != root_label && conf.stack.size() > 2))
+            transitions.push_back(1 + 2*i + direction);
     }
 }
 
@@ -94,11 +101,13 @@ transition_oracle::predicted_transition transition_system_projective_oracle_stat
 // Dynamic oracle
 class transition_system_projective_oracle_dynamic : public transition_oracle {
  public:
-  transition_system_projective_oracle_dynamic(const vector<string>& labels) : labels(labels) {}
+  transition_system_projective_oracle_dynamic(const vector<string>& labels) : labels(labels) {
+    for (root_label = 0; root_label < labels.size(); root_label++) if (labels[root_label] == "root") break;
+  }
 
   class tree_oracle_dynamic : public transition_oracle::tree_oracle {
    public:
-    tree_oracle_dynamic(const vector<string>& labels, const tree& gold) : labels(labels), gold(gold), oracle_static(labels, gold) {}
+    tree_oracle_dynamic(const vector<string>& labels, unsigned root_label, const tree& gold) : labels(labels), gold(gold), oracle_static(labels, root_label, gold) {}
     virtual predicted_transition predict(const configuration& conf, unsigned network_outcome, unsigned iteration) const override;
     virtual void interesting_transitions(const configuration& conf, vector<unsigned>& transitions) const override;
    private:
@@ -110,22 +119,15 @@ class transition_system_projective_oracle_dynamic : public transition_oracle {
   virtual unique_ptr<tree_oracle> create_tree_oracle(const tree& gold) const override;
  private:
   const vector<string>& labels;
+  unsigned root_label;
 };
 
 unique_ptr<transition_oracle::tree_oracle> transition_system_projective_oracle_dynamic::create_tree_oracle(const tree& gold) const {
-  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_dynamic(labels, gold));
+  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_dynamic(labels, root_label, gold));
 }
 
 void transition_system_projective_oracle_dynamic::tree_oracle_dynamic::interesting_transitions(const configuration& conf, vector<unsigned>& transitions) const {
-  transitions.clear();
-  if (!conf.buffer.empty()) transitions.push_back(0);
-  if (conf.stack.size() >= 2)
-    for (int direction = 0; direction < 2; direction++) {
-      int child = conf.stack[conf.stack.size() - 2 + direction];
-      for (size_t i = 0; i < labels.size(); i++)
-        if (gold.nodes[child].deprel == labels[i])
-          transitions.push_back(1 + 2*i + direction);
-    }
+  oracle_static.interesting_transitions(conf, transitions);
 }
 
 transition_oracle::predicted_transition transition_system_projective_oracle_dynamic::tree_oracle_dynamic::predict(const configuration& conf, unsigned network_outcome, unsigned iteration) const {

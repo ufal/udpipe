@@ -25,16 +25,19 @@ transition_system_swap::transition_system_swap(const vector<string>& labels) : t
 // Static oracle
 class transition_system_swap_oracle_static : public transition_oracle {
  public:
-  transition_system_swap_oracle_static(const vector<string>& labels, bool lazy) : labels(labels), lazy(lazy) {}
+  transition_system_swap_oracle_static(const vector<string>& labels, bool lazy) : labels(labels), lazy(lazy) {
+    for (root_label = 0; root_label < labels.size(); root_label++) if (labels[root_label] == "root") break;
+  }
 
   class tree_oracle_static : public transition_oracle::tree_oracle {
    public:
-    tree_oracle_static(const vector<string>& labels, const tree& gold, vector<int>&& projective_order, vector<int>&& projective_components)
-        : labels(labels), gold(gold), projective_order(projective_order), projective_components(projective_components) {}
+    tree_oracle_static(const vector<string>& labels, unsigned root_label, const tree& gold, vector<int>&& projective_order, vector<int>&& projective_components)
+        : labels(labels), root_label(root_label), gold(gold), projective_order(projective_order), projective_components(projective_components) {}
     virtual predicted_transition predict(const configuration& conf, unsigned network_outcome, unsigned iteration) const override;
     virtual void interesting_transitions(const configuration& conf, vector<unsigned>& transitions) const override;
    private:
     const vector<string>& labels;
+    unsigned root_label;
     const tree& gold;
     const vector<int> projective_order;
     const vector<int> projective_components;
@@ -47,6 +50,7 @@ class transition_system_swap_oracle_static : public transition_oracle {
 
   const vector<string>& labels;
   bool lazy;
+  unsigned root_label;
 };
 
 unique_ptr<transition_oracle::tree_oracle> transition_system_swap_oracle_static::create_tree_oracle(const tree& gold) const {
@@ -56,7 +60,7 @@ unique_ptr<transition_oracle::tree_oracle> transition_system_swap_oracle_static:
 
   vector<int> projective_components;
   if (lazy) {
-    tree_oracle_static projective_oracle(labels, gold, vector<int>(), vector<int>());
+    tree_oracle_static projective_oracle(labels, root_label, gold, vector<int>(), vector<int>());
     configuration conf(false);
     tree t = gold;
     transition_system_swap system(labels);
@@ -74,7 +78,7 @@ unique_ptr<transition_oracle::tree_oracle> transition_system_swap_oracle_static:
         create_projective_component(t, node, projective_components, node);
   }
 
-  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, gold, move(projective_order), move(projective_components)));
+  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, root_label, gold, move(projective_order), move(projective_components)));
 }
 
 void transition_system_swap_oracle_static::create_projective_order(const tree& gold, int node, vector<int>& projective_order, int& projective_index) const {
@@ -111,7 +115,10 @@ void transition_system_swap_oracle_static::tree_oracle_static::interesting_trans
       int child = conf.stack[conf.stack.size() - 2 + direction];
       for (size_t i = 0; i < labels.size(); i++)
         if (gold.nodes[child].deprel == labels[i])
-          transitions.push_back(2 + 2*i + direction);
+          if (!conf.single_root ||
+              (i == root_label && conf.stack.size() == 2 && conf.buffer.empty() && direction == 1) ||
+              (i != root_label && conf.stack.size() > 2))
+            transitions.push_back(2 + 2*i + direction);
     }
   }
 }
