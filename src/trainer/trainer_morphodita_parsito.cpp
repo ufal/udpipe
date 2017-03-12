@@ -391,7 +391,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
 
       // Train the parser
       binary_encoder enc;
-      enc.add_str("nn");
+      enc.add_str("nn_versioned");
       parsito::parser_nn_trainer::train(transition_system, transition_oracle, single_root, embeddings, parser_nodes,
                                         parameters, 1, train_trees, heldout_trees, enc);
       compressor::save(os, enc);
