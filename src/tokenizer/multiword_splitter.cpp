@@ -72,7 +72,14 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
   // Fill the multiword token
   s.multiword_tokens.emplace_back(s.words.back().id, s.words.back().id + it->second.words.size() - 1, token, misc);
 
-  s.words.back().form.assign(token.str, prefix_len);
+  s.words.back().form.clear();
+  if (prefix_len) {
+    // Note that prefix_len is measured in byte length of lowercased characters
+    string_piece suffix(token);
+    while (s.words.back().form.size() < prefix_len && suffix.len)
+      utf8::append(s.words.back().form, unicode::lowercase(utf8::decode(suffix.str, suffix.len)));
+    s.words.back().form.assign(token.str, token.len - suffix.len);
+  }
   for (auto&& chr : utf8::decoder(it->second.words[0]))
     utf8::append(s.words.back().form, casing == UC_ALL || (casing == UC_FIRST && s.words.back().form.empty()) ? unicode::uppercase(chr) : chr);
 
