@@ -25,14 +25,39 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
   s.add_word();
   string& buffer = s.words.back().form;
 
-  // Try finding lowercased version in the suffixes
+  // Lowercase the token
   utf8::map(unicode::lowercase, token.str, token.len, buffer);
   reverse(buffer.begin(), buffer.end());
-  auto it = suffixes.find(buffer);
-  if (it == suffixes.end() || it->second.words.empty()) {
-    s.words.back().form.assign(token.str, token.len);
-    if (misc.len) s.words.back().misc.assign(misc.str, misc.len);
-    return;
+
+  // Try finding lowercased version in the full_rules
+  size_t prefix_len = 0;
+  auto it = full_rules.find(buffer);
+
+  if (it == full_rules.end()) {
+    if (version >= 2) {
+      string& suffix = s.words.back().misc;
+      // Try searching suffix_rules if needed
+      while (suffix.size() + 1 < buffer.size()) {
+        suffix.push_back(buffer[suffix.size()]);
+
+        auto suffix_it = suffix_rules.find(suffix);
+        if (suffix_it == suffix_rules.end())
+          break;
+
+        if (!suffix_it->second.words.empty()) {
+          it = suffix_it;
+          prefix_len = buffer.size() - suffix.size();
+        }
+      }
+      suffix.clear();
+    }
+
+    if (!prefix_len) {
+      // No match
+      s.words.back().form.assign(token.str, token.len);
+      if (misc.len) s.words.back().misc.assign(misc.str, misc.len);
+      return;
+    }
   }
 
   // Determine casing
@@ -41,21 +66,16 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
   if (unicode::category(utf8::first(token.str, token.len)) & unicode::Lut) {
     casing = UC_ALL;
     for (auto&& chr : utf8::decoder(token.str, token.len))
-      if (unicode::category(chr) & ~unicode::Lut) { casing = UC_FIRST; break; }
+      if (unicode::category(chr) & (unicode::L & ~unicode::Lut)) { casing = UC_FIRST; break; }
   }
 
   // Fill the multiword token
   s.multiword_tokens.emplace_back(s.words.back().id, s.words.back().id + it->second.words.size() - 1, token, misc);
 
-  if (casing == OTHER) {
-    s.words.back().form.assign(it->second.words[0]);
-  } else if (casing == UC_ALL) {
-    utf8::map(unicode::uppercase, it->second.words[0], s.words.back().form);
-  } else /*if (casing == UC_FIRST)*/ {
-    s.words.back().form.clear();
-    for (auto&& chr : utf8::decoder(it->second.words[0]))
-      utf8::append(s.words.back().form, s.words.back().form.empty() ? unicode::uppercase(chr) : chr);
-  }
+  s.words.back().form.assign(token.str, prefix_len);
+  for (auto&& chr : utf8::decoder(it->second.words[0]))
+    utf8::append(s.words.back().form, casing == UC_ALL || (casing == UC_FIRST && s.words.back().form.empty()) ? unicode::uppercase(chr) : chr);
+
   for (size_t i = 1; i < it->second.words.size(); i++)
     if (casing != UC_ALL) {
       s.add_word(it->second.words[i]);
@@ -68,30 +88,46 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
 multiword_splitter* multiword_splitter::load(istream& is) {
   char version;
   if (!is.get(version)) return nullptr;
+  if (!(version >= 1 && version <= VERSION_LATEST)) return nullptr;
 
   binary_decoder data;
   if (!compressor::load(is, data)) return nullptr;
 
-  unique_ptr<multiword_splitter> splitter(new multiword_splitter());
+  unique_ptr<multiword_splitter> splitter(new multiword_splitter(version));
   try {
-    for (unsigned suffixes = data.next_4B(); suffixes; suffixes--) {
-      string suffix;
-      data.next_str(suffix);
-      reverse(suffix.begin(), suffix.end());
+    for (unsigned full_rules = data.next_4B(); full_rules; full_rules--) {
+      string full_rule;
+      data.next_str(full_rule);
+      reverse(full_rule.begin(), full_rule.end());
 
-      // Add the suffix and its words
-      auto& info = splitter->suffixes[suffix];
+      // Add the full_rule and its words
+      auto& info = splitter->full_rules[full_rule];
       for (unsigned words = data.next_1B(); words; words--) {
         info.words.emplace_back();
         data.next_str(info.words.back());
       }
       if (info.words.empty()) return nullptr;
-
-      // Add prefixes of the suffix with empty data
-      if (!suffix.empty())
-        for (suffix.pop_back(); !suffix.empty(); suffix.pop_back())
-          splitter->suffixes[suffix];
     }
+
+    if (version >= 2)
+      for (unsigned suffix_rules = data.next_4B(); suffix_rules; suffix_rules--) {
+        string suffix_rule;
+        data.next_str(suffix_rule);
+        reverse(suffix_rule.begin(), suffix_rule.end());
+
+        // Add the suffix_rule and its words
+        auto& info = splitter->suffix_rules[suffix_rule];
+        for (unsigned words = data.next_1B(); words; words--) {
+          info.words.emplace_back();
+          data.next_str(info.words.back());
+        }
+        if (info.words.empty()) return nullptr;
+
+        // Add prefixes of the suffix with empty data
+        if (!suffix_rule.empty())
+          for (suffix_rule.pop_back(); !suffix_rule.empty(); suffix_rule.pop_back())
+            splitter->suffix_rules[suffix_rule];
+      }
   } catch (binary_decoder_error&) {
     return nullptr;
   }

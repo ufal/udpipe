@@ -25,10 +25,15 @@ class multiword_splitter {
   static multiword_splitter* load(istream& is);
 
  private:
+  multiword_splitter(unsigned version) : version(version) {}
+  unsigned version;
+  enum { VERSION_LATEST = 2 };
+  friend class multiword_splitter_trainer;
+
   struct suffix_info {
     vector<string> words;
   };
-  unordered_map<string, suffix_info> suffixes;
+  unordered_map<string, suffix_info> full_rules, suffix_rules;
 };
 
 } // namespace udpipe
