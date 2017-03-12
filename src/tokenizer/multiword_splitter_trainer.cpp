@@ -67,7 +67,7 @@ bool multiword_splitter_trainer::train(const vector<sentence>& data, ostream& os
     size_t prefix_match = 0;
     while (prefix_match < full_rule.first.size() && prefix_match < full_rule.second.words[0].size()) prefix_match++;
     for (; prefix_match; prefix_match--)
-      if (((unsigned char)full_rule.first[prefix_match]) <= 0x80 || ((unsigned char)full_rule.first[prefix_match]) >= 0xC0) {
+      if (((unsigned char)full_rule.first[prefix_match]) < 0x80 || ((unsigned char)full_rule.first[prefix_match]) >= 0xC0) {
         lc_form.assign(full_rule.first, prefix_match, string::npos);
         lc_words.assign(full_rule.second.words.begin(), full_rule.second.words.end());
         lc_words[0].erase(0, prefix_match);
