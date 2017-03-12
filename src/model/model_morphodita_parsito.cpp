@@ -177,10 +177,14 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
     }
 
     // Fill "# text" comment
-    s.comments.emplace_back("# text =");
-    for (unsigned i = 1; i < s.words.size(); i++) {
-      if (i == 1 || s.words[i-1].get_space_after()) s.comments.back().push_back(' ');
-      s.comments.back().append(s.words[i].form);
+    s.comments.emplace_back("# text = ");
+    for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+      const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j].form : (const token&)s.words[i].form;
+      if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+        i = s.multiword_tokens[j++].id_last;
+
+      s.comments.back().append(tok.form);
+      if (i+1 < s.words.size() && tok.get_space_after()) s.comments.back().push_back(' ');
     }
 
     return true;
