@@ -26,6 +26,8 @@ namespace parsito {
 
 class parser_nn : public parser {
  public:
+  parser_nn(bool versioned);
+
   virtual void parse(tree& t, unsigned beam_size = 0) const override;
 
  protected:
@@ -35,6 +37,11 @@ class parser_nn : public parser {
   friend class parser_nn_trainer;
   void parse_greedy(tree& t) const;
   void parse_beam_search(tree& t, unsigned beam_size) const;
+
+  bool versioned;
+  unsigned version;
+  bool single_root;
+  enum { VERSION_LATEST = 2 };
 
   vector<string> labels;
   unique_ptr<transition_system> system;
@@ -48,6 +55,8 @@ class parser_nn : public parser {
   neural_network::embeddings_cache embeddings_cache;
 
   struct workspace {
+    workspace(bool single_root) : conf(single_root) {}
+
     configuration conf;
 
     string word, word_buffer;
@@ -61,6 +70,8 @@ class parser_nn : public parser {
 
     // Beam-size structures
     struct beam_size_configuration {
+      beam_size_configuration(bool single_root) : conf(single_root) {}
+
       configuration conf;
       vector<int> heads;
       vector<string> deprels;

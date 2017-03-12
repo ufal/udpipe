@@ -1,5 +1,11 @@
 Version 1.1.1-devel
 -------------------
+- Add Adam optimizer.
+- Add ReLU activation.
+  - The created models not supported by older versions.
+- Fix dropout implementation.
+- Add Xavier initialization.
+- Add single_root option.
 
 
 Version 1.1.0 [04 Jan 2016]

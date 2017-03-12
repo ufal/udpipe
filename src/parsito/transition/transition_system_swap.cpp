@@ -57,7 +57,7 @@ unique_ptr<transition_oracle::tree_oracle> transition_system_swap_oracle_static:
   vector<int> projective_components;
   if (lazy) {
     tree_oracle_static projective_oracle(labels, gold, vector<int>(), vector<int>());
-    configuration conf;
+    configuration conf(false);
     tree t = gold;
     transition_system_swap system(labels);
 

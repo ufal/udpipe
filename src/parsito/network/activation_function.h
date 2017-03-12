@@ -17,11 +17,12 @@ namespace udpipe {
 namespace parsito {
 
 struct activation_function {
-  enum type { TANH = 0, CUBIC = 1 };
+  enum type { TANH = 0, CUBIC = 1, RELU = 2 };
 
   static bool create(string_piece name, type& activation) {
     if (name == "tanh") return activation = TANH, true;
     if (name == "cubic") return activation = CUBIC, true;
+    if (name == "relu") return activation = RELU, true;
     return false;
   }
 };

@@ -29,22 +29,24 @@ class transition {
 // Specific transition classes
 class transition_left_arc : public transition {
  public:
-  transition_left_arc(const string& label) : label(label) {}
+  transition_left_arc(const string& label) : label(label), label_is_root(label == "root") {}
 
   virtual bool applicable(const configuration& conf) const override;
   virtual int perform(configuration& conf) const override;
  private:
   string label;
+  bool label_is_root;
 };
 
 class transition_right_arc : public transition {
  public:
-  transition_right_arc(const string& label) : label(label) {}
+  transition_right_arc(const string& label) : label(label), label_is_root(label == "root") {}
 
   virtual bool applicable(const configuration& conf) const override;
   virtual int perform(configuration& conf) const override;
  private:
   string label;
+  bool label_is_root;
 };
 
 class transition_shift : public transition {
@@ -61,22 +63,24 @@ class transition_swap : public transition {
 
 class transition_left_arc_2 : public transition {
  public:
-  transition_left_arc_2(const string& label) : label(label) {}
+  transition_left_arc_2(const string& label) : label(label), label_is_root(label == "root") {}
 
   virtual bool applicable(const configuration& conf) const override;
   virtual int perform(configuration& conf) const override;
  private:
   string label;
+  bool label_is_root;
 };
 
 class transition_right_arc_2 : public transition {
  public:
-  transition_right_arc_2(const string& label) : label(label) {}
+  transition_right_arc_2(const string& label) : label(label), label_is_root(label == "root") {}
 
   virtual bool applicable(const configuration& conf) const override;
   virtual int perform(configuration& conf) const override;
  private:
   string label;
+  bool label_is_root;
 };
 
 } // namespace parsito

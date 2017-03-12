@@ -20,7 +20,7 @@ namespace parsito {
 
 class parser_nn_trainer {
  public:
-  static void train(const string& transition_system_name, const string& transition_oracle_name,
+  static void train(const string& transition_system_name, const string& transition_oracle_name, bool single_root,
                     const string& embeddings_description, const string& nodes_description, const network_parameters& parameters,
                     unsigned number_of_threads, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc);
 };

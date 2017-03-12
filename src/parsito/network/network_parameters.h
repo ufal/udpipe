@@ -22,11 +22,12 @@ struct network_trainer {
     SGD_MOMENTUM,
     ADAGRAD,
     ADADELTA,
+    ADAM,
   };
 
   network_trainer_algorithm algorithm;
   float learning_rate, learning_rate_final;
-  float momentum;
+  float momentum, momentum2;
   float epsilon;
 };
 
@@ -42,6 +43,7 @@ struct network_parameters {
   float l2_regularization;
   float maxnorm_regularization;
   float dropout_hidden, dropout_input;
+  bool early_stopping;
 };
 
 } // namespace parsito

@@ -45,7 +45,8 @@ parser* parser::load(istream& in, unsigned cache) {
 }
 
 parser* parser::create(const string& name) {
-  if (name == "nn") return new parser_nn();
+  if (name == "nn") return new parser_nn(false);
+  if (name == "nn_versioned") return new parser_nn(true);
   return nullptr;
 }
 

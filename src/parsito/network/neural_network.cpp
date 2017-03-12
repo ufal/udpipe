@@ -81,6 +81,10 @@ void neural_network::propagate(const vector<embedding>& embeddings, const vector
       for (auto&& weight : hidden_layer)
         weight = weight * weight * weight;
       break;
+    case activation_function::RELU:
+      for (auto&& weight : hidden_layer)
+        if (weight < 0) weight = 0;
+      break;
   }
 
   for (unsigned i = 0; i < hidden_layer_size; i++)

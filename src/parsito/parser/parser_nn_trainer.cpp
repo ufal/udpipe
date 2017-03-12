@@ -26,7 +26,7 @@ namespace ufal {
 namespace udpipe {
 namespace parsito {
 
-void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name,
+void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name, bool single_root,
                               const string& embeddings_description, const string& nodes_description, const network_parameters& parameters,
                               unsigned /*number_of_threads*/, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
   if (train.empty()) training_failure("No training data was given!");
@@ -42,16 +42,40 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
         if (node.deprel.empty()) training_failure("The node '" << node.form << "' with id " << node.id << " has no deprel set!");
       }
 
-  // Generate labels for transition system
-  parser_nn parser;
-  unordered_set<string> labels_set;
+  // Create parser instance to be trained
+  parser_nn parser(true); parser.version = parser_nn::VERSION_LATEST;
 
+  // Generate labels for transition system
+  unordered_set<string> labels_set;
   for (auto&& tree : train)
     for (auto&& node : tree.nodes)
       if (node.id && !labels_set.count(node.deprel)) {
         labels_set.insert(node.deprel);
         parser.labels.push_back(node.deprel);
       }
+
+  // If single_root, check that exactly root nodes have "root" deprel
+  if (single_root) {
+    for (auto&& tree : train) {
+      unsigned roots = 0;
+      for (auto&& node : tree.nodes)
+        if (node.id) {
+          if (node.head == 0 && node.deprel != "root")
+            training_failure("When single root is required, every root node must have 'root' deprel!");
+          if (node.head != 0 && node.deprel == "root")
+            training_failure("When single root is required, any non-root cannot have 'root' deprel!");
+          roots += node.head == 0;
+        }
+      if (roots != 1)
+        training_failure("When single root is required, every training tree must have single root!");
+    }
+
+    // Make sure (in case input is really small) there is "root" deprel plus another one
+    if (!labels_set.count("root"))
+      training_failure("When single root is required, the deprel 'root' must be present!");
+    if (labels_set.size() <= 1)
+      training_failure("When single root is required, deprel different from 'root' must exist!");
+  }
 
   // Create transition system and transition oracle
   parser.system.reset(transition_system::create(transition_system_name, parser.labels));
@@ -225,6 +249,9 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
   scaled_parameters.l2_regularization /= total_nodes;
   neural_network_trainer network_trainer(parser.network, total_dimension * parser.nodes.node_count(), parser.system->transition_count(), scaled_parameters, generator);
 
+  neural_network heldout_best_network;
+  unsigned heldout_best_correct_labelled = 0, heldout_best_iteration = 0;
+
   vector<int> permutation;
   for (size_t i = 0; i < train.size(); i++)
     permutation.push_back(permutation.size());
@@ -237,7 +264,7 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
     atomic<double> atomic_logprob(0);
     auto training = [&]() {
       tree t;
-      configuration conf;
+      configuration conf(single_root);
       string word, word_buffer;
       vector<vector<int>> nodes_embeddings;
       vector<int> extracted_nodes;
@@ -247,7 +274,7 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
 
       // Data for structured prediction
       tree t_eval;
-      configuration conf_eval;
+      configuration conf_eval(single_root);
       vector<vector<int>> nodes_embeddings_eval;
       vector<int>  extracted_nodes_eval;
       vector<const vector<int>*>  extracted_embeddings_eval;
@@ -437,8 +464,6 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
 
     // Evaluate heldout data if present
     if (!heldout.empty()) {
-      network_trainer.finalize_dropout_weights();
-
       tree t;
       unsigned total = 0, correct_unlabelled = 0, correct_labelled = 0;
       for (auto&& gold : heldout) {
@@ -452,16 +477,28 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
         }
       }
 
-      network_trainer.finalize_dropout_weights(false);
-
       cerr << ", heldout UAS " << fixed << setprecision(2) << (100. * correct_unlabelled / total) << "%, LAS " << (100. * correct_labelled / total) << "%";
+
+      if (parameters.early_stopping && correct_labelled > heldout_best_correct_labelled) {
+        heldout_best_network = parser.network;
+        heldout_best_correct_labelled = correct_labelled;
+        heldout_best_iteration = iteration;
+      }
     }
 
     cerr << endl;
   }
 
-  // Finalize weights for dropout
-  network_trainer.finalize_dropout_weights();
+  if (parameters.early_stopping && heldout_best_iteration > 0) {
+    cerr << "Using early stopping -- choosing network from iteration " << heldout_best_iteration << endl;
+    parser.network = heldout_best_network;
+  }
+
+  // Encode version
+  enc.add_1B(parser.version);
+
+  // Encode single_root
+  enc.add_1B(single_root);
 
   // Encode transition system
   enc.add_2B(parser.labels.size());
