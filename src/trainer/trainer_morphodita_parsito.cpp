@@ -303,6 +303,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       }
       if (embedding_deprel) embeddings.append("deprel ").append(to_string(embedding_deprel)).append(" 1\n");
 
+      bool single_root = true; if (!option_bool(parser, "single_root", single_root, error)) return false;
       int iterations = 10; if (!option_int(parser, "iterations", iterations, error)) return false;
       int hidden_layer = 200; if (!option_int(parser, "hidden_layer", hidden_layer, error)) return false;
       int batch_size = 10; if (!option_int(parser, "batch_size", batch_size, error)) return false;
@@ -313,6 +314,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       double learning_rate_final = 0.001; if (!option_double(parser, "learning_rate_final", learning_rate_final, error)) return false;
       double l2 = run <= 1 ? 0.5 : hyperparameter_uniform(run, 3, 0.2, 0.6);
       if (!option_double(parser, "l2", l2, error)) return false;
+      bool early_stopping = !heldout.empty(); if (!option_bool(parser, "early_stopping", early_stopping, error)) return false;
 
       if (run >= 1) cerr << "Random search run " << run << ", structured_interval=" << structured_interval
                          << ", learning_rate=" << fixed << setprecision(8) << learning_rate
@@ -336,6 +338,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       parameters.maxnorm_regularization = 0;
       parameters.dropout_hidden = 0;
       parameters.dropout_input = 0;
+      parameters.early_stopping = early_stopping;
 
       // Tag the input if required
       unique_ptr<model> tagger;
@@ -389,7 +392,7 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       // Train the parser
       binary_encoder enc;
       enc.add_str("nn");
-      parsito::parser_nn_trainer::train(transition_system, transition_oracle, embeddings, parser_nodes,
+      parsito::parser_nn_trainer::train(transition_system, transition_oracle, single_root, embeddings, parser_nodes,
                                         parameters, 1, train_trees, heldout_trees, enc);
       compressor::save(os, enc);
     }
