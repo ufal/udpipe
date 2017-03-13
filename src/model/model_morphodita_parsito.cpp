@@ -169,11 +169,22 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   error.clear();
   if (tokenizer->next_sentence(&forms, nullptr)) {
     for (size_t i = 0; i < forms.size(); i++) {
+      // The form might contain spaces, even '\r', '\n' or '\t',
+      // which we change to space. We also normalize multiple spaces to one.
+      tok.form.clear();
+      for (size_t j = 0; j < forms[i].len; j++) {
+        char chr = forms[i].str[j];
+        if (chr == '\r' || chr == '\n' || chr == '\t') chr = ' ';
+        if (tok.form.empty() || chr != ' ' || tok.form.back() != ' ')
+          tok.form.push_back(chr);
+      }
+
+      // Store SpaceAfter or SpacesAfter/SpacesBefore
       if (normalized_spaces)
-        token_with_spaces.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
+        tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
       else
-        token_with_spaces.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
-      splitter.append_token(forms[i], token_with_spaces.misc, s);
+        tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
+      splitter.append_token(tok.form, tok.misc, s);
     }
 
     // Fill "# text" comment

@@ -60,7 +60,7 @@ class model_morphodita_parsito : public model {
     const multiword_splitter& splitter;
     bool normalized_spaces;
     vector<string_piece> forms;
-    token token_with_spaces;
+    token tok;
   };
 
   struct tagger_cache {
