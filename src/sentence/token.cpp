@@ -67,6 +67,22 @@ void token::set_spaces_after(string_piece spaces_after) {
   }
 }
 
+void token::get_spaces_in_token(string& spaces_in_token) const {
+  string_piece value;
+
+  if (get_misc_field("SpacesInToken", value))
+    unescape_spaces(value, spaces_in_token);
+  else
+    spaces_in_token.clear();
+}
+
+void token::set_spaces_in_token(string_piece spaces_in_token) {
+  if (spaces_in_token.len == 0)
+    remove_misc_field("SpacesInToken");
+  else
+    append_escaped_spaces(spaces_in_token, start_misc_field("SpacesInToken"));
+}
+
 // UDPipe-specific TokenRange feature
 bool token::get_token_range(size_t& start, size_t& end) const {
   string_piece value;

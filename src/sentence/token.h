@@ -34,6 +34,8 @@ class token {
   void set_spaces_before(string_piece spaces_before);
   void get_spaces_after(string& spaces_after) const;
   void set_spaces_after(string_piece spaces_after);
+  void get_spaces_in_token(string& spaces_in_token) const;
+  void set_spaces_in_token(string_piece spaces_in_token);
 
   // UDPipe-specific TokenRange feature
   bool get_token_range(size_t& start, size_t& end) const;
