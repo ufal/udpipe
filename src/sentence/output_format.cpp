@@ -174,7 +174,7 @@ void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
     string spaces;
     for (size_t i = 1; i < s.words.size(); i++) {
       s.words[i].get_spaces_before(spaces); os << spaces;
-      os << s.words[i].form;
+      s.words[i].get_spaces_in_token(spaces); os << (!spaces.empty() ? spaces : s.words[i].form);
       s.words[i].get_spaces_after(spaces); os << spaces;
     }
     os << flush;
