@@ -196,8 +196,11 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
       // Store SpaceAfter or SpacesAfter/SpacesBefore
       if (normalized_spaces)
         tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
-      else
+      else {
         tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
+        if (tok.form.size() != forms[i].len)
+          tok.set_spaces_in_token(forms[i]);
+      }
       splitter.append_token(tok.form, tok.misc, s);
     }
 
