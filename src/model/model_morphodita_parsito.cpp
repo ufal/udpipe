@@ -168,19 +168,30 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
   s.clear();
   error.clear();
   if (tokenizer->next_sentence(&forms, nullptr)) {
+    // The forms returned by GRU tokenizer *should not* start/end with spaces,
+    // but we trim them anyway (including all "remove empty forms/sentences" machinery).
+    for (size_t i = 0; i < forms.size(); i++) {
+      while (forms[i].len && (forms[i].str[0] == '\r' || forms[i].str[0] == '\n' ||
+                              forms[i].str[0] == '\t' || forms[i].str[0] == ' '))
+        forms[i].str++, forms[i].len--;
+      while (forms[i].len && (forms[i].str[forms[i].len-1] == '\r' || forms[i].str[forms[i].len-1] == '\n' ||
+                              forms[i].str[forms[i].len-1] == '\t' || forms[i].str[forms[i].len-1] == ' '))
+        forms[i].len--;
+      if (!forms[i].len)
+        forms.erase(forms.begin() + i--);
+    }
+    if (!forms.size()) return next_sentence(s, error);
+
     for (size_t i = 0; i < forms.size(); i++) {
       // The form might contain spaces, even '\r', '\n' or '\t',
       // which we change to space. We also normalize multiple spaces to one.
-      // The forms returned by GRU tokenizer *should not* start/end with spaces,
-      // but we trim them anyway.
       tok.form.clear();
       for (size_t j = 0; j < forms[i].len; j++) {
         char chr = forms[i].str[j];
         if (chr == '\r' || chr == '\n' || chr == '\t') chr = ' ';
-        if (chr != ' ' || (!tok.form.empty() && tok.form.back() != ' '))
+        if (chr != ' ' || tok.form.empty() || tok.form.back() != ' ')
           tok.form.push_back(chr);
       }
-      while (!tok.form.empty() && tok.form.back() == ' ') tok.form.pop_back();
 
       // Store SpaceAfter or SpacesAfter/SpacesBefore
       if (normalized_spaces)
