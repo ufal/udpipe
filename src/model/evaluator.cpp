@@ -49,7 +49,7 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
   unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
   if (!conllu_input) return error.assign("Cannot allocate CoNLL-U input format instance!"), false;
 
-  string plain_text; unsigned space_after_nos = 0;
+  vector<string> plain_text_paragraphs(1); unsigned space_after_nos = 0;
   sentence system, gold;
   evaluation_data gold_data, system_goldtok_data, system_goldtok_goldtags_data, system_plaintext_data;
 
@@ -62,15 +62,16 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
       // Detokenize the input when tokenizing
       if (tokenizer != NONE) {
         string doc_par_id;
-        if (gold.get_new_doc(doc_par_id) || gold.get_new_par(doc_par_id))
-          if (!plain_text.empty())
-            plain_text.append(2, '\n');
+        if (gold.get_new_doc(doc_par_id) || gold.get_new_par(doc_par_id)) {
+          plain_text_paragraphs.back().append("\n\n");
+          plain_text_paragraphs.emplace_back();
+        }
 
         for (size_t i = 1, j = 0; i < gold.words.size(); i++) {
           const token& tok = j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i) ? (const token&)gold.multiword_tokens[j] : (const token&)gold.words[i];
-          plain_text.append(tok.form);
+          plain_text_paragraphs.back().append(tok.form);
           if (tok.get_space_after())
-            plain_text.push_back(' ');
+            plain_text_paragraphs.back().push_back(' ');
           else
             space_after_nos += 1;
           if (j < gold.multiword_tokens.size() && gold.multiword_tokens[j].id_first == int(i))
@@ -118,19 +119,21 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
     unique_ptr<input_format> t(m->new_tokenizer(tokenizer));
     if (!t) return error.assign("Cannot allocate new tokenizer!"), false;
 
-    t->set_text(plain_text);
-    while (t->next_sentence(system, error)) {
-      if (tagger != NONE) {
-        if (!m->tag(system, tagger, error))
-          return false;
-
-        if (parser != NONE)
-          if (!m->parse(system, parser, error))
+    for (auto&& plain_text : plain_text_paragraphs) {
+      t->set_text(plain_text);
+      while (t->next_sentence(system, error)) {
+        if (tagger != NONE) {
+          if (!m->tag(system, tagger, error))
             return false;
+
+          if (parser != NONE)
+            if (!m->parse(system, parser, error))
+              return false;
+        }
+        system_plaintext_data.add_sentence(system);
       }
-      system_plaintext_data.add_sentence(system);
+      if (!error.empty()) return false;
     }
-    if (!error.empty()) return false;
   }
 
   // Evaluate from plain text
