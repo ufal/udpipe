@@ -11,6 +11,7 @@
 
 #include "evaluator.h"
 #include "sentence/input_format.h"
+#include "unilib/unicode.h"
 #include "unilib/utf8.h"
 
 namespace ufal {
@@ -227,6 +228,12 @@ evaluator::f1_info evaluator::evaluate_f1(const vector<pair<size_t, T>>& system,
     gold.size() ? both / double(gold.size()) : 0., system.size()+gold.size() ? 2 * both / double(system.size() + gold.size()) : 0. };
 }
 
+evaluator::evaluation_data::word_data::word_data(size_t start, size_t end, bool is_multiword, const word& w) : start(start), end(end), is_multiword(is_multiword), w(w) {
+  // Forms in MWTs are compares case-insensitively in LCS, therefore
+  // we lowercase them here.
+  unilib::utf8::map(unilib::unicode::lowercase, w.form, this->w.form);
+}
+
 void evaluator::evaluation_data::add_sentence(const sentence& s) {
   sentences.emplace_back(chars.size(), chars.size());
   for (size_t i = 1, j = 0; i < s.words.size(); i++) {
@@ -240,8 +247,8 @@ void evaluator::evaluation_data::add_sentence(const sentence& s) {
     if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i)) {
       multiwords.emplace_back(tokens.back().first, form);
       for (size_t k = i; int(k) <= s.multiword_tokens[j].id_last; k++) {
-        multiwords.back().second.append(" ").append(s.words[k].form);
         words.emplace_back(tokens.back().first, tokens.back().second, true, s.words[k]);
+        multiwords.back().second.append(" ").append(words.back().w.form);
       }
       i = s.multiword_tokens[j++].id_last;
     } else {

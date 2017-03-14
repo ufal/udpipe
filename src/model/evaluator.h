@@ -46,8 +46,7 @@ class evaluator {
       bool is_multiword;
       word w;
 
-      word_data(size_t start, size_t end, bool is_multiword, const word& w)
-          : start(start), end(end), is_multiword(is_multiword), w(w) {}
+      word_data(size_t start, size_t end, bool is_multiword, const word& w);
     };
 
     void add_sentence(const sentence& s);
