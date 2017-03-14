@@ -79,8 +79,9 @@ int gru_tokenizer::next_outcome() {
     // Add spacing token/sentence breaks
     for (size_t i = 0; i < network_length - 1; i++)
       if (is_space(network_offsets[i+1])) {
-        // Detect EOS on the following space or \n\n or \r\n\r\n
+        // Detect EOS on the following space or \n\n or \r\n\r\n, or if there is end of text
         bool eos = network_outcomes[i+1].outcome == gru_tokenizer_network::END_OF_SENTENCE;
+        if (i + 2 == network_length) eos = true;
         for (size_t j = network_offsets[i+1]; j + 1 < network_offsets[i+2] && !eos; j++)
           eos = (chars[j].chr == '\n' && chars[j+1].chr == '\n') ||
                 (j + 3 < network_offsets[i+2] && chars[j].chr == '\r' && chars[j+1].chr == '\n' && chars[j+2].chr == '\r' && chars[j+3].chr == '\n');
