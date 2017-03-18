@@ -113,7 +113,8 @@ This work has been using language resources developed and/or stored and/or distr
   location  = {Portorož, Slovenia},
   publisher = {European Language Resources Association (ELRA)},
   address   = {Paris, France},
-  isbn      = {978-2-9517408-9-1}
+  isbn      = {978-2-9517408-9-1},
+  url       = {http://www.lrec-conf.org/proceedings/lrec2016/pdf/873_Paper.pdf},
 }
 ```
 
