@@ -189,7 +189,9 @@ class input_format_horizontal : public input_format {
 };
 
 bool input_format_horizontal::read_block(istream& is, string& block) const {
-  return bool(getline(is, block));
+  if (getline(is, block))
+    return block.push_back('\n'), true;
+  return false;
 }
 
 void input_format_horizontal::set_text(string_piece text, bool make_copy) {
@@ -316,7 +318,9 @@ class input_format_presegmented_tokenizer : public input_format {
 };
 
 bool input_format_presegmented_tokenizer::read_block(istream& is, string& block) const {
-  return bool(getline(is, block));
+  if (getline(is, block))
+    return block.push_back('\n'), true;
+  return false;
 }
 
 void input_format_presegmented_tokenizer::reset_document() {
