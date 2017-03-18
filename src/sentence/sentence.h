@@ -35,9 +35,9 @@ class sentence {
   void unlink_all_words();
 
   // CoNLL-U defined comments
-  bool get_new_doc(string& id) const;
+  bool get_new_doc(string* id = nullptr) const;
   void set_new_doc(bool new_doc, string_piece id = string_piece());
-  bool get_new_par(string& id) const;
+  bool get_new_par(string* id = nullptr) const;
   void set_new_par(bool new_par, string_piece id = string_piece());
   bool get_sent_id(string& id) const;
   void set_sent_id(string_piece id);
@@ -45,7 +45,7 @@ class sentence {
   void set_text(string_piece text);
 
  private:
-  bool get_comment(string_piece name, string& value) const;
+  bool get_comment(string_piece name, string* value) const;
   void remove_comment(string_piece name);
   void set_comment(string_piece name, string_piece value = string_piece());
 };

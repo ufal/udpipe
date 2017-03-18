@@ -144,11 +144,8 @@ class output_format_horizontal : public output_format {
 };
 
 void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
-  if (paragraphs) {
-    string doc_par_id;
-    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
-      os << '\n';
-  }
+  if (paragraphs && !empty && (s.get_new_doc() || s.get_new_par()))
+    os << '\n';
   empty = false;
 
   string line;
@@ -180,8 +177,7 @@ class output_format_plaintext : public output_format {
 
 void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
   if (normalized) {
-    string doc_par_id;
-    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
+    if (!empty && (s.get_new_doc() || s.get_new_par()))
       os << '\n';
     for (size_t i = 1, j = 0; i < s.words.size(); i++) {
       const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
@@ -220,11 +216,8 @@ class output_format_vertical : public output_format {
 };
 
 void output_format_vertical::write_sentence(const sentence& s, ostream& os) {
-  if (paragraphs) {
-    string doc_par_id;
-    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
-      os << '\n';
-  }
+  if (paragraphs && !empty && (s.get_new_doc() || s.get_new_par()))
+    os << '\n';
   empty = false;
 
   for (size_t i = 1; i < s.words.size(); i++)

@@ -72,7 +72,7 @@ void sentence::unlink_all_words() {
   }
 }
 
-bool sentence::get_new_doc(string& id) const {
+bool sentence::get_new_doc(string* id) const {
   if (get_comment("newdoc id", id))
     return true;
   return get_comment("newdoc", id);
@@ -88,7 +88,7 @@ void sentence::set_new_doc(bool new_doc, string_piece id) {
     set_comment("newdoc");
 }
 
-bool sentence::get_new_par(string& id) const {
+bool sentence::get_new_par(string* id) const {
   if (get_comment("newpar id", id))
     return true;
   return get_comment("newpar", id);
@@ -105,7 +105,7 @@ void sentence::set_new_par(bool new_par, string_piece id) {
 }
 
 bool sentence::get_sent_id(string& id) const {
-  return get_comment("sent_id", id);
+  return get_comment("sent_id", &id);
 }
 
 void sentence::set_sent_id(string_piece id) {
@@ -116,7 +116,7 @@ void sentence::set_sent_id(string_piece id) {
 }
 
 bool sentence::get_text(string& text) const {
-  return get_comment("text", text);
+  return get_comment("text", &text);
 }
 
 void sentence::set_text(string_piece text) {
@@ -126,7 +126,7 @@ void sentence::set_text(string_piece text) {
     set_comment("text", text);
 }
 
-bool sentence::get_comment(string_piece name, string& value) const {
+bool sentence::get_comment(string_piece name, string* value) const {
   for (auto&& comment : comments)
     if (comment[0] == '#') {
       // Skip spaces
@@ -141,10 +141,10 @@ bool sentence::get_comment(string_piece name, string& value) const {
           //We have a value
           j++;
           while (j < comment.size() && (comment[j] == ' ' || comment[j] == '\t')) j++;
-          value.assign(comment, j, comment.size() - j);
+          if (value) value->assign(comment, j, comment.size() - j);
         } else {
           // No value
-          value.clear();
+          if (value) value->clear();
         }
 
         return true;

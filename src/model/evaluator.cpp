@@ -61,8 +61,7 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
 
       // Detokenize the input when tokenizing
       if (tokenizer != NONE) {
-        string doc_par_id;
-        if (gold.get_new_doc(doc_par_id) || gold.get_new_par(doc_par_id)) {
+        if (gold.get_new_doc() || gold.get_new_par()) {
           plain_text_paragraphs.back().append("\n\n");
           plain_text_paragraphs.emplace_back();
         }

@@ -132,9 +132,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
           }
-          string doc_par_id;
-          if (training_sentence + 1 < training.size() &&
-              (training[training_sentence + 1].get_new_doc(doc_par_id) || training[training_sentence + 1].get_new_par(doc_par_id)))
+          if (training_sentence + 1 < training.size() && (training[training_sentence + 1].get_new_doc() || training[training_sentence + 1].get_new_par()))
             sentence.sentence.append(2, '\n');
         }
 
@@ -162,9 +160,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
           }
-          string doc_par_id;
-          if (heldout_sentence + 1 < heldout.size() &&
-              (heldout[heldout_sentence + 1].get_new_doc(doc_par_id) || heldout[heldout_sentence + 1].get_new_par(doc_par_id)))
+          if (heldout_sentence + 1 < heldout.size() && (heldout[heldout_sentence + 1].get_new_doc() || heldout[heldout_sentence + 1].get_new_par()))
             sentence.sentence.append(2, '\n');
         }
 
