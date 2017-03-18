@@ -117,17 +117,17 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
           auto& sentence = (sentences.emplace_back(), sentences.back());
 
           for (size_t i = 1, j = 0; i < s.words.size(); i++) {
-            const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
+            const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ?
+                (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
 
             sentence.tokens.emplace_back(sentence.sentence.size(), 0);
-            for (auto&& chr : unilib::utf8::decoder(form)) {
+            for (auto&& chr : unilib::utf8::decoder(tok.form)) {
               sentence.sentence.push_back(chr);
               if (unilib::unicode::category(chr) & unilib::unicode::Zs) spaces_in_training = true;
             }
             sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
 
-            const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
-            if (misc.find(space_after_no) == string::npos) sentence.sentence.push_back(' ');
+            if (tok.get_space_after()) sentence.sentence.push_back(' ');
 
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
@@ -149,15 +149,15 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
           auto& sentence = (heldout_sentences.emplace_back(), heldout_sentences.back());
 
           for (size_t i = 1, j = 0; i < s.words.size(); i++) {
-            const string& form = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].form : s.words[i].form;
+            const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ?
+                (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
 
             sentence.tokens.emplace_back(sentence.sentence.size(), 0);
-            for (auto&& chr : unilib::utf8::decoder(form))
+            for (auto&& chr : unilib::utf8::decoder(tok.form))
               sentence.sentence.push_back(chr);
             sentence.tokens.back().length = sentence.sentence.size() - sentence.tokens.back().start;
 
-            const string& misc = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? s.multiword_tokens[j].misc : s.words[i].misc;
-            if (misc.find(space_after_no) == string::npos) sentence.sentence.push_back(' ');
+            if (tok.get_space_after()) sentence.sentence.push_back(' ');
 
             if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
               i = s.multiword_tokens[j++].id_last;
@@ -847,8 +847,6 @@ bool trainer_morphodita_parsito::option_double(const named_values::map& options,
 // Various string data
 
 const string trainer_morphodita_parsito::empty_string;
-
-const string trainer_morphodita_parsito::space_after_no = "SpaceAfter=No";
 
 const string trainer_morphodita_parsito::tag_separators = "~!@#$%^&*()/";
 
