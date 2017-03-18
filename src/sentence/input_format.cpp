@@ -218,6 +218,19 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
     word.len = text.str - word.str;
     s.add_word(word);
 
+    // Replace &nbsp;s by regular spaces
+    if (s.words.back().form.find("\302\240") != string::npos) {
+      string& form = s.words.back().form;
+      size_t form_len = 0;
+      for (size_t i = 0; i < form.size(); i++) {
+        if (form_len && form[form_len-1] == '\302' && form[i] == '\240')
+          form[form_len - 1] = ' ';
+        else
+          form[form_len++] = form[i];
+      }
+      form.resize(form_len);
+    }
+
     // Skip spaces
     while (text.len && (*text.str == ' ' || *text.str == '\t'))
       text.str++, text.len--;
