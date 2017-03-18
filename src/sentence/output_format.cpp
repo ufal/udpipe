@@ -165,9 +165,12 @@ class output_format_plaintext : public output_format {
 
 void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
   if (normalized) {
-    for (size_t i = 1; i < s.words.size(); i++) {
-      if (i > 1 && s.words[i-1].get_space_after()) os << ' ';
-      os << s.words[i].form;
+    for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+      const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
+      if (i > 1 && tok.get_space_after()) os << ' ';
+      os << tok.form;
+      if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+        i = s.multiword_tokens[j++].id_last;
     }
     os << endl;
   } else {
