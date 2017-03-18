@@ -156,15 +156,20 @@ void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
 // Plaintext output format
 class output_format_plaintext : public output_format {
  public:
-  output_format_plaintext(bool normalized): normalized(normalized) {}
+  output_format_plaintext(bool normalized): normalized(normalized), empty(true) {}
 
   virtual void write_sentence(const sentence& s, ostream& os) override;
+  virtual void finish_document(ostream& /*os*/) override { empty = true; }
  private:
   bool normalized;
+  bool empty;
 };
 
 void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
   if (normalized) {
+    string doc_par_id;
+    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
+      os << '\n';
     for (size_t i = 1, j = 0; i < s.words.size(); i++) {
       const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
       if (i > 1 && tok.get_space_after()) os << ' ';
@@ -182,6 +187,7 @@ void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
     }
     os << flush;
   }
+  empty = false;
 }
 
 // Vertical output format
