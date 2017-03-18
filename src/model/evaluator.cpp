@@ -235,6 +235,11 @@ evaluator::evaluation_data::word_data::word_data(size_t start, size_t end, bool 
   // Forms in MWTs are compares case-insensitively in LCS, therefore
   // we lowercase them here.
   unilib::utf8::map(unilib::unicode::lowercase, w.form, this->w.form);
+
+  // During evaluation, only universal part of DEPREL (up to a colon) is used.
+  auto colon = w.deprel.find(':');
+  if (colon != string::npos)
+    this->w.deprel.erase(colon);
 }
 
 void evaluator::evaluation_data::add_sentence(const sentence& s) {
