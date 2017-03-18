@@ -133,12 +133,25 @@ void output_format_matxin::write_node(const sentence& s, int node, string& pad, 
 // Horizontal output format
 class output_format_horizontal : public output_format {
  public:
+  output_format_horizontal(bool paragraphs) : paragraphs(paragraphs), empty(true) {}
+
   virtual void write_sentence(const sentence& s, ostream& os) override;
+  virtual void finish_document(ostream& /*os*/) override { empty = true; }
+
+ private:
+  bool paragraphs;
+  bool empty;
 };
 
 void output_format_horizontal::write_sentence(const sentence& s, ostream& os) {
-  string line;
+  if (paragraphs) {
+    string doc_par_id;
+    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
+      os << '\n';
+  }
+  empty = false;
 
+  string line;
   for (size_t i = 1; i < s.words.size(); i++) {
     // Append word, but replace spaces by &nbsp;s
     for (auto&& chr : s.words[i].form)
@@ -196,10 +209,24 @@ void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
 // Vertical output format
 class output_format_vertical : public output_format {
  public:
+  output_format_vertical(bool paragraphs) : paragraphs(paragraphs), empty(true) {}
+
   virtual void write_sentence(const sentence& s, ostream& os) override;
+  virtual void finish_document(ostream& /*os*/) override { empty = true; }
+
+ private:
+  bool paragraphs;
+  bool empty;
 };
 
 void output_format_vertical::write_sentence(const sentence& s, ostream& os) {
+  if (paragraphs) {
+    string doc_par_id;
+    if (!empty && (s.get_new_doc(doc_par_id) || s.get_new_par(doc_par_id)))
+      os << '\n';
+  }
+  empty = false;
+
   for (size_t i = 1; i < s.words.size(); i++)
     os << s.words[i].form << '\n';
   os << endl;
@@ -215,7 +242,11 @@ output_format* output_format::new_matxin_output_format() {
 }
 
 output_format* output_format::new_horizontal_output_format() {
-  return new output_format_horizontal();
+  return new output_format_horizontal(false);
+}
+
+output_format* output_format::new_horizontal_paragraphs_output_format() {
+  return new output_format_horizontal(true);
 }
 
 output_format* output_format::new_plaintext_exact_output_format() {
@@ -227,16 +258,22 @@ output_format* output_format::new_plaintext_normalized_output_format() {
 }
 
 output_format* output_format::new_vertical_output_format() {
-  return new output_format_vertical();
+  return new output_format_vertical(false);
+}
+
+output_format* output_format::new_vertical_paragraphs_output_format() {
+  return new output_format_vertical(true);
 }
 
 output_format* output_format::new_output_format(const string& name) {
   if (name == "conllu") return new_conllu_output_format();
   if (name == "matxin") return new_matxin_output_format();
   if (name == "horizontal") return new_horizontal_output_format();
+  if (name == "horizontal_paragraphs") return new_horizontal_paragraphs_output_format();
   if (name == "plaintext_exact") return new_plaintext_exact_output_format();
   if (name == "plaintext_normalized") return new_plaintext_normalized_output_format();
   if (name == "vertical") return new_vertical_output_format();
+  if (name == "vertical_paragraphs") return new_vertical_paragraphs_output_format();
   return nullptr;
 }
 
