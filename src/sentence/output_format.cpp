@@ -180,10 +180,13 @@ void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
     os << endl;
   } else {
     string spaces;
-    for (size_t i = 1; i < s.words.size(); i++) {
-      s.words[i].get_spaces_before(spaces); os << spaces;
-      s.words[i].get_spaces_in_token(spaces); os << (!spaces.empty() ? spaces : s.words[i].form);
-      s.words[i].get_spaces_after(spaces); os << spaces;
+    for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+      const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
+      tok.get_spaces_before(spaces); os << spaces;
+      tok.get_spaces_in_token(spaces); os << (!spaces.empty() ? spaces : tok.form);
+      tok.get_spaces_after(spaces); os << spaces;
+      if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+        i = s.multiword_tokens[j++].id_last;
     }
     os << flush;
   }
