@@ -142,48 +142,45 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
       os << "Cannot evaluate tokenizer, it returned different sequence of token characters!" << endl;
     } else {
       word_alignment plaintext_alignment;
-      if (space_after_nos)
-        word_alignment::best_alignment(system_plaintext_data, gold_data, plaintext_alignment);
+      word_alignment::best_alignment(system_plaintext_data, gold_data, plaintext_alignment);
 
-      if (!space_after_nos) {
-        os << "No SpaceAfter=No features in gold data, not evaluating tokenizer performance." << endl;
-      } else {
-        auto words = plaintext_alignment.evaluate_f1([](const word&, const word&) {return true;});
-        os << "Tokenizer words - system: " << words.total_system << ", gold: " << words.total_gold
-           << ", precision: " << fixed << setprecision(2) << 100. * words.precision
-           << "%, recall: " << 100. * words.recall << "%, f1: " << 100. * words.f1 << "%" << endl;
-      }
+      os << "Number of SpaceAfter=No features in gold data: " << space_after_nos << endl;
 
+      auto tokens = evaluate_f1(system_plaintext_data.tokens, gold_data.tokens);
       auto multiwords = evaluate_f1(system_plaintext_data.multiwords, gold_data.multiwords);
+      auto sentences = evaluate_f1(system_plaintext_data.sentences, gold_data.sentences);
+      auto words = plaintext_alignment.evaluate_f1([](const word&, const word&) {return true;});
       if (multiwords.total_gold || multiwords.total_system)
-        os << "Tokenizer multiwords - system: " << multiwords.total_system << ", gold: " << multiwords.total_gold
+        os << "Tokenizer tokens - system: " << tokens.total_system << ", gold: " << tokens.total_gold
+           << ", precision: " << fixed << setprecision(2) << 100. * tokens.precision
+           << "%, recall: " << 100. * tokens.recall << "%, f1: " << 100. * tokens.f1 << "%" << endl
+           << "Tokenizer multiword tokens - system: " << multiwords.total_system << ", gold: " << multiwords.total_gold
            << ", precision: " << fixed << setprecision(2) << 100. * multiwords.precision
            << "%, recall: " << 100. * multiwords.recall << "%, f1: " << 100. * multiwords.f1 << "%" << endl;
+      os << "Tokenizer words - system: " << words.total_system << ", gold: " << words.total_gold
+         << ", precision: " << fixed << setprecision(2) << 100. * words.precision
+         << "%, recall: " << 100. * words.recall << "%, f1: " << 100. * words.f1 << "%" << endl
+         << "Tokenizer sentences - system: " << sentences.total_system << ", gold: " << sentences.total_gold
+         << ", precision: " << fixed << setprecision(2) << 100. * sentences.precision
+         << "%, recall: " << 100. * sentences.recall << "%, f1: " << 100. * sentences.f1 << "%" << endl;
 
-      if (space_after_nos) {
-        auto sentences = evaluate_f1(system_plaintext_data.sentences, gold_data.sentences);
-        os << "Tokenizer sentences - system: " << sentences.total_system << ", gold: " << sentences.total_gold
-           << ", precision: " << fixed << setprecision(2) << 100. * sentences.precision
-           << "%, recall: " << 100. * sentences.recall << "%, f1: " << 100. * sentences.f1 << "%" << endl;
+      if (tagger != NONE) {
+        auto upostags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.upostag == u.upostag; });
+        auto xpostags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.xpostag == u.xpostag; });
+        auto feats = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.feats == u.feats; });
+        auto alltags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.upostag == u.upostag && w.xpostag == u.xpostag && w.feats == u.feats; });
+        auto lemmas = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.lemma == u.lemma; });
+        os << "Tagging from plain text (CoNLL17 F1 score) - gold forms: " << upostags.total_gold << ", upostag: "
+           << fixed << setprecision(2) << 100. * upostags.f1 << "%, xpostag: "
+           << 100. * xpostags.f1 << "%, feats: " << 100. * feats.f1 << "%, alltags: "
+           << 100. * alltags.f1 << "%, lemmas: " << 100. * lemmas.f1 << '%' << endl;
+      }
 
-        if (tagger != NONE) {
-          auto upostags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.upostag == u.upostag; });
-          auto xpostags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.xpostag == u.xpostag; });
-          auto feats = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.feats == u.feats; });
-          auto alltags = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.upostag == u.upostag && w.xpostag == u.xpostag && w.feats == u.feats; });
-          auto lemmas = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.lemma == u.lemma; });
-          os << "Tagging from plain text (F1 score) - gold forms: " << upostags.total_gold << ", upostag: "
-             << fixed << setprecision(2) << 100. * upostags.f1 << "%, xpostag: "
-             << 100. * xpostags.f1 << "%, feats: " << 100. * feats.f1 << "%, alltags: "
-             << 100. * alltags.f1 << "%, lemmas: " << 100. * lemmas.f1 << '%' << endl;
-        }
-
-        if (tagger != NONE && parser != NONE) {
-          auto uas = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head; });
-          auto las = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head && w.deprel == u.deprel; });
-          os << "Parsing from plain text with computed tags (F1 score) - gold forms: " << uas.total_gold
-             << ", UAS: " << fixed << setprecision(2) << 100. * uas.f1 << "%, LAS: " << 100. * las.f1 << '%' << endl;
-        }
+      if (tagger != NONE && parser != NONE) {
+        auto uas = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head; });
+        auto las = plaintext_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head && w.deprel == u.deprel; });
+        os << "Parsing from plain text with computed tags (CoNLL17 F1 score) - gold forms: " << uas.total_gold
+           << ", UAS: " << fixed << setprecision(2) << 100. * uas.f1 << "%, LAS: " << 100. * las.f1 << '%' << endl;
       }
     }
   }
