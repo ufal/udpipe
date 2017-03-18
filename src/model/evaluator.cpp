@@ -239,7 +239,13 @@ evaluator::f1_info evaluator::evaluate_f1(const vector<pair<size_t, T>>& system,
     gold.size() ? both / double(gold.size()) : 0., system.size()+gold.size() ? 2 * both / double(system.size() + gold.size()) : 0. };
 }
 
-evaluator::evaluation_data::word_data::word_data(size_t start, size_t end, bool is_multiword, const word& w) : start(start), end(end), is_multiword(is_multiword), w(w) {
+evaluator::evaluation_data::word_data::word_data(size_t start, size_t end, int id, bool is_multiword, const word& w)
+  : start(start), end(end), is_multiword(is_multiword), w(w)
+{
+  // Use absolute ids for words and heads
+  this->w.id = id;
+  this->w.head = w.head ? id + (w.head - w.id) : 0;
+
   // Forms in MWTs are compares case-insensitively in LCS, therefore
   // we lowercase them here.
   unilib::utf8::map(unilib::unicode::lowercase, w.form, this->w.form);
@@ -263,12 +269,12 @@ void evaluator::evaluation_data::add_sentence(const sentence& s) {
     if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i)) {
       multiwords.emplace_back(tokens.back().first, form);
       for (size_t k = i; int(k) <= s.multiword_tokens[j].id_last; k++) {
-        words.emplace_back(tokens.back().first, tokens.back().second, true, s.words[k]);
+        words.emplace_back(tokens.back().first, tokens.back().second, words.size() + 1, true, s.words[k]);
         multiwords.back().second.append(" ").append(words.back().w.form);
       }
       i = s.multiword_tokens[j++].id_last;
     } else {
-      words.emplace_back(tokens.back().first, tokens.back().second, false, s.words[i]);
+      words.emplace_back(tokens.back().first, tokens.back().second, words.size() + 1, false, s.words[i]);
     }
   }
   sentences.back().second = chars.size();
@@ -356,6 +362,14 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
           g++;
       }
     }
+
+  // Reindex HEAD pointers in system to use gold indices
+  vector<int> gold_aligned(system.words.size(), -1);
+  for (auto&& match : alignment.matched)
+    gold_aligned[match.system.id - 1] = match.gold.id;
+  for (auto&& match : alignment.matched)
+    if (match.system.head)
+      match.system.head = gold_aligned[match.system.head - 1];
 }
 
 } // namespace udpipe

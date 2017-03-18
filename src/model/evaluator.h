@@ -46,7 +46,7 @@ class evaluator {
       bool is_multiword;
       word w;
 
-      word_data(size_t start, size_t end, bool is_multiword, const word& w);
+      word_data(size_t start, size_t end, int id, bool is_multiword, const word& w);
     };
 
     void add_sentence(const sentence& s);
@@ -60,7 +60,7 @@ class evaluator {
   class word_alignment {
    public:
     struct pair_system_gold {
-      const word& system; const word& gold;
+      word system; const word& gold;
       pair_system_gold(const word& system, const word& gold) : system(system), gold(gold) {}
     };
     vector<pair_system_gold> matched;
