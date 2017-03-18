@@ -25,7 +25,12 @@ class input_format_conllu : public input_format {
  private:
   string_piece text;
   string text_copy;
+
+  static const string columns[10];
 };
+
+const string input_format_conllu::columns[10] = {"ID", "FORM", "LEMMA",
+  "UPOS", "XPOS", "FEATS", "HEAD", "DEPREL", "DEPS", "MISC"};
 
 bool input_format_conllu::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
@@ -69,6 +74,14 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
     if (tokens.size() != 10)
       return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' does not contain 10 columns!") , false;
 
+    // Check that no column is empty and contains no spaces (except FORM and LEMMA)
+    for (int i = 0; i < 10; i++) {
+      if (!tokens[i].len)
+        return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains empty column ").append(columns[i]).append("!"), false;
+      if (i != 1 && i != 2 && memchr(tokens[i].str, ' ', tokens[i].len) != NULL)
+        return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains spaces in column ").append(columns[i]).append("!"), false;
+    }
+
     // Handle multiword tokens
     if (memchr(tokens[0].str, '-', tokens[0].len)) {
       split(tokens[0], '-', parts);
@@ -84,6 +97,9 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       if (from <= last_multiword_token)
         return error.assign("Multiword token '").append(line.str, line.len).append("' overlaps with the previous one!"), false;
       last_multiword_token = to;
+      for (int i = 2; i < 9; i++)
+        if (tokens[i].len != 1 || tokens[i].str[0] != '_')
+          return error.assign("Column ").append(columns[i]).append(" of an multi-word token '").append(line.str, line.len).append("' is not an empty!"), false;
       s.multiword_tokens.emplace_back(from, to, tokens[1], tokens[9].len == 1 && tokens[9].str[0] == '_' ? string_piece() : tokens[9]);
       continue;
     }
@@ -101,6 +117,9 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       if (!((s.empty_nodes.empty() && index == 1) || (!s.empty_nodes.empty() && s.empty_nodes.back().id < id && index == 1) ||
            (!s.empty_nodes.empty() && s.empty_nodes.back().id == id && index == s.empty_nodes.back().index + 1)))
         return error.assign("Incorrect ID index '").append(parts[1].str, parts[1].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+      for (int i = 6; i < 8; i++)
+        if (tokens[i].len != 1 || tokens[i].str[0] != '_')
+          return error.assign("Column ").append(columns[i]).append(" of an empty node token '").append(line.str, line.len).append("' is not an empty!"), false;
 
       s.empty_nodes.emplace_back(id, index);
       s.empty_nodes.back().form.assign(tokens[1].str, tokens[1].len);
@@ -108,8 +127,6 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
       if (!(tokens[3].len == 1 && tokens[3].str[0] == '_')) s.empty_nodes.back().upostag.assign(tokens[3].str, tokens[3].len);
       if (!(tokens[4].len == 1 && tokens[4].str[0] == '_')) s.empty_nodes.back().xpostag.assign(tokens[4].str, tokens[4].len);
       if (!(tokens[5].len == 1 && tokens[5].str[0] == '_')) s.empty_nodes.back().feats.assign(tokens[5].str, tokens[5].len);
-      if (tokens[6].len != 1 || tokens[6].str[0] != '_') return error.assign("Incorrect HEAD '").append(tokens[6].str, tokens[6].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
-      if (tokens[7].len != 1 || tokens[7].str[0] != '_') return error.assign("Incorrect DEPREL '").append(tokens[7].str, tokens[7].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
       if (!(tokens[8].len == 1 && tokens[8].str[0] == '_')) s.empty_nodes.back().deps.assign(tokens[8].str, tokens[8].len);
       if (!(tokens[9].len == 1 && tokens[9].str[0] == '_')) s.empty_nodes.back().misc.assign(tokens[9].str, tokens[9].len);
       continue;
