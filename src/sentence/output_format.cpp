@@ -215,7 +215,7 @@ output_format* output_format::new_horizontal_output_format() {
   return new output_format_horizontal();
 }
 
-output_format* output_format::new_plaintext_output_format() {
+output_format* output_format::new_plaintext_exact_output_format() {
   return new output_format_plaintext(false);
 }
 
@@ -231,7 +231,7 @@ output_format* output_format::new_output_format(const string& name) {
   if (name == "conllu") return new_conllu_output_format();
   if (name == "matxin") return new_matxin_output_format();
   if (name == "horizontal") return new_horizontal_output_format();
-  if (name == "plaintext") return new_plaintext_output_format();
+  if (name == "plaintext_exact") return new_plaintext_exact_output_format();
   if (name == "plaintext_normalized") return new_plaintext_normalized_output_format();
   if (name == "vertical") return new_vertical_output_format();
   return nullptr;
