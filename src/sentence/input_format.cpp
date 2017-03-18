@@ -263,7 +263,7 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
     string_piece word = text;
 
     // Slurp the word
-    while (text.len && *text.str != ' ' && *text.str != '\t' && *text.str != '\r' && *text.str != '\n')
+    while (text.len && *text.str != '\t' && *text.str != '\r' && *text.str != '\n')
       text.str++, text.len--;
     word.len = text.str - word.str;
     s.add_word(word);
