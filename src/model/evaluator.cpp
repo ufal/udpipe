@@ -80,39 +80,39 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
       }
 
       // Goldtok data
-      system.clear();
-      for (size_t i = 1; i < gold.words.size(); i++)
-        system.add_word(gold.words[i].form);
+      if (tokenizer == NONE && tagger != NONE) {
+        system.clear();
+        for (size_t i = 1; i < gold.words.size(); i++)
+          system.add_word(gold.words[i].form);
 
-      if (tagger != NONE) {
-        if (!m->tag(system, tagger, error))
-          return false;
+        if (tagger != NONE) {
+          if (!m->tag(system, tagger, error))
+            return false;
+          if (parser != NONE)
+            if (!m->parse(system, parser, error))
+              return false;
+        }
+        system_goldtok_data.add_sentence(system);
+      }
+
+      // Goldtok_goldtags data
+      if (tokenizer == NONE && tagger == NONE && parser != NONE) {
+        system.clear();
+        for (size_t i = 1; i < gold.words.size(); i++) {
+          system.add_word(gold.words[i].form);
+          system.words[i].upostag = gold.words[i].upostag;
+          system.words[i].xpostag = gold.words[i].xpostag;
+          system.words[i].feats = gold.words[i].feats;
+          system.words[i].lemma = gold.words[i].lemma;
+        }
         if (parser != NONE)
           if (!m->parse(system, parser, error))
             return false;
+        system_goldtok_goldtags_data.add_sentence(system);
       }
-      system_goldtok_data.add_sentence(system);
-
-      // Goldtok_goldtags data
-      system.clear();
-      for (size_t i = 1; i < gold.words.size(); i++) {
-        system.add_word(gold.words[i].form);
-        system.words[i].upostag = gold.words[i].upostag;
-        system.words[i].xpostag = gold.words[i].xpostag;
-        system.words[i].feats = gold.words[i].feats;
-        system.words[i].lemma = gold.words[i].lemma;
-      }
-      if (parser != NONE)
-        if (!m->parse(system, parser, error))
-          return false;
-      system_goldtok_goldtags_data.add_sentence(system);
     }
     if (!error.empty()) return false;
   }
-  word_alignment goldtok_alignment, goldtok_goldtags_alignment;
-  if (!word_alignment::perfect_alignment(system_goldtok_data, gold_data, goldtok_alignment) ||
-      !word_alignment::perfect_alignment(system_goldtok_goldtags_data, gold_data, goldtok_goldtags_alignment))
-    return error.assign("Internal UDPipe error (the words of the gold data and goldtok data do not match)!"), false;
 
   // Tokenize, tag and parse plaintext input
   if (tokenizer != NONE) {
@@ -189,7 +189,11 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
   }
 
   // Evaluate tagger from gold tokenization
-  if (tagger != NONE) {
+  if (tokenizer == NONE && tagger != NONE) {
+    word_alignment goldtok_alignment;
+    if (!word_alignment::perfect_alignment(system_goldtok_data, gold_data, goldtok_alignment))
+      return error.assign("Internal UDPipe error (the words of the gold data do not match)!"), false;
+
     auto upostags = goldtok_alignment.evaluate_f1([](const word& w, const word& u) { return w.upostag == u.upostag; });
     auto xpostags = goldtok_alignment.evaluate_f1([](const word& w, const word& u) { return w.xpostag == u.xpostag; });
     auto feats = goldtok_alignment.evaluate_f1([](const word& w, const word& u) { return w.feats == u.feats; });
@@ -199,19 +203,26 @@ bool evaluator::evaluate(istream& is, ostream& os, string& error) const {
        << fixed << setprecision(2) << 100. * upostags.f1 << "%, xpostag: "
        << 100. * xpostags.f1 << "%, feats: " << 100. * feats.f1 << "%, alltags: "
        << 100. * alltags.f1 << "%, lemmas: " << 100. * lemmas.f1 << '%' << endl;
+
+    if (parser != NONE) {
+      auto uas = goldtok_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head; });
+      auto las = goldtok_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head && w.deprel == u.deprel; });
+      os << "Parsing from gold tokenization with computed tags - forms: " << uas.total_gold
+         << ", UAS: " << fixed << setprecision(2) << 100. * uas.f1 << "%, LAS: " << 100. * las.f1 << '%' << endl;
+    }
   }
 
   // Evaluate parser from gold tokenization
-  if (parser != NONE)
-    for (int i = tagger==NONE; i < 2; i++) {
-      auto& alignment = i==0 ?  goldtok_alignment : goldtok_goldtags_alignment;
-      string description = i==0 ? "with computed tags" : "with gold tags";
+  if (tokenizer == NONE && tagger == NONE && parser != NONE) {
+    word_alignment goldtok_goldtags_alignment;
+    if (!word_alignment::perfect_alignment(system_goldtok_goldtags_data, gold_data, goldtok_goldtags_alignment))
+      return error.assign("Internal UDPipe error (the words of the goldtok data do not match)!"), false;
 
-      auto uas = alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head; });
-      auto las = alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head && w.deprel == u.deprel; });
-      os << "Parsing from gold tokenization " << description << " - forms: " << uas.total_gold
-         << ", UAS: " << fixed << setprecision(2) << 100. * uas.f1 << "%, LAS: " << 100. * las.f1 << '%' << endl;
-    }
+    auto uas = goldtok_goldtags_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head; });
+    auto las = goldtok_goldtags_alignment.evaluate_f1([](const word& w, const word& u) { return w.head == u.head && w.deprel == u.deprel; });
+    os << "Parsing from gold tokenization with gold tags - forms: " << uas.total_gold
+       << ", UAS: " << fixed << setprecision(2) << 100. * uas.f1 << "%, LAS: " << 100. * las.f1 << '%' << endl;
+  }
 
   return true;
 }
