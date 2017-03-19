@@ -9,7 +9,7 @@
 
 import sys
 
-from ufal.udpipe import *
+from ufal.udpipe import Model, Pipeline, ProcessingError # pylint: disable=no-name-in-module
 
 # In Python2, wrap sys.stdin and sys.stdout to work with unicode.
 if sys.version_info[0] < 3:
