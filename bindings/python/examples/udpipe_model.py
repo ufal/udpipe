@@ -8,6 +8,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import ufal.udpipe
+# ufal.udpipe.Model etc. are SWIG-magic and cannot be detected by pylint
+# pylint: disable=no-member
 
 class Model:
     def __init__(self, path):
@@ -23,11 +25,11 @@ class Model:
             raise Exception("The model does not have a tokenizer")
         return self._read(text, tokenizer)
 
-    def read(self, text, format):
+    def read(self, text, in_format):
         """Load text in the given format (conllu|horizontal|vertical) and return list of ufal.udpipe.Sentence-s."""
-        input_format = ufal.udpipe.InputFormat.newInputFormat(format)
+        input_format = ufal.udpipe.InputFormat.newInputFormat(in_format)
         if not input_format:
-            raise Exception("Cannot create input format '%s'" % format)
+            raise Exception("Cannot create input format '%s'" % in_format)
         return self._read(text, input_format)
 
     def _read(self, text, input_format):
@@ -52,10 +54,10 @@ class Model:
         """Parse the given ufal.udpipe.Sentence (inplace)."""
         self.model.parse(sentence, self.model.DEFAULT)
 
-    def write(self, sentences, format):
+    def write(self, sentences, out_format):
         """Write given ufal.udpipe.Sentence-s in the required format (conllu|horizontal|vertical)."""
 
-        output_format = ufal.udpipe.OutputFormat.newOutputFormat(format)
+        output_format = ufal.udpipe.OutputFormat.newOutputFormat(out_format)
         output = ''
         for sentence in sentences:
             output += output_format.writeSentence(sentence)
