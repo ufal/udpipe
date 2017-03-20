@@ -172,8 +172,11 @@ void sentence::set_comment(string_piece name, string_piece value) {
 
   string comment;
   comment.append("# ").append(name.str, name.len);
-  if (value.len)
-    comment.append(" = ").append(value.str, value.len);
+  if (value.len) {
+    comment.append(" = ");
+    for (size_t i = 0; i < value.len; i++)
+      comment.push_back(value.str[i] == '\r' || value.str[i] == '\n' ? ' ' : value.str[i]);
+  }
   comments.push_back(move(comment));
 }
 
