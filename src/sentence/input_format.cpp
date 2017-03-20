@@ -298,11 +298,11 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
   error.clear();
   s.clear();
 
-  // Skip spaces and newlines
-  while (text.len && (*text.str == ' ' || *text.str == '\t' || *text.str == '\r' || *text.str == '\n'))
+  // Skip tabs and newlines
+  while (text.len && (*text.str == '\t' || *text.str == '\r' || *text.str == '\n'))
     text.str++, text.len--;
 
-  // Read first word without spaces on every line
+  // Read first word without tabs on every line
   while (text.len && *text.str != '\r' && *text.str != '\n') {
     string_piece word = text;
 
@@ -322,8 +322,8 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
     else if (text.len && *text.str == '\n')
       text.str++, text.len--;
 
-    // Skip spaces on the beginning of the line
-    while (text.len && (*text.str == ' ' || *text.str == '\t'))
+    // Skip tabs on the beginning of the line
+    while (text.len && *text.str == '\t')
       text.str++, text.len--;
   }
 
