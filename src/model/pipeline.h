@@ -27,6 +27,8 @@ class pipeline {
   void set_parser(const string& parser);
   void set_output(const string& output);
 
+  void set_document_id(const string& document_id);
+
   bool process(istream& is, ostream& os, string& error) const;
 
   static const string DEFAULT;
@@ -35,6 +37,7 @@ class pipeline {
  private:
   const model* m;
   string input, tokenizer, tagger, parser, output;
+  string document_id;
 };
 
 } // namespace udpipe

@@ -160,6 +160,12 @@ bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, str
   return bool(getpara(is, block));
 }
 
+void model_morphodita_parsito::tokenizer_morphodita::reset_document(string_piece id) {
+  new_document = true;
+  document_id.assign(id.str, id.len);
+  set_text("");
+}
+
 void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
   tokenizer->set_text(text, make_copy);
 }
@@ -167,6 +173,7 @@ void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text,
 bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, string& error) {
   s.clear();
   error.clear();
+
   if (tokenizer->next_sentence(&forms, nullptr)) {
     // The forms returned by GRU tokenizer *should not* start/end with spaces,
     // but we trim them anyway (including all "remove empty forms/sentences" machinery).
@@ -202,6 +209,12 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
           tok.set_spaces_in_token(forms[i]);
       }
       splitter.append_token(tok.form, tok.misc, s);
+    }
+
+    // Mark new document if needed
+    if (new_document) {
+      s.set_new_doc(true, document_id);
+      new_document = false;
     }
 
     // Fill "# text" comment

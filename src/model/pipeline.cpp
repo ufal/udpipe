@@ -57,6 +57,10 @@ void pipeline::set_output(const string& output) {
   this->output = output.empty() ? "conllu" : output;
 }
 
+void pipeline::set_document_id(const string& document_id) {
+  this->document_id = document_id;
+}
+
 bool pipeline::process(istream& is, ostream& os, string& error) const {
   error.clear();
 
@@ -70,6 +74,7 @@ bool pipeline::process(istream& is, ostream& os, string& error) const {
     reader.reset(input_format::new_input_format(input));
     if (!reader) return error.assign("The requested input format '").append(input).append("' does not exist!"), false;
   }
+  reader->reset_document(document_id);
 
   unique_ptr<output_format> writer(output_format::new_output_format(output));
   if (!writer) return error.assign("The requested output format '").append(output).append("' does not exist!"), false;

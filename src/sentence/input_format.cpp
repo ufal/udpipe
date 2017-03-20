@@ -19,6 +19,7 @@ namespace udpipe {
 class input_format_conllu : public input_format {
  public:
   virtual bool read_block(istream& is, string& block) const override;
+  virtual void reset_document(string_piece id = string_piece()) override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
@@ -34,6 +35,10 @@ const string input_format_conllu::columns[10] = {"ID", "FORM", "LEMMA",
 
 bool input_format_conllu::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
+}
+
+void input_format_conllu::reset_document(string_piece /*id*/) {
+  set_text("");
 }
 
 void input_format_conllu::set_text(string_piece text, bool make_copy) {
@@ -180,18 +185,27 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
 class input_format_horizontal : public input_format {
  public:
   virtual bool read_block(istream& is, string& block) const override;
+  virtual void reset_document(string_piece id = string_piece()) override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
  private:
   string_piece text;
   string text_copy;
+  bool new_document = true;
+  string document_id;
 };
 
 bool input_format_horizontal::read_block(istream& is, string& block) const {
   if (getline(is, block))
     return block.push_back('\n'), true;
   return false;
+}
+
+void input_format_horizontal::reset_document(string_piece id) {
+  new_document = true;
+  document_id.assign(id.str, id.len);
+  set_text("");
 }
 
 void input_format_horizontal::set_text(string_piece text, bool make_copy) {
@@ -238,6 +252,12 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
       text.str++, text.len--;
   }
 
+  // Mark new document if needed
+  if (!s.empty() && new_document) {
+    s.set_new_doc(true, document_id);
+    new_document = false;
+  }
+
   return !s.empty();
 }
 
@@ -245,16 +265,25 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
 class input_format_vertical : public input_format {
  public:
   virtual bool read_block(istream& is, string& block) const override;
+  virtual void reset_document(string_piece id = string_piece()) override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
  private:
   string_piece text;
   string text_copy;
+  bool new_document = true;
+  string document_id;
 };
 
 bool input_format_vertical::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
+}
+
+void input_format_vertical::reset_document(string_piece id) {
+  new_document = true;
+  document_id.assign(id.str, id.len);
+  set_text("");
 }
 
 void input_format_vertical::set_text(string_piece text, bool make_copy) {
@@ -298,6 +327,12 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
       text.str++, text.len--;
   }
 
+  // Mark new document if needed
+  if (!s.empty() && new_document) {
+    s.set_new_doc(true, document_id);
+    new_document = false;
+  }
+
   return !s.empty();
 }
 
@@ -307,7 +342,7 @@ class input_format_presegmented_tokenizer : public input_format {
   input_format_presegmented_tokenizer(input_format* tokenizer) : tokenizer(tokenizer) {}
 
   virtual bool read_block(istream& is, string& block) const override;
-  virtual void reset_document() override;
+  virtual void reset_document(string_piece id) override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
@@ -323,8 +358,9 @@ bool input_format_presegmented_tokenizer::read_block(istream& is, string& block)
   return false;
 }
 
-void input_format_presegmented_tokenizer::reset_document() {
-  tokenizer->reset_document();
+void input_format_presegmented_tokenizer::reset_document(string_piece id) {
+  tokenizer->reset_document(id);
+  set_text("");
 }
 
 void input_format_presegmented_tokenizer::set_text(string_piece text, bool make_copy) {
@@ -384,11 +420,6 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
   }
 
   return !s.empty();
-}
-
-// Default implementation of virtual methods
-void input_format::reset_document() {
-  set_text("");
 }
 
 // Static factory methods

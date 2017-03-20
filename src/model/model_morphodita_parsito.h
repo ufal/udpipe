@@ -52,6 +52,7 @@ class model_morphodita_parsito : public model {
     tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter, bool normalized_spaces);
 
     virtual bool read_block(istream& is, string& block) const override;
+    virtual void reset_document(string_piece id) override;
     virtual void set_text(string_piece text, bool make_copy = false) override;
     virtual bool next_sentence(sentence& s, string& error) override;
 
@@ -59,6 +60,8 @@ class model_morphodita_parsito : public model {
     unique_ptr<morphodita::tokenizer> tokenizer;
     const multiword_splitter& splitter;
     bool normalized_spaces;
+    bool new_document = true;
+    string document_id;
     vector<string_piece> forms;
     token tok;
   };
