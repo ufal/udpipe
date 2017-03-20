@@ -317,7 +317,7 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
       text.str++, text.len--;
 
     // Skip one new line
-    if (text.len >= 2 && text.str[0] == '\r' && text.str[1] == '\r')
+    if (text.len >= 2 && text.str[0] == '\r' && text.str[1] == '\n')
       text.str += 2, text.len -= 2;
     else if (text.len && *text.str == '\n')
       text.str++, text.len--;
