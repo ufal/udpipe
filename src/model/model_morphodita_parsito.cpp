@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "model_morphodita_parsito.h"
+#include "unilib/unicode.h"
 #include "unilib/utf8.h"
 #include "utils/getpara.h"
 #include "utils/parse_int.h"
@@ -163,14 +164,29 @@ bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, str
 void model_morphodita_parsito::tokenizer_morphodita::reset_document(string_piece id) {
   new_document = true;
   document_id.assign(id.str, id.len);
+  preceeding_newlines = 2;
   set_text("");
+  saved_spaces.clear();
 }
 
 void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
-  tokenizer->set_text(text, make_copy);
+  // Start by skipping spaces and copying them to saved_spaces
+  string_piece following;
+  for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
+                                  (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
+    saved_spaces.append(text.str, following.str - text.str);
+
+  if (make_copy) {
+    text_copy.assign(text.str, text.len);
+    text = string_piece(text_copy.c_str(), text_copy.size());
+  }
+  this->text = text;
+  tokenizer->set_text(this->text, false);
 }
 
 bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, string& error) {
+  unsigned following_newlines = 0;
+
   s.clear();
   error.clear();
 
@@ -204,9 +220,37 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
       if (normalized_spaces)
         tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
       else {
-        tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, i+1 < forms.size() ? forms[i+1].str - forms[i].str - forms[i].len : 0));
+        // Fill SpacesBefore
+        if (i == 0) {
+          if (forms[0].str > text.str)
+            saved_spaces.append(text.str, forms[0].str - text.str);
+          preceeding_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
+          tok.set_spaces_before(saved_spaces);
+          saved_spaces.clear();
+        } else {
+          tok.set_spaces_before("");
+        }
+        // Fill SpacesAfter
+        if (i+1 < forms.size()) {
+          tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, forms[i+1].str - forms[i].str - forms[i].len));
+        } else {
+          text.len -= forms[i].str + forms[i].len - text.str;
+          text.str = forms[i].str + forms[i].len;
+
+          string_piece following;
+          for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
+                                          (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
+            saved_spaces.append(text.str, following.str - text.str);
+
+          following_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
+          tok.set_spaces_after(saved_spaces);
+          saved_spaces.clear();
+        }
+
+        // SpacesInToken on every token
         if (tok.form.size() != forms[i].len)
           tok.set_spaces_in_token(forms[i]);
+
       }
       splitter.append_token(tok.form, tok.misc, s);
     }
@@ -216,6 +260,11 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
       s.set_new_doc(true, document_id);
       new_document = false;
     }
+
+    // Mark new paragraph if needed
+    if (preceeding_newlines >= 2)
+      s.set_new_par(true);
+    preceeding_newlines = following_newlines;
 
     // Fill "# text" comment
     s.comments.emplace_back("# text = ");

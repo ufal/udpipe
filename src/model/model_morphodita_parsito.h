@@ -60,8 +60,14 @@ class model_morphodita_parsito : public model {
     unique_ptr<morphodita::tokenizer> tokenizer;
     const multiword_splitter& splitter;
     bool normalized_spaces;
+
     bool new_document = true;
     string document_id;
+    unsigned preceeding_newlines = 2;
+
+    string_piece text;
+    string text_copy;
+    string saved_spaces;
     vector<string_piece> forms;
     token tok;
   };
