@@ -283,6 +283,13 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
     return true;
   }
 
+  // Save unused text parts.
+  if (text.len) {
+    saved_spaces.append(text.str, text.len);
+    text.str += text.len;
+    text.len = 0;
+  }
+
   return false;
 }
 
