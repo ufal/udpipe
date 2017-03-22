@@ -89,7 +89,7 @@ void process_args_with_output_template(int argi, int argc, char* argv[], const s
     ostream& output = !output_template.empty() ? output_file : cout;
 
     // Process the data
-    processor(input, output, std::forward<U>(processor_args)...);
+    processor(input, output, i < argc ? argv[i] : "", output_template, std::forward<U>(processor_args)...);
 
     // Close the file if needed
     if (output_per_file) {
