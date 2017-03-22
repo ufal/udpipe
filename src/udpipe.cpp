@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
                        {"method", options::value{"morphodita_parsito"}},
                        {"heldout", options::value::any},
                        {"input", options::value::any},
+                       {"immediate", options::value::none},
                        {"outfile", options::value::any},
                        {"output", options::value::any},
                        {"parse", options::value::none},
@@ -66,6 +67,7 @@ int main(int argc, char* argv[]) {
                     "       " << argv[0] << " --detokenize [detokenize_opts] raw_text_file [input_files]\n"
                     "Running opts: --accuracy (measure accuracy only)\n"
                     "              --input=[conllu|horizontal|vertical]\n"
+                    "              --immediate (process sentences immediately during loading)\n"
                     "              --outfile=output file template\n"
                     "              --output=[conllu|matxin|horizontal|vertical]\n"
                     "              --tokenize (perform tokenization)\n"
@@ -184,6 +186,7 @@ int main(int argc, char* argv[]) {
                         options.count("tagger") ? options["tagger"] : options.count("tag") ? pipeline::DEFAULT : pipeline::NONE,
                         options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE,
                         options.count("output") ? options["output"] : "conllu");
+      pipeline.set_immediate(options.count("immediate"));
 
       // Process the data
       process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string, string) {
