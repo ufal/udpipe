@@ -11,6 +11,7 @@
 #include "sentence/input_format.h"
 #include "sentence/output_format.h"
 #include "unilib/utf8.h"
+#include "utils/getwhole.h"
 
 namespace ufal {
 namespace udpipe {
@@ -18,7 +19,7 @@ namespace udpipe {
 const string pipeline::DEFAULT;
 const string pipeline::NONE = "none";
 
-pipeline::pipeline(const model* m, const string& input, const string& tagger, const string& parser, const string& output) {
+pipeline::pipeline(const model* m, const string& input, const string& tagger, const string& parser, const string& output) : immediate(false) {
   set_model(m);
   set_input(input);
   set_tagger(tagger);
@@ -57,6 +58,10 @@ void pipeline::set_output(const string& output) {
   this->output = output.empty() ? "conllu" : output;
 }
 
+void pipeline::set_immediate(bool immediate) {
+  this->immediate = immediate;
+}
+
 void pipeline::set_document_id(const string& document_id) {
   this->document_id = document_id;
 }
@@ -80,7 +85,7 @@ bool pipeline::process(istream& is, ostream& os, string& error) const {
   if (!writer) return error.assign("The requested output format '").append(output).append("' does not exist!"), false;
 
   string block;
-  while (reader->read_block(is, block)) {
+  while (immediate ? reader->read_block(is, block) : getwhole(is, block)) {
     reader->set_text(block);
     while (reader->next_sentence(s, error)) {
       if (tagger != NONE)
