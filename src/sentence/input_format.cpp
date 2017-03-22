@@ -380,6 +380,10 @@ class input_format_presegmented_tokenizer : public input_format {
   unique_ptr<input_format> tokenizer;
   string_piece text;
   string text_copy;
+  bool new_document = true;
+  string document_id;
+  unsigned preceeding_newlines = 2;
+  unsigned sentence_id = 1;
 };
 
 bool input_format_presegmented_tokenizer::read_block(istream& is, string& block) const {
@@ -389,7 +393,11 @@ bool input_format_presegmented_tokenizer::read_block(istream& is, string& block)
 }
 
 void input_format_presegmented_tokenizer::reset_document(string_piece id) {
-  tokenizer->reset_document(id);
+  new_document = true;
+  document_id.assign(id.str, id.len);
+  preceeding_newlines = 2;
+  sentence_id = 1;
+  tokenizer->reset_document();
   set_text("");
 }
 
@@ -406,15 +414,20 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
   s.clear();
 
   sentence partial;
+  unsigned following_newlines = 0;
   while (text.len && s.empty()) {
     // Move next line from `text' to `line', including leading and following newlines
     string_piece line(text.str, 0);
-    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r'))
+    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r')) {
+      preceeding_newlines += line.str[line.len] == '\n';
       line.len++;
+    }
     while (line.len < text.len && (line.str[line.len] != '\n' && line.str[line.len] != '\r'))
       line.len++;
-    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r'))
+    while (line.len < text.len && (line.str[line.len] == '\n' || line.str[line.len] == '\r')) {
+      following_newlines += line.str[line.len] == '\n';
       line.len++;
+    }
     text.str += line.len, text.len -= line.len;
 
     // Add all tokens from the line to `s'
@@ -440,13 +453,39 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
         s.empty_nodes.push_back(move(empty_node));
         s.empty_nodes.back().id += words;
       }
-
-      // Append comments
-      for (auto&& comment : partial.comments) {
-        s.comments.push_back(move(comment));
-      }
     }
     if (!error.empty()) return false;
+
+    if (s.empty()) {
+      preceeding_newlines += following_newlines;
+      following_newlines = 0;
+    }
+  }
+
+  if (!s.empty()) {
+  // Mark new document if needed
+    if (new_document)
+      s.set_new_doc(true, document_id);
+    new_document = false;
+
+    // Mark new paragraph if needed
+    if (preceeding_newlines >= 2)
+      s.set_new_par(true);
+    preceeding_newlines = following_newlines;
+
+    // Sentence id
+    s.set_sent_id(to_string(sentence_id++));
+
+    // Fill "# text" comment
+    s.comments.emplace_back("# text = ");
+    for (size_t i = 1, j = 0; i < s.words.size(); i++) {
+      const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j].form : (const token&)s.words[i].form;
+      if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
+        i = s.multiword_tokens[j++].id_last;
+
+      s.comments.back().append(tok.form);
+      if (i+1 < s.words.size() && tok.get_space_after()) s.comments.back().push_back(' ');
+    }
   }
 
   return !s.empty();
