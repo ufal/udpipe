@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "model_morphodita_parsito.h"
+#include "tokenizer/morphodita_tokenizer_wrapper.h"
 #include "unilib/unicode.h"
 #include "unilib/utf8.h"
 #include "utils/getpara.h"
@@ -31,9 +32,9 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
 
   bool normalized_spaces = parsed_options.count("normalized_spaces") && parsed_options["normalized_spaces"] != "0";
 
-  input_format* result = tokenizer_factory ? new tokenizer_morphodita(tokenizer_factory->new_tokenizer(), *splitter.get(), normalized_spaces) : nullptr;
+  input_format* result = tokenizer_factory ? new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces) : nullptr;
 
-  return (parsed_options.count("presegmented") && parsed_options["presegmented"] != "0") ? input_format::new_presegmented_tokenizer(result) : result;
+  return (parsed_options.count("presegmented") && parsed_options["presegmented"] != "0" && result) ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
@@ -153,145 +154,6 @@ model* model_morphodita_parsito::load(istream& is) {
 }
 
 model_morphodita_parsito::model_morphodita_parsito(unsigned version) : version(version) {}
-
-model_morphodita_parsito::tokenizer_morphodita::tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter, bool normalized_spaces)
-  : tokenizer(tokenizer), splitter(splitter), normalized_spaces(normalized_spaces) {}
-
-bool model_morphodita_parsito::tokenizer_morphodita::read_block(istream& is, string& block) const {
-  return bool(getpara(is, block));
-}
-
-void model_morphodita_parsito::tokenizer_morphodita::reset_document(string_piece id) {
-  new_document = true;
-  document_id.assign(id.str, id.len);
-  preceeding_newlines = 2;
-  sentence_id = 1;
-  set_text("");
-  saved_spaces.clear();
-}
-
-void model_morphodita_parsito::tokenizer_morphodita::set_text(string_piece text, bool make_copy) {
-  // Start by skipping spaces and copying them to saved_spaces
-  string_piece following;
-  for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
-                                  (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
-    saved_spaces.append(text.str, following.str - text.str);
-
-  if (make_copy) {
-    text_copy.assign(text.str, text.len);
-    text = string_piece(text_copy.c_str(), text_copy.size());
-  }
-  this->text = text;
-  tokenizer->set_text(this->text, false);
-}
-
-bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, string& error) {
-  unsigned following_newlines = 0;
-
-  s.clear();
-  error.clear();
-
-  if (tokenizer->next_sentence(&forms, nullptr)) {
-    // The forms returned by GRU tokenizer *should not* start/end with spaces,
-    // but we trim them anyway (including all "remove empty forms/sentences" machinery).
-    for (size_t i = 0; i < forms.size(); i++) {
-      while (forms[i].len && (forms[i].str[0] == '\r' || forms[i].str[0] == '\n' ||
-                              forms[i].str[0] == '\t' || forms[i].str[0] == ' '))
-        forms[i].str++, forms[i].len--;
-      while (forms[i].len && (forms[i].str[forms[i].len-1] == '\r' || forms[i].str[forms[i].len-1] == '\n' ||
-                              forms[i].str[forms[i].len-1] == '\t' || forms[i].str[forms[i].len-1] == ' '))
-        forms[i].len--;
-      if (!forms[i].len)
-        forms.erase(forms.begin() + i--);
-    }
-    if (!forms.size()) return next_sentence(s, error);
-
-    for (size_t i = 0; i < forms.size(); i++) {
-      // The form might contain spaces, even '\r', '\n' or '\t',
-      // which we change to space. We also normalize multiple spaces to one.
-      tok.form.clear();
-      for (size_t j = 0; j < forms[i].len; j++) {
-        char chr = forms[i].str[j];
-        if (chr == '\r' || chr == '\n' || chr == '\t') chr = ' ';
-        if (chr != ' ' || tok.form.empty() || tok.form.back() != ' ')
-          tok.form.push_back(chr);
-      }
-
-      // Store SpaceAfter or SpacesAfter/SpacesBefore
-      if (normalized_spaces)
-        tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
-      else {
-        // Fill SpacesBefore
-        if (i == 0) {
-          if (forms[0].str > text.str)
-            saved_spaces.append(text.str, forms[0].str - text.str);
-          preceeding_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
-          tok.set_spaces_before(saved_spaces);
-          saved_spaces.clear();
-        } else {
-          tok.set_spaces_before("");
-        }
-        // Fill SpacesAfter
-        if (i+1 < forms.size()) {
-          tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, forms[i+1].str - forms[i].str - forms[i].len));
-        } else {
-          text.len -= forms[i].str + forms[i].len - text.str;
-          text.str = forms[i].str + forms[i].len;
-
-          string_piece following;
-          for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
-                                          (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
-            saved_spaces.append(text.str, following.str - text.str);
-
-          following_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
-          tok.set_spaces_after(saved_spaces);
-          saved_spaces.clear();
-        }
-
-        // SpacesInToken on every token
-        if (tok.form.size() != forms[i].len)
-          tok.set_spaces_in_token(forms[i]);
-
-      }
-      splitter.append_token(tok.form, tok.misc, s);
-    }
-
-    // Mark new document if needed
-    if (new_document) {
-      s.set_new_doc(true, document_id);
-      new_document = false;
-    }
-
-    // Mark new paragraph if needed
-    if (preceeding_newlines >= 2)
-      s.set_new_par(true);
-    preceeding_newlines = following_newlines;
-
-    s.set_sent_id(to_string(sentence_id++));
-
-    // Fill "# text" comment
-    s.comments.emplace_back("# text = ");
-    for (size_t i = 1, j = 0; i < s.words.size(); i++) {
-      const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j].form : (const token&)s.words[i].form;
-      if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
-        i = s.multiword_tokens[j++].id_last;
-
-      s.comments.back().append(tok.form);
-      if (i+1 < s.words.size() && tok.get_space_after()) s.comments.back().push_back(' ');
-    }
-
-    return true;
-  }
-
-  // Save unused text parts.
-  if (text.len) {
-    saved_spaces.append(text.str, text.len);
-    text.str += text.len;
-    text.len = 0;
-  }
-
-  return false;
-}
 
 void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const {
   // Lemma

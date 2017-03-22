@@ -11,7 +11,6 @@
 
 #include "common.h"
 #include "model.h"
-#include "morphodita/tokenizer/tokenizer.h"
 #include "morphodita/tokenizer/tokenizer_factory.h"
 #include "morphodita/tagger/tagger.h"
 #include "parsito/parser/parser.h"
@@ -46,32 +45,6 @@ class model_morphodita_parsito : public model {
   };
   vector<tagger_model> taggers;
   unique_ptr<parsito::parser> parser;
-
-  class tokenizer_morphodita : public input_format {
-   public:
-    tokenizer_morphodita(morphodita::tokenizer* tokenizer, const multiword_splitter& splitter, bool normalized_spaces);
-
-    virtual bool read_block(istream& is, string& block) const override;
-    virtual void reset_document(string_piece id) override;
-    virtual void set_text(string_piece text, bool make_copy = false) override;
-    virtual bool next_sentence(sentence& s, string& error) override;
-
-   private:
-    unique_ptr<morphodita::tokenizer> tokenizer;
-    const multiword_splitter& splitter;
-    bool normalized_spaces;
-
-    bool new_document = true;
-    string document_id;
-    unsigned preceeding_newlines = 2;
-    unsigned sentence_id = 1;
-
-    string_piece text;
-    string text_copy;
-    string saved_spaces;
-    vector<string_piece> forms;
-    token tok;
-  };
 
   struct tagger_cache {
     vector<string> forms_normalized;
