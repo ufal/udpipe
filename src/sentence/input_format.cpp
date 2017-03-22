@@ -194,7 +194,7 @@ class input_format_horizontal : public input_format {
   string text_copy;
   bool new_document = true;
   string document_id;
-  bool new_paragraph = true;
+  unsigned preceeding_newlines = 2;
   unsigned sentence_id = 1;
 };
 
@@ -207,7 +207,7 @@ bool input_format_horizontal::read_block(istream& is, string& block) const {
 void input_format_horizontal::reset_document(string_piece id) {
   new_document = true;
   document_id.assign(id.str, id.len);
-  new_paragraph = true;
+  preceeding_newlines = 2;
   sentence_id = 1;
   set_text("");
 }
@@ -226,7 +226,7 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
 
   // Skip spaces and newlines
   while (text.len && (*text.str == ' ' || *text.str == '\t' || *text.str == '\r' || *text.str == '\n')) {
-    if (*text.str == '\n') new_paragraph = true;
+    preceeding_newlines += *text.str == '\n';
     text.str++, text.len--;
   }
 
@@ -257,27 +257,21 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
     while (text.len && (*text.str == ' ' || *text.str == '\t'))
       text.str++, text.len--;
   }
-  // Skip newline mark
-  if (text.len && *text.str == '\r')
-    text.str++, text.len--;
-  if (text.len && *text.str == '\n')
-    text.str++, text.len--;
 
-  // Mark new document if needed
-  if (!s.empty() && new_document) {
-    s.set_new_doc(true, document_id);
+  if (!s.empty()) {
+    // Mark new document if needed
+    if (new_document)
+      s.set_new_doc(true, document_id);
     new_document = false;
-  }
 
-  // Mark new paragraph if needed
-  if (!s.empty() && new_paragraph) {
-    s.set_new_par(true);
-    new_paragraph = false;
-  }
+    // Mark new paragraph if needed
+    if (preceeding_newlines >= 2)
+      s.set_new_par(true);
+    preceeding_newlines = 0;
 
-  // Sentence id
-  if (!s.empty())
+    // Sentence id
     s.set_sent_id(to_string(sentence_id++));
+  }
 
   return !s.empty();
 }
@@ -295,7 +289,7 @@ class input_format_vertical : public input_format {
   string text_copy;
   bool new_document = true;
   string document_id;
-  bool new_paragraph = true;
+  unsigned preceeding_newlines = 2;
   unsigned sentence_id = 1;
 };
 
@@ -306,7 +300,7 @@ bool input_format_vertical::read_block(istream& is, string& block) const {
 void input_format_vertical::reset_document(string_piece id) {
   new_document = true;
   document_id.assign(id.str, id.len);
-  new_paragraph = true;
+  preceeding_newlines = 2;
   sentence_id = 1;
   set_text("");
 }
@@ -325,7 +319,7 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
 
   // Skip tabs and newlines
   while (text.len && (*text.str == '\t' || *text.str == '\r' || *text.str == '\n')) {
-    if (*text.str == '\n') new_paragraph = true;
+    preceeding_newlines += *text.str == '\n';
     text.str++, text.len--;
   }
 
@@ -353,27 +347,21 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
     while (text.len && *text.str == '\t')
       text.str++, text.len--;
   }
-  // Skip newline mark
-  if (text.len && *text.str == '\r')
-    text.str++, text.len--;
-  if (text.len && *text.str == '\n')
-    text.str++, text.len--;
 
-  // Mark new document if needed
-  if (!s.empty() && new_document) {
-    s.set_new_doc(true, document_id);
+  if (!s.empty()) {
+    // Mark new document if needed
+    if (new_document)
+      s.set_new_doc(true, document_id);
     new_document = false;
-  }
 
-  // Mark new paragraph if needed
-  if (!s.empty() && new_paragraph) {
-    s.set_new_par(true);
-    new_paragraph = false;
-  }
+    // Mark new paragraph if needed
+    if (preceeding_newlines >= 2)
+      s.set_new_par(true);
+    preceeding_newlines = 0;
 
-  // Sentence id
-  if (!s.empty())
+    // Sentence id
     s.set_sent_id(to_string(sentence_id++));
+  }
 
   return !s.empty();
 }
