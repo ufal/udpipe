@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
     raw_text_file.close();
 
     detokenizer detokenizer(raw_text);
-    process_args_with_output_template(2, argc, argv, options["outfile"], [&detokenizer](istream& is, ostream& os) {
+    process_args_with_output_template(2, argc, argv, options["outfile"], [&detokenizer](istream& is, ostream& os, string, string) {
       unique_ptr<input_format> conllu_input(input_format::new_conllu_input_format());
       unique_ptr<output_format> conllu_output(output_format::new_conllu_output_format());
 
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
                           options.count("parser") ? options["parser"] : options.count("parse") ? pipeline::DEFAULT : pipeline::NONE);
 
       // Process the data
-      process_args_with_output_template(2, argc, argv, options["outfile"], [&evaluator](istream& is, ostream& os) {
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&evaluator](istream& is, ostream& os, string, string) {
         string error;
         if (!evaluator.evaluate(is, os, error))
             runtime_failure("An error occurred during UDPipe execution: " << error);
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
                         options.count("output") ? options["output"] : "conllu");
 
       // Process the data
-      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os) {
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string, string) {
         string error;
         if (!pipeline.process(is, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
