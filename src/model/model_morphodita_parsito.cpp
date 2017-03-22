@@ -165,6 +165,7 @@ void model_morphodita_parsito::tokenizer_morphodita::reset_document(string_piece
   new_document = true;
   document_id.assign(id.str, id.len);
   preceeding_newlines = 2;
+  sentence_id = 1;
   set_text("");
   saved_spaces.clear();
 }
@@ -265,6 +266,8 @@ bool model_morphodita_parsito::tokenizer_morphodita::next_sentence(sentence& s, 
     if (preceeding_newlines >= 2)
       s.set_new_par(true);
     preceeding_newlines = following_newlines;
+
+    s.set_sent_id(to_string(sentence_id++));
 
     // Fill "# text" comment
     s.comments.emplace_back("# text = ");

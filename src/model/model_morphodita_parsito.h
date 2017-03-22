@@ -64,6 +64,7 @@ class model_morphodita_parsito : public model {
     bool new_document = true;
     string document_id;
     unsigned preceeding_newlines = 2;
+    unsigned sentence_id = 1;
 
     string_piece text;
     string text_copy;

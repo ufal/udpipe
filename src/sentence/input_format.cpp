@@ -195,6 +195,7 @@ class input_format_horizontal : public input_format {
   bool new_document = true;
   string document_id;
   bool new_paragraph = true;
+  unsigned sentence_id = 1;
 };
 
 bool input_format_horizontal::read_block(istream& is, string& block) const {
@@ -207,6 +208,7 @@ void input_format_horizontal::reset_document(string_piece id) {
   new_document = true;
   document_id.assign(id.str, id.len);
   new_paragraph = true;
+  sentence_id = 1;
   set_text("");
 }
 
@@ -273,6 +275,10 @@ bool input_format_horizontal::next_sentence(sentence& s, string& error) {
     new_paragraph = false;
   }
 
+  // Sentence id
+  if (!s.empty())
+    s.set_sent_id(to_string(sentence_id++));
+
   return !s.empty();
 }
 
@@ -290,6 +296,7 @@ class input_format_vertical : public input_format {
   bool new_document = true;
   string document_id;
   bool new_paragraph = true;
+  unsigned sentence_id = 1;
 };
 
 bool input_format_vertical::read_block(istream& is, string& block) const {
@@ -300,6 +307,7 @@ void input_format_vertical::reset_document(string_piece id) {
   new_document = true;
   document_id.assign(id.str, id.len);
   new_paragraph = true;
+  sentence_id = 1;
   set_text("");
 }
 
@@ -362,6 +370,10 @@ bool input_format_vertical::next_sentence(sentence& s, string& error) {
     s.set_new_par(true);
     new_paragraph = false;
   }
+
+  // Sentence id
+  if (!s.empty())
+    s.set_sent_id(to_string(sentence_id++));
 
   return !s.empty();
 }
