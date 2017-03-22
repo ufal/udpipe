@@ -189,8 +189,9 @@ int main(int argc, char* argv[]) {
       pipeline.set_immediate(options.count("immediate"));
 
       // Process the data
-      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string, string) {
+      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string is_name, string) {
         string error;
+        pipeline.set_document_id(is_name);
         if (!pipeline.process(is, os, error))
           runtime_failure("An error occurred during UDPipe execution: " << error);
       });
