@@ -271,12 +271,13 @@ output_format* output_format::new_horizontal_output_format(const string& options
   return new output_format_horizontal(parsed_options.count("paragraphs"));
 }
 
-output_format* output_format::new_plaintext_exact_output_format(const string& /*options*/) {
-  return new output_format_plaintext(false);
-}
+output_format* output_format::new_plaintext_output_format(const string& options) {
+  named_values::map parsed_options;
+  string parse_error;
+  if (!named_values::parse(options, parsed_options, parse_error))
+    return nullptr;
 
-output_format* output_format::new_plaintext_normalized_output_format(const string& /*options*/) {
-  return new output_format_plaintext(true);
+  return new output_format_plaintext(parsed_options.count("normalized_spaces"));
 }
 
 output_format* output_format::new_vertical_output_format(const string& options) {
@@ -296,8 +297,7 @@ output_format* output_format::new_output_format(const string& name) {
   if (name.compare(0, name_len, "conllu") == 0) return new_conllu_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "matxin") == 0) return new_matxin_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "horizontal") == 0) return new_horizontal_output_format(name.substr(option_offset));
-  if (name.compare(0, name_len, "plaintext_exact") == 0) return new_plaintext_exact_output_format(name.substr(option_offset));
-  if (name.compare(0, name_len, "plaintext_normalized") == 0) return new_plaintext_normalized_output_format(name.substr(option_offset));
+  if (name.compare(0, name_len, "plaintext") == 0) return new_plaintext_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "vertical") == 0) return new_vertical_output_format(name.substr(option_offset));
   return nullptr;
 }
