@@ -19,11 +19,15 @@ namespace udpipe {
 // CoNLL-U output format
 class output_format_conllu : public output_format {
  public:
+  output_format_conllu(unsigned version) : version(version) {}
+
   virtual void write_sentence(const sentence& s, ostream& os) override;
 
  private:
+  unsigned version;
   static const string underscore;
   const string& underscore_on_empty(const string& str) const { return str.empty() ? underscore : str; }
+  ostream& write_with_spaces(ostream& os, const string& str);
 };
 
 const string output_format_conllu::underscore = "_";
@@ -42,16 +46,16 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) {
       if (multiword_token < s.multiword_tokens.size() &&
           i == s.multiword_tokens[multiword_token].id_first) {
         os << s.multiword_tokens[multiword_token].id_first << '-'
-           << s.multiword_tokens[multiword_token].id_last << '\t'
-           << s.multiword_tokens[multiword_token].form << "\t_\t_\t_\t_\t_\t_\t_\t"
+           << s.multiword_tokens[multiword_token].id_last << '\t';
+        write_with_spaces(os, s.multiword_tokens[multiword_token].form) << "\t_\t_\t_\t_\t_\t_\t_\t"
            << underscore_on_empty(s.multiword_tokens[multiword_token].misc) << '\n';
         multiword_token++;
       }
 
       // Write the word
-      os << i << '\t'
-         << s.words[i].form << '\t'
-         << underscore_on_empty(s.words[i].lemma) << '\t'
+      os << i << '\t';
+      write_with_spaces(os, s.words[i].form) << '\t';
+      write_with_spaces(os, underscore_on_empty(s.words[i].lemma)) << '\t'
          << underscore_on_empty(s.words[i].upostag) << '\t'
          << underscore_on_empty(s.words[i].xpostag) << '\t'
          << underscore_on_empty(s.words[i].feats) << '\t';
@@ -62,20 +66,31 @@ void output_format_conllu::write_sentence(const sentence& s, ostream& os) {
     }
 
     // Empty nodes
-    for (; empty_node < s.empty_nodes.size() && i == s.empty_nodes[empty_node].id; empty_node++) {
-      os << i << '.' << s.empty_nodes[empty_node].index << '\t'
-         << s.empty_nodes[empty_node].form << '\t'
-         << underscore_on_empty(s.empty_nodes[empty_node].lemma) << '\t'
-         << underscore_on_empty(s.empty_nodes[empty_node].upostag) << '\t'
-         << underscore_on_empty(s.empty_nodes[empty_node].xpostag) << '\t'
-         << underscore_on_empty(s.empty_nodes[empty_node].feats) << '\t'
-         << "_\t"
-         << "_\t"
-         << underscore_on_empty(s.empty_nodes[empty_node].deps) << '\t'
-         << underscore_on_empty(s.empty_nodes[empty_node].misc) << '\n';
-    }
+    if (version >= 2)
+      for (; empty_node < s.empty_nodes.size() && i == s.empty_nodes[empty_node].id; empty_node++) {
+        os << i << '.' << s.empty_nodes[empty_node].index << '\t'
+           << s.empty_nodes[empty_node].form << '\t'
+           << underscore_on_empty(s.empty_nodes[empty_node].lemma) << '\t'
+           << underscore_on_empty(s.empty_nodes[empty_node].upostag) << '\t'
+           << underscore_on_empty(s.empty_nodes[empty_node].xpostag) << '\t'
+           << underscore_on_empty(s.empty_nodes[empty_node].feats) << '\t'
+           << "_\t"
+           << "_\t"
+           << underscore_on_empty(s.empty_nodes[empty_node].deps) << '\t'
+           << underscore_on_empty(s.empty_nodes[empty_node].misc) << '\n';
+      }
   }
   os << endl;
+}
+
+ostream& output_format_conllu::write_with_spaces(ostream& os, const string& str) {
+  if (version >= 2 || str.find(' ') == string::npos)
+    os << str;
+  else
+    for (auto&& chr : str)
+      os << (chr == ' ' ? '_' : chr);
+
+  return os;
 }
 
 // Matxin output format
@@ -227,8 +242,19 @@ void output_format_vertical::write_sentence(const sentence& s, ostream& os) {
 }
 
 // Static factory methods
-output_format* output_format::new_conllu_output_format(const string& /*options*/) {
-  return new output_format_conllu();
+output_format* output_format::new_conllu_output_format(const string& options) {
+  named_values::map parsed_options;
+  string parse_error;
+  if (!named_values::parse(options, parsed_options, parse_error))
+    return nullptr;
+
+  unsigned version = 2;
+  if (parsed_options.count("v1"))
+    version = 1;
+  if (parsed_options.count("v2"))
+    version = 2;
+
+  return new output_format_conllu(version);
 }
 
 output_format* output_format::new_matxin_output_format(const string& /*options*/) {
