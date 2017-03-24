@@ -27,11 +27,9 @@ class output_format {
   static output_format* new_conllu_output_format(const string& options = string());
   static output_format* new_matxin_output_format(const string& options = string());
   static output_format* new_horizontal_output_format(const string& options = string());
-  static output_format* new_horizontal_paragraphs_output_format(const string& options = string());
   static output_format* new_plaintext_exact_output_format(const string& options = string());
   static output_format* new_plaintext_normalized_output_format(const string& options = string());
   static output_format* new_vertical_output_format(const string& options = string());
-  static output_format* new_vertical_paragraphs_output_format(const string& options = string());
 };
 
 } // namespace udpipe
