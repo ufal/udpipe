@@ -9,6 +9,7 @@
 
 #include "input_format.h"
 #include "utils/getpara.h"
+#include "utils/named_values.h"
 #include "utils/parse_int.h"
 #include "utils/split.h"
 
@@ -18,12 +19,15 @@ namespace udpipe {
 // CoNLL-U input format
 class input_format_conllu : public input_format {
  public:
+  input_format_conllu(unsigned version) : version(version) {}
+
   virtual bool read_block(istream& is, string& block) const override;
   virtual void reset_document(string_piece id = string_piece()) override;
   virtual void set_text(string_piece text, bool make_copy = false) override;
   virtual bool next_sentence(sentence& s, string& error) override;
 
  private:
+  unsigned version;
   string_piece text;
   string text_copy;
 
@@ -79,11 +83,11 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
     if (tokens.size() != 10)
       return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' does not contain 10 columns!") , false;
 
-    // Check that no column is empty and contains no spaces (except FORM and LEMMA)
+    // Check that no column is empty and contains no spaces (except FORM and LEMMA in version >= 2)
     for (int i = 0; i < 10; i++) {
       if (!tokens[i].len)
         return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains empty column ").append(columns[i]).append("!"), false;
-      if (i != 1 && i != 2 && memchr(tokens[i].str, ' ', tokens[i].len) != NULL)
+      if ((version < 2 || (i != 1 && i != 2)) && memchr(tokens[i].str, ' ', tokens[i].len) != NULL)
         return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains spaces in column ").append(columns[i]).append("!"), false;
     }
 
@@ -110,32 +114,33 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
     }
 
     // Handle empty nodes
-    if (memchr(tokens[0].str, '.', tokens[0].len)) {
-      split(tokens[0], '.', parts);
-      if (parts.size() != 2)
-        return error.assign("Cannot parse ID of empty node '").append(line.str, line.len).append("'!") , false;
-      int id, index;
-      if (!parse_int(parts[0], "CoNLL-U empty node id", id, error) || !parse_int(parts[1], "CoNLL-U empty node index", index, error))
-        return false;
-      if (id != int(s.words.size()) - 1)
-        return error.assign("Incorrect ID '").append(parts[0].str, parts[0].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
-      if (!((s.empty_nodes.empty() && index == 1) || (!s.empty_nodes.empty() && s.empty_nodes.back().id < id && index == 1) ||
-           (!s.empty_nodes.empty() && s.empty_nodes.back().id == id && index == s.empty_nodes.back().index + 1)))
-        return error.assign("Incorrect ID index '").append(parts[1].str, parts[1].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
-      for (int i = 6; i < 8; i++)
-        if (tokens[i].len != 1 || tokens[i].str[0] != '_')
-          return error.assign("Column ").append(columns[i]).append(" of an empty node token '").append(line.str, line.len).append("' is not an empty!"), false;
+    if (version >= 2)
+      if (memchr(tokens[0].str, '.', tokens[0].len)) {
+        split(tokens[0], '.', parts);
+        if (parts.size() != 2)
+          return error.assign("Cannot parse ID of empty node '").append(line.str, line.len).append("'!") , false;
+        int id, index;
+        if (!parse_int(parts[0], "CoNLL-U empty node id", id, error) || !parse_int(parts[1], "CoNLL-U empty node index", index, error))
+          return false;
+        if (id != int(s.words.size()) - 1)
+          return error.assign("Incorrect ID '").append(parts[0].str, parts[0].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+        if (!((s.empty_nodes.empty() && index == 1) || (!s.empty_nodes.empty() && s.empty_nodes.back().id < id && index == 1) ||
+             (!s.empty_nodes.empty() && s.empty_nodes.back().id == id && index == s.empty_nodes.back().index + 1)))
+          return error.assign("Incorrect ID index '").append(parts[1].str, parts[1].len).append("' of empty node token '").append(line.str, line.len).append("'!"), false;
+        for (int i = 6; i < 8; i++)
+          if (tokens[i].len != 1 || tokens[i].str[0] != '_')
+            return error.assign("Column ").append(columns[i]).append(" of an empty node token '").append(line.str, line.len).append("' is not an empty!"), false;
 
-      s.empty_nodes.emplace_back(id, index);
-      s.empty_nodes.back().form.assign(tokens[1].str, tokens[1].len);
-      s.empty_nodes.back().lemma.assign(tokens[2].str, tokens[2].len);
-      if (!(tokens[3].len == 1 && tokens[3].str[0] == '_')) s.empty_nodes.back().upostag.assign(tokens[3].str, tokens[3].len);
-      if (!(tokens[4].len == 1 && tokens[4].str[0] == '_')) s.empty_nodes.back().xpostag.assign(tokens[4].str, tokens[4].len);
-      if (!(tokens[5].len == 1 && tokens[5].str[0] == '_')) s.empty_nodes.back().feats.assign(tokens[5].str, tokens[5].len);
-      if (!(tokens[8].len == 1 && tokens[8].str[0] == '_')) s.empty_nodes.back().deps.assign(tokens[8].str, tokens[8].len);
-      if (!(tokens[9].len == 1 && tokens[9].str[0] == '_')) s.empty_nodes.back().misc.assign(tokens[9].str, tokens[9].len);
-      continue;
-    }
+        s.empty_nodes.emplace_back(id, index);
+        s.empty_nodes.back().form.assign(tokens[1].str, tokens[1].len);
+        s.empty_nodes.back().lemma.assign(tokens[2].str, tokens[2].len);
+        if (!(tokens[3].len == 1 && tokens[3].str[0] == '_')) s.empty_nodes.back().upostag.assign(tokens[3].str, tokens[3].len);
+        if (!(tokens[4].len == 1 && tokens[4].str[0] == '_')) s.empty_nodes.back().xpostag.assign(tokens[4].str, tokens[4].len);
+        if (!(tokens[5].len == 1 && tokens[5].str[0] == '_')) s.empty_nodes.back().feats.assign(tokens[5].str, tokens[5].len);
+        if (!(tokens[8].len == 1 && tokens[8].str[0] == '_')) s.empty_nodes.back().deps.assign(tokens[8].str, tokens[8].len);
+        if (!(tokens[9].len == 1 && tokens[9].str[0] == '_')) s.empty_nodes.back().misc.assign(tokens[9].str, tokens[9].len);
+        continue;
+      }
 
     // Parse word ID and head
     int id;
@@ -492,8 +497,19 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
 }
 
 // Static factory methods
-input_format* input_format::new_conllu_input_format(const string& /*options*/) {
-  return new input_format_conllu();
+input_format* input_format::new_conllu_input_format(const string& options) {
+  named_values::map parsed_options;
+  string parse_error;
+  if (!named_values::parse(options, parsed_options, parse_error))
+    return nullptr;
+
+  unsigned version = 2;
+  if (parsed_options.count("v1"))
+    version = 1;
+  if (parsed_options.count("v2"))
+    version = 2;
+
+  return new input_format_conllu(version);
 }
 
 input_format* input_format::new_horizontal_input_format(const string& /*options*/) {
