@@ -510,18 +510,6 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     // Create the morphological dictionary and guesser from data
     cerr << "Creating morphological dictionary for tagger model " << model+1 << "." << endl;
 
-    // Guesser options
-    int guesser_suffix_len = 4; if (!option_int(tagger, "guesser_suffix_len", guesser_suffix_len, error, model)) return false;
-    int guesser_suffix_rules = run <= 1 ? 8 : 5 + hyperparameter_integer(run, 1, 0, 7);
-    if (!option_int(tagger, "guesser_suffix_rules", guesser_suffix_rules, error, model)) return false;
-    int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int(tagger, "guesser_prefixes_max", guesser_prefixes_max, error, model)) return false;
-    int guesser_prefix_min_count = 10; if (!option_int(tagger, "guesser_prefix_min_count", guesser_prefix_min_count, error, model)) return false;
-    int guesser_enrich_dictionary = run <= 1 ? 6 : 3 + hyperparameter_integer(run, 2, 0, 7);
-    if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
-
-    if (run >= 1) cerr << "Random search run " << run << ", guesser_suffix_rules=" << guesser_suffix_rules
-                       << ", guesser_enrich_dictionary=" << guesser_enrich_dictionary << endl;
-
     // Dictionary options
     int dictionary_suffix_len = 8; if (!option_int(tagger, "dictionary_suffix_len", dictionary_suffix_len, error, model)) return false;
     unordered_set<string> flat_lemmas;
@@ -536,6 +524,20 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     } else {
       flat_lemmas.insert("greek.expression");
     }
+    const string& dictionary_data = option_str(tagger, "dictionary", model);
+
+    // Guesser options
+    int guesser_suffix_len = 4; if (!option_int(tagger, "guesser_suffix_len", guesser_suffix_len, error, model)) return false;
+    int guesser_suffix_rules = run <= 1 ? 8 : 5 + hyperparameter_integer(run, 1, 0, 7);
+    if (!option_int(tagger, "guesser_suffix_rules", guesser_suffix_rules, error, model)) return false;
+    int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int(tagger, "guesser_prefixes_max", guesser_prefixes_max, error, model)) return false;
+    int guesser_prefix_min_count = 10; if (!option_int(tagger, "guesser_prefix_min_count", guesser_prefix_min_count, error, model)) return false;
+    int guesser_enrich_dictionary = run <= 1 ? 6 : 3 + hyperparameter_integer(run, 2, 0, 7);
+    if (!dictionary_data.empty()) guesser_enrich_dictionary = 0;
+    if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
+
+    if (run >= 1) cerr << "Random search run " << run << ", guesser_suffix_rules=" << guesser_suffix_rules
+                       << ", guesser_enrich_dictionary=" << guesser_enrich_dictionary << endl;
 
     // Start by generating statistical guesser
     stringstream guesser_description;
@@ -580,12 +582,42 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
           dictionary_entries.insert(analysis.second);
       }
     }
-
     morphodita::generic_morpho_encoder::tags dictionary_special_tags;
     dictionary_special_tags.unknown_tag = "~X";
     dictionary_special_tags.number_tag = most_frequent_tag(training, "NUM", use_xpostag, use_feats, combined_tag);
     dictionary_special_tags.punctuation_tag = most_frequent_tag(training, "PUNCT", use_xpostag, use_feats, combined_tag);
     dictionary_special_tags.symbol_tag = most_frequent_tag(training, "SYM", use_xpostag, use_feats, combined_tag);
+
+    // Append given dictionary data if available
+    {
+      vector<string_piece> dictionary_parts;
+      word entry;
+      string entry_encoded;
+      for (size_t index = 0, line_len; index < dictionary_data.size(); index += line_len + 1) {
+        // Skip empty lines
+        while (index < dictionary_data.size() && (dictionary_data[index] == '\r' || dictionary_data[index] == '\n'))
+          index++;
+        for (line_len = 0; index + line_len < dictionary_data.size() && dictionary_data[index + line_len] != '\r' && dictionary_data[index + line_len] != '\n'; )
+          line_len++;
+        if (!line_len) break;
+
+        split(string_piece(dictionary_data.c_str() + index, line_len), '\t', dictionary_parts);
+
+        if (dictionary_parts.size() != 5)
+          return error.assign("Dictionary line '").append(dictionary_data, index, line_len).append("' does not contain 5 tab-separated columns!"), false;
+
+        model_normalize_form(dictionary_parts[0], entry.form);
+        entry.lemma.assign(dictionary_parts[1].str, dictionary_parts[1].len == 1 && dictionary_parts[1].str[0] == '_' ? 0 : dictionary_parts[1].len);
+        entry.upostag.assign(dictionary_parts[2].str, dictionary_parts[2].len == 1 && dictionary_parts[2].str[0] == '_' ? 0 : dictionary_parts[2].len);
+        entry.xpostag.assign(dictionary_parts[3].str, dictionary_parts[3].len == 1 && dictionary_parts[3].str[0] == '_' ? 0 : dictionary_parts[3].len);
+        entry.feats.assign(dictionary_parts[4].str, dictionary_parts[4].len == 1 && dictionary_parts[4].str[0] == '_' ? 0 : dictionary_parts[4].len);
+
+        entry_encoded.assign(combine_lemma(entry, use_lemma, combined_lemma, flat_lemmas))
+            .append("\t").append(combine_tag(entry, use_xpostag, use_feats, combined_tag))
+            .append("\t").append(entry.form);
+        dictionary_entries.insert(entry_encoded);
+      }
+    }
 
     // Enrich the dictionary if required
     if (guesser_enrich_dictionary) {
