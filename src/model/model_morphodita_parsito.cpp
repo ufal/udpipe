@@ -30,7 +30,7 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  bool normalized_spaces = parsed_options.count("normalized_spaces") && parsed_options["normalized_spaces"] != "0";
+  bool normalized_spaces = parsed_options.count("normalized_spaces");
 
   input_format* result = tokenizer_factory ? new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces) : nullptr;
 

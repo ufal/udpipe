@@ -519,7 +519,7 @@ input_format* input_format::new_generic_tokenizer_input_format(const string& opt
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  bool normalized_spaces = parsed_options.count("normalized_spaces") && parsed_options["normalized_spaces"] != "0";
+  bool normalized_spaces = parsed_options.count("normalized_spaces");
 
   input_format* result = new morphodita_tokenizer_wrapper(morphodita::tokenizer::new_generic_tokenizer(), nullptr, normalized_spaces);
   return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
