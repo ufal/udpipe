@@ -8,6 +8,7 @@ Version 1.0.1-devel
 - Improve output_format API to support begin/end document marks
   and to allow state in the output_format instance (to allow
   numbering output sentences, for example).
+- Support options for input_format and output_format instances.
 
 
 Version 1.0.0 [27 May 16]
