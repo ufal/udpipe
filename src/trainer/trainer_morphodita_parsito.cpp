@@ -501,11 +501,11 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
   string normalized_form, combined_tag, combined_lemma;
 
   // Generic options
-  const string& dictionary = option_str(tagger, "dictionary_model", model);
-  if (!dictionary.empty()) {
+  const string& dictionary_model = option_str(tagger, "dictionary_model", model);
+  if (!dictionary_model.empty()) {
     // Use specified morphological dictionary
     cerr << "Using given morphological dictionary for tagger model " << model+1 << "." << endl;
-    morpho_description << dictionary;
+    morpho_description << dictionary_model;
   } else {
     // Create the morphological dictionary and guesser from data
     cerr << "Creating morphological dictionary for tagger model " << model+1 << "." << endl;
