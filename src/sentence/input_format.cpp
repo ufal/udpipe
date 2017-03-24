@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include "input_format.h"
+#include "tokenizer/morphodita_tokenizer_wrapper.h"
 #include "utils/getpara.h"
 #include "utils/named_values.h"
 #include "utils/parse_int.h"
@@ -512,6 +513,18 @@ input_format* input_format::new_conllu_input_format(const string& options) {
   return new input_format_conllu(version);
 }
 
+input_format* input_format::new_generic_tokenizer_input_format(const string& options) {
+  named_values::map parsed_options;
+  string parse_error;
+  if (!named_values::parse(options, parsed_options, parse_error))
+    return nullptr;
+
+  bool normalized_spaces = parsed_options.count("normalized_spaces") && parsed_options["normalized_spaces"] != "0";
+
+  input_format* result = new morphodita_tokenizer_wrapper(morphodita::tokenizer::new_generic_tokenizer(), nullptr, normalized_spaces);
+  return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
+}
+
 input_format* input_format::new_horizontal_input_format(const string& /*options*/) {
   return new input_format_horizontal();
 }
@@ -526,6 +539,7 @@ input_format* input_format::new_input_format(const string& name) {
   size_t option_offset = equal != string::npos ? equal + 1 : name.size();
 
   if (name.compare(0, name_len, "conllu") == 0) return new_conllu_input_format(name.substr(option_offset));
+  if (name.compare(0, name_len, "generic_tokenizer") == 0) return new_generic_tokenizer_input_format(name.substr(option_offset));
   if (name.compare(0, name_len, "horizontal") == 0) return new_horizontal_input_format(name.substr(option_offset));
   if (name.compare(0, name_len, "vertical") == 0) return new_vertical_input_format(name.substr(option_offset));
   return nullptr;
