@@ -1,6 +1,6 @@
 Version 1.0.1-devel
 -------------------
-- Morphodita_parsito models (now version 2) require at least
+- Morphodita_parsito models (now version 3) require at least
   UDPipe version 1.0.1-devel.
 - CoNLL-U v2 format is supported.
 - Improve input_format API to allow inter-block state (for correct
