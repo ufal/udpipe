@@ -85,7 +85,7 @@ bool pipeline::process(istream& is, ostream& os, string& error) const {
   if (!writer) return error.assign("The requested output format '").append(output).append("' does not exist!"), false;
 
   string block;
-  while (immediate ? reader->read_block(is, block) : getwhole(is, block)) {
+  while (immediate ? reader->read_block(is, block) : bool(getwhole(is, block))) {
     reader->set_text(block);
     while (reader->next_sentence(s, error)) {
       if (tagger != NONE)
