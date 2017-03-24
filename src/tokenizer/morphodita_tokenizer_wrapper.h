@@ -19,7 +19,7 @@ namespace udpipe {
 
 class morphodita_tokenizer_wrapper : public input_format {
  public:
-  morphodita_tokenizer_wrapper(morphodita::tokenizer* tokenizer, const multiword_splitter* splitter, bool normalized_spaces);
+  morphodita_tokenizer_wrapper(morphodita::tokenizer* tokenizer, const multiword_splitter* splitter, bool normalized_spaces, bool token_ranges);
 
   virtual bool read_block(istream& is, string& block) const override;
   virtual void reset_document(string_piece id) override;
@@ -29,7 +29,7 @@ class morphodita_tokenizer_wrapper : public input_format {
  private:
   unique_ptr<morphodita::tokenizer> tokenizer;
   const multiword_splitter* splitter;
-  bool normalized_spaces;
+  bool normalized_spaces, token_ranges;
 
   bool new_document = true;
   string document_id;
@@ -38,8 +38,10 @@ class morphodita_tokenizer_wrapper : public input_format {
 
   string_piece text;
   string text_copy;
+  size_t unicode_offset = 0, text_unicode_length = 0;
   string saved_spaces;
   vector<string_piece> forms;
+  vector<morphodita::token_range> tokens;
   token tok;
 };
 

@@ -520,8 +520,9 @@ input_format* input_format::new_generic_tokenizer_input_format(const string& opt
     return nullptr;
 
   bool normalized_spaces = parsed_options.count("normalized_spaces");
+  bool token_ranges = parsed_options.count("ranges");
 
-  input_format* result = new morphodita_tokenizer_wrapper(morphodita::tokenizer::new_generic_tokenizer(), nullptr, normalized_spaces);
+  input_format* result = new morphodita_tokenizer_wrapper(morphodita::tokenizer::new_generic_tokenizer(), nullptr, normalized_spaces, token_ranges);
   return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
 }
 

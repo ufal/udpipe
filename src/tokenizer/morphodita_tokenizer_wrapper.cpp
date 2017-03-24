@@ -17,8 +17,9 @@
 namespace ufal {
 namespace udpipe {
 
-morphodita_tokenizer_wrapper::morphodita_tokenizer_wrapper(morphodita::tokenizer* tokenizer, const multiword_splitter* splitter, bool normalized_spaces)
-  : tokenizer(tokenizer), splitter(splitter), normalized_spaces(normalized_spaces) {}
+morphodita_tokenizer_wrapper::morphodita_tokenizer_wrapper(morphodita::tokenizer* tokenizer, const multiword_splitter* splitter,
+                                                           bool normalized_spaces, bool token_ranges)
+  : tokenizer(tokenizer), splitter(splitter), normalized_spaces(normalized_spaces), token_ranges(token_ranges) {}
 
 bool morphodita_tokenizer_wrapper::read_block(istream& is, string& block) const {
   return bool(getpara(is, block));
@@ -30,22 +31,36 @@ void morphodita_tokenizer_wrapper::reset_document(string_piece id) {
   preceeding_newlines = 2;
   sentence_id = 1;
   set_text("");
+  unicode_offset = 0;
+  text_unicode_length = 0;
   saved_spaces.clear();
 }
 
 void morphodita_tokenizer_wrapper::set_text(string_piece text, bool make_copy) {
   // Start by skipping spaces and copying them to saved_spaces
   string_piece following;
-  for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
-                                  (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
+  for (char32_t chr;
+       text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
+                    (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t');
+       text = following, unicode_offset++)
     saved_spaces.append(text.str, following.str - text.str);
 
+  // Offset unicode_offset by length of previous text, update text_unicode_length for the new text
+  unicode_offset += text_unicode_length;
+  text_unicode_length = 0;
+  for (following = text; following.len; unilib::utf8::decode(following.str, following.len))
+    text_unicode_length++;
+
+  // Copy the text to local storage if needed
   if (make_copy) {
     text_copy.assign(text.str, text.len);
     text = string_piece(text_copy.c_str(), text_copy.size());
   }
+
+  // Store the text locally and in the morphodita::tokenizer
   this->text = text;
   tokenizer->set_text(this->text, false);
+
 }
 
 bool morphodita_tokenizer_wrapper::next_sentence(sentence& s, string& error) {
@@ -54,7 +69,7 @@ bool morphodita_tokenizer_wrapper::next_sentence(sentence& s, string& error) {
   s.clear();
   error.clear();
 
-  if (tokenizer->next_sentence(&forms, nullptr)) {
+  if (tokenizer->next_sentence(&forms, token_ranges ? &tokens : nullptr)) {
     // The forms returned by GRU tokenizer *should not* start/end with spaces,
     // but we trim them anyway (including all "remove empty forms/sentences" machinery).
     for (size_t i = 0; i < forms.size(); i++) {
@@ -114,8 +129,11 @@ bool morphodita_tokenizer_wrapper::next_sentence(sentence& s, string& error) {
         // SpacesInToken on every token
         if (tok.form.size() != forms[i].len)
           tok.set_spaces_in_token(forms[i]);
-
       }
+
+      // Store TokenRange if requested
+      if (token_ranges)
+        tok.set_token_range(unicode_offset + tokens[i].start, unicode_offset + tokens[i].start + tokens[i].length);
 
       if (splitter)
         splitter->append_token(tok.form, tok.misc, s);

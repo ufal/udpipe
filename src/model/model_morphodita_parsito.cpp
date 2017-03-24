@@ -25,15 +25,18 @@ namespace udpipe {
 //   - use Arabic and space normalization
 
 input_format* model_morphodita_parsito::new_tokenizer(const string& options) const {
+  if (!tokenizer_factory)
+    return nullptr;
+
   named_values::map parsed_options;
   string parse_error;
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
   bool normalized_spaces = parsed_options.count("normalized_spaces");
+  bool token_ranges = parsed_options.count("ranges");
 
-  input_format* result = tokenizer_factory ? new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces) : nullptr;
-
+  input_format* result = new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces, token_ranges);
   return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
