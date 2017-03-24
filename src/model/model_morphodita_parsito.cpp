@@ -34,7 +34,7 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
 
   input_format* result = tokenizer_factory ? new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces) : nullptr;
 
-  return (parsed_options.count("presegmented") && parsed_options["presegmented"] != "0" && result) ? input_format::new_presegmented_tokenizer(result) : result;
+  return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
