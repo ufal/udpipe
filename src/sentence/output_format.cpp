@@ -197,8 +197,9 @@ void output_format_plaintext::write_sentence(const sentence& s, ostream& os) {
       os << '\n';
     for (size_t i = 1, j = 0; i < s.words.size(); i++) {
       const token& tok = j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i) ? (const token&)s.multiword_tokens[j] : (const token&)s.words[i];
-      if (i > 1 && tok.get_space_after()) os << ' ';
       os << tok.form;
+      if (i+1 < s.words.size() && tok.get_space_after())
+        os << ' ';
       if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i))
         i = s.multiword_tokens[j++].id_last;
     }
