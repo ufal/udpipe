@@ -1207,8 +1207,10 @@ texts &ndash; only 500kB.
 The tokenizer recognizes the following options:
 </p>
 <ul style="margin-top:0">
-<li><code>tokenize_url</code> (default <code>true</code>): tokenize URLs and emails using a manually
+<li><code>tokenize_url</code> (default 1): tokenize URLs and emails using a manually
     implemented recognizer
+</li>
+<li><code>allow_spaces</code> (default 1 if any token contains a space, 0 otherwise): allow tokens to contain spaces
 </li>
 <li><code>epochs</code> (default 100): the number of epochs to train the tokenizer for
 </li>
@@ -1217,6 +1219,10 @@ The tokenizer recognizes the following options:
 <li><code>learning_rate</code> (default 0.005): the learning rate used during tokenizer training
 </li>
 <li><code>dropout</code> (default 0.1): dropout used during tokenizer training
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing sentences F1 score plus
+    tokens F1 score on heldout data
 </li>
 </ul>
 
@@ -1271,14 +1277,33 @@ The tagger recognizes the following options:
 </li>
 <li><code>provide_feats</code> (default for the first model): produce the disambiguated Feats field on output
 </li>
-<li><code>dictionary_max_form_analyses</code> (default 0 - unlimited): if a morphological dictionary
-  is constructed from the UD data, this sets maximum number of (most frequent)
-  form analyses that are to be kept in the dictionary
+<li><code>dictionary_max_form_analyses</code> (default 0 - unlimited): the number of
+  maximum number of (most frequent) form analyses from UD training data that are to be
+  kept in the morphological dictionary
+</li>
+<li><code>dictionary</code> (default empty): use given custom morphological dictionary, where every line contains
+  5 tab-separated fields FORM, LEMMA, UPOSTAG, XPOSTAG and FEATS. Note that this dictionary
+  data is appended to the dictionary created from UD training data, not replacing it.
 </li>
 <li><code>guesser_suffix_rules</code> (default 8): number of rules generated for every suffix
 </li>
-<li><code>guesser_enrich_dictionary</code> (default 6): number of rules generated for forms present
+<li><code>guesser_prefixes_max</code> (default 4 if ``provide_lemma`, 0 otherwise): maximum
+  number of form-generating prefixes to use in the guesser
+</li>
+<li><code>guesser_prefix_min_count</code> (default 10): minimum number of occurrences of form-generating
+  prefix to consider using it in the guesser
+</li>
+<li><code>guesser_enrich_dictionary</code> (default 6 if no <code>dictionary</code> is passed, 0 otherwise): number of rules generated for forms present
   in training data (assuming that the analyses from the training data may not be all)
+</li>
+<li><code>iterations</code> (default 20): number of training iterations to perform
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing tagging accuracy on heldout data
+</li>
+<li><code>templates</code> (default <code>lemmatizer</code> for second model, <code>tagger</code> otherwise): MorphoDiTa
+    feature templates to use, either <code>lemmatizer</code> which focuses more on lemmas, or
+    <code>tagger</code> which focuses more on UPOS/XPOS/FEATS
 </li>
 </ul>
 
@@ -1286,11 +1311,6 @@ The tagger recognizes the following options:
 During random hyperparameter search, <code>guesser_suffix_rules</code> is chosen uniformly from
 <i>{5,6,7,8,9,10,11,12}</i> and <code>guesser_enrich_dictionary</code> is chosen uniformly from
 <i>{3,4,5,6,7,8,9,10}</i>.
-</p>
-<p>
-Note that for very large input training files it may happen that the
-morphological dictionary will be too large and the training will end with an error.
-If that happens, use smaller values for <code>guesser_suffix_rules</code> and/or <code>guesser_enrich_dictionary</code>.
 </p>
 
 <a id="model_training_parser" name="model_training_parser"></a>
@@ -1327,6 +1347,18 @@ The transition-based systems can be configured by the following options:
 </li>
 <li><code>structured_interval</code> (default 8): use search-based oracle in addition to the <code>translation_oracle</code> specified. This almost always gives better results, but makes training 2-3 times slower. For details, see the paper <i>Straka et al. 2015: Parsing Universal Dependency Treebanks using Neural Networks and Search-Based Oracle</i>
 </li>
+<li><code>single_root</code> (default 1): allow only single root when parsing, and make sure only root node has <code>root</code> deprel (note that training data are checked to be in this format)
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The Lemmas/UPOS/XPOS/FEATS used by parser are configured by:
+</p>
+<ul style="margin-top:0">
+<li><code>use_gold_tags</code> (default 0): if false and a tagger exists, the
+  Lemmas/UPOS/XPOS/FEATS for both the training and heldout data are generated
+  by the tagger, otherwise they are taken from the gold data
+</li>
 </ul>
 
 <p style="margin-bottom:0">
@@ -1343,6 +1375,8 @@ The embeddings used by the parser can be specified as follows:
 </li>
 <li><code>embedding_lemma</code> (default 0): the dimension of the Lemma embedding used in the parser
 </li>
+<li><code>embedding_deprel</code> (default 20): the dimension of the Deprel embedding used in the parser
+</li>
 <li><code>embedding_form_file</code>: pre-trained word embeddings created by <code>word2vec</code> can be optionally used;
     pretraining embeddings even on the UD data itself improves accuracy (we use <code>-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2</code> options to pretrain on UD data)
 </li>
@@ -1350,10 +1384,6 @@ The embeddings used by the parser can be specified as follows:
 </li>
 </ul>
 
-<p>
-Note that form embedding could be pretrained directly in UDPipe (and will probably be pretrained
-in future UDPipe version).
-</p>
 <p style="margin-bottom:0">
 The neural network training options:
 </p>
@@ -1369,6 +1399,9 @@ The neural network training options:
 <li><code>learning_rate_final</code> (0.001): the final learning rate used during neural network training
 </li>
 <li><code>l2</code> (0.5): the L2 regularization used during neural network training
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing LAS on heldout data
 </li>
 </ul>
 
