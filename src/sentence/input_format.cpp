@@ -492,22 +492,26 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
 }
 
 // Static factory methods
-input_format* input_format::new_conllu_input_format() {
+input_format* input_format::new_conllu_input_format(const string& /*options*/) {
   return new input_format_conllu();
 }
 
-input_format* input_format::new_horizontal_input_format() {
+input_format* input_format::new_horizontal_input_format(const string& /*options*/) {
   return new input_format_horizontal();
 }
 
-input_format* input_format::new_vertical_input_format() {
+input_format* input_format::new_vertical_input_format(const string& /*options*/) {
   return new input_format_vertical();
 }
 
 input_format* input_format::new_input_format(const string& name) {
-  if (name == "conllu") return new_conllu_input_format();
-  if (name == "horizontal") return new_horizontal_input_format();
-  if (name == "vertical") return new_vertical_input_format();
+  size_t equal = name.find('=');
+  size_t name_len = equal != string::npos ? equal : name.size();
+  size_t option_offset = equal != string::npos ? equal + 1 : name.size();
+
+  if (name.compare(0, name_len, "conllu") == 0) return new_conllu_input_format(name.substr(option_offset));
+  if (name.compare(0, name_len, "horizontal") == 0) return new_horizontal_input_format(name.substr(option_offset));
+  if (name.compare(0, name_len, "vertical") == 0) return new_vertical_input_format(name.substr(option_offset));
   return nullptr;
 }
 
