@@ -69,17 +69,19 @@
     <ul>
     <li><a href="#run_udpipe">5.1. Running UDPipe</a>
       <ul>
-      <li><a href="#run_udpipe_immediate">5.1.1. Immediate mode</a>
+      <li><a href="#run_udpipe_immediate">5.1.1. Immediate Mode</a>
       </li>
-      <li><a href="#run_udpipe_tokenizer">5.1.2. Tokenizer</a>
+      <li><a href="#run_udpipe_model_on_demand">5.1.2. Loading Model On Demand</a>
       </li>
-      <li><a href="#run_udpipe_input">5.1.3. Input Formats</a>
+      <li><a href="#run_udpipe_tokenizer">5.1.3. Tokenizer</a>
       </li>
-      <li><a href="#run_udpipe_tagger">5.1.4. Tagger</a>
+      <li><a href="#run_udpipe_input">5.1.4. Input Formats</a>
       </li>
-      <li><a href="#run_udpipe_parser">5.1.5. Dependency Parsing</a>
+      <li><a href="#run_udpipe_tagger">5.1.5. Tagger</a>
       </li>
-      <li><a href="#run_udpipe_output">5.1.6. Output Formats</a>
+      <li><a href="#run_udpipe_parser">5.1.6. Dependency Parsing</a>
+      </li>
+      <li><a href="#run_udpipe_output">5.1.7. Output Formats</a>
       </li>
       </ul>
     </li>
@@ -601,7 +603,7 @@ Generic opts: --version
 </pre>
 
 <a id="run_udpipe_immediate" name="run_udpipe_immediate"></a>
-<h3>5.1.1. Immediate mode</h3>
+<h3>5.1.1. Immediate Mode</h3>
 
 <p>
 By default UDPipe loads the whole input file into memory before starting
@@ -619,8 +621,18 @@ input format and <code>presegmented</code> tokenizer, where the input is process
 loading every line).
 </p>
 
+<a id="run_udpipe_model_on_demand" name="run_udpipe_model_on_demand"></a>
+<h3>5.1.2. Loading Model On Demand</h3>
+
+<p>
+Although a model for UDPipe always has to be specified, the model is loaded
+only if really needed. It is therefore possible to use for example <code>none</code>
+as the model in case it is not required for performing the requested
+operation (e.g., converting between formats or using generic tokenizer).
+</p>
+
 <a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
-<h3>5.1.2. Tokenizer</h3>
+<h3>5.1.3. Tokenizer</h3>
 
 <p style="margin-bottom:0">
 If the <code>--tokenize</code> input is supplied, the input is assumed to be
@@ -643,7 +655,7 @@ tokenizer might be specified using <code>--tokenizer=data</code> option (which i
 </ul>
 
 <a id="run_udpipe_tokenizer_spaces" name="run_udpipe_tokenizer_spaces"></a>
-<h4>5.1.2.1. Preserving Original Spaces</h4>
+<h4>5.1.3.1. Preserving Original Spaces</h4>
 
 <p>
 By default, UDPipe uses custom MISC fields to store all spaces in the original
@@ -690,7 +702,7 @@ The following C-like schema is used:
 </ul>
 
 <a id="run_udpipe_tokenizer_ranges" name="run_udpipe_tokenizer_ranges"></a>
-<h4>5.1.2.2. Preserving Token Ranges</h4>
+<h4>5.1.3.2. Preserving Token Ranges</h4>
 
 <p>
 When <code>ranges</code> tokenizer option is used, range of every token in the original document
@@ -704,24 +716,45 @@ of the first character following the token (i.e., the length of the token is <co
 </p>
 
 <a id="run_udpipe_input" name="run_udpipe_input"></a>
-<h3>5.1.3. Input Formats</h3>
+<h3>5.1.4. Input Formats</h3>
 
 <p style="margin-bottom:0">
-If the tokenizer is not used, the input format is specified using the
-<code>--input</code> option. Currently supported input formats are:
+If the tokenizer is not used, the input format can be specified using the
+<code>--input</code> option. The individual input formats can be parametrized in the
+same way a tokenizer is, by using <code>format=data</code> syntax. Currently supported
+input formats are:
 </p>
 <ul style="margin-top:0">
-<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>.
+  Supported options:
+  <ul>
+  <li><code>v2</code> (default): use CoNLL-U v2
+  </li>
+  <li><code>v1</code>: allow loading only CoNLL-U v1 (i.e., no empty nodes and no spaces in forms and lemmas)
+  </li>
+  </ul>
 </li>
-<li><code>horizontal</code>: each sentence on a separate line, with tokens separated by spaces
+<li><code>generic_tokenizer</code>: generic tokenizer for English-like languages (with spaces separating tokens
+  and English-like punctuation). The tokenizer is rule-based and needs no trained model.
+  It supports the same options as a model tokenizer, i.e., <code>normalized_spaces</code>, <code>presegmented</code>
+  and <code>ranges</code>.
+</li>
+<li><code>horizontal</code>: each sentence on a separate line, with tokens separated by spaces. In order to allow
+  spaces in tokens, Unicode character 'NO-BREAK SPACE' (U+00A0) is considered part of token
+  and converted to a space during loading.
 </li>
 <li><code>vertical</code>: each token on a separate line, with an empty line denoting end of sentence;
-  only the first space-separated word is used as a token, the rest of the line is ignored
+  only the first tab-separated word is used as a token, the rest of the line is ignored
 </li>
 </ul>
 
+<p>
+Note that a model tokenizer can be specified using <code>--input</code> option too, by
+using <code>tokenizer</code> input format, for example using <code>--input tokenizer=ranges</code>.
+</p>
+
 <a id="run_udpipe_tagger" name="run_udpipe_tagger"></a>
-<h3>5.1.4. Tagger</h3>
+<h3>5.1.5. Tagger</h3>
 
 <p>
 If the <code>--tag</code> input is supplied, the input is POS tagged lemmatized
@@ -730,7 +763,7 @@ specified using <code>--tagger=data</code> option (which implies <code>--tag</co
 </p>
 
 <a id="run_udpipe_parser" name="run_udpipe_parser"></a>
-<h3>5.1.5. Dependency Parsing</h3>
+<h3>5.1.6. Dependency Parsing</h3>
 
 <p>
 If the <code>--parse</code> input is supplied, the input is parsed using
@@ -739,18 +772,55 @@ specified using <code>--parser=data</code> option (which implies <code>--parse</
 </p>
 
 <a id="run_udpipe_output" name="run_udpipe_output"></a>
-<h3>5.1.6. Output Formats</h3>
+<h3>5.1.7. Output Formats</h3>
 
 <p style="margin-bottom:0">
-The output format is specified using the <code>--output</code> option. Currently
-supported output formats are:
+The output format is specified using the <code>--output</code> option. The individual
+output formats can be parametrized in the same way as input formats, by using
+<code>format=data</code> syntax. Currently supported output formats are:
 </p>
 <ul style="margin-top:0">
 <li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+  Supported options:
+  <ul>
+  <li><code>v2</code> (default): use CoNLL-U v2
+  </li>
+  <li><code>v1</code>: produce output in CoNLL-U v1 format. Note that this is a lossy process, as
+  empty nodes are ignored and spaces in forms and lemmas are converted to underscores.
+  </li>
+  </ul>
 </li>
-<li><code>horizontal</code>: each sentence on a separate line, with words separated by a single space
+<li><code>matxin</code>: the <a href="http://wiki.apertium.org/wiki/Matxin">Matxin format</a>
 </li>
-<li><code>vertical</code>: each word on a separate line, with an empty line denoting end of sentence
+<li><code>horizontal</code>: writes the <i>words</i> (in the UD sense) in horizontal format,
+  that is, each sentence is on a separate line, with words separated by
+  a single space. Because words can contain spaces in CoNLL-U v2, the spaces in
+  words are converted to Unicode character 'NO-BREAK SPACE' (U+00A0).
+  Supported options:
+  <ul>
+  <li><code>paragraphs</code>: if given, an empty line is printed after the end of a paragraph
+  or a document (recognized by <code># newpar</code> or <code># newdoc</code> comments)
+  </li>
+  </ul>
+</li>
+<li><code>plaintext</code>: writes the <i>tokens</i> (in the UD sense) using original spacing.
+  By default, UDPipe custom MISC features (<code>SpacesBefore</code>, <code>SpacesAfter</code> and <code>SpacesInToken</code>,
+  see description in the Tokenizer section) are used to reconstruct the exact original spaces.
+  However, if the document does not contain these features or if you want only normalized
+  spacing, you can use the following option:
+  <ul>
+  <li><code>normalized_spaces</code>: write one sentence on a line, and either one or no space between
+  tokens, using the <code>SpaceAfter=No</code> feature
+  </li>
+  </ul>
+</li>
+<li><code>vertical</code>: each word on a separate line, with an empty line denoting end of sentence.
+  Supported options:
+  <ul>
+  <li><code>paragraphs</code>: if given, an empty line is printed after the end of a paragraph
+  or a document (recognized by <code># newpar</code> or <code># newdoc</code> comments)
+  </li>
+  </ul>
 </li>
 </ul>
 

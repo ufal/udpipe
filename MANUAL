@@ -270,7 +270,7 @@ The full command syntax of running UDPipe is
                 --help
 
 
-Immediate mode
+Immediate Mode
 --------------
 
 By default UDPipe loads the whole input file into memory before starting to
@@ -284,6 +284,15 @@ is processed and printed as soon as a block of input guaranteed to contain whole
 sentences is loaded. Specifically, for most input formats the input is processed
 after loading an empty line (with the exception of horizontal input format and
 presegmented tokenizer, where the input is processed after loading every line).
+
+
+Loading Model On Demand
+-----------------------
+
+Although a model for UDPipe always has to be specified, the model is loaded only
+if really needed. It is therefore possible to use for example none as the model
+in case it is not required for performing the requested operation (e.g.,
+converting between formats or using generic tokenizer).
 
 
 Tokenizer
@@ -350,14 +359,28 @@ end-start).
 Input Formats
 -------------
 
-If the tokenizer is not used, the input format is specified using the --input
-option. Currently supported input formats are:
+If the tokenizer is not used, the input format can be specified using the
+--input option. The individual input formats can be parametrized in the same way
+a tokenizer is, by using format=data syntax. Currently supported input formats
+are:
 - conllu (default): the CoNLL-U format
-  (http://universaldependencies.org/docs/format.html)
-- horizontal: each sentence on a separate line, with tokens separated by spaces
+  (http://universaldependencies.org/docs/format.html). Supported options:
+  - v2 (default): use CoNLL-U v2
+  - v1: allow loading only CoNLL-U v1 (i.e., no empty nodes and no spaces in
+    forms and lemmas)
+- generic_tokenizer: generic tokenizer for English-like languages (with spaces
+  separating tokens and English-like punctuation). The tokenizer is rule-based
+  and needs no trained model. It supports the same options as a model tokenizer,
+  i.e., normalized_spaces, presegmented and ranges.
+- horizontal: each sentence on a separate line, with tokens separated by
+  spaces. In order to allow spaces in tokens, Unicode character 'NO-BREAK SPACE'
+  (U+00A0) is considered part of token and converted to a space during loading.
 - vertical: each token on a separate line, with an empty line denoting end of
-  sentence; only the first space-separated word is used as a token, the rest of
+  sentence; only the first tab-separated word is used as a token, the rest of
   the line is ignored
+
+Note that a model tokenizer can be specified using --input option too, by using
+tokenizer input format, for example using --input tokenizer=ranges.
 
 
 Tagger
@@ -379,14 +402,34 @@ parser.  Additional arguments to the parser might be specified using
 Output Formats
 --------------
 
-The output format is specified using the --output option. Currently supported
-output formats are:
+The output format is specified using the --output option. The individual output
+formats can be parametrized in the same way as input formats, by using
+format=data syntax. Currently supported output formats are:
 - conllu (default): the CoNLL-U format
-  (http://universaldependencies.org/docs/format.html)
-- horizontal: each sentence on a separate line, with words separated by a
-  single space
+  (http://universaldependencies.org/docs/format.html) Supported options:
+  - v2 (default): use CoNLL-U v2
+  - v1: produce output in CoNLL-U v1 format. Note that this is a lossy process,
+    as empty nodes are ignored and spaces in forms and lemmas are converted to
+    underscores.
+- matxin: the Matxin format (http://wiki.apertium.org/wiki/Matxin)
+- horizontal: writes the words (in the UD sense) in horizontal format, that is,
+  each sentence is on a separate line, with words separated by a single space.
+  Because words can contain spaces in CoNLL-U v2, the spaces in words are
+  converted to Unicode character 'NO-BREAK SPACE' (U+00A0). Supported options:
+  - paragraphs: if given, an empty line is printed after the end of a paragraph
+    or a document (recognized by # newpar or # newdoc comments)
+- plaintext: writes the tokens (in the UD sense) using original spacing. By
+  default, UDPipe custom MISC features (SpacesBefore, SpacesAfter and
+  SpacesInToken, see description in the Tokenizer section) are used to
+  reconstruct the exact original spaces. However, if the document does not
+  contain these features or if you want only normalized spacing, you can use the
+  following option:
+  - normalized_spaces: write one sentence on a line, and either one or no space
+    between tokens, using the SpaceAfter=No feature
 - vertical: each word on a separate line, with an empty line denoting end of
-  sentence
+  sentence. Supported options:
+  - paragraphs: if given, an empty line is printed after the end of a paragraph
+    or a document (recognized by # newpar or # newdoc comments)
 
 
 Running the UDPipe REST Server
