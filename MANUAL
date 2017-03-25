@@ -228,116 +228,6 @@ model. This section describes the available language models and also the
 commandline tools and interfaces.
 
 
-Universal Dependencies 1.2 Models
----------------------------------
-
-Universal Dependencies 1.2 Models are distributed under the CC BY-NC-SA
-(http://creativecommons.org/licenses/by-nc-sa/4.0/) licence. The models are
-based solely on Universal Dependencies 1.2 (http://hdl.handle.net/11234/1-1548)
-treebanks. The models work in UDPipe version 1.0.
-
-Universal Dependencies 1.2 Models are versioned according to the date released
-in the format YYMMDD, where YY, MM and DD are two-digit representation of year,
-month and day, respectively. The latest version is 160523.
-
-
-Download
---------
-
-The latest version 160523 of the Czech MorphoDiTa models can be downloaded from
-LINDAT/CLARIN repository (http://hdl.handle.net/11234/1-1659).
-
-
-Acknowledgements
-----------------
-
-This work has been partially supported and has been using language resources and
-tools developed, stored and distributed by the LINDAT/CLARIN project of the
-Ministry of Education, Youth and Sports of the Czech Republic (project
-LM2015071).
-
-The models were trained on Universal Dependencies 1.2
-(http://hdl.handle.net/11234/1-1548) treebanks.
-
-For the UD treebanks which do not contain original plain text version, raw text
-is used to train the tokenizer instead. The plain texts were taken from the W2C
-- Web to Corpus (http://hdl.handle.net/11858/00-097C-0000-0022-6133-9).
-
-
-Publications
-------------
-
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. UDPipe:
-  Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization,
-  Morphological Analysis, POS Tagging and Parsing. LREC 2016, Portorož,
-  Slovenia, May 2016.
-
-
-Model Description
------------------
-
-The Universal Dependencies 1.2 models contain 36 models, each consisting of a
-tokenizer, tagger, lemmatizer and dependency parser, all trained using the UD
-data. The model for Japanese is missing, because we do not have the license for
-the required corpus of Mainichi Shinbun 1995.
-
-The tokenizer is trained using the SpaceAfter=No features. If the features are
-not present in the data, they can be filled in using raw text in the language in
-question (surprisingly, quite little data suffices, we use 500kB).
-
-The tagger, lemmatizer and parser are trained using gold UD data.
-
-Details about model architecture and training process can be found in the
-(Straka et al. 2016) paper.
-
-
-Model Performance
------------------
-
-We present the tagger, lemmatizer and parser performance, measured on the
-testing portion of the data. Only the segmentation and the tokenization of the
-testing data is retained before evaluation. Therefore, the dependency parser is
-evaluated without gold POS tags.
-
-  || Treebank             |  UPOS  |  XPOS  |  Feats | All Tags | Lemma  |  UAS   |  LAS   |
-   | Ancient Greek        |  91.1% |  77.8% |  88.7% |    77.7% |  86.9% |  68.1% |  61.6% |
-   | Ancient Greek-PROIEL |  96.7% |  96.4% |  89.3% |    88.4% |  93.4% |  75.8% |  69.6% |
-   | Arabic               |  98.8% |  97.7% |  97.8% |    97.6% |    -   |  80.4% |  75.6% |
-   | Basque               |  93.3% |    -   |  87.2% |    85.4% |  93.5% |  74.8% |  69.5% |
-   | Bulgarian            |  97.8% |  94.8% |  94.4% |    93.1% |  94.6% |  89.0% |  84.2% |
-   | Croatian             |  94.9% |    -   |  85.5% |    85.0% |  93.1% |  78.6% |  71.0% |
-   | Czech                |  98.4% |  93.2% |  92.6% |    92.2% |  97.8% |  86.9% |  83.0% |
-   | Danish               |  95.8% |    -   |  94.8% |    93.6% |  95.2% |  78.6% |  74.8% |
-   | Dutch                |  89.7% |  88.7% |  91.2% |    86.4% |  88.9% |  78.1% |  70.7% |
-   | English              |  94.5% |  93.8% |  95.4% |    92.5% |  97.0% |  84.2% |  80.6% |
-   | Estonian             |  88.0% |  73.7% |  80.0% |    73.6% |  77.0% |  79.9% |  71.5% |
-   | Finnish              |  94.9% |  96.0% |  93.2% |    92.1% |  86.8% |  81.0% |  76.5% |
-   | Finnish-FTB          |  94.0% |  91.6% |  93.3% |    91.2% |  89.1% |  81.5% |  76.9% |
-   | French               |  95.8% |    -   |    -   |    95.8% |    -   |  82.8% |  78.4% |
-   | German               |  90.5% |    -   |    -   |    90.5% |    -   |  78.2% |  72.2% |
-   | Gothic               |  95.5% |  95.7% |  88.0% |    86.3% |  93.4% |  76.4% |  68.2% |
-   | Greek                |  97.3% |  97.3% |  92.8% |    91.7% |  94.8% |  80.3% |  76.5% |
-   | Hebrew               |  94.9% |  94.9% |  91.3% |    90.5% |    -   |  82.6% |  76.8% |
-   | Hindi                |  95.8% |  94.8% |  90.2% |    87.7% |  98.0% |  91.7% |  87.5% |
-   | Hungarian            |  92.6% |    -   |  89.9% |    88.9% |  86.9% |  77.0% |  70.6% |
-   | Indonesian           |  93.5% |    -   |    -   |    93.5% |    -   |  79.9% |  73.3% |
-   | Irish                |  91.8% |  90.3% |  79.4% |    76.6% |  87.3% |  74.4% |  66.1% |
-   | Italian              |  97.2% |  97.0% |  97.1% |    96.2% |  97.7% |  88.6% |  85.8% |
-   | Latin                |  91.2% |  75.8% |  79.3% |    75.6% |  79.9% |  57.1% |  46.7% |
-   | Latin-ITT            |  98.8% |  94.0% |  94.6% |    93.8% |  98.3% |  79.9% |  76.4% |
-   | Latin-PROIEL         |  96.4% |  96.0% |  88.9% |    88.2% |  95.3% |  75.3% |  68.3% |
-   | Norwegian            |  97.2% |    -   |  95.5% |    94.7% |  96.9% |  86.7% |  84.1% |
-   | Old Church Slavonic  |  95.3% |  95.1% |  89.1% |    88.2% |  92.9% |  80.6% |  73.4% |
-   | Persian              |  97.0% |  96.3% |  96.5% |    96.2% |    -   |  83.8% |  79.4% |
-   | Polish               |  95.8% |  84.0% |  84.1% |    83.8% |  92.8% |  86.3% |  79.6% |
-   | Portuguese           |  97.6% |  92.3% |  95.3% |    92.0% |  97.8% |  85.8% |  81.9% |
-   | Romanian             |  89.0% |  81.0% |  82.3% |    81.0% |  75.3% |  68.6% |  56.9% |
-   | Slovenian            |  95.7% |  88.2% |  88.6% |    87.5% |  95.0% |  84.1% |  80.3% |
-   | Spanish              |  95.3% |    -   |  95.9% |    93.4% |  96.3% |  84.2% |  80.3% |
-   | Swedish              |  95.8% |  93.9% |  94.8% |    93.2% |  95.5% |  81.4% |  77.1% |
-   | Tamil                |  85.9% |  80.8% |  84.3% |    80.2% |  88.0% |  67.2% |  58.8% |
-
-
 Running UDPipe
 --------------
 
@@ -669,6 +559,116 @@ If --tokenize(r) option is passed, tokenizer performance is evaluted (using
 SpaceAfter=No features of the input file). If --tag(ger) and/or --parse(r)
 options are passed, tagger and/or dependency parser performance is evaluated,
 respectively.
+
+
+Universal Dependencies 1.2 Models
+---------------------------------
+
+Universal Dependencies 1.2 Models are distributed under the CC BY-NC-SA
+(http://creativecommons.org/licenses/by-nc-sa/4.0/) licence. The models are
+based solely on Universal Dependencies 1.2 (http://hdl.handle.net/11234/1-1548)
+treebanks. The models work in UDPipe version 1.0.
+
+Universal Dependencies 1.2 Models are versioned according to the date released
+in the format YYMMDD, where YY, MM and DD are two-digit representation of year,
+month and day, respectively. The latest version is 160523.
+
+
+Download
+--------
+
+The latest version 160523 of the Czech MorphoDiTa models can be downloaded from
+LINDAT/CLARIN repository (http://hdl.handle.net/11234/1-1659).
+
+
+Acknowledgements
+----------------
+
+This work has been partially supported and has been using language resources and
+tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project
+LM2015071).
+
+The models were trained on Universal Dependencies 1.2
+(http://hdl.handle.net/11234/1-1548) treebanks.
+
+For the UD treebanks which do not contain original plain text version, raw text
+is used to train the tokenizer instead. The plain texts were taken from the W2C
+- Web to Corpus (http://hdl.handle.net/11858/00-097C-0000-0022-6133-9).
+
+
+Publications
+------------
+
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. UDPipe:
+  Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization,
+  Morphological Analysis, POS Tagging and Parsing. LREC 2016, Portorož,
+  Slovenia, May 2016.
+
+
+Model Description
+-----------------
+
+The Universal Dependencies 1.2 models contain 36 models, each consisting of a
+tokenizer, tagger, lemmatizer and dependency parser, all trained using the UD
+data. The model for Japanese is missing, because we do not have the license for
+the required corpus of Mainichi Shinbun 1995.
+
+The tokenizer is trained using the SpaceAfter=No features. If the features are
+not present in the data, they can be filled in using raw text in the language in
+question (surprisingly, quite little data suffices, we use 500kB).
+
+The tagger, lemmatizer and parser are trained using gold UD data.
+
+Details about model architecture and training process can be found in the
+(Straka et al. 2016) paper.
+
+
+Model Performance
+-----------------
+
+We present the tagger, lemmatizer and parser performance, measured on the
+testing portion of the data. Only the segmentation and the tokenization of the
+testing data is retained before evaluation. Therefore, the dependency parser is
+evaluated without gold POS tags.
+
+  || Treebank             |  UPOS  |  XPOS  |  Feats | All Tags | Lemma  |  UAS   |  LAS   |
+   | Ancient Greek        |  91.1% |  77.8% |  88.7% |    77.7% |  86.9% |  68.1% |  61.6% |
+   | Ancient Greek-PROIEL |  96.7% |  96.4% |  89.3% |    88.4% |  93.4% |  75.8% |  69.6% |
+   | Arabic               |  98.8% |  97.7% |  97.8% |    97.6% |    -   |  80.4% |  75.6% |
+   | Basque               |  93.3% |    -   |  87.2% |    85.4% |  93.5% |  74.8% |  69.5% |
+   | Bulgarian            |  97.8% |  94.8% |  94.4% |    93.1% |  94.6% |  89.0% |  84.2% |
+   | Croatian             |  94.9% |    -   |  85.5% |    85.0% |  93.1% |  78.6% |  71.0% |
+   | Czech                |  98.4% |  93.2% |  92.6% |    92.2% |  97.8% |  86.9% |  83.0% |
+   | Danish               |  95.8% |    -   |  94.8% |    93.6% |  95.2% |  78.6% |  74.8% |
+   | Dutch                |  89.7% |  88.7% |  91.2% |    86.4% |  88.9% |  78.1% |  70.7% |
+   | English              |  94.5% |  93.8% |  95.4% |    92.5% |  97.0% |  84.2% |  80.6% |
+   | Estonian             |  88.0% |  73.7% |  80.0% |    73.6% |  77.0% |  79.9% |  71.5% |
+   | Finnish              |  94.9% |  96.0% |  93.2% |    92.1% |  86.8% |  81.0% |  76.5% |
+   | Finnish-FTB          |  94.0% |  91.6% |  93.3% |    91.2% |  89.1% |  81.5% |  76.9% |
+   | French               |  95.8% |    -   |    -   |    95.8% |    -   |  82.8% |  78.4% |
+   | German               |  90.5% |    -   |    -   |    90.5% |    -   |  78.2% |  72.2% |
+   | Gothic               |  95.5% |  95.7% |  88.0% |    86.3% |  93.4% |  76.4% |  68.2% |
+   | Greek                |  97.3% |  97.3% |  92.8% |    91.7% |  94.8% |  80.3% |  76.5% |
+   | Hebrew               |  94.9% |  94.9% |  91.3% |    90.5% |    -   |  82.6% |  76.8% |
+   | Hindi                |  95.8% |  94.8% |  90.2% |    87.7% |  98.0% |  91.7% |  87.5% |
+   | Hungarian            |  92.6% |    -   |  89.9% |    88.9% |  86.9% |  77.0% |  70.6% |
+   | Indonesian           |  93.5% |    -   |    -   |    93.5% |    -   |  79.9% |  73.3% |
+   | Irish                |  91.8% |  90.3% |  79.4% |    76.6% |  87.3% |  74.4% |  66.1% |
+   | Italian              |  97.2% |  97.0% |  97.1% |    96.2% |  97.7% |  88.6% |  85.8% |
+   | Latin                |  91.2% |  75.8% |  79.3% |    75.6% |  79.9% |  57.1% |  46.7% |
+   | Latin-ITT            |  98.8% |  94.0% |  94.6% |    93.8% |  98.3% |  79.9% |  76.4% |
+   | Latin-PROIEL         |  96.4% |  96.0% |  88.9% |    88.2% |  95.3% |  75.3% |  68.3% |
+   | Norwegian            |  97.2% |    -   |  95.5% |    94.7% |  96.9% |  86.7% |  84.1% |
+   | Old Church Slavonic  |  95.3% |  95.1% |  89.1% |    88.2% |  92.9% |  80.6% |  73.4% |
+   | Persian              |  97.0% |  96.3% |  96.5% |    96.2% |    -   |  83.8% |  79.4% |
+   | Polish               |  95.8% |  84.0% |  84.1% |    83.8% |  92.8% |  86.3% |  79.6% |
+   | Portuguese           |  97.6% |  92.3% |  95.3% |    92.0% |  97.8% |  85.8% |  81.9% |
+   | Romanian             |  89.0% |  81.0% |  82.3% |    81.0% |  75.3% |  68.6% |  56.9% |
+   | Slovenian            |  95.7% |  88.2% |  88.6% |    87.5% |  95.0% |  84.1% |  80.3% |
+   | Spanish              |  95.3% |    -   |  95.9% |    93.4% |  96.3% |  84.2% |  80.3% |
+   | Swedish              |  95.8% |  93.9% |  94.8% |    93.2% |  95.5% |  81.4% |  77.1% |
+   | Tamil                |  85.9% |  80.8% |  84.3% |    80.2% |  88.0% |  67.2% |  58.8% |
 
 
 UDPipe API Reference

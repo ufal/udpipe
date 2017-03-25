@@ -67,47 +67,47 @@
   </li>
   <li><a href="#users_manual">UDPipe User's Manual</a>
     <ul>
-    <li><a href="#universal_dependencies_12_models">5.1. Universal Dependencies 1.2 Models</a>
+    <li><a href="#run_udpipe">5.1. Running UDPipe</a>
       <ul>
-      <li><a href="#universal_dependencies_12_models_download">5.1.1. Download</a>
+      <li><a href="#run_udpipe_tokenizer">5.1.1. Tokenizer</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_acknowledgements">5.1.2. Acknowledgements</a>
+      <li><a href="#run_udpipe_input">5.1.2. Input Formats</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_description">5.1.3. Model Description</a>
+      <li><a href="#run_udpipe_tagger">5.1.3. Tagger</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_performance">5.1.4. Model Performance</a>
+      <li><a href="#run_udpipe_parser">5.1.4. Dependency Parsing</a>
+      </li>
+      <li><a href="#run_udpipe_output">5.1.5. Output Formats</a>
       </li>
       </ul>
     </li>
-    <li><a href="#run_udpipe">5.2. Running UDPipe</a>
+    <li><a href="#udpipe_server">5.2. Running the UDPipe REST Server</a>
+    </li>
+    <li><a href="#model_training">5.3. Training UDPipe Models</a>
       <ul>
-      <li><a href="#run_udpipe_tokenizer">5.2.1. Tokenizer</a>
+      <li><a href="#model_training_reusing_components">5.3.1. Reusing Components from Existing Models</a>
       </li>
-      <li><a href="#run_udpipe_input">5.2.2. Input Formats</a>
+      <li><a href="#model_training_random_search">5.3.2. Random Hyperparameter Search</a>
       </li>
-      <li><a href="#run_udpipe_tagger">5.2.3. Tagger</a>
+      <li><a href="#model_training_tokenizer">5.3.3. Tokenizer</a>
       </li>
-      <li><a href="#run_udpipe_parser">5.2.4. Dependency Parsing</a>
+      <li><a href="#model_training_tagger">5.3.4. Tagger</a>
       </li>
-      <li><a href="#run_udpipe_output">5.2.5. Output Formats</a>
+      <li><a href="#model_training_parser">5.3.5. Parser</a>
+      </li>
+      <li><a href="#udpipe_accuracy">5.3.6. Measuring Model Accuracy</a>
       </li>
       </ul>
     </li>
-    <li><a href="#udpipe_server">5.3. Running the UDPipe REST Server</a>
-    </li>
-    <li><a href="#model_training">5.4. Training UDPipe Models</a>
+    <li><a href="#universal_dependencies_12_models">5.4. Universal Dependencies 1.2 Models</a>
       <ul>
-      <li><a href="#model_training_reusing_components">5.4.1. Reusing Components from Existing Models</a>
+      <li><a href="#universal_dependencies_12_models_download">5.4.1. Download</a>
       </li>
-      <li><a href="#model_training_random_search">5.4.2. Random Hyperparameter Search</a>
+      <li><a href="#universal_dependencies_12_models_acknowledgements">5.4.2. Acknowledgements</a>
       </li>
-      <li><a href="#model_training_tokenizer">5.4.3. Tokenizer</a>
+      <li><a href="#universal_dependencies_12_models_description">5.4.3. Model Description</a>
       </li>
-      <li><a href="#model_training_tagger">5.4.4. Tagger</a>
-      </li>
-      <li><a href="#model_training_parser">5.4.5. Parser</a>
-      </li>
-      <li><a href="#udpipe_accuracy">5.4.6. Measuring Model Accuracy</a>
+      <li><a href="#universal_dependencies_12_models_performance">5.4.4. Model Performance</a>
       </li>
       </ul>
     </li>
@@ -548,8 +548,438 @@ This section describes the available language models and also the commandline
 tools and interfaces.
 </p>
 
+<a id="run_udpipe" name="run_udpipe"></a>
+<h2>5.1. Running UDPipe</h2>
+
+<p style="margin-bottom:0">
+Probably the most common usage of UDPipe is to tokenize, tag and parse input using
+</p>
+<pre style="margin-top:0">
+udpipe --tokenize --tag --parse udpipe_model
+</pre>
+
+<p>
+The input is assumed to be in UTF-8 encoding and can be either already tokenized
+and segmented, or it can be a plain text which is tokenized and segmented automatically.
+</p>
+<p>
+Any number of files can be specified after the <code>udpipe_model</code> and if no
+file is given, input is read from standard input. The output is by default
+saved to standard output, but if <code>--outfile=name</code> is used, it is saved
+to the given file name. The output file name can contain a <code>{}</code>, which is
+replaced by a base name of the processed file (i.e., without directories
+and an extension).
+</p>
+<p style="margin-bottom:0">
+The full command syntax of running UDPipe is
+</p>
+<pre style="margin-top:0">
+udpipe [options] udpipe_model file ...
+Options: --input=[conllu|horizontal|vertical]
+         --outfile=output file template
+         --output=[conllu|horizontal|vertical]
+         --tokenize (perform tokenization)
+         --tokenizer=tokenizer options, implies --tokenize
+         --tag (perform tagging)
+         --tagger=tagger options, implies --tag
+         --parse (perform parsing)
+         --parser=parser options, implies --parse
+</pre>
+
+<a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
+<h3>5.1.1. Tokenizer</h3>
+
+<p>
+If the <code>--tokenize</code> input is supplied, the input is assumed to be
+plain text and is tokenized using model tokenizer. Additional arguments to the
+tokenizer might be specified using <code>--tokenizer=data</code> option (which implies
+<code>--tokenize</code>).
+</p>
+
+<a id="run_udpipe_input" name="run_udpipe_input"></a>
+<h3>5.1.2. Input Formats</h3>
+
+<p style="margin-bottom:0">
+If the tokenizer is not used, the input format is specified using the
+<code>--input</code> option. Currently supported input formats are:
+</p>
+<ul style="margin-top:0">
+<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+</li>
+<li><code>horizontal</code>: each sentence on a separate line, with tokens separated by spaces
+</li>
+<li><code>vertical</code>: each token on a separate line, with an empty line denoting end of sentence;
+  only the first space-separated word is used as a token, the rest of the line is ignored
+</li>
+</ul>
+
+<a id="run_udpipe_tagger" name="run_udpipe_tagger"></a>
+<h3>5.1.3. Tagger</h3>
+
+<p>
+If the <code>--tag</code> input is supplied, the input is POS tagged lemmatized
+using the model tagger. Additional arguments to the tagger might be
+specified using <code>--tagger=data</code> option (which implies <code>--tag</code>).
+</p>
+
+<a id="run_udpipe_parser" name="run_udpipe_parser"></a>
+<h3>5.1.4. Dependency Parsing</h3>
+
+<p>
+If the <code>--parse</code> input is supplied, the input is parsed using
+the model dependency parser.  Additional arguments to the parser might be
+specified using <code>--parser=data</code> option (which implies <code>--parse</code>).
+</p>
+
+<a id="run_udpipe_output" name="run_udpipe_output"></a>
+<h3>5.1.5. Output Formats</h3>
+
+<p style="margin-bottom:0">
+The output format is specified using the <code>--output</code> option. Currently
+supported output formats are:
+</p>
+<ul style="margin-top:0">
+<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+</li>
+<li><code>horizontal</code>: each sentence on a separate line, with words separated by a single space
+</li>
+<li><code>vertical</code>: each word on a separate line, with an empty line denoting end of sentence
+</li>
+</ul>
+
+<a id="udpipe_server" name="udpipe_server"></a>
+<h2>5.2. Running the UDPipe REST Server</h2>
+
+<p>
+UDPipe also provides REST server binary <code>udpipe_server</code>.
+The binary uses <a href="http://github.com/ufal/microrestd">MicroRestD</a> as a REST
+server implementation and provides
+<a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">UDPipe REST API</a>.
+</p>
+<p style="margin-bottom:0">
+The full command syntax of <code>udpipe_server</code> is
+</p>
+<pre style="margin-top:0">
+udpipe_server [options] port (rest_id model_file acknowledgements)*
+Options: --daemon
+</pre>
+
+<p>
+The <code>udpipe_server</code> can run either in foreground or in background (when
+<code>--daemon</code> is used). The specified model files are loaded during start and
+kept in memory all the time. This behaviour may change in future to load the
+models on demand.
+</p>
+
+<a id="model_training" name="model_training"></a>
+<h2>5.3. Training UDPipe Models</h2>
+
+<p style="margin-bottom:0">
+Custom UDPipe models can be trained using the following syntax:
+</p>
+<pre style="margin-top:0">
+udpipe --train model.output [--heldout=heldout_data] training_file ...
+</pre>
+
+<p>
+The training data should be in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>.
+</p>
+<p>
+By default three model components are trained &ndash; a tokenizer, tagger and
+a parser.  Any subset of the model components can be trained and a model
+component may be copied from an existing model.
+</p>
+<p>
+The training options are specified for each model component separately
+using the <code>--tokenizer</code>, <code>--tagger</code> and <code>--parser</code> option.
+If a model component should not be trained, value <code>none</code> should
+be used (e.g., <code>--tagger=none</code>).
+</p>
+<p>
+The options are <code>name=value</code> pairs separated by a semicolon. The
+value can be either a simple string value (ending by a semicolon),
+file content specified as <code>name=file:filename</code>, or an arbitrary
+string value specified as <code>name=data:length:value</code>, where the value
+is exactly <code>length</code> bytes long.
+</p>
+
+<a id="model_training_reusing_components" name="model_training_reusing_components"></a>
+<h3>5.3.1. Reusing Components from Existing Models</h3>
+
+<p>
+The model components (tagger, parser or tagger) can be reused from
+existing models, by specifying <code>from_model=file:filename</code> option.
+</p>
+
+<a id="model_training_random_search" name="model_training_random_search"></a>
+<h3>5.3.2. Random Hyperparameter Search</h3>
+
+<p>
+The default values of hyperparameters is set to the values
+which were used the most during UD 1.2 models training, but if you
+want to reach best performance, the hyperparameters must be tuned.
+</p>
+<p>
+Apart from manual grid search, UDPipe can perform a simple random search.
+You can perform the random search by repeatedly training UDPipe
+(preferably in parallel, most likely on different computers)
+while specifying different training run number &ndash; some of the
+hyperparameters (chosen by us; but if you specify their value
+on command line, it is not modified) change their value on different
+training runs. The pseudorandom sequences of hyperparameters
+are of course deterministic.
+</p>
+<p>
+The training run can be specified by providing <code>run=number</code> option
+to a model component. The run number 1 is the default one (with best
+hyperparameters for the UD 1.2 models), runs 2 and more randomize
+the hyperparameters.
+</p>
+
+<a id="model_training_tokenizer" name="model_training_tokenizer"></a>
+<h3>5.3.3. Tokenizer</h3>
+
+<p>
+The tokenizer is trained using the <code>SpaceAfter=No</code> features in the CoNLL-U files.
+If the feature is not present, a <i>detokenizer</i> can be used to guess
+the <code>SpaceAfter=No</code> features according to a supplied plain text.
+</p>
+<p>
+In order to use the detokenizer, use <code>detokenizer=file:filename_with_plaintext</code>
+option. In UD 1.2 models, optimal performance is achieved with very small plain
+texts &ndash; only 500kB.
+</p>
+<p style="margin-bottom:0">
+The tokenizer recognizes the following options:
+</p>
+<ul style="margin-top:0">
+<li><code>tokenize_url</code> (default 1): tokenize URLs and emails using a manually
+    implemented recognizer
+</li>
+<li><code>allow_spaces</code> (default 1 if any token contains a space, 0 otherwise): allow tokens to contain spaces
+</li>
+<li><code>epochs</code> (default 100): the number of epochs to train the tokenizer for
+</li>
+<li><code>batch_size</code> (default 50): batch size used during tokenizer training
+</li>
+<li><code>learning_rate</code> (default 0.005): the learning rate used during tokenizer training
+</li>
+<li><code>dropout</code> (default 0.1): dropout used during tokenizer training
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing sentences F1 score plus
+    tokens F1 score on heldout data
+</li>
+</ul>
+
+<p>
+During random hyperparameter search, <code>batch_size</code> is chosen uniformly from <i>{50,100}</i>
+and <code>learning_rate</code> logarithmically from <i>&lt;0.0005, 0.01)</i>.
+</p>
+
+<a id="model_training_tagger" name="model_training_tagger"></a>
+<h3>5.3.4. Tagger</h3>
+
+<p>
+The tagging is currently performed using <a href="http://ufal.mff.cuni.cz/morphodita">MorphoDiTa</a>.
+The UDPipe tagger consists of possibly several MorphoDiTa models, each tagging
+some of the POS tags and/or lemmas.
+</p>
+<p>
+By default, only one model is constructed, which generates all available tags (UPOS,
+XPOS, Feats and Lemma). However, we found out during the UD 1.2 models training
+that performance improves if one model tags the UPOS, XPOS and Feats tags, while the
+other is performing lemmatization. Therefore, if you utilize two MorphoDiTa models,
+by default the first one generates all tags and the second one performs lemmatization.
+</p>
+<p>
+The number of MorphoDiTa models can be specified using <code>models=number</code> parameter.
+All other parameters may be either generic for all models (<code>guesser_suffix_rules=5</code>),
+or specific for a given model (<code>guesser_suffix_rules_2=6</code>), including the
+<code>from_model</code> option (therefore, MorphoDiTa models can be trained separately
+and then combined together to one UDPipe model).
+</p>
+<p>
+Every model utilizes UPOS for disambiguation and the first model is the one producing
+the UPOS tags on output.
+</p>
+<p style="margin-bottom:0">
+The tagger recognizes the following options:
+</p>
+<ul style="margin-top:0">
+<li><code>use_lemma</code> (default for the second model and also if there is only one model): use the
+  lemma field internally to perform disambiguation; the lemma may be not outputted
+</li>
+<li><code>provide_lemma</code> (default for the second model and also if there is only one model):
+  produce the disambiguated lemma on output
+</li>
+<li><code>use_xpostag</code> (default for the first model): use the
+  XPOS tags internally to perform disambiguation; it may not be outputted
+</li>
+<li><code>provide_xpostag</code> (default for the first model): produce the disambiguated XPOS tag on output
+</li>
+<li><code>use_feats</code> (default for the first model): use the
+  Feats internally to perform disambiguation; it may not be outputted
+</li>
+<li><code>provide_feats</code> (default for the first model): produce the disambiguated Feats field on output
+</li>
+<li><code>dictionary_max_form_analyses</code> (default 0 - unlimited): the number of
+  maximum number of (most frequent) form analyses from UD training data that are to be
+  kept in the morphological dictionary
+</li>
+<li><code>dictionary</code> (default empty): use given custom morphological dictionary, where every line contains
+  5 tab-separated fields FORM, LEMMA, UPOSTAG, XPOSTAG and FEATS. Note that this dictionary
+  data is appended to the dictionary created from UD training data, not replacing it.
+</li>
+<li><code>guesser_suffix_rules</code> (default 8): number of rules generated for every suffix
+</li>
+<li><code>guesser_prefixes_max</code> (default 4 if ``provide_lemma`, 0 otherwise): maximum
+  number of form-generating prefixes to use in the guesser
+</li>
+<li><code>guesser_prefix_min_count</code> (default 10): minimum number of occurrences of form-generating
+  prefix to consider using it in the guesser
+</li>
+<li><code>guesser_enrich_dictionary</code> (default 6 if no <code>dictionary</code> is passed, 0 otherwise): number of rules generated for forms present
+  in training data (assuming that the analyses from the training data may not be all)
+</li>
+<li><code>iterations</code> (default 20): number of training iterations to perform
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing tagging accuracy on heldout data
+</li>
+<li><code>templates</code> (default <code>lemmatizer</code> for second model, <code>tagger</code> otherwise): MorphoDiTa
+    feature templates to use, either <code>lemmatizer</code> which focuses more on lemmas, or
+    <code>tagger</code> which focuses more on UPOS/XPOS/FEATS
+</li>
+</ul>
+
+<p>
+During random hyperparameter search, <code>guesser_suffix_rules</code> is chosen uniformly from
+<i>{5,6,7,8,9,10,11,12}</i> and <code>guesser_enrich_dictionary</code> is chosen uniformly from
+<i>{3,4,5,6,7,8,9,10}</i>.
+</p>
+
+<a id="model_training_parser" name="model_training_parser"></a>
+<h3>5.3.5. Parser</h3>
+
+<p>
+The parsing is performed using <a href="http://ufal.mff.cuni.cz/parsito">Parsito</a>, which is a
+transition-based parser using neural network classifier.
+</p>
+<p style="margin-bottom:0">
+The transition-based systems can be configured by the following options:
+</p>
+<ul style="margin-top:0">
+<li><code>transition_system</code> (default projective): which transition system to use for parsing (language dependant, you can choose according
+  to language properties or try all and choose the best)
+  <ul>
+  <li><code>projective</code>: projective stack-based arc standard system with <code>shift</code>, <code>left_arc</code> and <code>right_arc</code> transitions
+  </li>
+  <li><code>swap</code>: fully non-projective system which extends <code>projective</code> system by adding <code>swap</code> transition
+  </li>
+  <li><code>link2</code>: partially non-projective system which extends <code>projective</code> system by adding <code>left_arc2</code> and <code>right_arc2</code> transitions
+  </li>
+  </ul>
+</li>
+<li><code>transition_oracle</code> (default dynamic/static_lazy_static whichever first is applicable): which transition oracle to use for the chosen <code>transition_system</code>:
+  <ul>
+  <li><code>transition_system=projective</code>: available oracles are <code>static</code> and <code>dynamic</code> (<code>dynamic</code> usually gives better results, but training time is slower)
+  </li>
+  <li><code>transition_system=swap</code>: available oracles are <code>static_eager</code> and <code>static_lazy</code> (<code>static_lazy</code> almost always gives better results)
+  </li>
+  <li><code>transition_system=link2</code>: only available oracle is <code>static</code>
+  </li>
+  </ul>
+</li>
+<li><code>structured_interval</code> (default 8): use search-based oracle in addition to the <code>translation_oracle</code> specified. This almost always gives better results, but makes training 2-3 times slower. For details, see the paper <i>Straka et al. 2015: Parsing Universal Dependency Treebanks using Neural Networks and Search-Based Oracle</i>
+</li>
+<li><code>single_root</code> (default 1): allow only single root when parsing, and make sure only root node has <code>root</code> deprel (note that training data are checked to be in this format)
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The Lemmas/UPOS/XPOS/FEATS used by parser are configured by:
+</p>
+<ul style="margin-top:0">
+<li><code>use_gold_tags</code> (default 0): if false and a tagger exists, the
+  Lemmas/UPOS/XPOS/FEATS for both the training and heldout data are generated
+  by the tagger, otherwise they are taken from the gold data
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The embeddings used by the parser can be specified as follows:
+</p>
+<ul style="margin-top:0">
+<li><code>embedding_upostag</code> (default 20): the dimension of the UPos embedding used in the parser
+</li>
+<li><code>embedding_feats</code> (default 20): the dimension of the Feats embedding used in the parser
+</li>
+<li><code>embedding_xpostag</code> (default 0): the dimension of the XPos embedding used in the parser
+</li>
+<li><code>embedding_form</code> (default 50): the dimension of the Form embedding used in the parser
+</li>
+<li><code>embedding_lemma</code> (default 0): the dimension of the Lemma embedding used in the parser
+</li>
+<li><code>embedding_deprel</code> (default 20): the dimension of the Deprel embedding used in the parser
+</li>
+<li><code>embedding_form_file</code>: pre-trained word embeddings created by <code>word2vec</code> can be optionally used;
+    pretraining embeddings even on the UD data itself improves accuracy (we use <code>-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2</code> options to pretrain on UD data)
+</li>
+<li><code>embedding_lemma_file</code>: pre-trained lemma embeddings created by <code>word2vec</code> can be optionally used;
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The neural network training options:
+</p>
+<ul style="margin-top:0">
+<li><code>iterations</code> (default 10): number of training iterations to use
+</li>
+<li><code>hidden_layer</code> (default 200): the size of the hidden layer
+</li>
+<li><code>batch_size</code> (default 10): batch size used during neural network training
+</li>
+<li><code>learning_rate</code> (default 0.02): the learning rate used during neural network training
+</li>
+<li><code>learning_rate_final</code> (0.001): the final learning rate used during neural network training
+</li>
+<li><code>l2</code> (0.5): the L2 regularization used during neural network training
+</li>
+<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
+    early stopping, choosing training iteration maximizing LAS on heldout data
+</li>
+</ul>
+
+<p>
+During random hyperparameter search, <code>structured_interval</code> is chosen uniformly from
+<i>{0,8,10}</i>, <code>learning_rate</code> is chosen logarithmically from <code>&lt;0.005,0.04)</code> and
+<code>l2</code> is chosen uniformly from <code>&lt;0.2,0.6)</code>.
+</p>
+
+<a id="udpipe_accuracy" name="udpipe_accuracy"></a>
+<h3>5.3.6. Measuring Model Accuracy</h3>
+
+<p style="margin-bottom:0">
+Measuring custom model accuracy can be performed by running:
+</p>
+<pre style="margin-top:0">
+udpipe --accuracy [udpipe_options] udpipe_model file ...
+</pre>
+
+<p>
+The command syntax is similar to the regular UDPipe operation, only
+the input must be always in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
+and the <code>--input</code> and <code>--output</code> options are ignored.
+</p>
+<p>
+If <code>--tokenize(r)</code> option is passed, tokenizer performance is evaluted
+(using <code>SpaceAfter=No</code> features of the input file). If <code>--tag(ger)</code> and/or <code>--parse(r)</code>
+options are passed, tagger and/or dependency parser performance is evaluated, respectively.
+</p>
+
 <a id="universal_dependencies_12_models" name="universal_dependencies_12_models"></a>
-<h2>5.1. Universal Dependencies 1.2 Models</h2>
+<h2>5.4. Universal Dependencies 1.2 Models</h2>
 
 <p>
 Universal Dependencies 1.2 Models are distributed under the
@@ -565,7 +995,7 @@ representation of year, month and day, respectively. The latest version is 16052
 </p>
 
 <a id="universal_dependencies_12_models_download" name="universal_dependencies_12_models_download"></a>
-<h3>5.1.1. Download</h3>
+<h3>5.4.1. Download</h3>
 
 <p>
 The latest version 160523 of the Czech MorphoDiTa models can be downloaded
@@ -573,7 +1003,7 @@ from <a href="http://hdl.handle.net/11234/1-1659">LINDAT/CLARIN repository</a>.
 </p>
 
 <a id="universal_dependencies_12_models_acknowledgements" name="universal_dependencies_12_models_acknowledgements"></a>
-<h3>5.1.2. Acknowledgements</h3>
+<h3>5.4.2. Acknowledgements</h3>
 
 <p>
 This work has been partially supported and has been using language resources
@@ -590,7 +1020,7 @@ were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-
 </p>
 
 <a id="universal_dependencies_12_models_publications" name="universal_dependencies_12_models_publications"></a>
-<h4>5.1.2.1. Publications</h4>
+<h4>5.4.2.1. Publications</h4>
 
 <ul>
 <li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> LREC 2016, Portorož, Slovenia, May 2016.
@@ -598,7 +1028,7 @@ were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-
 </ul>
 
 <a id="universal_dependencies_12_models_description" name="universal_dependencies_12_models_description"></a>
-<h3>5.1.3. Model Description</h3>
+<h3>5.4.3. Model Description</h3>
 
 <p>
 The Universal Dependencies 1.2 models contain 36 models, each consisting of
@@ -620,7 +1050,7 @@ Details about model architecture and training process can be found in the
 </p>
 
 <a id="universal_dependencies_12_models_performance" name="universal_dependencies_12_models_performance"></a>
-<h3>5.1.4. Model Performance</h3>
+<h3>5.4.4. Model Performance</h3>
 
 <p>
 We present the tagger, lemmatizer and parser performance, measured
@@ -1001,436 +1431,6 @@ Therefore, the dependency parser is evaluated without gold POS tags.
 <td align="right">58.8%</td>
 </tr>
 </table>
-
-<a id="run_udpipe" name="run_udpipe"></a>
-<h2>5.2. Running UDPipe</h2>
-
-<p style="margin-bottom:0">
-Probably the most common usage of UDPipe is to tokenize, tag and parse input using
-</p>
-<pre style="margin-top:0">
-udpipe --tokenize --tag --parse udpipe_model
-</pre>
-
-<p>
-The input is assumed to be in UTF-8 encoding and can be either already tokenized
-and segmented, or it can be a plain text which is tokenized and segmented automatically.
-</p>
-<p>
-Any number of files can be specified after the <code>udpipe_model</code> and if no
-file is given, input is read from standard input. The output is by default
-saved to standard output, but if <code>--outfile=name</code> is used, it is saved
-to the given file name. The output file name can contain a <code>{}</code>, which is
-replaced by a base name of the processed file (i.e., without directories
-and an extension).
-</p>
-<p style="margin-bottom:0">
-The full command syntax of running UDPipe is
-</p>
-<pre style="margin-top:0">
-udpipe [options] udpipe_model file ...
-Options: --input=[conllu|horizontal|vertical]
-         --outfile=output file template
-         --output=[conllu|horizontal|vertical]
-         --tokenize (perform tokenization)
-         --tokenizer=tokenizer options, implies --tokenize
-         --tag (perform tagging)
-         --tagger=tagger options, implies --tag
-         --parse (perform parsing)
-         --parser=parser options, implies --parse
-</pre>
-
-<a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
-<h3>5.2.1. Tokenizer</h3>
-
-<p>
-If the <code>--tokenize</code> input is supplied, the input is assumed to be
-plain text and is tokenized using model tokenizer. Additional arguments to the
-tokenizer might be specified using <code>--tokenizer=data</code> option (which implies
-<code>--tokenize</code>).
-</p>
-
-<a id="run_udpipe_input" name="run_udpipe_input"></a>
-<h3>5.2.2. Input Formats</h3>
-
-<p style="margin-bottom:0">
-If the tokenizer is not used, the input format is specified using the
-<code>--input</code> option. Currently supported input formats are:
-</p>
-<ul style="margin-top:0">
-<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
-</li>
-<li><code>horizontal</code>: each sentence on a separate line, with tokens separated by spaces
-</li>
-<li><code>vertical</code>: each token on a separate line, with an empty line denoting end of sentence;
-  only the first space-separated word is used as a token, the rest of the line is ignored
-</li>
-</ul>
-
-<a id="run_udpipe_tagger" name="run_udpipe_tagger"></a>
-<h3>5.2.3. Tagger</h3>
-
-<p>
-If the <code>--tag</code> input is supplied, the input is POS tagged lemmatized
-using the model tagger. Additional arguments to the tagger might be
-specified using <code>--tagger=data</code> option (which implies <code>--tag</code>).
-</p>
-
-<a id="run_udpipe_parser" name="run_udpipe_parser"></a>
-<h3>5.2.4. Dependency Parsing</h3>
-
-<p>
-If the <code>--parse</code> input is supplied, the input is parsed using
-the model dependency parser.  Additional arguments to the parser might be
-specified using <code>--parser=data</code> option (which implies <code>--parse</code>).
-</p>
-
-<a id="run_udpipe_output" name="run_udpipe_output"></a>
-<h3>5.2.5. Output Formats</h3>
-
-<p style="margin-bottom:0">
-The output format is specified using the <code>--output</code> option. Currently
-supported output formats are:
-</p>
-<ul style="margin-top:0">
-<li><code>conllu</code> (default): the <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
-</li>
-<li><code>horizontal</code>: each sentence on a separate line, with words separated by a single space
-</li>
-<li><code>vertical</code>: each word on a separate line, with an empty line denoting end of sentence
-</li>
-</ul>
-
-<a id="udpipe_server" name="udpipe_server"></a>
-<h2>5.3. Running the UDPipe REST Server</h2>
-
-<p>
-UDPipe also provides REST server binary <code>udpipe_server</code>.
-The binary uses <a href="http://github.com/ufal/microrestd">MicroRestD</a> as a REST
-server implementation and provides
-<a href="http://lindat.mff.cuni.cz/services/udpipe/api-reference.php">UDPipe REST API</a>.
-</p>
-<p style="margin-bottom:0">
-The full command syntax of <code>udpipe_server</code> is
-</p>
-<pre style="margin-top:0">
-udpipe_server [options] port (rest_id model_file acknowledgements)*
-Options: --daemon
-</pre>
-
-<p>
-The <code>udpipe_server</code> can run either in foreground or in background (when
-<code>--daemon</code> is used). The specified model files are loaded during start and
-kept in memory all the time. This behaviour may change in future to load the
-models on demand.
-</p>
-
-<a id="model_training" name="model_training"></a>
-<h2>5.4. Training UDPipe Models</h2>
-
-<p style="margin-bottom:0">
-Custom UDPipe models can be trained using the following syntax:
-</p>
-<pre style="margin-top:0">
-udpipe --train model.output [--heldout=heldout_data] training_file ...
-</pre>
-
-<p>
-The training data should be in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>.
-</p>
-<p>
-By default three model components are trained &ndash; a tokenizer, tagger and
-a parser.  Any subset of the model components can be trained and a model
-component may be copied from an existing model.
-</p>
-<p>
-The training options are specified for each model component separately
-using the <code>--tokenizer</code>, <code>--tagger</code> and <code>--parser</code> option.
-If a model component should not be trained, value <code>none</code> should
-be used (e.g., <code>--tagger=none</code>).
-</p>
-<p>
-The options are <code>name=value</code> pairs separated by a semicolon. The
-value can be either a simple string value (ending by a semicolon),
-file content specified as <code>name=file:filename</code>, or an arbitrary
-string value specified as <code>name=data:length:value</code>, where the value
-is exactly <code>length</code> bytes long.
-</p>
-
-<a id="model_training_reusing_components" name="model_training_reusing_components"></a>
-<h3>5.4.1. Reusing Components from Existing Models</h3>
-
-<p>
-The model components (tagger, parser or tagger) can be reused from
-existing models, by specifying <code>from_model=file:filename</code> option.
-</p>
-
-<a id="model_training_random_search" name="model_training_random_search"></a>
-<h3>5.4.2. Random Hyperparameter Search</h3>
-
-<p>
-The default values of hyperparameters is set to the values
-which were used the most during UD 1.2 models training, but if you
-want to reach best performance, the hyperparameters must be tuned.
-</p>
-<p>
-Apart from manual grid search, UDPipe can perform a simple random search.
-You can perform the random search by repeatedly training UDPipe
-(preferably in parallel, most likely on different computers)
-while specifying different training run number &ndash; some of the
-hyperparameters (chosen by us; but if you specify their value
-on command line, it is not modified) change their value on different
-training runs. The pseudorandom sequences of hyperparameters
-are of course deterministic.
-</p>
-<p>
-The training run can be specified by providing <code>run=number</code> option
-to a model component. The run number 1 is the default one (with best
-hyperparameters for the UD 1.2 models), runs 2 and more randomize
-the hyperparameters.
-</p>
-
-<a id="model_training_tokenizer" name="model_training_tokenizer"></a>
-<h3>5.4.3. Tokenizer</h3>
-
-<p>
-The tokenizer is trained using the <code>SpaceAfter=No</code> features in the CoNLL-U files.
-If the feature is not present, a <i>detokenizer</i> can be used to guess
-the <code>SpaceAfter=No</code> features according to a supplied plain text.
-</p>
-<p>
-In order to use the detokenizer, use <code>detokenizer=file:filename_with_plaintext</code>
-option. In UD 1.2 models, optimal performance is achieved with very small plain
-texts &ndash; only 500kB.
-</p>
-<p style="margin-bottom:0">
-The tokenizer recognizes the following options:
-</p>
-<ul style="margin-top:0">
-<li><code>tokenize_url</code> (default 1): tokenize URLs and emails using a manually
-    implemented recognizer
-</li>
-<li><code>allow_spaces</code> (default 1 if any token contains a space, 0 otherwise): allow tokens to contain spaces
-</li>
-<li><code>epochs</code> (default 100): the number of epochs to train the tokenizer for
-</li>
-<li><code>batch_size</code> (default 50): batch size used during tokenizer training
-</li>
-<li><code>learning_rate</code> (default 0.005): the learning rate used during tokenizer training
-</li>
-<li><code>dropout</code> (default 0.1): dropout used during tokenizer training
-</li>
-<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
-    early stopping, choosing training iteration maximizing sentences F1 score plus
-    tokens F1 score on heldout data
-</li>
-</ul>
-
-<p>
-During random hyperparameter search, <code>batch_size</code> is chosen uniformly from <i>{50,100}</i>
-and <code>learning_rate</code> logarithmically from <i>&lt;0.0005, 0.01)</i>.
-</p>
-
-<a id="model_training_tagger" name="model_training_tagger"></a>
-<h3>5.4.4. Tagger</h3>
-
-<p>
-The tagging is currently performed using <a href="http://ufal.mff.cuni.cz/morphodita">MorphoDiTa</a>.
-The UDPipe tagger consists of possibly several MorphoDiTa models, each tagging
-some of the POS tags and/or lemmas.
-</p>
-<p>
-By default, only one model is constructed, which generates all available tags (UPOS,
-XPOS, Feats and Lemma). However, we found out during the UD 1.2 models training
-that performance improves if one model tags the UPOS, XPOS and Feats tags, while the
-other is performing lemmatization. Therefore, if you utilize two MorphoDiTa models,
-by default the first one generates all tags and the second one performs lemmatization.
-</p>
-<p>
-The number of MorphoDiTa models can be specified using <code>models=number</code> parameter.
-All other parameters may be either generic for all models (<code>guesser_suffix_rules=5</code>),
-or specific for a given model (<code>guesser_suffix_rules_2=6</code>), including the
-<code>from_model</code> option (therefore, MorphoDiTa models can be trained separately
-and then combined together to one UDPipe model).
-</p>
-<p>
-Every model utilizes UPOS for disambiguation and the first model is the one producing
-the UPOS tags on output.
-</p>
-<p style="margin-bottom:0">
-The tagger recognizes the following options:
-</p>
-<ul style="margin-top:0">
-<li><code>use_lemma</code> (default for the second model and also if there is only one model): use the
-  lemma field internally to perform disambiguation; the lemma may be not outputted
-</li>
-<li><code>provide_lemma</code> (default for the second model and also if there is only one model):
-  produce the disambiguated lemma on output
-</li>
-<li><code>use_xpostag</code> (default for the first model): use the
-  XPOS tags internally to perform disambiguation; it may not be outputted
-</li>
-<li><code>provide_xpostag</code> (default for the first model): produce the disambiguated XPOS tag on output
-</li>
-<li><code>use_feats</code> (default for the first model): use the
-  Feats internally to perform disambiguation; it may not be outputted
-</li>
-<li><code>provide_feats</code> (default for the first model): produce the disambiguated Feats field on output
-</li>
-<li><code>dictionary_max_form_analyses</code> (default 0 - unlimited): the number of
-  maximum number of (most frequent) form analyses from UD training data that are to be
-  kept in the morphological dictionary
-</li>
-<li><code>dictionary</code> (default empty): use given custom morphological dictionary, where every line contains
-  5 tab-separated fields FORM, LEMMA, UPOSTAG, XPOSTAG and FEATS. Note that this dictionary
-  data is appended to the dictionary created from UD training data, not replacing it.
-</li>
-<li><code>guesser_suffix_rules</code> (default 8): number of rules generated for every suffix
-</li>
-<li><code>guesser_prefixes_max</code> (default 4 if ``provide_lemma`, 0 otherwise): maximum
-  number of form-generating prefixes to use in the guesser
-</li>
-<li><code>guesser_prefix_min_count</code> (default 10): minimum number of occurrences of form-generating
-  prefix to consider using it in the guesser
-</li>
-<li><code>guesser_enrich_dictionary</code> (default 6 if no <code>dictionary</code> is passed, 0 otherwise): number of rules generated for forms present
-  in training data (assuming that the analyses from the training data may not be all)
-</li>
-<li><code>iterations</code> (default 20): number of training iterations to perform
-</li>
-<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
-    early stopping, choosing training iteration maximizing tagging accuracy on heldout data
-</li>
-<li><code>templates</code> (default <code>lemmatizer</code> for second model, <code>tagger</code> otherwise): MorphoDiTa
-    feature templates to use, either <code>lemmatizer</code> which focuses more on lemmas, or
-    <code>tagger</code> which focuses more on UPOS/XPOS/FEATS
-</li>
-</ul>
-
-<p>
-During random hyperparameter search, <code>guesser_suffix_rules</code> is chosen uniformly from
-<i>{5,6,7,8,9,10,11,12}</i> and <code>guesser_enrich_dictionary</code> is chosen uniformly from
-<i>{3,4,5,6,7,8,9,10}</i>.
-</p>
-
-<a id="model_training_parser" name="model_training_parser"></a>
-<h3>5.4.5. Parser</h3>
-
-<p>
-The parsing is performed using <a href="http://ufal.mff.cuni.cz/parsito">Parsito</a>, which is a
-transition-based parser using neural network classifier.
-</p>
-<p style="margin-bottom:0">
-The transition-based systems can be configured by the following options:
-</p>
-<ul style="margin-top:0">
-<li><code>transition_system</code> (default projective): which transition system to use for parsing (language dependant, you can choose according
-  to language properties or try all and choose the best)
-  <ul>
-  <li><code>projective</code>: projective stack-based arc standard system with <code>shift</code>, <code>left_arc</code> and <code>right_arc</code> transitions
-  </li>
-  <li><code>swap</code>: fully non-projective system which extends <code>projective</code> system by adding <code>swap</code> transition
-  </li>
-  <li><code>link2</code>: partially non-projective system which extends <code>projective</code> system by adding <code>left_arc2</code> and <code>right_arc2</code> transitions
-  </li>
-  </ul>
-</li>
-<li><code>transition_oracle</code> (default dynamic/static_lazy_static whichever first is applicable): which transition oracle to use for the chosen <code>transition_system</code>:
-  <ul>
-  <li><code>transition_system=projective</code>: available oracles are <code>static</code> and <code>dynamic</code> (<code>dynamic</code> usually gives better results, but training time is slower)
-  </li>
-  <li><code>transition_system=swap</code>: available oracles are <code>static_eager</code> and <code>static_lazy</code> (<code>static_lazy</code> almost always gives better results)
-  </li>
-  <li><code>transition_system=link2</code>: only available oracle is <code>static</code>
-  </li>
-  </ul>
-</li>
-<li><code>structured_interval</code> (default 8): use search-based oracle in addition to the <code>translation_oracle</code> specified. This almost always gives better results, but makes training 2-3 times slower. For details, see the paper <i>Straka et al. 2015: Parsing Universal Dependency Treebanks using Neural Networks and Search-Based Oracle</i>
-</li>
-<li><code>single_root</code> (default 1): allow only single root when parsing, and make sure only root node has <code>root</code> deprel (note that training data are checked to be in this format)
-</li>
-</ul>
-
-<p style="margin-bottom:0">
-The Lemmas/UPOS/XPOS/FEATS used by parser are configured by:
-</p>
-<ul style="margin-top:0">
-<li><code>use_gold_tags</code> (default 0): if false and a tagger exists, the
-  Lemmas/UPOS/XPOS/FEATS for both the training and heldout data are generated
-  by the tagger, otherwise they are taken from the gold data
-</li>
-</ul>
-
-<p style="margin-bottom:0">
-The embeddings used by the parser can be specified as follows:
-</p>
-<ul style="margin-top:0">
-<li><code>embedding_upostag</code> (default 20): the dimension of the UPos embedding used in the parser
-</li>
-<li><code>embedding_feats</code> (default 20): the dimension of the Feats embedding used in the parser
-</li>
-<li><code>embedding_xpostag</code> (default 0): the dimension of the XPos embedding used in the parser
-</li>
-<li><code>embedding_form</code> (default 50): the dimension of the Form embedding used in the parser
-</li>
-<li><code>embedding_lemma</code> (default 0): the dimension of the Lemma embedding used in the parser
-</li>
-<li><code>embedding_deprel</code> (default 20): the dimension of the Deprel embedding used in the parser
-</li>
-<li><code>embedding_form_file</code>: pre-trained word embeddings created by <code>word2vec</code> can be optionally used;
-    pretraining embeddings even on the UD data itself improves accuracy (we use <code>-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2</code> options to pretrain on UD data)
-</li>
-<li><code>embedding_lemma_file</code>: pre-trained lemma embeddings created by <code>word2vec</code> can be optionally used;
-</li>
-</ul>
-
-<p style="margin-bottom:0">
-The neural network training options:
-</p>
-<ul style="margin-top:0">
-<li><code>iterations</code> (default 10): number of training iterations to use
-</li>
-<li><code>hidden_layer</code> (default 200): the size of the hidden layer
-</li>
-<li><code>batch_size</code> (default 10): batch size used during neural network training
-</li>
-<li><code>learning_rate</code> (default 0.02): the learning rate used during neural network training
-</li>
-<li><code>learning_rate_final</code> (0.001): the final learning rate used during neural network training
-</li>
-<li><code>l2</code> (0.5): the L2 regularization used during neural network training
-</li>
-<li><code>early_stopping</code> (default 1 if heldout is given, 0 otherwise): perform
-    early stopping, choosing training iteration maximizing LAS on heldout data
-</li>
-</ul>
-
-<p>
-During random hyperparameter search, <code>structured_interval</code> is chosen uniformly from
-<i>{0,8,10}</i>, <code>learning_rate</code> is chosen logarithmically from <code>&lt;0.005,0.04)</code> and
-<code>l2</code> is chosen uniformly from <code>&lt;0.2,0.6)</code>.
-</p>
-
-<a id="udpipe_accuracy" name="udpipe_accuracy"></a>
-<h3>5.4.6. Measuring Model Accuracy</h3>
-
-<p style="margin-bottom:0">
-Measuring custom model accuracy can be performed by running:
-</p>
-<pre style="margin-top:0">
-udpipe --accuracy [udpipe_options] udpipe_model file ...
-</pre>
-
-<p>
-The command syntax is similar to the regular UDPipe operation, only
-the input must be always in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
-and the <code>--input</code> and <code>--output</code> options are ignored.
-</p>
-<p>
-If <code>--tokenize(r)</code> option is passed, tokenizer performance is evaluted
-(using <code>SpaceAfter=No</code> features of the input file). If <code>--tag(ger)</code> and/or <code>--parse(r)</code>
-options are passed, tagger and/or dependency parser performance is evaluated, respectively.
-</p>
 
 <a id="api_reference" name="api_reference"></a>
 <h1>6. UDPipe API Reference</h1>

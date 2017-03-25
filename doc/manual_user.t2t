@@ -6,9 +6,6 @@ This section describes the available language models and also the commandline
 tools and interfaces.
 
 
-%!include: manual_model_ud-1.2.t2t
-
-
 == Running UDPipe ==[run_udpipe]
 
 Probably the most common usage of UDPipe is to tokenize, tag and parse input using
@@ -293,3 +290,6 @@ and the ``--input`` and ``--output`` options are ignored.
 If ``--tokenize(r)`` option is passed, tokenizer performance is evaluted
 (using ``SpaceAfter=No`` features of the input file). If ``--tag(ger)`` and/or ``--parse(r)``
 options are passed, tagger and/or dependency parser performance is evaluated, respectively.
+
+
+%!include: manual_model_ud-1.2.t2t
