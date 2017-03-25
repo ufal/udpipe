@@ -157,6 +157,7 @@ int main(int argc, char* argv[]) {
     // Load the model if needed
     unique_ptr<model> model;
     if (options.count("tokenizer") || options.count("tokenize") ||
+        (options.count("input") && options["input"].compare(0, 8, "tokenize") == 0) ||
         options.count("tagger") || options.count("tag") ||
         options.count("parser") || options.count("parse")) {
       cerr << "Loading UDPipe model: " << flush;
