@@ -69,15 +69,17 @@
     <ul>
     <li><a href="#run_udpipe">5.1. Running UDPipe</a>
       <ul>
-      <li><a href="#run_udpipe_tokenizer">5.1.1. Tokenizer</a>
+      <li><a href="#run_udpipe_immediate">5.1.1. Immediate mode</a>
       </li>
-      <li><a href="#run_udpipe_input">5.1.2. Input Formats</a>
+      <li><a href="#run_udpipe_tokenizer">5.1.2. Tokenizer</a>
       </li>
-      <li><a href="#run_udpipe_tagger">5.1.3. Tagger</a>
+      <li><a href="#run_udpipe_input">5.1.3. Input Formats</a>
       </li>
-      <li><a href="#run_udpipe_parser">5.1.4. Dependency Parsing</a>
+      <li><a href="#run_udpipe_tagger">5.1.4. Tagger</a>
       </li>
-      <li><a href="#run_udpipe_output">5.1.5. Output Formats</a>
+      <li><a href="#run_udpipe_parser">5.1.5. Dependency Parsing</a>
+      </li>
+      <li><a href="#run_udpipe_output">5.1.6. Output Formats</a>
       </li>
       </ul>
     </li>
@@ -574,30 +576,135 @@ and an extension).
 The full command syntax of running UDPipe is
 </p>
 <pre style="margin-top:0">
-udpipe [options] udpipe_model file ...
-Options: --input=[conllu|horizontal|vertical]
-         --outfile=output file template
-         --output=[conllu|horizontal|vertical]
-         --tokenize (perform tokenization)
-         --tokenizer=tokenizer options, implies --tokenize
-         --tag (perform tagging)
-         --tagger=tagger options, implies --tag
-         --parse (perform parsing)
-         --parser=parser options, implies --parse
+Usage: udpipe [running_opts] udpipe_model [input_files]
+       udpipe --train [training_opts] udpipe_model [input_files]
+       udpipe --detokenize [detokenize_opts] raw_text_file [input_files]
+Running opts: --accuracy (measure accuracy only)
+              --input=[conllu|generic_tokenizer|horizontal|vertical]
+              --immediate (process sentences immediately during loading)
+              --outfile=output file template
+              --output=[conllu|matxin|horizontal|plaintext|vertical]
+              --tokenize (perform tokenization)
+              --tokenizer=tokenizer options, implies --tokenize
+              --tag (perform tagging)
+              --tagger=tagger options, implies --tag
+              --parse (perform parsing)
+              --parser=parser options, implies --parse
+Training opts: --method=[morphodita_parsito] which method to use
+               --heldout=heldout data file name
+               --tokenizer=tokenizer options
+               --tagger=tagger options
+               --parser=parser options
+Detokenize opts: --outfile=output file template
+Generic opts: --version
+              --help
 </pre>
 
-<a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
-<h3>5.1.1. Tokenizer</h3>
+<a id="run_udpipe_immediate" name="run_udpipe_immediate"></a>
+<h3>5.1.1. Immediate mode</h3>
 
 <p>
+By default UDPipe loads the whole input file into memory before starting
+to process it. That allows to store the space markup (see following Tokenizer
+section) in most consistent way, i.e., store all spaces following a sentence
+in the last token of that sentence.
+</p>
+<p>
+However, sometimes it is desirable to process input as soon as possible,
+which can be achieved by specifying the <code>--immediate</code> option. In immediate mode,
+input is processed and printed as soon as a block of input guaranteed to contain
+whole sentences is loaded. Specifically, for most input formats the input is
+processed after loading an empty line (with the exception of <code>horizontal</code>
+input format and <code>presegmented</code> tokenizer, where the input is processed after
+loading every line).
+</p>
+
+<a id="run_udpipe_tokenizer" name="run_udpipe_tokenizer"></a>
+<h3>5.1.2. Tokenizer</h3>
+
+<p style="margin-bottom:0">
 If the <code>--tokenize</code> input is supplied, the input is assumed to be
 plain text and is tokenized using model tokenizer. Additional arguments to the
 tokenizer might be specified using <code>--tokenizer=data</code> option (which implies
-<code>--tokenize</code>).
+<code>--tokenize</code>), where <code>data</code> is semicolon-separated list of the following options:
+</p>
+<ul style="margin-top:0">
+<li><code>normalized_spaces</code>: by default, UDPipe uses custom MISC fields to exactly
+  encode spaces in the original document (described below). If
+  <code>normalized_spaces</code> option is given, only standard CoNLL-U v2 markup
+  (<code>SpaceAfter=No</code> and <code># newpar</code>) is used.
+</li>
+<li><code>presegmented</code>: input file is assumed to be already segmented, with every
+  sentence on a line, and is only tokenized (respecting sentence breaks)
+</li>
+<li><code>ranges</code>: for every token, range in the original document is stored in
+  format described below.
+</li>
+</ul>
+
+<a id="run_udpipe_tokenizer_spaces" name="run_udpipe_tokenizer_spaces"></a>
+<h4>5.1.2.1. Preserving Original Spaces</h4>
+
+<p>
+By default, UDPipe uses custom MISC fields to store all spaces in the original
+document. This markup is backward compatible with CoNLL-U v2 <code>SpaceAfter=No</code> feature.
+This markup can be utilized by <code>plaintext</code> output format, which allows reconstructing
+the original document.
+</p>
+<p>
+Note that in theory not only spaces, but other original content can be saved in this
+way (for example XML tags if the input was encoded in a XML file).
+</p>
+<p style="margin-bottom:0">
+The markup uses the following MISC fields on <i>tokens</i> (not words in multi-word token):
+</p>
+<ul style="margin-top:0">
+<li><code>SpacesBefore=content</code> (by default empty): spaces/other content preceding the token
+</li>
+<li><code>SpacesAfter=content</code> (by default a space if <code>SpaceAfter=No</code> feature is not present, empty otherwise):
+  spaces/other content following the token
+</li>
+<li><code>SpacesInToken=content</code> (by default equal to the FORM of the token): FORM of the token
+  including original spaces (this is needed only if tokens are allowed to contain spaces and
+  a token contains a tab or newline characters)
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The <code>content</code> of all above three fields must be escaped to allow storing tabs and newlines.
+The following C-like schema is used:
+</p>
+<ul style="margin-top:0">
+<li><code>\s</code>: space
+</li>
+<li><code>\t</code>: tab
+</li>
+<li><code>\r</code>: CR character
+</li>
+<li><code>\n</code>: LF character
+</li>
+<li><code>\p</code>: | (pipe character)
+</li>
+<li><code>\\</code>: \ (backslash character)
+</li>
+</ul>
+
+<a id="run_udpipe_tokenizer_ranges" name="run_udpipe_tokenizer_ranges"></a>
+<h4>5.1.2.2. Preserving Token Ranges</h4>
+
+<p>
+When <code>ranges</code> tokenizer option is used, range of every token in the original document
+is stored in <code>TokenRange</code> MISC field.
+</p>
+<p>
+The format of the <code>TokenRange</code> field (inspired by Python) is <code>TokenRange=start:end</code>,
+where <code>start</code> is zero-based document-level index of the start of the token
+(counted in Unicode characters) and <code>end</code> is zero-based document-level index
+of the first character following the token (i.e., the length of the token is <code>end-start</code>).
 </p>
 
 <a id="run_udpipe_input" name="run_udpipe_input"></a>
-<h3>5.1.2. Input Formats</h3>
+<h3>5.1.3. Input Formats</h3>
 
 <p style="margin-bottom:0">
 If the tokenizer is not used, the input format is specified using the
@@ -614,7 +721,7 @@ If the tokenizer is not used, the input format is specified using the
 </ul>
 
 <a id="run_udpipe_tagger" name="run_udpipe_tagger"></a>
-<h3>5.1.3. Tagger</h3>
+<h3>5.1.4. Tagger</h3>
 
 <p>
 If the <code>--tag</code> input is supplied, the input is POS tagged lemmatized
@@ -623,7 +730,7 @@ specified using <code>--tagger=data</code> option (which implies <code>--tag</co
 </p>
 
 <a id="run_udpipe_parser" name="run_udpipe_parser"></a>
-<h3>5.1.4. Dependency Parsing</h3>
+<h3>5.1.5. Dependency Parsing</h3>
 
 <p>
 If the <code>--parse</code> input is supplied, the input is parsed using
@@ -632,7 +739,7 @@ specified using <code>--parser=data</code> option (which implies <code>--parse</
 </p>
 
 <a id="run_udpipe_output" name="run_udpipe_output"></a>
-<h3>5.1.5. Output Formats</h3>
+<h3>5.1.6. Output Formats</h3>
 
 <p style="margin-bottom:0">
 The output format is specified using the <code>--output</code> option. Currently

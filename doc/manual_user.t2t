@@ -23,24 +23,100 @@ and an extension).
 
 The full command syntax of running UDPipe is
 ```
-udpipe [options] udpipe_model file ...
-Options: --input=[conllu|horizontal|vertical]
-         --outfile=output file template
-         --output=[conllu|horizontal|vertical]
-         --tokenize (perform tokenization)
-         --tokenizer=tokenizer options, implies --tokenize
-         --tag (perform tagging)
-         --tagger=tagger options, implies --tag
-         --parse (perform parsing)
-         --parser=parser options, implies --parse
+Usage: udpipe [running_opts] udpipe_model [input_files]
+       udpipe --train [training_opts] udpipe_model [input_files]
+       udpipe --detokenize [detokenize_opts] raw_text_file [input_files]
+Running opts: --accuracy (measure accuracy only)
+              --input=[conllu|generic_tokenizer|horizontal|vertical]
+              --immediate (process sentences immediately during loading)
+              --outfile=output file template
+              --output=[conllu|matxin|horizontal|plaintext|vertical]
+              --tokenize (perform tokenization)
+              --tokenizer=tokenizer options, implies --tokenize
+              --tag (perform tagging)
+              --tagger=tagger options, implies --tag
+              --parse (perform parsing)
+              --parser=parser options, implies --parse
+Training opts: --method=[morphodita_parsito] which method to use
+               --heldout=heldout data file name
+               --tokenizer=tokenizer options
+               --tagger=tagger options
+               --parser=parser options
+Detokenize opts: --outfile=output file template
+Generic opts: --version
+              --help
 ```
+
+=== Immediate mode ===[run_udpipe_immediate]
+
+By default UDPipe loads the whole input file into memory before starting
+to process it. That allows to store the space markup (see following Tokenizer
+section) in most consistent way, i.e., store all spaces following a sentence
+in the last token of that sentence.
+
+However, sometimes it is desirable to process input as soon as possible,
+which can be achieved by specifying the ``--immediate`` option. In immediate mode,
+input is processed and printed as soon as a block of input guaranteed to contain
+whole sentences is loaded. Specifically, for most input formats the input is
+processed after loading an empty line (with the exception of ``horizontal``
+input format and ``presegmented`` tokenizer, where the input is processed after
+loading every line).
+
 
 === Tokenizer ===[run_udpipe_tokenizer]
 
 If the ``--tokenize`` input is supplied, the input is assumed to be
 plain text and is tokenized using model tokenizer. Additional arguments to the
 tokenizer might be specified using ``--tokenizer=data`` option (which implies
-``--tokenize``).
+``--tokenize``), where ``data`` is semicolon-separated list of the following options:
+- ``normalized_spaces``: by default, UDPipe uses custom MISC fields to exactly
+  encode spaces in the original document (described below). If
+  ``normalized_spaces`` option is given, only standard CoNLL-U v2 markup
+  (``SpaceAfter=No`` and ``# newpar``) is used.
+- ``presegmented``: input file is assumed to be already segmented, with every
+  sentence on a line, and is only tokenized (respecting sentence breaks)
+- ``ranges``: for every token, range in the original document is stored in
+  format described below.
+-
+
+==== Preserving Original Spaces ====[run_udpipe_tokenizer_spaces]
+
+By default, UDPipe uses custom MISC fields to store all spaces in the original
+document. This markup is backward compatible with CoNLL-U v2 ``SpaceAfter=No`` feature.
+This markup can be utilized by ``plaintext`` output format, which allows reconstructing
+the original document.
+
+Note that in theory not only spaces, but other original content can be saved in this
+way (for example XML tags if the input was encoded in a XML file).
+
+The markup uses the following MISC fields on //tokens// (not words in multi-word token):
+- ``SpacesBefore=content`` (by default empty): spaces/other content preceding the token
+- ``SpacesAfter=content`` (by default a space if ``SpaceAfter=No`` feature is not present, empty otherwise):
+  spaces/other content following the token
+- ``SpacesInToken=content`` (by default equal to the FORM of the token): FORM of the token
+  including original spaces (this is needed only if tokens are allowed to contain spaces and
+  a token contains a tab or newline characters)
+-
+
+The ``content`` of all above three fields must be escaped to allow storing tabs and newlines.
+The following C-like schema is used:
+- ``\s``: space
+- ``\t``: tab
+- ``\r``: CR character
+- ``\n``: LF character
+- ``\p``: | (pipe character)
+- ``\\``: \ (backslash character)
+-
+
+==== Preserving Token Ranges ====[run_udpipe_tokenizer_ranges]
+
+When ``ranges`` tokenizer option is used, range of every token in the original document
+is stored in ``TokenRange`` MISC field.
+
+The format of the ``TokenRange`` field (inspired by Python) is ``TokenRange=start:end``,
+where ``start`` is zero-based document-level index of the start of the token
+(counted in Unicode characters) and ``end`` is zero-based document-level index
+of the first character following the token (i.e., the length of the token is ``end-start``).
 
 
 === Input Formats ===[run_udpipe_input]
