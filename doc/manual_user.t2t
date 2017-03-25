@@ -47,7 +47,7 @@ Generic opts: --version
               --help
 ```
 
-=== Immediate mode ===[run_udpipe_immediate]
+=== Immediate Mode ===[run_udpipe_immediate]
 
 By default UDPipe loads the whole input file into memory before starting
 to process it. That allows to store the space markup (see following Tokenizer
