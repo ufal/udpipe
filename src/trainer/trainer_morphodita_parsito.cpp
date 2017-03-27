@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <algorithm>
+#include <functional>
 #include <sstream>
 
 #include "morphodita/morpho/generic_morpho_encoder.h"
