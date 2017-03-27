@@ -14,6 +14,11 @@
 namespace ufal {
 namespace udpipe {
 
+token::token(string_piece form, string_piece misc) {
+  if (form.len) this->form.assign(form.str, form.len);
+  if (misc.len) this->misc.assign(misc.str, misc.len);
+}
+
 // CoNLL-U defined SpaceAfter=No feature
 bool token::get_space_after() const {
   string_piece value;

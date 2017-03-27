@@ -20,10 +20,7 @@ class token {
   string form;
   string misc;
 
-  token(string_piece form = string_piece(), string_piece misc = string_piece()) {
-    if (form.len) this->form.assign(form.str, form.len);
-    if (misc.len) this->misc.assign(misc.str, misc.len);
-  }
+  token(string_piece form = string_piece(), string_piece misc = string_piece());
 
   // CoNLL-U defined SpaceAfter=No feature
   bool get_space_after() const;
