@@ -16,6 +16,12 @@
 namespace ufal {
 namespace udpipe {
 
+const string output_format::CONLLU_V1 = "v1";
+const string output_format::CONLLU_V2 = "v2";
+const string output_format::HORIZONTAL_PARAGRAPHS = "paragraphs";
+const string output_format::PLAINTEXT_NORMALIZED_SPACES = "normalized_spaces";
+const string output_format::VERTICAL_PARAGRAPHS = "paragraphs";
+
 // CoNLL-U output format
 class output_format_conllu : public output_format {
  public:
@@ -250,9 +256,9 @@ output_format* output_format::new_conllu_output_format(const string& options) {
     return nullptr;
 
   unsigned version = 2;
-  if (parsed_options.count("v1"))
+  if (parsed_options.count(CONLLU_V1))
     version = 1;
-  if (parsed_options.count("v2"))
+  if (parsed_options.count(CONLLU_V2))
     version = 2;
 
   return new output_format_conllu(version);
@@ -268,7 +274,7 @@ output_format* output_format::new_horizontal_output_format(const string& options
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  return new output_format_horizontal(parsed_options.count("paragraphs"));
+  return new output_format_horizontal(parsed_options.count(HORIZONTAL_PARAGRAPHS));
 }
 
 output_format* output_format::new_plaintext_output_format(const string& options) {
@@ -277,7 +283,7 @@ output_format* output_format::new_plaintext_output_format(const string& options)
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  return new output_format_plaintext(parsed_options.count("normalized_spaces"));
+  return new output_format_plaintext(parsed_options.count(PLAINTEXT_NORMALIZED_SPACES));
 }
 
 output_format* output_format::new_vertical_output_format(const string& options) {
@@ -286,7 +292,7 @@ output_format* output_format::new_vertical_output_format(const string& options) 
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  return new output_format_vertical(parsed_options.count("paragraphs"));
+  return new output_format_vertical(parsed_options.count(VERTICAL_PARAGRAPHS));
 }
 
 output_format* output_format::new_output_format(const string& name) {

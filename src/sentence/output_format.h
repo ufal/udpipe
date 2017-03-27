@@ -29,6 +29,12 @@ class output_format {
   static output_format* new_horizontal_output_format(const string& options = string());
   static output_format* new_plaintext_output_format(const string& options = string());
   static output_format* new_vertical_output_format(const string& options = string());
+
+  static const string CONLLU_V1;
+  static const string CONLLU_V2;
+  static const string HORIZONTAL_PARAGRAPHS;
+  static const string PLAINTEXT_NORMALIZED_SPACES;
+  static const string VERTICAL_PARAGRAPHS;
 };
 
 } // namespace udpipe
