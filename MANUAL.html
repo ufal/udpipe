@@ -901,8 +901,8 @@ Apart from manual grid search, UDPipe can perform a simple random search.
 You can perform the random search by repeatedly training UDPipe
 (preferably in parallel, most likely on different computers)
 while specifying different training run number &ndash; some of the
-hyperparameters (chosen by us; but if you specify their value
-on command line, it is not modified) change their value on different
+hyperparameters (chosen by us; you can of course override their value
+by specyfing it on command line) change their value on different
 training runs. The pseudorandom sequences of hyperparameters
 are of course deterministic.
 </p>
@@ -953,6 +953,32 @@ The tokenizer recognizes the following options:
 During random hyperparameter search, <code>batch_size</code> is chosen uniformly from <i>{50,100}</i>
 and <code>learning_rate</code> logarithmically from <i>&lt;0.0005, 0.01)</i>.
 </p>
+
+<a id="model_training_detokenizer" name="model_training_detokenizer"></a>
+<h4>5.3.3.1. Detokenizing CoNLL-U Files</h4>
+
+<p>
+The <code>--detokenizer</code> option allows generating the <code>SpaceAfter=No</code> features
+automatically from a given plain text. Even if the current algorithm is very
+simple and makes quite a lot of mistakes, the tokenizer trained on generated
+features is very close to a tokenizer trained on gold <code>SpaceAfter=No</code>
+features (the difference in token F1 score is usually one or two tenths of percent).
+</p>
+<p>
+The generated <code>SpaceAfter=No</code> features are only used during tokenizer
+training, not printed. However, if you would like to obtain the CoNLL-U files
+with automatic detokenization (generated <code>SpaceAfter=No</code> features), you can
+run UDPipe with the <code>--detokenize</code> option. In this case, you have to supply
+plain text in the given language (usually the best results are achieved with
+just 500kB or 1MB of text) and UDPipe then detokenizes all given CoNLL-U files.
+</p>
+<p style="margin-bottom:0">
+The complete usage with the <code>--detokenize</code> option is:
+</p>
+<pre style="margin-top:0">
+udpipe --detokenize [detokenize_opts] raw_text_file [input_files]
+Detokenize opts: --outfile=output file template
+</pre>
 
 <a id="model_training_tagger" name="model_training_tagger"></a>
 <h3>5.3.4. Tagger</h3>
@@ -1100,10 +1126,9 @@ The embeddings used by the parser can be specified as follows:
 </li>
 <li><code>embedding_deprel</code> (default 20): the dimension of the Deprel embedding used in the parser
 </li>
-<li><code>embedding_form_file</code>: pre-trained word embeddings created by <code>word2vec</code> can be optionally used;
-    pretraining embeddings even on the UD data itself improves accuracy (we use <code>-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2</code> options to pretrain on UD data)
+<li><code>embedding_form_file</code>: pre-trained word embeddings in <code>word2vec</code> textual format
 </li>
-<li><code>embedding_lemma_file</code>: pre-trained lemma embeddings created by <code>word2vec</code> can be optionally used;
+<li><code>embedding_lemma_file</code>: pre-trained lemma embeddings in <code>word2vec</code> textual format
 </li>
 </ul>
 
@@ -1134,6 +1159,45 @@ During random hyperparameter search, <code>structured_interval</code> is chosen 
 <code>l2</code> is chosen uniformly from <code>&lt;0.2,0.6)</code>.
 </p>
 
+<a id="udpipe_training_parser_embeddings" name="udpipe_training_parser_embeddings"></a>
+<h4>5.3.5.1. Pretrained Word Embeddings</h4>
+
+<p>
+The pretrained word embeddings for forms and lemmas can be specified in
+<code>word2vec</code> textual format using the <code>embedding_form_file</code> and
+<code>embedding_lemma_file</code> options.
+</p>
+<p>
+Note that pretraining word embeddings even on the UD data itself improves
+accuracy (we use <code>word2vec</code> with
+<code>-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2</code>
+options to pretrain on UD data after converting it to a horizontal format using
+<code>udpipe --output=horizontal</code>).
+</p>
+<p>
+Because forms and lemmas can contain spaces in CoNLL-U v2, these spaces are
+converted to a Unicode character 'NO-BREAK SPACE' (U+00A0) before performing
+embedding lookup, because spaces are usually used to delimit tokens in word
+embedding generating software (both <code>word2vec</code> and <code>glove</code> use spaces to
+separate words on input and on output). When using UDPipe to generate
+plain texts from CoNLL-U format using <code>--output=horizontal</code>, this space
+replacing happens automatically.
+</p>
+<p style="margin-bottom:0">
+When looking up an embedding for a given word, the following possibilities are
+tried in order until a match is found (or an embedding for unknown word is returned):
+</p>
+<ul style="margin-top:0">
+<li>original word
+</li>
+<li>all but the first character lowercased
+</li>
+<li>all characters lowercased
+</li>
+<li>if the word contains only digits, just the first digit is tried
+</li>
+</ul>
+
 <a id="udpipe_accuracy" name="udpipe_accuracy"></a>
 <h3>5.3.6. Measuring Model Accuracy</h3>
 
@@ -1149,11 +1213,33 @@ The command syntax is similar to the regular UDPipe operation, only
 the input must be always in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>
 and the <code>--input</code> and <code>--output</code> options are ignored.
 </p>
-<p>
-If <code>--tokenize(r)</code> option is passed, tokenizer performance is evaluted
-(using <code>SpaceAfter=No</code> features of the input file). If <code>--tag(ger)</code> and/or <code>--parse(r)</code>
-options are passed, tagger and/or dependency parser performance is evaluated, respectively.
+<p style="margin-bottom:0">
+Three different settings (depending on <code>--tokenize(r)</code>, <code>--tag(ger)</code> and <code>--parse(r)</code>)
+can be evaluated:
 </p>
+<ul style="margin-top:0">
+<li><code>--tokenize(r) [--tag(ger) [--parse(r)]]</code>: Tokenizer is used to segment
+  and tokenize plain text (obtained by <code>SpaceAfter=No</code> features and <code># newdoc</code>
+  and <code># newpar</code> comments in the input file). Optionally, tagger is used on the
+  resulting data to obtain Lemma/UPOS/XPOS/Feats columns and eventually parser
+  can be used to parse the results.
+<p></p>
+  The tokenizer is evaluated using F1-score on tokens, multi-word tokens, sentences
+  and words. The words are aligned using <a href="http://universaldependencies.org/conll17">CoNLL 2017 Shared Task in UD Parsing</a>
+  word alignment algorithm.  The tagger and parser are evaluated on aligned
+  words, resulting in F1 scores of Lemmas/UPOS/XPOS/Feats/UAS/LAS.
+<p></p>
+</li>
+<li><code>--tag(ger) [--parse(r)]</code>: The gold segmented and tokenized input
+  is tagged (and then optionally parsed using the tagger outputs)
+  and then evaluated.
+<p></p>
+</li>
+<li><code>--parse(r)</code>: The gold segmented and tokenized input is parsed using
+  gold morphology (Lemmas/UPOS/XPOS/Feats) and evaluated.
+<p></p>
+</li>
+</ul>
 
 <a id="universal_dependencies_12_models" name="universal_dependencies_12_models"></a>
 <h2>5.4. Universal Dependencies 1.2 Models</h2>

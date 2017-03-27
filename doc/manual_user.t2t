@@ -258,8 +258,8 @@ Apart from manual grid search, UDPipe can perform a simple random search.
 You can perform the random search by repeatedly training UDPipe
 (preferably in parallel, most likely on different computers)
 while specifying different training run number -- some of the
-hyperparameters (chosen by us; but if you specify their value
-on command line, it is not modified) change their value on different
+hyperparameters (chosen by us; you can of course override their value
+by specyfing it on command line) change their value on different
 training runs. The pseudorandom sequences of hyperparameters
 are of course deterministic.
 
@@ -294,6 +294,29 @@ The tokenizer recognizes the following options:
 
 During random hyperparameter search, ``batch_size`` is chosen uniformly from //{50,100}//
 and ``learning_rate`` logarithmically from //<0.0005, 0.01)//.
+
+
+==== Detokenizing CoNLL-U Files ====[model_training_detokenizer]
+
+The ``--detokenizer`` option allows generating the ``SpaceAfter=No`` features
+automatically from a given plain text. Even if the current algorithm is very
+simple and makes quite a lot of mistakes, the tokenizer trained on generated
+features is very close to a tokenizer trained on gold ``SpaceAfter=No``
+features (the difference in token F1 score is usually one or two tenths of percent).
+
+The generated ``SpaceAfter=No`` features are only used during tokenizer
+training, not printed. However, if you would like to obtain the CoNLL-U files
+with automatic detokenization (generated ``SpaceAfter=No`` features), you can
+run UDPipe with the ``--detokenize`` option. In this case, you have to supply
+plain text in the given language (usually the best results are achieved with
+just 500kB or 1MB of text) and UDPipe then detokenizes all given CoNLL-U files.
+
+The complete usage with the ``--detokenize`` option is:
+```
+udpipe --detokenize [detokenize_opts] raw_text_file [input_files]
+Detokenize opts: --outfile=output file template
+```
+
 
 === Tagger ===[model_training_tagger]
 
@@ -385,9 +408,8 @@ The embeddings used by the parser can be specified as follows:
 - ``embedding_form`` (default 50): the dimension of the Form embedding used in the parser
 - ``embedding_lemma`` (default 0): the dimension of the Lemma embedding used in the parser
 - ``embedding_deprel`` (default 20): the dimension of the Deprel embedding used in the parser
-- ``embedding_form_file``: pre-trained word embeddings created by ``word2vec`` can be optionally used;
-    pretraining embeddings even on the UD data itself improves accuracy (we use ``-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2`` options to pretrain on UD data)
-- ``embedding_lemma_file``: pre-trained lemma embeddings created by ``word2vec`` can be optionally used;
+- ``embedding_form_file``: pre-trained word embeddings in ``word2vec`` textual format
+- ``embedding_lemma_file``: pre-trained lemma embeddings in ``word2vec`` textual format
 -
 
 The neural network training options:
@@ -405,6 +427,35 @@ During random hyperparameter search, ``structured_interval`` is chosen uniformly
 //{0,8,10}//, ``learning_rate`` is chosen logarithmically from ``<0.005,0.04)`` and
 ``l2`` is chosen uniformly from ``<0.2,0.6)``.
 
+==== Pretrained Word Embeddings ====[udpipe_training_parser_embeddings]
+
+The pretrained word embeddings for forms and lemmas can be specified in
+``word2vec`` textual format using the ``embedding_form_file`` and
+``embedding_lemma_file`` options.
+
+Note that pretraining word embeddings even on the UD data itself improves
+accuracy (we use ``word2vec`` with
+``-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2``
+options to pretrain on UD data after converting it to a horizontal format using
+``udpipe --output=horizontal``).
+
+Because forms and lemmas can contain spaces in CoNLL-U v2, these spaces are
+converted to a Unicode character 'NO-BREAK SPACE' (U+00A0) before performing
+embedding lookup, because spaces are usually used to delimit tokens in word
+embedding generating software (both ``word2vec`` and ``glove`` use spaces to
+separate words on input and on output). When using UDPipe to generate
+plain texts from CoNLL-U format using ``--output=horizontal``, this space
+replacing happens automatically.
+
+When looking up an embedding for a given word, the following possibilities are
+tried in order until a match is found (or an embedding for unknown word is returned):
+- original word
+- all but the first character lowercased
+- all characters lowercased
+- if the word contains only digits, just the first digit is tried
+-
+
+
 === Measuring Model Accuracy ===[udpipe_accuracy]
 
 Measuring custom model accuracy can be performed by running:
@@ -414,9 +465,27 @@ The command syntax is similar to the regular UDPipe operation, only
 the input must be always in [CoNLL-U format http://universaldependencies.org/docs/format.html]
 and the ``--input`` and ``--output`` options are ignored.
 
-If ``--tokenize(r)`` option is passed, tokenizer performance is evaluted
-(using ``SpaceAfter=No`` features of the input file). If ``--tag(ger)`` and/or ``--parse(r)``
-options are passed, tagger and/or dependency parser performance is evaluated, respectively.
+Three different settings (depending on ``--tokenize(r)``, ``--tag(ger)`` and ``--parse(r)``)
+can be evaluated:
+- ``--tokenize(r) [--tag(ger) [--parse(r)]]``: Tokenizer is used to segment
+  and tokenize plain text (obtained by ``SpaceAfter=No`` features and ``# newdoc``
+  and ``# newpar`` comments in the input file). Optionally, tagger is used on the
+  resulting data to obtain Lemma/UPOS/XPOS/Feats columns and eventually parser
+  can be used to parse the results.
+
+  The tokenizer is evaluated using F1-score on tokens, multi-word tokens, sentences
+  and words. The words are aligned using [CoNLL 2017 Shared Task in UD Parsing http://universaldependencies.org/conll17]
+  word alignment algorithm.  The tagger and parser are evaluated on aligned
+  words, resulting in F1 scores of Lemmas/UPOS/XPOS/Feats/UAS/LAS.
+
+- ``--tag(ger) [--parse(r)]``: The gold segmented and tokenized input
+  is tagged (and then optionally parsed using the tagger outputs)
+  and then evaluated.
+
+- ``--parse(r)``: The gold segmented and tokenized input is parsed using
+  gold morphology (Lemmas/UPOS/XPOS/Feats) and evaluated.
+
+-
 
 
 %!include: manual_model_ud-1.2.t2t
