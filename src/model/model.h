@@ -28,7 +28,9 @@ class model {
   virtual bool parse(sentence& s, const string& options, string& error) const = 0;
 
   static const string DEFAULT;
+  static const string TOKENIZER_NORMALIZED_SPACES;
   static const string TOKENIZER_PRESEGMENTED;
+  static const string TOKENIZER_RANGES;
 };
 
 } // namespace udpipe

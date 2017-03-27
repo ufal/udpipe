@@ -16,8 +16,9 @@ namespace ufal {
 namespace udpipe {
 
 const string model::DEFAULT;
-
+const string model::TOKENIZER_NORMALIZED_SPACES = "normalized_spaces";
 const string model::TOKENIZER_PRESEGMENTED = "presegmented";
+const string model::TOKENIZER_RANGES = "ranges";
 
 model* model::load(const char* fname) {
   ifstream in(fname, ifstream::in | ifstream::binary);
