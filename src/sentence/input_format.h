@@ -32,6 +32,12 @@ class input_format {
   static input_format* new_vertical_input_format(const string& options = string());
 
   static input_format* new_presegmented_tokenizer(input_format* tokenizer);
+
+  static const string CONLLU_V1;
+  static const string CONLLU_V2;
+  static const string GENERIC_TOKENIZER_NORMALIZED_SPACES;
+  static const string GENERIC_TOKENIZER_PRESEGMENTED;
+  static const string GENERIC_TOKENIZER_RANGES;
 };
 
 } // namespace udpipe

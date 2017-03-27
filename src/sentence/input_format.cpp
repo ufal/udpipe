@@ -17,6 +17,12 @@
 namespace ufal {
 namespace udpipe {
 
+const string input_format::CONLLU_V1 = "v1";
+const string input_format::CONLLU_V2 = "v2";
+const string input_format::GENERIC_TOKENIZER_NORMALIZED_SPACES = "normalized_spaces";
+const string input_format::GENERIC_TOKENIZER_PRESEGMENTED = "presegmented";
+const string input_format::GENERIC_TOKENIZER_RANGES = "ranges";
+
 // CoNLL-U input format
 class input_format_conllu : public input_format {
  public:
@@ -505,9 +511,9 @@ input_format* input_format::new_conllu_input_format(const string& options) {
     return nullptr;
 
   unsigned version = 2;
-  if (parsed_options.count("v1"))
+  if (parsed_options.count(CONLLU_V1))
     version = 1;
-  if (parsed_options.count("v2"))
+  if (parsed_options.count(CONLLU_V2))
     version = 2;
 
   return new input_format_conllu(version);
@@ -519,11 +525,11 @@ input_format* input_format::new_generic_tokenizer_input_format(const string& opt
   if (!named_values::parse(options, parsed_options, parse_error))
     return nullptr;
 
-  bool normalized_spaces = parsed_options.count("normalized_spaces");
-  bool token_ranges = parsed_options.count("ranges");
+  bool normalized_spaces = parsed_options.count(GENERIC_TOKENIZER_NORMALIZED_SPACES);
+  bool token_ranges = parsed_options.count(GENERIC_TOKENIZER_RANGES);
 
   input_format* result = new morphodita_tokenizer_wrapper(morphodita::tokenizer::new_generic_tokenizer(), nullptr, normalized_spaces, token_ranges);
-  return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
+  return (parsed_options.count(GENERIC_TOKENIZER_PRESEGMENTED) && result) ? input_format::new_presegmented_tokenizer(result) : result;
 }
 
 input_format* input_format::new_horizontal_input_format(const string& /*options*/) {
