@@ -16,7 +16,7 @@ class TestUDPipe(unittest.TestCase):
         sentence = ufal.udpipe.Sentence()
         error = ufal.udpipe.ProcessingError();
 
-        tokenizer.setText("Znamená to, že realitě nepodléhá.");
+        tokenizer.setText("Znamená to, že realitě nepodléhá. ");
         self.assertTrue(tokenizer.nextSentence(sentence, error))
         self.assertFalse(error.occurred())
 
@@ -24,6 +24,10 @@ class TestUDPipe(unittest.TestCase):
         self.assertTrue(model.parse(sentence, model.DEFAULT))
 
         self.assertEqual(conlluOutput.writeSentence(sentence), """\
+# newdoc
+# newpar
+# sent_id = 1
+# text = Znamená to, že realitě nepodléhá.
 1	Znamená	znamenat	VERB	VB-S---3P-AA---	Aspect=Imp|Mood=Ind|Negative=Pos|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act	0	root	_	_
 2	to	ten	PRON	PDNS1----------	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	1	nsubj	_	SpaceAfter=No
 3	,	,	PUNCT	Z:-------------	_	6	punct	_	_
