@@ -911,13 +911,163 @@ string_piece is not owned by it, so users have to make sure the referenced
 string exists as long as the string_piece.
 
 
+Class token
+-----------
+
+  class token {
+   public:
+    string form;
+    string misc;
+
+    token(string_piece form = string_piece(), string_piece misc = string_piece());
+
+    // CoNLL-U defined SpaceAfter=No feature
+    bool get_space_after() const;
+    void set_space_after(bool space_after);
+
+    // UDPipe-specific all-spaces-preserving SpacesBefore and SpacesAfter features
+    void get_spaces_before(string& spaces_before) const;
+    void set_spaces_before(string_piece spaces_before);
+    void get_spaces_after(string& spaces_after) const;
+    void set_spaces_after(string_piece spaces_after);
+    void get_spaces_in_token(string& spaces_in_token) const;
+    void set_spaces_in_token(string_piece spaces_in_token);
+
+    // UDPipe-specific TokenRange feature
+    bool get_token_range(size_t& start, size_t& end) const;
+    void set_token_range(size_t start, size_t end);
+  };
+
+The token class represents a sentence token, with form and misc fields
+corresponding to CoNLL-U fields
+(http://universaldependencies.org/docs/format.html). The token class acts mostly
+as a parent to word and multiword_token classes.
+
+The class also offers several methods for manipulating features in the misc
+field. Notably, UDPipe uses custom misc fields to store all spaces in the
+original document. This markup is backward compatible with CoNLL-U v2
+SpaceAfter=No feature. This markup can be utilized by plaintext output format,
+which allows reconstructing the original document.
+
+The markup uses the following misc fields:
+- SpacesBefore=content (by default empty): spaces/other content preceding the
+  token
+- SpacesAfter=content (by default a space if SpaceAfter=No feature is not
+  present, empty otherwise): spaces/other content following the token
+- SpacesInToken=content (by default equal to the FORM of the token): FORM of
+  the token including original spaces (this is needed only if tokens are allowed
+  to contain spaces and a token contains a tab or newline characters)
+
+The content of all above three fields must be escaped to allow storing tabs and
+newlines. The following C-like schema is used:
+- \s: space
+- \t: tab
+- \r: CR character
+- \n: LF character
+- \p: | (pipe character)
+- \\: \ (backslash character)
+
+
+token::get_space_after()
+------------------------
+
+  bool get_space_after() const;
+
+Returns true if the token should be followed by a spaces, false if not,
+according to the absence or presence of the SpaceAfter=No feature in the misc
+field.
+
+
+token::set_space_after()
+------------------------
+
+  void set_space_after(bool space_after);
+
+Adds or removes the SpaceAfter=No feature in the misc field.
+
+
+token::get_spaces_before()
+--------------------------
+
+  void get_spaces_before(string& spaces_before) const;
+
+Return spaces preceding current token, stored in the SpacesBefore feature in the
+misc field. If SpacesBefore is not present, empty string is returned.
+
+
+token::set_spaces_before()
+--------------------------
+
+  void set_spaces_before(string_piece spaces_before);
+
+Set the SpacesBefore feature in the misc field.
+
+
+token::get_spaces_after()
+-------------------------
+
+  void get_spaces_after(string& spaces_after) const;
+
+Return spaces after current token, stored in the SpacesAfter feature in the misc
+field.
+
+If SpacesAfter is not present and SpaceAfter=No is present, return an empty
+string; if neither feature is present, one space is returned.
+
+
+token::set_spaces_after()
+-------------------------
+
+  void set_spaces_after(string_piece spaces_after);
+
+Set the SpacesAfter and SpaceAfter=No features in the misc field.
+
+
+token::get_spaces_in_token()
+----------------------------
+
+  void get_spaces_in_token(string& spaces_in_token) const;
+
+Return the value of the SpacesInToken feature, if present. Otherwise, empty
+string is returned.
+
+
+token::set_spaces_in_token()
+----------------------------
+
+  void set_spaces_in_token(string_piece spaces_in_token);
+
+Set the SpacesInToken feature in the misc field.
+
+
+token::get_token_range()
+------------------------
+
+  bool get_token_range(size_t& start, size_t& end) const;
+
+If present, return the value of the TokenRange feature in the misc field. The
+format of the feature (inspired by Python) is TokenRange=start:end, where start
+is zero-based document-level index of the start of the token (counted in Unicode
+characters) and end is zero-based document-level index of the first character
+following the token (i.e., the length of the token is end-start).
+
+
+token::set_token_range()
+------------------------
+
+  void set_token_range(size_t start, size_t end);
+
+Set the TokenRange feature in the misc field. If string::npos is passed in the
+start argument, TokenRange feature is removed from the misc field.
+
+
 Class word
 ----------
 
-  class word {
+  class word : public token {
    public:
+    // form and misc are inherited from token
     int id;         // 0 is root, >0 is sentence word, <0 is undefined
-    string form;    // form
     string lemma;   // lemma
     string upostag; // universal part-of-speech tag
     string xpostag; // language-specific part-of-speech tag
@@ -925,7 +1075,6 @@ Class word
     int head;       // head, 0 is root, <0 is undefined
     string deprel;  // dependency relation to the head
     string deps;    // secondary dependencies
-    string misc;    // miscellaneous information
 
     vector<int> children;
 
@@ -941,20 +1090,17 @@ children array are in ascending order).
 Class multiword_token
 ---------------------
 
-  class multiword_token {
+  class multiword_token : public token {
    public:
+    // form and misc are inherited from token
     int id_first, id_last;
-    string form;
-    string misc;
 
     multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece());
   };
 
 The multiword_token represents a multi-word token described in CoNLL-U format
-(http://universaldependencies.org/docs/format.html). The multi-word token
-references underlying words, it has a form and a misc field (which may contain
-for example `SpaceAfter=No` feature). Other CoNLL-U word fields are guaranteed
-to be empty.
+(http://universaldependencies.org/docs/format.html). The multi-word token has a
+form and a misc field, other CoNLL-U word fields are guaranteed to be empty.
 
 
 Class empty_node
@@ -994,11 +1140,22 @@ Class sentence
     vector<string> comments;
     static const string root_form;
 
+    // Basic sentence modifications
     bool empty();
     void clear();
     word& add_word(string_piece form = string_piece());
     void set_head(int id, int head, const string& deprel);
     void unlink_all_words();
+
+    // CoNLL-U defined comments
+    bool get_new_doc(string* id = nullptr) const;
+    void set_new_doc(bool new_doc, string_piece id = string_piece());
+    bool get_new_par(string* id = nullptr) const;
+    void set_new_par(bool new_par, string_piece id = string_piece());
+    bool get_sent_id(string& id) const;
+    void set_sent_id(string_piece id);
+    bool get_text(string& text) const;
+    void set_text(string_piece text);
   };
 
 The sentence class represents a sentence CoNLL-U sentence
@@ -1006,10 +1163,12 @@ The sentence class represents a sentence CoNLL-U sentence
 - sequence of words stored in ascending order, with the first word (with index
   0) always being a technical root with form root_form
 - sequence of multiword_tokens also stored in ascending order
+- sequence of empty_nodes also stored in ascending order
 - comments
 
 Although you can manipulate the words directly, the sentence class offers
-several simple node manipulation methods.
+several simple node manipulation methods. There are also several methods
+manipulating CoNLL-U v2 comments.
 
 
 sentence::empty()
@@ -1057,6 +1216,76 @@ sentence::unlink_all_words()
 Unlink all words.
 
 
+sentence::get_new_doc()
+-----------------------
+
+  bool get_new_doc(string* id = nullptr) const;
+
+Return true if # newdoc comment is present. Optionally, document id is also
+returned (in # newdoc id = ... format).
+
+
+sentence::set_new_doc()
+-----------------------
+
+  void set_new_doc(bool new_doc, string_piece id = string_piece());
+
+Adds/removes # newdoc comment, optionally with a given document id.
+
+
+sentence::get_new_par()
+-----------------------
+
+  bool get_new_par(string* id = nullptr) const;
+
+Return true if # newpar comment is present. Optionally, paragraph id is also
+returned (in # newpar id = ... format).
+
+
+sentence::set_new_par()
+-----------------------
+
+  void set_new_par(bool new_par, string_piece id = string_piece());
+
+Adds/removes # newpar comment, optionally with a given paragraph id.
+
+
+sentence::get_sent_id()
+-----------------------
+
+  bool get_sent_id(string& id) const;
+
+Return true if # sent_id = ... comment is present, and fill given id with
+sentence id.
+
+
+sentence::set_sent_id()
+-----------------------
+
+  void set_sent_id(string_piece id);
+
+Set the # sent_id = ... comment using given sentence id; if the sentence id is
+empty, remove all present # sent_id comment.
+
+
+sentence::get_text()
+--------------------
+
+  bool get_text(string& text) const;
+
+Return true if # text = ... comment is present, and fill given text with
+sentence text.
+
+
+sentence::set_text()
+--------------------
+
+  void set_text(string_piece text);
+
+Set the # text = ... comment using given text; if the given text is empty,
+remove all present # text comment.
+
+
 Class input_format
 ------------------
 
@@ -1065,17 +1294,24 @@ Class input_format
     virtual ~input_format() {}
 
     virtual bool read_block(istream& is, string& block) const = 0;
-    virtual void reset_document() {};
+    virtual void reset_document(string_piece id = string_piece()) = 0;
     virtual void set_text(string_piece text, bool make_copy = false) = 0;
     virtual bool next_sentence(sentence& s, string& error) = 0;
 
     // Static factory methods
     static input_format* new_input_format(const string& name);
-    static input_format* new_conllu_input_format();
-    static input_format* new_horizontal_input_format();
-    static input_format* new_vertical_input_format();
+    static input_format* new_conllu_input_format(const string& options = std::string());
+    static input_format* new_generic_tokenizer_input_format(const string& options = std::string());
+    static input_format* new_horizontal_input_format(const string& options = std::string());
+    static input_format* new_vertical_input_format(const string& options = std::string());
 
     static input_format* new_presegmented_tokenizer(input_format* tokenizer);
+
+    static const string CONLLU_V1;
+    static const string CONLLU_V2;
+    static const string GENERIC_TOKENIZER_NORMALIZED_SPACES;
+    static const string GENERIC_TOKENIZER_PRESEGMENTED;
+    static const string GENERIC_TOKENIZER_RANGES;
   };
 
 The input_format class allows loading sentences in various formats.
@@ -1096,14 +1332,16 @@ but it may be more complex (i.e., in a XML-like format).
 input_format::reset_document()
 ------------------------------
 
-  virtual void reset_document() {};
+  virtual void reset_document(string_piece id = string_piece()) = 0;
 
 Resets the input_format instance state. Such state is needed not only for
 remembering unprocessed text of the last set_text call, but also for correct
-inter-block state tracking (for example in a tokenizer which returns
-document-level offsets, or in a tokenizer which tracks inter-sentence spaces -
-if you pass only spaces to set_text, these spaces has to accumulate and be
-returned as preceeding spaces of the next sentence).
+inter-block state tracking (for example to track document-level ranges or
+inter-sentence spaces -- if you pass only spaces to set_text, these spaces has
+to accumulate and be returned as preceding spaces of the next sentence).
+
+If applicable, first read sentence will have the # newdoc comment, optionally
+with given document id.
 
 
 input_format::set_text()
@@ -1136,9 +1374,11 @@ input_format::new_input_format()
 
   static input_format* new_input_format(const string& name);
 
-Create new input_format instance, given its name. The following input formats
-are currently supported:
+Create new input_format instance, given its name. The individual input formats
+can be parametrized by using format=data syntax. The following input formats are
+currently supported:
 - conllu: return the new_conllu_input_format
+- generic_tokenizer: return the new_generic_tokenizer_input_format
 - horizontal: return the new_horizontal_input_format
 - vertical: return the new_vertical_input_format
 
@@ -1148,27 +1388,54 @@ The new instance must be deleted after use.
 input_format::new_conllu_input_format()
 ---------------------------------------
 
-  static input_format* new_conllu_input_format();
+  static input_format* new_conllu_input_format(const string() options = std::string());
 
 Create input_format instance which loads sentences in the CoNLL-U format
 (http://universaldependencies.github.io/docs/format.html). The new instance must
 be deleted after use.
 
+Supported options:
+- v2 (default): use CoNLL-U v2
+- v1: allow loading only CoNLL-U v1 (i.e., no empty nodes and no spaces in
+  forms and lemmas)
+
+
+input_format::new_generic_tokenizer_input_format()
+--------------------------------------------------
+
+  static input_format* new_generic_tokenizer_input_format(const string() options = std::string());
+
+Create rule-based generic tokenizer for English-like languages (with spaces
+separating tokens and English-like punctuation). The new instance must be
+deleted after use.
+
+Supported options:
+- normalized_spaces: by default, UDPipe uses custom misc fields to exactly
+  encode spaces in the original document. If normalized_spaces option is given,
+  only standard CoNLL-U v2 markup (SpaceAfter=No and # newpar) is used.
+- presegmented: input is assumed to be already segmented, with every sentence
+  on a line, and is only tokenized (respecting sentence breaks)
+- ranges: for every token, range in the original document is stored in a format
+  described in token class
+
 
 input_format::new_horizontal_input_format()
 -------------------------------------------
 
-  static input_format* new_horizontal_input_format();
+  static input_format* new_horizontal_input_format(const string() options = std::string());
 
 Create input_format instance which loads forms from a simple horizontal format -
 each sentence on a line, with word forms separated by spaces. The new instance
 must be deleted after use.
 
+In order to allow spaces in tokens, Unicode character 'NO-BREAK SPACE' (U+00A0)
+is considered part of token and converted to a space during loading.
+
 
 input_format::new_vertical_input_format()
 -----------------------------------------
 
-  static input_format* new_vertical_input_format();
+  static input_format* new_vertical_input_format(const string() options = std::string());
 
 Create input_format instance which loads forms from a simple vertical format -
 each word on a line, with empty line denoting end of sentence. The new instance
@@ -1202,10 +1469,17 @@ Class output_format
 
     // Static factory methods
     static output_format* new_output_format(const string& name);
-    static output_format* new_conllu_output_format();
-    static output_format* new_matxin_output_format();
-    static output_format* new_horizontal_output_format();
-    static output_format* new_vertical_output_format();
+    static output_format* new_conllu_output_format(const string() options = std::string());
+    static output_format* new_matxin_output_format(const string() options = std::string());
+    static output_format* new_horizontal_output_format(const string() options = std::string());
+    static output_format* new_plaintext_output_format(const string() options = std::string());
+    static output_format* new_vertical_output_format(const string() options = std::string());
+
+    static const string CONLLU_V1;
+    static const string CONLLU_V2;
+    static const string HORIZONTAL_PARAGRAPHS;
+    static const string PLAINTEXT_NORMALIZED_SPACES;
+    static const string VERTICAL_PARAGRAPHS;
   };
 
 The output_format class allows printing sentences in various formats.
@@ -1245,6 +1519,7 @@ are currently supported:
 - conllu: return the new_conllu_output_format
 - matxin: return the new_matxin_output_format
 - horizontal: return the new_horizontal_output_format
+- plaintext: return the new_plaintext_output_format
 - vertical: return the new_vertical_output_format
 
 The new instance must be deleted after use.
@@ -1253,17 +1528,23 @@ The new instance must be deleted after use.
 output_format::new_conllu_output_format()
 -----------------------------------------
 
-  static output_format* new_conllu_output_format();
+  static output_format* new_conllu_output_format(const string() options = std::string());
 
 Creates output_format instance for writing sentences in the CoNLL-U format
 (http://universaldependencies.github.io/docs/format.html). The new instance must
 be deleted after use.
 
+Supported options:
+- v2 (default): use CoNLL-U v2
+- v1: produce output in CoNLL-U v1 format. Note that this is a lossy process,
+  as empty nodes are ignored and spaces in forms and lemmas are converted to
+  underscores.
+
 
 output_format::new_matxin_output_format()
 -----------------------------------------
 
-  static output_format* new_matxin_output_format();
+  static output_format* new_matxin_output_format(const string() options = std::string());
 
 Creates output_format instance for writing sentences in the Matxin format -
 UDPipe produces a XML with the following DTD:
@@ -1283,24 +1564,49 @@ UDPipe produces a XML with the following DTD:
 The new instance must be deleted after use.
 
 
+output_format::new_plaintext_output_format()
+--------------------------------------------
+
+  static output_format* new_plaintext_output_format(const string() options = std::string());
+
+Creates output_format instance for writing sentence tokens (in the UD sense)
+using original spacing. By default, UDPipe custom misc features (see description
+of token class) are used to reconstruct the exact original spaces. However, if
+the document does not contain these features or if only normalized spacing is
+wanted, you can use the following option:
+- normalized_spaces: write one sentence on a line, and either one or no space
+  between tokens, using the SpaceAfter=No feature
+
+
 output_format::new_horizontal_output_format()
 ---------------------------------------------
 
-  static output_format* new_horizontal_output_format();
+  static output_format* new_horizontal_output_format(const string() options = std::string());
 
 Creates output_format instance for writing sentences in a simple horizontal
 format - each sentence on a line, with word forms separated by spaces. The new
 instance must be deleted after use.
 
+Because words can contain spaces in CoNLL-U v2, the spaces in words are
+converted to Unicode character 'NO-BREAK SPACE' (U+00A0).
+
+Supported options:
+- paragraphs: if given, an empty line is printed after the end of a paragraph
+  or a document (recognized by # newpar or # newdoc comments)
+
 
 output_format::new_vertical_output_format()
 -------------------------------------------
 
-  static output_format* new_vertical_output_format();
+  static output_format* new_vertical_output_format(const string() options = std::string());
 
 Creates output_format instance for writing sentences in a simple vertical format
 - each word form on a line, with empty line denoting end of sentence. The new
 instance must be deleted after use.
+
+Supported options:
+- paragraphs: if given, an empty line is printed after the end of a paragraph
+  or a document (recognized by # newpar or # newdoc comments)
 
 
 Class model
@@ -1318,8 +1624,13 @@ Class model
     virtual bool parse(sentence& s, const string& options, string& error) const = 0;
 
     static const string DEFAULT;
+    static const string TOKENIZER_NORMALIZED_SPACES;
     static const string TOKENIZER_PRESEGMENTED;
+    static const string TOKENIZER_RANGES;
   };
+
+Class representing UDPipe model, allowing to perform tokenization, tagging and
+parsing.
 
 
 model::load(const char*)
@@ -1327,11 +1638,17 @@ model::load(const char*)
 
   static model* load(const char* fname);
 
+Load a new model from a given file, returning NULL on failure. The new instance
+must be deleted after use.
+
 
 model::load(istream&)
 ---------------------
 
   static model* load(istream& is);
+
+Load a new model from a given input stream, returning NULL on failure. The new
+instance must be deleted after use.
 
 
 model::new_tokenizer()
@@ -1339,17 +1656,24 @@ model::new_tokenizer()
 
   virtual input_format* new_tokenizer(const string& options) const = 0;
 
+Construct a new tokenizer (or NULL if no tokenizer is specified by the model).
+The new instance must be deleted after use.
+
 
 model::tag()
 ------------
 
   virtual bool tag(sentence& s, const string& options, string& error) const = 0;
 
+Tag the given sentence.
+
 
 model::parse()
 --------------
 
   virtual bool parse(sentence& s, const string& options, string& error) const = 0;
+
+Parse the given sentence.
 
 
 Class pipeline
@@ -1365,11 +1689,24 @@ Class pipeline
     void set_parser(const string& parser);
     void set_output(const string& output);
 
+    void set_immediate(bool immediate);
+    void [set_document_id #pipeline_set_document_id[(const string& document_id);
+
     bool process(istream& is, ostream& os, string& error) const;
 
     static const string DEFAULT;
     static const string NONE;
   };
+
+The pipeline class allows simple file-to-file processing. A model and
+input/tagger/parser/output options can be specified in the pipeline.
+
+The input file can be processed either after fully loaded (default), or in
+immediate mode, in which case is the input processed and printed as soon as a
+block of input guaranteed to contain whole sentences is loaded. Specifically,
+for most input formats the input is processed after loading an empty line (with
+the exception of horizontal input format and presegmented tokenizer, where the
+input is processed after loading every line).
 
 
 pipeline::set_model()
@@ -1377,11 +1714,17 @@ pipeline::set_model()
 
   void set_model(const model* m);
 
+Use the given model.
+
 
 pipeline::set_input()
 ---------------------
 
   void set_input(const string& input);
+
+Use the given input format. In addition to formats described in
+new_input_format, a special tokenizer or tokenizer=options format allows using
+the model tokenizer.
 
 
 pipeline::set_tagger()
@@ -1389,11 +1732,15 @@ pipeline::set_tagger()
 
   void set_tagger(const string& tagger);
 
+Use the given tagger options.
+
 
 pipeline::set_parser()
 ----------------------
 
   void set_parser(const string& parser);
+
+Use the given parser options.
 
 
 pipeline::set_output()
@@ -1401,11 +1748,33 @@ pipeline::set_output()
 
   void set_output(const string& output);
 
+Use the given output format (see new_output_format for a list).
+
+
+pipeline::set_immediate()
+-------------------------
+
+  void set_immediate(bool immediate);
+
+Set or reset the immediate mode (default is immediate=false).
+
+
+pipeline::set_document_id()
+---------------------------
+
+  void set_document_id(const string& document_id);
+
+Set document id, which is passed to input_format::reset_document).
+
 
 pipeline::process()
 -------------------
 
   bool process(istream& is, ostream& os, string& error) const;
+
+Process the given input stream, writing results to the given output stream. If
+the processing succeeded, true is returned; otherwise, false is returned with an
+error stored in the error argument.
 
 
 Class trainer
@@ -1421,6 +1790,8 @@ Class trainer
     static const string NONE;
   };
 
+Class allowing training a UDPipe model.
+
 
 trainer::train()
 ----------------
@@ -1428,6 +1799,14 @@ trainer::train()
   static bool train(const string& method, const vector<sentence>& train, const vector<sentence>& heldout,
                     const string& tokenizer, const string& tagger, const string& parser,
                     ostream& os, string& error);
+
+Train a UDPipe model. The only supported method is currently morphodita_parsito.
+Use the supplied train and heldout data, and given tokenizer, tagger and parser
+options (see the Training UDPipe Models section in the User's Manual).
+
+If the training succeeded, true is returned and the model is saved to the given
+os stream; otherwise, false is returned with an error stored in the error
+argument.
 
 
 Class evaluator
@@ -1448,11 +1827,19 @@ Class evaluator
     static const string NONE;
   };
 
+Class evaluating performance of given model on CoNLL-U file.
+
+Three different settings (depending on whether tokenizer, tagger and parser is
+used) can be evaluated. For details, see Measuring Model Accuracy in User's
+Manual.
+
 
 evaluator::set_model()
 ----------------------
 
   void set_model(const model* m);
+
+Use the given model.
 
 
 evaluator::set_tokenizer()
@@ -1460,11 +1847,17 @@ evaluator::set_tokenizer()
 
   void set_tokenizer(const string& tokenizer);
 
+Use the given tokenizer options; pass DEFAULT to use default options or NONE not
+to use a tokenizer.
+
 
 evaluator::set_tagger()
 -----------------------
 
   void set_tagger(const string& tagger);
+
+Use the given tagger options; pass DEFAULT to use default options or NONE not to
+use a tagger.
 
 
 evaluator::set_parser()
@@ -1472,11 +1865,20 @@ evaluator::set_parser()
 
   void set_parser(const string& parser);
 
+Use the given parser options; pass DEFAULT to use default options or NONE not to
+use a parser.
+
 
 evaluator::evaluate()
 ---------------------
 
   bool evaluate(istream& is, ostream& os, string& error) const;
+
+Evaluate the specified model on the given CoNLL-U input read from is stream.
+
+If the evaluation succeeded, true is returned and the evaluation results are
+written to the os stream in a plain text format; otherwise, false is returned
+with an error stored in the error argument.
 
 
 Class version

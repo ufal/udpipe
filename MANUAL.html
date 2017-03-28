@@ -123,137 +123,185 @@
     </li>
     <li><a href="#string_piece">6.2. Struct string_piece</a>
     </li>
-    <li><a href="#word">6.3. Class word</a>
-    </li>
-    <li><a href="#multiword_token">6.4. Class multiword_token</a>
-    </li>
-    <li><a href="#empty_node">6.5. Class empty_node</a>
-    </li>
-    <li><a href="#sentence">6.6. Class sentence</a>
+    <li><a href="#token">6.3. Class token</a>
       <ul>
-      <li><a href="#sentence_empty">6.6.1. sentence::empty()</a>
+      <li><a href="#token_get_space_after">6.3.1. token::get_space_after()</a>
       </li>
-      <li><a href="#sentence_clear">6.6.2. sentence::clear()</a>
+      <li><a href="#token_set_space_after">6.3.2. token::set_space_after()</a>
       </li>
-      <li><a href="#sentence_add_word">6.6.3. sentence::add_word()</a>
+      <li><a href="#token_get_spaces_before">6.3.3. token::get_spaces_before()</a>
       </li>
-      <li><a href="#sentence_set_head">6.6.4. sentence:set_head()</a>
+      <li><a href="#token_set_spaces_before">6.3.4. token::set_spaces_before()</a>
       </li>
-      <li><a href="#sentence_unlink_all_words">6.6.5. sentence::unlink_all_words()</a>
+      <li><a href="#token_get_spaces_after">6.3.5. token::get_spaces_after()</a>
+      </li>
+      <li><a href="#token_set_spaces_after">6.3.6. token::set_spaces_after()</a>
+      </li>
+      <li><a href="#token_get_spaces_in_token">6.3.7. token::get_spaces_in_token()</a>
+      </li>
+      <li><a href="#token_set_spaces_in_token">6.3.8. token::set_spaces_in_token()</a>
+      </li>
+      <li><a href="#token_get_token_range">6.3.9. token::get_token_range()</a>
+      </li>
+      <li><a href="#token_set_token_range">6.3.10. token::set_token_range()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#input_format">6.7. Class input_format</a>
+    <li><a href="#word">6.4. Class word</a>
+    </li>
+    <li><a href="#multiword_token">6.5. Class multiword_token</a>
+    </li>
+    <li><a href="#empty_node">6.6. Class empty_node</a>
+    </li>
+    <li><a href="#sentence">6.7. Class sentence</a>
       <ul>
-      <li><a href="#input_format_read_block">6.7.1. input_format::read_block()</a>
+      <li><a href="#sentence_empty">6.7.1. sentence::empty()</a>
       </li>
-      <li><a href="#input_format_reset_document">6.7.2. input_format::reset_document()</a>
+      <li><a href="#sentence_clear">6.7.2. sentence::clear()</a>
       </li>
-      <li><a href="#input_format_set_text">6.7.3. input_format::set_text()</a>
+      <li><a href="#sentence_add_word">6.7.3. sentence::add_word()</a>
       </li>
-      <li><a href="#input_format_next_sentence">6.7.4. input_format::next_sentence()</a>
+      <li><a href="#sentence_set_head">6.7.4. sentence:set_head()</a>
       </li>
-      <li><a href="#input_format_new_input_format">6.7.5. input_format::new_input_format()</a>
+      <li><a href="#sentence_unlink_all_words">6.7.5. sentence::unlink_all_words()</a>
       </li>
-      <li><a href="#input_format_new_conllu_input_format">6.7.6. input_format::new_conllu_input_format()</a>
+      <li><a href="#sentence_get_new_doc">6.7.6. sentence::get_new_doc()</a>
       </li>
-      <li><a href="#input_format_new_horizontal_input_format">6.7.7. input_format::new_horizontal_input_format()</a>
+      <li><a href="#sentence_set_new_doc">6.7.7. sentence::set_new_doc()</a>
       </li>
-      <li><a href="#input_format_new_vertical_input_format">6.7.8. input_format::new_vertical_input_format()</a>
+      <li><a href="#sentence_get_new_par">6.7.8. sentence::get_new_par()</a>
       </li>
-      <li><a href="#input_format_new_presegmented_tokenizer">6.7.9. input_format::new_presegmented_tokenizer()</a>
+      <li><a href="#sentence_set_new_par">6.7.9. sentence::set_new_par()</a>
+      </li>
+      <li><a href="#sentence_get_sent_id">6.7.10. sentence::get_sent_id()</a>
+      </li>
+      <li><a href="#sentence_set_sent_id">6.7.11. sentence::set_sent_id()</a>
+      </li>
+      <li><a href="#sentence_get_text">6.7.12. sentence::get_text()</a>
+      </li>
+      <li><a href="#sentence_set_text">6.7.13. sentence::set_text()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#output_format">6.8. Class output_format</a>
+    <li><a href="#input_format">6.8. Class input_format</a>
       <ul>
-      <li><a href="#output_format_write_sentence">6.8.1. output_format::write_sentence()</a>
+      <li><a href="#input_format_read_block">6.8.1. input_format::read_block()</a>
       </li>
-      <li><a href="#output_format_finish_document">6.8.2. output_format::finish_document()</a>
+      <li><a href="#input_format_reset_document">6.8.2. input_format::reset_document()</a>
       </li>
-      <li><a href="#output_format_new_output_format">6.8.3. output_format::new_output_format()</a>
+      <li><a href="#input_format_set_text">6.8.3. input_format::set_text()</a>
       </li>
-      <li><a href="#output_format_new_conllu_output_format">6.8.4. output_format::new_conllu_output_format()</a>
+      <li><a href="#input_format_next_sentence">6.8.4. input_format::next_sentence()</a>
       </li>
-      <li><a href="#output_format_new_matxin_output_format">6.8.5. output_format::new_matxin_output_format()</a>
+      <li><a href="#input_format_new_input_format">6.8.5. input_format::new_input_format()</a>
       </li>
-      <li><a href="#output_format_new_horizontal_output_format">6.8.6. output_format::new_horizontal_output_format()</a>
+      <li><a href="#input_format_new_conllu_input_format">6.8.6. input_format::new_conllu_input_format()</a>
       </li>
-      <li><a href="#output_format_new_vertical_output_format">6.8.7. output_format::new_vertical_output_format()</a>
+      <li><a href="#input_format_new_generic_tokenizer_input_format">6.8.7. input_format::new_generic_tokenizer_input_format()</a>
+      </li>
+      <li><a href="#input_format_new_horizontal_input_format">6.8.8. input_format::new_horizontal_input_format()</a>
+      </li>
+      <li><a href="#input_format_new_vertical_input_format">6.8.9. input_format::new_vertical_input_format()</a>
+      </li>
+      <li><a href="#input_format_new_presegmented_tokenizer">6.8.10. input_format::new_presegmented_tokenizer()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#model">6.9. Class model</a>
+    <li><a href="#output_format">6.9. Class output_format</a>
       <ul>
-      <li><a href="#model_load_cstring">6.9.1. model::load(const char*)</a>
+      <li><a href="#output_format_write_sentence">6.9.1. output_format::write_sentence()</a>
       </li>
-      <li><a href="#model_load_istream">6.9.2. model::load(istream&amp;)</a>
+      <li><a href="#output_format_finish_document">6.9.2. output_format::finish_document()</a>
       </li>
-      <li><a href="#model_new_tokenizer">6.9.3. model::new_tokenizer()</a>
+      <li><a href="#output_format_new_output_format">6.9.3. output_format::new_output_format()</a>
       </li>
-      <li><a href="#model_tag">6.9.4. model::tag()</a>
+      <li><a href="#output_format_new_conllu_output_format">6.9.4. output_format::new_conllu_output_format()</a>
       </li>
-      <li><a href="#model_parse">6.9.5. model::parse()</a>
+      <li><a href="#output_format_new_matxin_output_format">6.9.5. output_format::new_matxin_output_format()</a>
+      </li>
+      <li><a href="#output_format_new_plaintext_output_format">6.9.6. output_format::new_plaintext_output_format()</a>
+      </li>
+      <li><a href="#output_format_new_horizontal_output_format">6.9.7. output_format::new_horizontal_output_format()</a>
+      </li>
+      <li><a href="#output_format_new_vertical_output_format">6.9.8. output_format::new_vertical_output_format()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#pipeline">6.10. Class pipeline</a>
+    <li><a href="#model">6.10. Class model</a>
       <ul>
-      <li><a href="#pipeline_set_model">6.10.1. pipeline::set_model()</a>
+      <li><a href="#model_load_cstring">6.10.1. model::load(const char*)</a>
       </li>
-      <li><a href="#pipeline_set_input">6.10.2. pipeline::set_input()</a>
+      <li><a href="#model_load_istream">6.10.2. model::load(istream&amp;)</a>
       </li>
-      <li><a href="#pipeline_set_tagger">6.10.3. pipeline::set_tagger()</a>
+      <li><a href="#model_new_tokenizer">6.10.3. model::new_tokenizer()</a>
       </li>
-      <li><a href="#pipeline_set_parser">6.10.4. pipeline::set_parser()</a>
+      <li><a href="#model_tag">6.10.4. model::tag()</a>
       </li>
-      <li><a href="#pipeline_set_output">6.10.5. pipeline::set_output()</a>
-      </li>
-      <li><a href="#pipeline_process">6.10.6. pipeline::process()</a>
+      <li><a href="#model_parse">6.10.5. model::parse()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#trainer">6.11. Class trainer</a>
+    <li><a href="#pipeline">6.11. Class pipeline</a>
       <ul>
-      <li><a href="#trainer_train">6.11.1. trainer::train()</a>
+      <li><a href="#pipeline_set_model">6.11.1. pipeline::set_model()</a>
+      </li>
+      <li><a href="#pipeline_set_input">6.11.2. pipeline::set_input()</a>
+      </li>
+      <li><a href="#pipeline_set_tagger">6.11.3. pipeline::set_tagger()</a>
+      </li>
+      <li><a href="#pipeline_set_parser">6.11.4. pipeline::set_parser()</a>
+      </li>
+      <li><a href="#pipeline_set_output">6.11.5. pipeline::set_output()</a>
+      </li>
+      <li><a href="#pipeline_set_immediate">6.11.6. pipeline::set_immediate()</a>
+      </li>
+      <li><a href="#pipeline_set_document_id">6.11.7. pipeline::set_document_id()</a>
+      </li>
+      <li><a href="#pipeline_process">6.11.8. pipeline::process()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#evaluator">6.12. Class evaluator</a>
+    <li><a href="#trainer">6.12. Class trainer</a>
       <ul>
-      <li><a href="#evaluator_set_model">6.12.1. evaluator::set_model()</a>
-      </li>
-      <li><a href="#evaluator_set_tokenizer">6.12.2. evaluator::set_tokenizer()</a>
-      </li>
-      <li><a href="#evaluator_set_tagger">6.12.3. evaluator::set_tagger()</a>
-      </li>
-      <li><a href="#evaluator_set_parser">6.12.4. evaluator::set_parser()</a>
-      </li>
-      <li><a href="#evaluator_evaluate">6.12.5. evaluator::evaluate()</a>
+      <li><a href="#trainer_train">6.12.1. trainer::train()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#version">6.13. Class version</a>
+    <li><a href="#evaluator">6.13. Class evaluator</a>
       <ul>
-      <li><a href="#version_current">6.13.1. version::current</a>
+      <li><a href="#evaluator_set_model">6.13.1. evaluator::set_model()</a>
+      </li>
+      <li><a href="#evaluator_set_tokenizer">6.13.2. evaluator::set_tokenizer()</a>
+      </li>
+      <li><a href="#evaluator_set_tagger">6.13.3. evaluator::set_tagger()</a>
+      </li>
+      <li><a href="#evaluator_set_parser">6.13.4. evaluator::set_parser()</a>
+      </li>
+      <li><a href="#evaluator_evaluate">6.13.5. evaluator::evaluate()</a>
       </li>
       </ul>
     </li>
-    <li><a href="#cpp_bindings_api">6.14. C++ Bindings API</a>
+    <li><a href="#version">6.14. Class version</a>
       <ul>
-      <li><a href="#bindings_helper_structures">6.14.1. Helper Structures</a>
-      </li>
-      <li><a href="#bindings_main_classes">6.14.2. Main Classes</a>
+      <li><a href="#version_current">6.14.1. version::current</a>
       </li>
       </ul>
     </li>
-    <li><a href="#csharp_bindings">6.15. C# Bindings</a>
+    <li><a href="#cpp_bindings_api">6.15. C++ Bindings API</a>
+      <ul>
+      <li><a href="#bindings_helper_structures">6.15.1. Helper Structures</a>
+      </li>
+      <li><a href="#bindings_main_classes">6.15.2. Main Classes</a>
+      </li>
+      </ul>
     </li>
-    <li><a href="#java_bindings">6.16. Java Bindings</a>
+    <li><a href="#csharp_bindings">6.16. C# Bindings</a>
     </li>
-    <li><a href="#perl_bindings">6.17. Perl Bindings</a>
+    <li><a href="#java_bindings">6.17. Java Bindings</a>
     </li>
-    <li><a href="#python_bindings">6.18. Python Bindings</a>
+    <li><a href="#perl_bindings">6.18. Perl Bindings</a>
+    </li>
+    <li><a href="#python_bindings">6.19. Python Bindings</a>
     </li>
     </ul>
   </li>
@@ -1763,14 +1811,215 @@ referenced in <a href="#string_piece"><code>string_piece</code></a> is not owned
 the referenced string exists as long as the <a href="#string_piece"><code>string_piece</code></a>.
 </p>
 
-<a id="word" name="word"></a>
-<h2>6.3. Class word</h2>
+<a id="token" name="token"></a>
+<h2>6.3. Class token</h2>
 
 <pre>
-class word {
+class token {
  public:
+  string form;
+  string misc;
+
+  token(<A HREF="#string_piece">string_piece</A> form = string_piece(), <A HREF="#string_piece">string_piece</A> misc = string_piece());
+
+  // CoNLL-U defined SpaceAfter=No feature
+  bool <A HREF="#token_get_space_after">get_space_after</A>() const;
+  void <A HREF="#token_set_space_after">set_space_after</A>(bool space_after);
+
+  // UDPipe-specific all-spaces-preserving SpacesBefore and SpacesAfter features
+  void <A HREF="#token_get_spaces_before">get_spaces_before</A>(string&amp; spaces_before) const;
+  void <A HREF="#token_set_spaces_before">set_spaces_before</A>(<A HREF="#string_piece">string_piece</A> spaces_before);
+  void <A HREF="#token_get_spaces_after">get_spaces_after</A>(string&amp; spaces_after) const;
+  void <A HREF="#token_set_spaces_after">set_spaces_after</A>(<A HREF="#string_piece">string_piece</A> spaces_after);
+  void <A HREF="#token_get_spaces_in_token">get_spaces_in_token</A>(string&amp; spaces_in_token) const;
+  void <A HREF="#token_set_spaces_in_token">set_spaces_in_token</A>(<A HREF="#string_piece">string_piece</A> spaces_in_token);
+
+  // UDPipe-specific TokenRange feature
+  bool <A HREF="#token_get_token_range">get_token_range</A>(size_t&amp; start, size_t&amp; end) const;
+  void <A HREF="#token_set_token_range">set_token_range</A>(size_t start, size_t end);
+};
+</pre>
+
+<p>
+The <a href="#token"><code>token</code></a> class represents a sentence token,
+with <code>form</code> and <code>misc</code> fields corresponding to <a href="http://universaldependencies.org/docs/format.html">CoNLL-U fields</a>.
+The <a href="#token"><code>token</code></a> class acts mostly as a parent to <a href="#word"><code>word</code></a>
+and <a href="#multiword_token"><code>multiword_token</code></a> classes.
+</p>
+<p>
+The class also offers several methods for manipulating features in the <code>misc</code> field.
+Notably, UDPipe uses custom <code>misc</code> fields to store all spaces in the original
+document. This markup is backward compatible with CoNLL-U v2 <code>SpaceAfter=No</code> feature.
+This markup can be utilized by <code>plaintext</code> output format, which allows reconstructing
+the original document.
+</p>
+<p style="margin-bottom:0">
+The markup uses the following <code>misc</code> fields:
+</p>
+<ul style="margin-top:0">
+<li><code>SpacesBefore=content</code> (by default empty): spaces/other content preceding the token
+</li>
+<li><code>SpacesAfter=content</code> (by default a space if <code>SpaceAfter=No</code> feature is not present, empty otherwise):
+  spaces/other content following the token
+</li>
+<li><code>SpacesInToken=content</code> (by default equal to the FORM of the token): FORM of the token
+  including original spaces (this is needed only if tokens are allowed to contain spaces and
+  a token contains a tab or newline characters)
+</li>
+</ul>
+
+<p style="margin-bottom:0">
+The <code>content</code> of all above three fields must be escaped to allow storing tabs and newlines.
+The following C-like schema is used:
+</p>
+<ul style="margin-top:0">
+<li><code>\s</code>: space
+</li>
+<li><code>\t</code>: tab
+</li>
+<li><code>\r</code>: CR character
+</li>
+<li><code>\n</code>: LF character
+</li>
+<li><code>\p</code>: | (pipe character)
+</li>
+<li><code>\\</code>: \ (backslash character)
+</li>
+</ul>
+
+<a id="token_get_space_after" name="token_get_space_after"></a>
+<h3>6.3.1. token::get_space_after()</h3>
+
+<pre>
+bool get_space_after() const;
+</pre>
+
+<p>
+Returns <code>true</code> if the token should be followed by a spaces, <code>false</code> if not,
+according to the absence or presence of the <code>SpaceAfter=No</code> feature in the <code>misc</code> field.
+</p>
+
+<a id="token_set_space_after" name="token_set_space_after"></a>
+<h3>6.3.2. token::set_space_after()</h3>
+
+<pre>
+void set_space_after(bool space_after);
+</pre>
+
+<p>
+Adds or removes the <code>SpaceAfter=No</code> feature in the <code>misc</code> field.
+</p>
+
+<a id="token_get_spaces_before" name="token_get_spaces_before"></a>
+<h3>6.3.3. token::get_spaces_before()</h3>
+
+<pre>
+void get_spaces_before(string&amp; spaces_before) const;
+</pre>
+
+<p>
+Return spaces preceding current token, stored in the <code>SpacesBefore</code>
+feature in the <code>misc</code> field. If <code>SpacesBefore</code> is not present, empty string
+is returned.
+</p>
+
+<a id="token_set_spaces_before" name="token_set_spaces_before"></a>
+<h3>6.3.4. token::set_spaces_before()</h3>
+
+<pre>
+void set_spaces_before(<A HREF="#string_piece">string_piece</A> spaces_before);
+</pre>
+
+<p>
+Set the <code>SpacesBefore</code> feature in the <code>misc</code> field.
+</p>
+
+<a id="token_get_spaces_after" name="token_get_spaces_after"></a>
+<h3>6.3.5. token::get_spaces_after()</h3>
+
+<pre>
+void get_spaces_after(string&amp; spaces_after) const;
+</pre>
+
+<p>
+Return spaces after current token, stored in the <code>SpacesAfter</code>
+feature in the <code>misc</code> field.
+</p>
+<p>
+If <code>SpacesAfter</code> is not present and <code>SpaceAfter=No</code> is present,
+return an empty string; if neither feature is present, one space is returned.
+</p>
+
+<a id="token_set_spaces_after" name="token_set_spaces_after"></a>
+<h3>6.3.6. token::set_spaces_after()</h3>
+
+<pre>
+void set_spaces_after(<A HREF="#string_piece">string_piece</A> spaces_after);
+</pre>
+
+<p>
+Set the <code>SpacesAfter</code> and <code>SpaceAfter=No</code> features in the <code>misc</code> field.
+</p>
+
+<a id="token_get_spaces_in_token" name="token_get_spaces_in_token"></a>
+<h3>6.3.7. token::get_spaces_in_token()</h3>
+
+<pre>
+void get_spaces_in_token(string&amp; spaces_in_token) const;
+</pre>
+
+<p>
+Return the value of the <code>SpacesInToken</code> feature, if present.
+Otherwise, empty string is returned.
+</p>
+
+<a id="token_set_spaces_in_token" name="token_set_spaces_in_token"></a>
+<h3>6.3.8. token::set_spaces_in_token()</h3>
+
+<pre>
+void set_spaces_in_token(<A HREF="#string_piece">string_piece</A> spaces_in_token);
+</pre>
+
+<p>
+Set the <code>SpacesInToken</code> feature in the <code>misc</code> field.
+</p>
+
+<a id="token_get_token_range" name="token_get_token_range"></a>
+<h3>6.3.9. token::get_token_range()</h3>
+
+<pre>
+bool get_token_range(size_t&amp; start, size_t&amp; end) const;
+</pre>
+
+<p>
+If present, return the value of the <code>TokenRange</code> feature in the <code>misc</code> field.
+The format of the feature (inspired by Python) is <code>TokenRange=start:end</code>,
+where <code>start</code> is zero-based document-level index of the start of the token
+(counted in Unicode characters) and <code>end</code> is zero-based document-level index
+of the first character following the token (i.e., the length of the token is <code>end-start</code>).
+</p>
+
+<a id="token_set_token_range" name="token_set_token_range"></a>
+<h3>6.3.10. token::set_token_range()</h3>
+
+<pre>
+void set_token_range(size_t start, size_t end);
+</pre>
+
+<p>
+Set the <code>TokenRange</code> feature in the <code>misc</code> field. If <code>string::npos</code>
+is passed in the <code>start</code> argument, <code>TokenRange</code> feature is removed
+from the <code>misc</code> field.
+</p>
+
+<a id="word" name="word"></a>
+<h2>6.4. Class word</h2>
+
+<pre>
+class word : public token {
+ public:
+  // form and misc are inherited from token
   int id;         // 0 is root, &gt;0 is sentence word, &lt;0 is undefined
-  string form;    // form
   string lemma;   // lemma
   string upostag; // universal part-of-speech tag
   string xpostag; // language-specific part-of-speech tag
@@ -1778,7 +2027,6 @@ class word {
   int head;       // head, 0 is root, &lt;0 is undefined
   string deprel;  // dependency relation to the head
   string deps;    // secondary dependencies
-  string misc;    // miscellaneous information
 
   vector&lt;int&gt; children;
 
@@ -1794,14 +2042,13 @@ with the <code>children</code> field representing the opposite direction of
 </p>
 
 <a id="multiword_token" name="multiword_token"></a>
-<h2>6.4. Class multiword_token</h2>
+<h2>6.5. Class multiword_token</h2>
 
 <pre>
-class multiword_token {
+class multiword_token : public token {
  public:
+  // form and misc are inherited from token
   int id_first, id_last;
-  string form;
-  string misc;
 
   multiword_token(int id_first = -1, int id_last = -1, <A HREF="#string_piece">string_piece</A> form = string_piece(), <A HREF="#string_piece">string_piece</A> misc = string_piece());
 };
@@ -1810,13 +2057,12 @@ class multiword_token {
 <p>
 The <a href="#multiword_token"><code>multiword_token</code></a> represents a multi-word token
 described in <a href="http://universaldependencies.org/docs/format.html">CoNLL-U format</a>.
-The multi-word token references underlying words, it has a form and a misc field
-(which may contain for example `SpaceAfter=No` feature). Other CoNLL-U word
+The multi-word token has a <code>form</code> and a <code>misc</code> field, other CoNLL-U word
 fields are guaranteed to be empty.
 </p>
 
 <a id="empty_node" name="empty_node"></a>
-<h2>6.5. Class empty_node</h2>
+<h2>6.6. Class empty_node</h2>
 
 <pre>
 class empty_node {
@@ -1842,7 +2088,7 @@ For a specified <code>id</code>, the <code>index</code> are numbered sequentiall
 </p>
 
 <a id="sentence" name="sentence"></a>
-<h2>6.6. Class sentence</h2>
+<h2>6.7. Class sentence</h2>
 
 <pre>
 class sentence {
@@ -1855,11 +2101,22 @@ class sentence {
   vector&lt;string&gt; comments;
   static const string root_form;
 
+  // Basic sentence modifications
   bool <A HREF="#sentence_empty">empty</A>();
   void <A HREF="#sentence_clear">clear</A>();
   <A HREF="#word">word</A>&amp; <A HREF="#sentence_add_word">add_word</A>(<A HREF="#string_piece">string_piece</A> form = string_piece());
   void <A HREF="#sentence_set_head">set_head</A>(int id, int head, const string&amp; deprel);
   void <A HREF="#sentence_unlink_all_words">unlink_all_words</A>();
+
+  // CoNLL-U defined comments
+  bool <A HREF="#sentence_get_new_doc">get_new_doc</A>(string* id = nullptr) const;
+  void <A HREF="#sentence_set_new_doc">set_new_doc</A>(bool new_doc, <A HREF="#string_piece">string_piece</A> id = string_piece());
+  bool <A HREF="#sentence_get_new_par">get_new_par</A>(string* id = nullptr) const;
+  void <A HREF="#sentence_set_new_par">set_new_par</A>(bool new_par, <A HREF="#string_piece">string_piece</A> id = string_piece());
+  bool <A HREF="#sentence_get_sent_id">get_sent_id</A>(string&amp; id) const;
+  void <A HREF="#sentence_set_sent_id">set_sent_id</A>(<A HREF="#string_piece">string_piece</A> id);
+  bool <A HREF="#sentence_get_text">get_text</A>(string&amp; text) const;
+  void <A HREF="#sentence_set_text">set_text</A>(<A HREF="#string_piece">string_piece</A> text);
 };
 </pre>
 
@@ -1874,6 +2131,8 @@ which consists of:
 <li>sequence of <a href="#multiword_token"><code>multiword_token</code></a>s also stored in ascending
   order
 </li>
+<li>sequence of <a href="#empty_node"><code>empty_node</code></a>s also stored in ascending order
+</li>
 <li>comments
 </li>
 </ul>
@@ -1881,10 +2140,11 @@ which consists of:
 <p>
 Although you can manipulate the <code>words</code> directly, the
 <a href="#sentence"><code>sentence</code></a> class offers several simple node manipulation methods.
+There are also several methods manipulating CoNLL-U v2 comments.
 </p>
 
 <a id="sentence_empty" name="sentence_empty"></a>
-<h3>6.6.1. sentence::empty()</h3>
+<h3>6.7.1. sentence::empty()</h3>
 
 <pre>
 bool empty();
@@ -1895,7 +2155,7 @@ Returns <code>true</code> if the sentence is empty. i.e., if it contains only a 
 </p>
 
 <a id="sentence_clear" name="sentence_clear"></a>
-<h3>6.6.2. sentence::clear()</h3>
+<h3>6.7.2. sentence::clear()</h3>
 
 <pre>
 void clear();
@@ -1906,7 +2166,7 @@ Removes all words, multi-word tokens and comments (only the technical root <code
 </p>
 
 <a id="sentence_add_word" name="sentence_add_word"></a>
-<h3>6.6.3. sentence::add_word()</h3>
+<h3>6.7.3. sentence::add_word()</h3>
 
 <pre>
 <A HREF="#word">word</A>&amp; add_word(<A HREF="#string_piece">string_piece</A> form = string_piece());
@@ -1919,7 +2179,7 @@ word is returned so that other fields can be also filled.
 </p>
 
 <a id="sentence_set_head" name="sentence_set_head"></a>
-<h3>6.6.4. sentence:set_head()</h3>
+<h3>6.7.4. sentence:set_head()</h3>
 
 <pre>
 void set_head(int id, int head, const std::string&amp; deprel);
@@ -1932,7 +2192,7 @@ if any.
 </p>
 
 <a id="sentence_unlink_all_words" name="sentence_unlink_all_words"></a>
-<h3>6.6.5. sentence::unlink_all_words()</h3>
+<h3>6.7.5. sentence::unlink_all_words()</h3>
 
 <pre>
 void unlink_all_words();
@@ -1942,8 +2202,104 @@ void unlink_all_words();
 Unlink all words.
 </p>
 
+<a id="sentence_get_new_doc" name="sentence_get_new_doc"></a>
+<h3>6.7.6. sentence::get_new_doc()</h3>
+
+<pre>
+bool get_new_doc(string* id = nullptr) const;
+</pre>
+
+<p>
+Return <code>true</code> if <code># newdoc</code> comment is present. Optionally,
+document id is also returned (in <code># newdoc id = ...</code> format).
+</p>
+
+<a id="sentence_set_new_doc" name="sentence_set_new_doc"></a>
+<h3>6.7.7. sentence::set_new_doc()</h3>
+
+<pre>
+void set_new_doc(bool new_doc, <A HREF="#string_piece">string_piece</A> id = string_piece());
+</pre>
+
+<p>
+Adds/removes <code># newdoc</code> comment, optionally with a given
+document id.
+</p>
+
+<a id="sentence_get_new_par" name="sentence_get_new_par"></a>
+<h3>6.7.8. sentence::get_new_par()</h3>
+
+<pre>
+bool get_new_par(string* id = nullptr) const;
+</pre>
+
+<p>
+Return <code>true</code> if <code># newpar</code> comment is present. Optionally,
+paragraph id is also returned (in <code># newpar id = ...</code> format).
+</p>
+
+<a id="sentence_set_new_par" name="sentence_set_new_par"></a>
+<h3>6.7.9. sentence::set_new_par()</h3>
+
+<pre>
+void set_new_par(bool new_par, <A HREF="#string_piece">string_piece</A> id = string_piece());
+</pre>
+
+<p>
+Adds/removes <code># newpar</code> comment, optionally with a given
+paragraph id.
+</p>
+
+<a id="sentence_get_sent_id" name="sentence_get_sent_id"></a>
+<h3>6.7.10. sentence::get_sent_id()</h3>
+
+<pre>
+bool get_sent_id(string&amp; id) const;
+</pre>
+
+<p>
+Return <code>true</code> if <code># sent_id = ...</code> comment is present,
+and fill given <code>id</code> with sentence id.
+</p>
+
+<a id="sentence_set_sent_id" name="sentence_set_sent_id"></a>
+<h3>6.7.11. sentence::set_sent_id()</h3>
+
+<pre>
+void set_sent_id(<A HREF="#string_piece">string_piece</A> id);
+</pre>
+
+<p>
+Set the <code># sent_id = ...</code> comment using given sentence id;
+if the sentence id is empty, remove all present <code># sent_id</code> comment.
+</p>
+
+<a id="sentence_get_text" name="sentence_get_text"></a>
+<h3>6.7.12. sentence::get_text()</h3>
+
+<pre>
+bool get_text(string&amp; text) const;
+</pre>
+
+<p>
+Return <code>true</code> if <code># text = ...</code> comment is present,
+and fill given <code>text</code> with sentence text.
+</p>
+
+<a id="sentence_set_text" name="sentence_set_text"></a>
+<h3>6.7.13. sentence::set_text()</h3>
+
+<pre>
+void set_text(<A HREF="#string_piece">string_piece</A> text);
+</pre>
+
+<p>
+Set the <code># text = ...</code> comment using given text;
+if the given text is empty, remove all present <code># text</code> comment.
+</p>
+
 <a id="input_format" name="input_format"></a>
-<h2>6.7. Class input_format</h2>
+<h2>6.8. Class input_format</h2>
 
 <pre>
 class input_format {
@@ -1951,17 +2307,24 @@ class input_format {
   virtual ~input_format() {}
 
   virtual bool <A HREF="#input_format_read_block">read_block</A>(istream&amp; is, string&amp; block) const = 0;
-  virtual void <A HREF="#input_format_reset_document">reset_document</A>() {};
+  virtual void <A HREF="#input_format_reset_document">reset_document</A>(<A HREF="#string_piece">string_piece</A> id = string_piece()) = 0;
   virtual void <A HREF="#input_format_set_text">set_text</A>(<A HREF="#string_piece">string_piece</A> text, bool make_copy = false) = 0;
   virtual bool <A HREF="#input_format_next_sentence">next_sentence</A>(<A HREF="#sentence">sentence</A>&amp; s, string&amp; error) = 0;
 
   // Static factory methods
   static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_input_format">new_input_format</A>(const string&amp; name);
-  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_conllu_input_format">new_conllu_input_format</A>();
-  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_horizontal_input_format">new_horizontal_input_format</A>();
-  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_vertical_input_format">new_vertical_input_format</A>();
+  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_conllu_input_format">new_conllu_input_format</A>(const string&amp; options = std::string());
+  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_generic_tokenizer_input_format">new_generic_tokenizer_input_format</A>(const string&amp; options = std::string());
+  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_horizontal_input_format">new_horizontal_input_format</A>(const string&amp; options = std::string());
+  static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_vertical_input_format">new_vertical_input_format</A>(const string&amp; options = std::string());
 
   static <A HREF="#input_format">input_format</A>* <A HREF="#input_format_new_presegmented_tokenizer">new_presegmented_tokenizer</A>(<A HREF="#input_format">input_format</A>* tokenizer);
+
+  static const string CONLLU_V1;
+  static const string CONLLU_V2;
+  static const string GENERIC_TOKENIZER_NORMALIZED_SPACES;
+  static const string GENERIC_TOKENIZER_PRESEGMENTED;
+  static const string GENERIC_TOKENIZER_RANGES;
 };
 </pre>
 
@@ -1973,7 +2336,7 @@ Th class instances may store internal state and are not thread-safe.
 </p>
 
 <a id="input_format_read_block" name="input_format_read_block"></a>
-<h3>6.7.1. input_format::read_block()</h3>
+<h3>6.8.1. input_format::read_block()</h3>
 
 <pre>
 virtual bool read_block(istream&amp; is, string&amp; block) const = 0;
@@ -1986,24 +2349,28 @@ or a line, but it may be more complex (i.e., in a XML-like format).
 </p>
 
 <a id="input_format_reset_document" name="input_format_reset_document"></a>
-<h3>6.7.2. input_format::reset_document()</h3>
+<h3>6.8.2. input_format::reset_document()</h3>
 
 <pre>
-virtual void reset_document() {};
+virtual void reset_document(<A HREF="#string_piece">string_piece</A> id = string_piece()) = 0;
 </pre>
 
 <p>
 Resets the <a href="#input_format"><code>input_format</code></a> instance state. Such state
 is needed not only for remembering unprocessed text of the last
 <a href="#input_format_set_text"><code>set_text</code></a> call, but also for correct inter-block
-state tracking (for example in a tokenizer which returns document-level offsets,
-or in a tokenizer which tracks inter-sentence spaces &ndash; if you pass only spaces
-to <a href="#input_format_set_text"><code>set_text</code></a>, these spaces has to accumulate and be
-returned as preceeding spaces of the next sentence).
+state tracking (for example to track document-level ranges or inter-sentence spaces
+-- if you pass only spaces to <a href="#input_format_set_text"><code>set_text</code></a>, these
+spaces has to accumulate and be returned as preceding spaces of the next
+sentence).
+</p>
+<p>
+If applicable, first read sentence will have the <code># newdoc</code> comment, optionally
+with given document id.
 </p>
 
 <a id="input_format_set_text" name="input_format_set_text"></a>
-<h3>6.7.3. input_format::set_text()</h3>
+<h3>6.8.3. input_format::set_text()</h3>
 
 <pre>
 virtual void set_text(<A HREF="#string_piece">string_piece</A> text, bool make_copy = false) = 0;
@@ -2021,7 +2388,7 @@ instance is destroyed or <code>set_text</code> is called again.
 </p>
 
 <a id="input_format_next_sentence" name="input_format_next_sentence"></a>
-<h3>6.7.4. input_format::next_sentence()</h3>
+<h3>6.8.4. input_format::next_sentence()</h3>
 
 <pre>
 virtual bool next_sentence(<A HREF="#sentence">sentence</A>&amp; s, string&amp; error) = 0;
@@ -2037,7 +2404,7 @@ read error.
 </p>
 
 <a id="input_format_new_input_format" name="input_format_new_input_format"></a>
-<h3>6.7.5. input_format::new_input_format()</h3>
+<h3>6.8.5. input_format::new_input_format()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_input_format(const string&amp; name);
@@ -2045,10 +2412,13 @@ static <A HREF="#input_format">input_format</A>* new_input_format(const string&a
 
 <p style="margin-bottom:0">
 Create new <a href="#input_format"><code>input_format</code></a> instance, given its name.
-The following input formats are currently supported:
+The individual input formats can be parametrized by using <code>format=data</code>
+syntax. The following input formats are currently supported:
 </p>
 <ul style="margin-top:0">
 <li><code>conllu</code>: return the <a href="#input_format_new_conllu_input_format"><code>new_conllu_input_format</code></a>
+</li>
+<li><code>generic_tokenizer</code>: return the <a href="#input_format_new_generic_tokenizer_input_format"><code>new_generic_tokenizer_input_format</code></a>
 </li>
 <li><code>horizontal</code>: return the <a href="#input_format_new_horizontal_input_format"><code>new_horizontal_input_format</code></a>
 </li>
@@ -2061,10 +2431,10 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_conllu_input_format" name="input_format_new_conllu_input_format"></a>
-<h3>6.7.6. input_format::new_conllu_input_format()</h3>
+<h3>6.8.6. input_format::new_conllu_input_format()</h3>
 
 <pre>
-static <A HREF="#input_format">input_format</A>* new_conllu_input_format();
+static <A HREF="#input_format">input_format</A>* new_conllu_input_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2072,12 +2442,50 @@ Create <a href="#input_format"><code>input_format</code></a> instance which load
 in the <a href="http://universaldependencies.github.io/docs/format.html">CoNLL-U format</a>.
 The new instance must be deleted after use.
 </p>
+<p style="margin-bottom:0">
+Supported options:
+</p>
+<ul style="margin-top:0">
+<li><code>v2</code> (default): use CoNLL-U v2
+</li>
+<li><code>v1</code>: allow loading only CoNLL-U v1 (i.e., no empty nodes and no spaces in forms and lemmas)
+</li>
+</ul>
 
-<a id="input_format_new_horizontal_input_format" name="input_format_new_horizontal_input_format"></a>
-<h3>6.7.7. input_format::new_horizontal_input_format()</h3>
+<a id="input_format_new_generic_tokenizer_input_format" name="input_format_new_generic_tokenizer_input_format"></a>
+<h3>6.8.7. input_format::new_generic_tokenizer_input_format()</h3>
 
 <pre>
-static <A HREF="#input_format">input_format</A>* new_horizontal_input_format();
+static <A HREF="#input_format">input_format</A>* new_generic_tokenizer_input_format(const string() options = std::string());
+</pre>
+
+<p>
+Create rule-based generic tokenizer for English-like languages (with spaces
+separating tokens and English-like punctuation). The new instance must be
+deleted after use.
+</p>
+<p style="margin-bottom:0">
+Supported options:
+</p>
+<ul style="margin-top:0">
+<li><code>normalized_spaces</code>: by default, UDPipe uses custom <code>misc</code> fields to exactly
+  encode spaces in the original document. If <code>normalized_spaces</code> option is
+  given, only standard CoNLL-U v2 markup (<code>SpaceAfter=No</code> and <code># newpar</code>)
+  is used.
+</li>
+<li><code>presegmented</code>: input is assumed to be already segmented, with every
+  sentence on a line, and is only tokenized (respecting sentence breaks)
+</li>
+<li><code>ranges</code>: for every token, range in the original document is stored in
+  a format described in <a href="#token"><code>token</code></a> class
+</li>
+</ul>
+
+<a id="input_format_new_horizontal_input_format" name="input_format_new_horizontal_input_format"></a>
+<h3>6.8.8. input_format::new_horizontal_input_format()</h3>
+
+<pre>
+static <A HREF="#input_format">input_format</A>* new_horizontal_input_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2085,12 +2493,16 @@ Create <a href="#input_format"><code>input_format</code></a> instance which load
 horizontal format &ndash; each sentence on a line, with word forms separated by spaces.
 The new instance must be deleted after use.
 </p>
+<p>
+In order to allow spaces in tokens, Unicode character 'NO-BREAK SPACE' (U+00A0)
+is considered part of token and converted to a space during loading.
+</p>
 
 <a id="input_format_new_vertical_input_format" name="input_format_new_vertical_input_format"></a>
-<h3>6.7.8. input_format::new_vertical_input_format()</h3>
+<h3>6.8.9. input_format::new_vertical_input_format()</h3>
 
 <pre>
-static <A HREF="#input_format">input_format</A>* new_vertical_input_format();
+static <A HREF="#input_format">input_format</A>* new_vertical_input_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2100,7 +2512,7 @@ The new instance must be deleted after use.
 </p>
 
 <a id="input_format_new_presegmented_tokenizer" name="input_format_new_presegmented_tokenizer"></a>
-<h3>6.7.9. input_format::new_presegmented_tokenizer()</h3>
+<h3>6.8.10. input_format::new_presegmented_tokenizer()</h3>
 
 <pre>
 static <A HREF="#input_format">input_format</A>* new_presegmented_tokenizer(<A HREF="#input_format">input_format</A>* tokenizer);
@@ -2120,7 +2532,7 @@ its own deletion.
 </p>
 
 <a id="output_format" name="output_format"></a>
-<h2>6.8. Class output_format</h2>
+<h2>6.9. Class output_format</h2>
 
 <pre>
 class output_format {
@@ -2132,10 +2544,17 @@ class output_format {
 
   // Static factory methods
   static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_output_format">new_output_format</A>(const string&amp; name);
-  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_conllu_output_format">new_conllu_output_format</A>();
-  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_matxin_output_format">new_matxin_output_format</A>();
-  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_horizontal_output_format">new_horizontal_output_format</A>();
-  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_vertical_output_format">new_vertical_output_format</A>();
+  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_conllu_output_format">new_conllu_output_format</A>(const string() options = std::string());
+  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_matxin_output_format">new_matxin_output_format</A>(const string() options = std::string());
+  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_horizontal_output_format">new_horizontal_output_format</A>(const string() options = std::string());
+  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_plaintext_output_format">new_plaintext_output_format</A>(const string() options = std::string());
+  static <A HREF="#output_format">output_format</A>* <A HREF="#output_format_new_vertical_output_format">new_vertical_output_format</A>(const string() options = std::string());
+
+  static const string CONLLU_V1;
+  static const string CONLLU_V2;
+  static const string HORIZONTAL_PARAGRAPHS;
+  static const string PLAINTEXT_NORMALIZED_SPACES;
+  static const string VERTICAL_PARAGRAPHS;
 };
 </pre>
 
@@ -2148,7 +2567,7 @@ The class instances may store internal state and are not thread-safe.
 </p>
 
 <a id="output_format_write_sentence" name="output_format_write_sentence"></a>
-<h3>6.8.1. output_format::write_sentence()</h3>
+<h3>6.9.1. output_format::write_sentence()</h3>
 
 <pre>
 virtual void write_sentence(const <A HREF="#sentence">sentence</A>&amp; s, ostream&amp; os) = 0;
@@ -2165,7 +2584,7 @@ automatically when the first sentence is written using this
 </p>
 
 <a id="output_format_finish_document" name="output_format_finish_document"></a>
-<h3>6.8.2. output_format::finish_document()</h3>
+<h3>6.9.2. output_format::finish_document()</h3>
 
 <pre>
 virtual void finish_document(ostream&amp; os) {};
@@ -2179,7 +2598,7 @@ will write start-of-document mark).
 </p>
 
 <a id="output_format_new_output_format" name="output_format_new_output_format"></a>
-<h3>6.8.3. output_format::new_output_format()</h3>
+<h3>6.9.3. output_format::new_output_format()</h3>
 
 <pre>
 static <A HREF="#output_format">output_format</A>* new_output_format(const string&amp; name);
@@ -2196,6 +2615,8 @@ The following output formats are currently supported:
 </li>
 <li><code>horizontal</code>: return the <a href="#output_format_new_horizontal_output_format"><code>new_horizontal_output_format</code></a>
 </li>
+<li><code>plaintext</code>: return the <a href="#output_format_new_plaintext_output_format"><code>new_plaintext_output_format</code></a>
+</li>
 <li><code>vertical</code>: return the <a href="#output_format_new_vertical_output_format"><code>new_vertical_output_format</code></a>
 </li>
 </ul>
@@ -2205,10 +2626,10 @@ The new instance must be deleted after use.
 </p>
 
 <a id="output_format_new_conllu_output_format" name="output_format_new_conllu_output_format"></a>
-<h3>6.8.4. output_format::new_conllu_output_format()</h3>
+<h3>6.9.4. output_format::new_conllu_output_format()</h3>
 
 <pre>
-static <A HREF="#output_format">output_format</A>* new_conllu_output_format();
+static <A HREF="#output_format">output_format</A>* new_conllu_output_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2216,12 +2637,22 @@ Creates <a href="#output_format"><code>output_format</code></a> instance for wri
 in the <a href="http://universaldependencies.github.io/docs/format.html">CoNLL-U format</a>.
 The new instance must be deleted after use.
 </p>
+<p style="margin-bottom:0">
+Supported options:
+</p>
+<ul style="margin-top:0">
+<li><code>v2</code> (default): use CoNLL-U v2
+</li>
+<li><code>v1</code>: produce output in CoNLL-U v1 format. Note that this is a lossy process, as
+empty nodes are ignored and spaces in forms and lemmas are converted to underscores.
+</li>
+</ul>
 
 <a id="output_format_new_matxin_output_format" name="output_format_new_matxin_output_format"></a>
-<h3>6.8.5. output_format::new_matxin_output_format()</h3>
+<h3>6.9.5. output_format::new_matxin_output_format()</h3>
 
 <pre>
-static <A HREF="#output_format">output_format</A>* new_matxin_output_format();
+static <A HREF="#output_format">output_format</A>* new_matxin_output_format(const string() options = std::string());
 </pre>
 
 <p style="margin-bottom:0">
@@ -2247,11 +2678,32 @@ in the Matxin format &ndash; UDPipe produces a XML with the following DTD:
 The new instance must be deleted after use.
 </p>
 
-<a id="output_format_new_horizontal_output_format" name="output_format_new_horizontal_output_format"></a>
-<h3>6.8.6. output_format::new_horizontal_output_format()</h3>
+<a id="output_format_new_plaintext_output_format" name="output_format_new_plaintext_output_format"></a>
+<h3>6.9.6. output_format::new_plaintext_output_format()</h3>
 
 <pre>
-static <A HREF="#output_format">output_format</A>* new_horizontal_output_format();
+static <A HREF="#output_format">output_format</A>* new_plaintext_output_format(const string() options = std::string());
+</pre>
+
+<p style="margin-bottom:0">
+Creates <a href="#output_format"><code>output_format</code></a> instance for writing sentence
+<i>tokens</i> (in the UD sense) using original spacing.
+By default, UDPipe custom <code>misc</code> features (see description of
+<a href="#token"><code>token</code></a> class) are used to reconstruct the exact original spaces.
+However, if the document does not contain these features or if only
+normalized spacing is wanted, you can use the following option:
+</p>
+<ul style="margin-top:0">
+<li><code>normalized_spaces</code>: write one sentence on a line, and either one or no space between
+  tokens, using the <code>SpaceAfter=No</code> feature
+</li>
+</ul>
+
+<a id="output_format_new_horizontal_output_format" name="output_format_new_horizontal_output_format"></a>
+<h3>6.9.7. output_format::new_horizontal_output_format()</h3>
+
+<pre>
+static <A HREF="#output_format">output_format</A>* new_horizontal_output_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2259,12 +2711,24 @@ Creates <a href="#output_format"><code>output_format</code></a> instance for wri
 in a simple horizontal format &ndash; each sentence on a line, with word forms separated
 by spaces. The new instance must be deleted after use.
 </p>
+<p>
+Because words can contain spaces in CoNLL-U v2, the spaces in words are
+converted to Unicode character 'NO-BREAK SPACE' (U+00A0).
+</p>
+<p style="margin-bottom:0">
+Supported options:
+</p>
+<ul style="margin-top:0">
+<li><code>paragraphs</code>: if given, an empty line is printed after the end of a paragraph
+or a document (recognized by <code># newpar</code> or <code># newdoc</code> comments)
+</li>
+</ul>
 
 <a id="output_format_new_vertical_output_format" name="output_format_new_vertical_output_format"></a>
-<h3>6.8.7. output_format::new_vertical_output_format()</h3>
+<h3>6.9.8. output_format::new_vertical_output_format()</h3>
 
 <pre>
-static <A HREF="#output_format">output_format</A>* new_vertical_output_format();
+static <A HREF="#output_format">output_format</A>* new_vertical_output_format(const string() options = std::string());
 </pre>
 
 <p>
@@ -2272,9 +2736,17 @@ Creates <a href="#output_format"><code>output_format</code></a> instance for wri
 in a simple vertical format &ndash; each word form on a line, with empty line
 denoting end of sentence. The new instance must be deleted after use.
 </p>
+<p style="margin-bottom:0">
+Supported options:
+</p>
+<ul style="margin-top:0">
+<li><code>paragraphs</code>: if given, an empty line is printed after the end of a paragraph
+or a document (recognized by <code># newpar</code> or <code># newdoc</code> comments)
+</li>
+</ul>
 
 <a id="model" name="model"></a>
-<h2>6.9. Class model</h2>
+<h2>6.10. Class model</h2>
 
 <pre>
 class model {
@@ -2289,47 +2761,77 @@ class model {
   virtual bool <A HREF="#model_parse">parse</A>(<A HREF="#sentence">sentence</A>&amp; s, const string&amp; options, string&amp; error) const = 0;
 
   static const string DEFAULT;
+  static const string TOKENIZER_NORMALIZED_SPACES;
   static const string TOKENIZER_PRESEGMENTED;
+  static const string TOKENIZER_RANGES;
 };
 </pre>
 
+<p>
+Class representing UDPipe model, allowing to perform tokenization,
+tagging and parsing.
+</p>
+
 <a id="model_load_cstring" name="model_load_cstring"></a>
-<h3>6.9.1. model::load(const char*)</h3>
+<h3>6.10.1. model::load(const char*)</h3>
 
 <pre>
 static <A HREF="#model">model</A>* load(const char* fname);
 </pre>
 
+<p>
+Load a new model from a given file, returning <code>NULL</code> on failure.
+The new instance must be deleted after use.
+</p>
+
 <a id="model_load_istream" name="model_load_istream"></a>
-<h3>6.9.2. model::load(istream&amp;)</h3>
+<h3>6.10.2. model::load(istream&amp;)</h3>
 
 <pre>
 static <A HREF="#model">model</A>* load(istream&amp; is);
 </pre>
 
+<p>
+Load a new model from a given input stream, returning <code>NULL</code> on failure.
+The new instance must be deleted after use.
+</p>
+
 <a id="model_new_tokenizer" name="model_new_tokenizer"></a>
-<h3>6.9.3. model::new_tokenizer()</h3>
+<h3>6.10.3. model::new_tokenizer()</h3>
 
 <pre>
 virtual <A HREF="#input_format">input_format</A>* new_tokenizer(const string&amp; options) const = 0;
 </pre>
 
+<p>
+Construct a new tokenizer (or <code>NULL</code> if no tokenizer is specified by the model).
+The new instance must be deleted after use.
+</p>
+
 <a id="model_tag" name="model_tag"></a>
-<h3>6.9.4. model::tag()</h3>
+<h3>6.10.4. model::tag()</h3>
 
 <pre>
 virtual bool tag(<A HREF="#sentence">sentence</A>&amp; s, const string&amp; options, string&amp; error) const = 0;
 </pre>
 
+<p>
+Tag the given sentence.
+</p>
+
 <a id="model_parse" name="model_parse"></a>
-<h3>6.9.5. model::parse()</h3>
+<h3>6.10.5. model::parse()</h3>
 
 <pre>
 virtual bool parse(<A HREF="#sentence">sentence</A>&amp; s, const string&amp; options, string&amp; error) const = 0;
 </pre>
 
+<p>
+Parse the given sentence.
+</p>
+
 <a id="pipeline" name="pipeline"></a>
-<h2>6.10. Class pipeline</h2>
+<h2>6.11. Class pipeline</h2>
 
 <pre>
 class pipeline {
@@ -2342,6 +2844,9 @@ class pipeline {
   void <A HREF="#pipeline_set_parser">set_parser</A>(const string&amp; parser);
   void <A HREF="#pipeline_set_output">set_output</A>(const string&amp; output);
 
+  void <A HREF="#pipeline_set_immediate">set_immediate</A>(bool immediate);
+  void [set_document_id #pipeline_set_document_id[(const string&amp; document_id);
+
   bool <A HREF="#pipeline_process">process</A>(istream&amp; is, ostream&amp; os, string&amp; error) const;
 
   static const string DEFAULT;
@@ -2349,50 +2854,117 @@ class pipeline {
 };
 </pre>
 
+<p>
+The <a href="#pipeline"><code>pipeline</code></a> class allows simple file-to-file processing.
+A model and input/tagger/parser/output options can be specified in the pipeline.
+</p>
+<p>
+The input file can be processed either after fully loaded (default),
+or in immediate mode, in which case is the input processed and printed as soon
+as a block of input guaranteed to contain whole sentences is loaded.
+Specifically, for most input formats the input is processed after loading an
+empty line (with the exception of <code>horizontal</code> input format and
+<code>presegmented</code> tokenizer, where the input is processed after loading every
+line).
+</p>
+
 <a id="pipeline_set_model" name="pipeline_set_model"></a>
-<h3>6.10.1. pipeline::set_model()</h3>
+<h3>6.11.1. pipeline::set_model()</h3>
 
 <pre>
 void set_model(const <A HREF="#model">model</A>* m);
 </pre>
 
+<p>
+Use the given model.
+</p>
+
 <a id="pipeline_set_input" name="pipeline_set_input"></a>
-<h3>6.10.2. pipeline::set_input()</h3>
+<h3>6.11.2. pipeline::set_input()</h3>
 
 <pre>
 void set_input(const string&amp; input);
 </pre>
 
+<p>
+Use the given input format. In addition to formats described in
+<a href="#input_format_new_input_format"><code>new_input_format</code></a>, a special
+<code>tokenizer</code> or <code>tokenizer=options</code> format allows using the
+model tokenizer.
+</p>
+
 <a id="pipeline_set_tagger" name="pipeline_set_tagger"></a>
-<h3>6.10.3. pipeline::set_tagger()</h3>
+<h3>6.11.3. pipeline::set_tagger()</h3>
 
 <pre>
 void set_tagger(const string&amp; tagger);
 </pre>
 
+<p>
+Use the given tagger options.
+</p>
+
 <a id="pipeline_set_parser" name="pipeline_set_parser"></a>
-<h3>6.10.4. pipeline::set_parser()</h3>
+<h3>6.11.4. pipeline::set_parser()</h3>
 
 <pre>
 void set_parser(const string&amp; parser);
 </pre>
 
+<p>
+Use the given parser options.
+</p>
+
 <a id="pipeline_set_output" name="pipeline_set_output"></a>
-<h3>6.10.5. pipeline::set_output()</h3>
+<h3>6.11.5. pipeline::set_output()</h3>
 
 <pre>
 void set_output(const string&amp; output);
 </pre>
 
+<p>
+Use the given output format (see
+<a href="#output_format_new_output_format"><code>new_output_format</code></a> for a list).
+</p>
+
+<a id="pipeline_set_immediate" name="pipeline_set_immediate"></a>
+<h3>6.11.6. pipeline::set_immediate()</h3>
+
+<pre>
+void set_immediate(bool immediate);
+</pre>
+
+<p>
+Set or reset the immediate mode (default is <code>immediate=false</code>).
+</p>
+
+<a id="pipeline_set_document_id" name="pipeline_set_document_id"></a>
+<h3>6.11.7. pipeline::set_document_id()</h3>
+
+<pre>
+void set_document_id(const string&amp; document_id);
+</pre>
+
+<p>
+Set document id, which is passed to
+<a href="#input_format_reset_document"><code>input_format::reset_document</code></a>).
+</p>
+
 <a id="pipeline_process" name="pipeline_process"></a>
-<h3>6.10.6. pipeline::process()</h3>
+<h3>6.11.8. pipeline::process()</h3>
 
 <pre>
 bool process(istream&amp; is, ostream&amp; os, string&amp; error) const;
 </pre>
 
+<p>
+Process the given input stream, writing results to the given output stream.
+If the processing succeeded, <code>true</code> is returned; otherwise, <code>false</code>
+is returned with an error stored in the <code>error</code> argument.
+</p>
+
 <a id="trainer" name="trainer"></a>
-<h2>6.11. Class trainer</h2>
+<h2>6.12. Class trainer</h2>
 
 <pre>
 class trainer {
@@ -2406,8 +2978,12 @@ class trainer {
 };
 </pre>
 
+<p>
+Class allowing training a UDPipe model.
+</p>
+
 <a id="trainer_train" name="trainer_train"></a>
-<h3>6.11.1. trainer::train()</h3>
+<h3>6.12.1. trainer::train()</h3>
 
 <pre>
 static bool train(const string&amp; method, const vector&lt;<A HREF="#sentence">sentence</A>&gt;&amp; train, const vector&lt;<A HREF="#sentence">sentence</A>&gt;&amp; heldout,
@@ -2415,8 +2991,19 @@ static bool train(const string&amp; method, const vector&lt;<A HREF="#sentence">
                   ostream&amp; os, string&amp; error);
 </pre>
 
+<p>
+Train a UDPipe model. The only supported method is currently <code>morphodita_parsito</code>.
+Use the supplied train and heldout data, and given tokenizer, tagger and parser
+options (see the Training UDPipe Models section in the User's Manual).
+</p>
+<p>
+If the training succeeded, <code>true</code> is returned and the model is saved to the
+given <code>os</code> stream; otherwise, <code>false</code> is returned with an error stored in
+the <code>error</code> argument.
+</p>
+
 <a id="evaluator" name="evaluator"></a>
-<h2>6.12. Class evaluator</h2>
+<h2>6.13. Class evaluator</h2>
 
 <pre>
 class evaluator {
@@ -2435,43 +3022,81 @@ class evaluator {
 };
 </pre>
 
+<p>
+Class evaluating performance of given model on CoNLL-U file.
+</p>
+<p>
+Three different settings (depending on whether tokenizer, tagger and parser is used)
+can be evaluated. For details, see Measuring Model Accuracy in User's Manual.
+</p>
+
 <a id="evaluator_set_model" name="evaluator_set_model"></a>
-<h3>6.12.1. evaluator::set_model()</h3>
+<h3>6.13.1. evaluator::set_model()</h3>
 
 <pre>
 void set_model(const <A HREF="#model">model</A>* m);
 </pre>
 
+<p>
+Use the given model.
+</p>
+
 <a id="evaluator_set_tokenizer" name="evaluator_set_tokenizer"></a>
-<h3>6.12.2. evaluator::set_tokenizer()</h3>
+<h3>6.13.2. evaluator::set_tokenizer()</h3>
 
 <pre>
 void set_tokenizer(const string&amp; tokenizer);
 </pre>
 
+<p>
+Use the given tokenizer options; pass <code>DEFAULT</code> to use default
+options or <code>NONE</code> not to use a tokenizer.
+</p>
+
 <a id="evaluator_set_tagger" name="evaluator_set_tagger"></a>
-<h3>6.12.3. evaluator::set_tagger()</h3>
+<h3>6.13.3. evaluator::set_tagger()</h3>
 
 <pre>
 void set_tagger(const string&amp; tagger);
 </pre>
 
+<p>
+Use the given tagger options; pass <code>DEFAULT</code> to use default
+options or <code>NONE</code> not to use a tagger.
+</p>
+
 <a id="evaluator_set_parser" name="evaluator_set_parser"></a>
-<h3>6.12.4. evaluator::set_parser()</h3>
+<h3>6.13.4. evaluator::set_parser()</h3>
 
 <pre>
 void set_parser(const string&amp; parser);
 </pre>
 
+<p>
+Use the given parser options; pass <code>DEFAULT</code> to use default
+options or <code>NONE</code> not to use a parser.
+</p>
+
 <a id="evaluator_evaluate" name="evaluator_evaluate"></a>
-<h3>6.12.5. evaluator::evaluate()</h3>
+<h3>6.13.5. evaluator::evaluate()</h3>
 
 <pre>
 bool evaluate(istream&amp; is, ostream&amp; os, string&amp; error) const;
 </pre>
 
+<p>
+Evaluate the specified model on the given CoNLL-U input read
+from <code>is</code> stream.
+</p>
+<p>
+If the evaluation succeeded, <code>true</code> is returned and the evaluation
+results are written to the <code>os</code> stream in a plain text format;
+otherwise, <code>false</code> is returned with an error stored in
+the <code>error</code> argument.
+</p>
+
 <a id="version" name="version"></a>
-<h2>6.13. Class version</h2>
+<h2>6.14. Class version</h2>
 
 <pre>
 class version {
@@ -2491,7 +3116,7 @@ See <a href="#versioning">UDPipe Versioning</a> for more information.
 </p>
 
 <a id="version_current" name="version_current"></a>
-<h3>6.13.1. version::current</h3>
+<h3>6.14.1. version::current</h3>
 
 <pre>
 static <A HREF="#version">version</A> current();
@@ -2502,7 +3127,7 @@ Returns current UDPipe version.
 </p>
 
 <a id="cpp_bindings_api" name="cpp_bindings_api"></a>
-<h2>6.14. C++ Bindings API</h2>
+<h2>6.15. C++ Bindings API</h2>
 
 <p>
 Bindings for other languages than C++ are created using SWIG from the C++
@@ -2513,7 +3138,7 @@ declaration:
 </p>
 
 <a id="bindings_helper_structures" name="bindings_helper_structures"></a>
-<h3>6.14.1. Helper Structures</h3>
+<h3>6.15.1. Helper Structures</h3>
 
 <pre>
 typedef vector&lt;int&gt; Children;
@@ -2591,7 +3216,7 @@ typedef vector&lt;Sentence&gt; Sentences;
 </pre>
 
 <a id="bindings_main_classes" name="bindings_main_classes"></a>
-<h3>6.14.2. Main Classes</h3>
+<h3>6.15.2. Main Classes</h3>
 
 <pre>
 class InputFormat {
@@ -2687,7 +3312,7 @@ class Version {
 </pre>
 
 <a id="csharp_bindings" name="csharp_bindings"></a>
-<h2>6.15. C# Bindings</h2>
+<h2>6.16. C# Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the <code>Ufal.UDPipe</code> namespace.
@@ -2699,7 +3324,7 @@ The bindings requires native C++ library <code>libudpipe_csharp</code> (called
 </p>
 
 <a id="java_bindings" name="java_bindings"></a>
-<h2>6.16. Java Bindings</h2>
+<h2>6.17. Java Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the <code>cz.cuni.mff.ufal.udpipe</code>
@@ -2722,7 +3347,7 @@ inside the C++ library, of course).
 </p>
 
 <a id="perl_bindings" name="perl_bindings"></a>
-<h2>6.17. Perl Bindings</h2>
+<h2>6.18. Perl Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the
@@ -2738,7 +3363,7 @@ module, not through object instance.
 </p>
 
 <a id="python_bindings" name="python_bindings"></a>
-<h2>6.18. Python Bindings</h2>
+<h2>6.19. Python Bindings</h2>
 
 <p>
 UDPipe library bindings is available in the
