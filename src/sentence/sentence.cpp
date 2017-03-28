@@ -105,6 +105,8 @@ void sentence::set_new_par(bool new_par, string_piece id) {
 }
 
 bool sentence::get_sent_id(string& id) const {
+  id.clear();
+
   return get_comment("sent_id", &id);
 }
 
@@ -116,6 +118,8 @@ void sentence::set_sent_id(string_piece id) {
 }
 
 bool sentence::get_text(string& text) const {
+  text.clear();
+
   return get_comment("text", &text);
 }
 

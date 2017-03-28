@@ -350,7 +350,8 @@ paragraph id.
 ``` bool get_sent_id(string& id) const;
 
 Return ``true`` if ``# sent_id = ...`` comment is present,
-and fill given ``id`` with sentence id.
+and fill given ``id`` with sentence id. Otherwise, return ``false``
+and clear ``id``.
 
 === sentence::set_sent_id() ===[sentence_set_sent_id]
 ``` void set_sent_id([string_piece #string_piece] id);
@@ -362,7 +363,8 @@ if the sentence id is empty, remove all present ``# sent_id`` comment.
 ``` bool get_text(string& text) const;
 
 Return ``true`` if ``# text = ...`` comment is present,
-and fill given ``text`` with sentence text.
+and fill given ``text`` with sentence text. Otherwise, return ``false``
+and clear ``text``.
 
 === sentence::set_text() ===[sentence_set_text]
 ``` void set_text([string_piece #string_piece] text);
