@@ -30,11 +30,82 @@ public:
 %}
 
 
-%rename(Word) word;
-class word {
+%rename(Token) token;
+class token {
  public:
+  std::string form;
+  std::string misc;
+
+  token(const std::string& form = std::string(), const std::string& misc = std::string());
+
+  // CoNLL-U defined SpaceAfter=No feature
+  %rename (getSpaceAfter) get_space_after;
+  bool get_space_after() const;
+  %rename (setSpaceAfter) set_space_after;
+  void set_space_after(bool space_after);
+
+  // UDPipe-specific all-spaces-preserving SpacesBefore and SpacesAfter features
+  %extend {
+    std::string getSpacesBefore() const {
+      std::string spaces_before;
+      $self->get_spaces_before(spaces_before);
+      return spaces_before;
+    }
+
+    void setSpacesBefore(const std::string& spaces_before) {
+      $self->set_spaces_before(spaces_before);
+    }
+
+    std::string getSpacesAfter() const {
+      std::string spaces_after;
+      $self->get_spaces_after(spaces_after);
+      return spaces_after;
+    }
+
+    void setSpacesAfter(const std::string& spaces_after) {
+      $self->set_spaces_after(spaces_after);
+    }
+
+    std::string getSpacesInToken() const {
+      std::string spaces_in_token;
+      $self->get_spaces_in_token(spaces_in_token);
+      return spaces_in_token;
+    }
+
+    void setSpacesInToken(const std::string& spaces_in_token) {
+      $self->set_spaces_in_token(spaces_in_token);
+    }
+  }
+
+  // UDPipe-specific TokenRange feature
+  %extend {
+    bool getTokenRange() const {
+      size_t start, end;
+      return $self->get_token_range(start, end);
+    }
+
+    size_t getTokenRangeStart() const {
+      size_t start, end;
+      return $self->get_token_range(start, end), start;
+    }
+
+    size_t getTokenRangeEnd() const {
+      size_t start, end;
+      return $self->get_token_range(start, end), end;
+    }
+
+    void setTokenRange(size_t start, size_t end) {
+      $self->set_token_range(start, end);
+    }
+  };
+};
+
+
+%rename(Word) word;
+class word : public token {
+ public:
+  // form and misc are inherited from token
   int id;              // 0 is root, >0 is sentence word, <0 is undefined
-  std::string form;    // form
   std::string lemma;   // lemma
   std::string upostag; // universal part-of-speech tag
   std::string xpostag; // language-specific part-of-speech tag
@@ -42,27 +113,25 @@ class word {
   int head;            // head, 0 is root, <0 is undefined
   std::string deprel;  // dependency relation to the head
   std::string deps;    // secondary dependencies
-  std::string misc;    // miscellaneous information
 
   std::vector<int> children;
 
-  word(int id = -1, const std::string& form = std::string()) : id(id), form(form), head(-1) {}
+  word(int id = -1, const std::string& form = std::string()) : token(form), id(id), head(-1) {}
 };
 %template(Words) std::vector<word>;
 typedef std::vector<word> Words;
 
 
 %rename(MultiwordToken) multiword_token;
-class multiword_token {
+class multiword_token : public token {
  public:
+  // form and misc are inherited from token
   %rename(idFirst) id_first;
   %rename(idLast) id_last;
   int id_first, id_last;
-  std::string form;
-  std::string misc;
 
   multiword_token(int id_first = -1, int id_last = -1, const std::string& form = std::string(), const std::string& misc = std::string())
-  : id_first(id_first), id_last(id_last), form(form), misc(misc) {}
+  : token(form, isc), id_first(id_first), id_last(id_last) {}
 };
 %template(MultiwordTokens) std::vector<multiword_token>;
 typedef std::vector<multiword_token> MultiwordTokens;
@@ -101,6 +170,7 @@ class sentence {
   %rename(rootForm) root_form;
   static const std::string root_form;
 
+  // Basic sentence modifications
   bool empty();
   void clear();
   %extend {
@@ -113,6 +183,47 @@ class sentence {
   void set_head(int id, int head, const std::string& deprel);
   %rename(unlinkAllNodes) unlink_all_words;
   void unlink_all_words();
+
+  // CoNLL-U defined comments
+  %extend {
+    bool getNewDoc() const {
+      return $self->get_new_doc(nullptr);
+    }
+    std::string getNewDocId() const {
+      std::string id;
+      return $self->get_new_doc(&id), id;
+    }
+    void setNewDoc(bool new_doc, const std::string& id = std::string()) {
+      $self->set_new_doc(new_doc, id);
+    }
+
+    bool getNewPar() const {
+      return $self->get_new_par(nullptr);
+    }
+    std::string getNewParId() const {
+      std::string id;
+      return $self->get_new_par(&id), id;
+    }
+    void setNewPar(bool new_par, const std::string& id = std::string()) {
+      $self->set_new_par(new_par, id);
+    }
+
+    std::string getSentId() const {
+      std::string id;
+      return $self->get_sent_id(id), id;
+    }
+    void setSentId(const std::string& id) {
+      $self->set_sent_id(id);
+    }
+
+    std::string getText() const {
+      std::string text;
+      return $self->get_text(text), text;
+    }
+    void setText(const std::string& id) {
+      $self->set_text(id);
+    }
+  }
 };
 %template(Sentences) std::vector<sentence>;
 typedef std::vector<sentence> Sentences;
@@ -125,7 +236,7 @@ class input_format {
   virtual ~input_format() {}
 
   %rename(resetDocument) reset_document;
-  virtual void reset_document();
+  virtual void reset_document(const std::string& id = std::string());
   %extend {
     %rename(setText) set_text;
     virtual void set_text(const char* text) {
@@ -145,17 +256,26 @@ class input_format {
   static input_format* new_input_format(const std::string& name);
   %rename(newConlluInputFormat) new_conllu_input_format;
   %newobject new_conllu_input_format;
-  static input_format* new_conllu_input_format();
+  static input_format* new_conllu_input_format(const std::string& options = std::string());
+  %rename(newGenericTokenizerInputFormat) new_generic_tokenizer_input_format;
+  %newobject new_generic_tokenizer_input_format;
+  static input_format* new_generic_tokenizer_input_format(const std::string& options = std::string());
   %rename(newHorizontalInputFormat) new_horizontal_input_format;
   %newobject new_horizontal_input_format;
-  static input_format* new_horizontal_input_format();
+  static input_format* new_horizontal_input_format(const std::string& options = std::string());
   %rename(newVerticalInputFormat) new_vertical_input_format;
   %newobject new_vertical_input_format;
-  static input_format* new_vertical_input_format();
+  static input_format* new_vertical_input_format(const std::string& options = std::string());
 
   %rename(newPresegmentedTokenizer) new_presegmented_tokenizer;
   %newobject new_presegmented_tokenizer;
   static input_format* new_presegmented_tokenizer(input_format* DISOWN);
+
+  static const std::string CONLLU_V1;
+  static const std::string CONLLU_V2;
+  static const std::string GENERIC_TOKENIZER_NORMALIZED_SPACES;
+  static const std::string GENERIC_TOKENIZER_PRESEGMENTED;
+  static const std::string GENERIC_TOKENIZER_RANGES;
 };
 
 
@@ -186,16 +306,25 @@ class output_format {
   static output_format* new_output_format(const std::string& name);
   %rename(newConlluOutputFormat) new_conllu_output_format;
   %newobject new_conllu_output_format;
-  static output_format* new_conllu_output_format();
+  static output_format* new_conllu_output_format(const std::string& options = std::string());
   %rename(newMatxinOutputFormat) new_matxin_output_format;
   %newobject new_matxin_output_format;
-  static output_format* new_matxin_output_format();
+  static output_format* new_matxin_output_format(const std::string& options = std::string());
   %rename(newHorizontalOutputFormat) new_horizontal_output_format;
   %newobject new_horizontal_output_format;
-  static output_format* new_horizontal_output_format();
+  static output_format* new_horizontal_output_format(const std::string& options = std::string());
+  %rename(newPlaintextOutputFormat) new_plaintext_output_format;
+  %newobject new_plaintext_output_format;
+  static output_format* new_plaintext_output_format(const std::string& options = std::string());
   %rename(newVerticalOutputFormat) new_vertical_output_format;
   %newobject new_vertical_output_format;
-  static output_format* new_vertical_output_format();
+  static output_format* new_vertical_output_format(const std::string& options = std::string());
+
+  static const std::string CONLLU_V1;
+  static const std::string CONLLU_V2;
+  static const std::string HORIZONTAL_PARAGRAPHS;
+  static const std::string PLAINTEXT_NORMALIZED_SPACES;
+  static const std::string VERTICAL_PARAGRAPHS;
 };
 
 
@@ -227,7 +356,9 @@ class model {
   }
 
   static const std::string DEFAULT;
+  static const std::string TOKENIZER_NORMALIZED_SPACES;
   static const std::string TOKENIZER_PRESEGMENTED;
+  static const std::string TOKENIZER_RANGES;
 };
 
 
@@ -246,6 +377,11 @@ class pipeline {
   void set_parser(const std::string& parser);
   %rename(setOutput) set_output;
   void set_output(const std::string& output);
+
+  %rename(setImmediate) set_immediate;
+  void set_immediate(bool immediate);
+  %rename(setDocumentId) set_document_id;
+  void set_document_id(const std::string& document_id);
 
   %extend {
     std::string process(const std::string& data, ProcessingError* error = nullptr) const {
