@@ -1,4 +1,7 @@
 Revision history for ufal.udpipe
 
+1.1.0.1 [29 May 17]
+        Update UDPipe to 1.1.0.
+
 1.0.0.1 [27 May 16]
         First version of bindings for UDPipe 1.0.0.

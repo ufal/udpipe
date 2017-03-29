@@ -1,7 +1,7 @@
-Version 1.0.1-devel
--------------------
+Version 1.1.0 [29 Mar 17]
+-------------------------
 - Morphodita_parsito models (now version 3) require at least
-  UDPipe version 1.0.1-devel.
+  UDPipe version 1.1.0.
 - CoNLL-U v2 format is supported. Notably spaces in forms
   and lemmas are now allowed, as are empty nodes.
 - Support options for input_format and output_format instances.
