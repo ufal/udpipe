@@ -19,9 +19,9 @@ releases (http://github.com/ufal/udpipe/releases) and in the repository itself.
 Requirements
 ============
 
-- G++ 4.7 or newer, clang 3.2 or newer, Visual C++ 2015 or newer
+- g++ 4.7 or newer, clang 3.2 or newer, Visual C++ 2015 or newer
 - make
-- SWIG 2.0.5 or newer for language bindings other than C++
+- SWIG 3.0.8 or newer for language bindings other than C++
 
 
 Compilation
