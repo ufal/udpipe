@@ -12,6 +12,11 @@
 #include <cstring>
 #include <fstream>
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 #include "common.h"
 
 namespace ufal {
@@ -56,18 +61,32 @@ void process_args(int argi, int argc, char* argv[], T processor, U&&... processo
 // and extension). If no input files are specified, stdin is used; if no output
 // template is specified, stdout is used.
 template <class T, class... U>
-void process_args_with_output_template(int argi, int argc, char* argv[], const string& output_template, T processor, U&&... processor_args) {
+void process_args_with_output_template(bool binary_input, bool binary_output, int argi, int argc, char* argv[],
+                                       const string& output_template, T processor, U&&... processor_args) {
   bool output_per_file = output_template.find("{}") != string::npos;
   if (argi == argc && output_per_file) runtime_failure("Cannot use output template with {} when reading standard input!");
 
   ofstream output_file;
   string input_file_root, output_file_name;
 
+  // Set binary on stdin/stdout if required
+  if (binary_input && argi == argc) {
+#ifdef _WIN32
+      _setmode(_fileno(stdin), _O_BINARY);
+#endif
+  }
+
+  if (binary_output && output_template.empty()) {
+#ifdef _WIN32
+      _setmode(_fileno(stdout), _O_BINARY);
+#endif
+  }
+
   for (int i = argi; i < argc || i == argi; i++) {
     // Open input file
     ifstream input_file;
     if (i < argc) {
-      input_file.open(argv[i]);
+      input_file.open(argv[i], binary_input ? ifstream::binary : ifstream::in);
       if (!input_file.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
 
       input_file_root.assign(argv[i]);
@@ -83,7 +102,7 @@ void process_args_with_output_template(int argi, int argc, char* argv[], const s
       output_file_name.assign(output_template);
       for (auto index = string::npos; (index = output_file_name.find("{}")) != string::npos; )
         output_file_name.replace(index, 2, input_file_root);
-      output_file.open(output_file_name.c_str());
+      output_file.open(output_file_name.c_str(), binary_output ? ofstream::binary : ofstream::out);
       if (!output_file.is_open()) runtime_failure("Cannot open output file '" << output_file_name << "'!");
     }
     ostream& output = !output_template.empty() ? output_file : cout;
@@ -97,6 +116,11 @@ void process_args_with_output_template(int argi, int argc, char* argv[], const s
       if (!output_file) runtime_failure("Cannot close output file '" << output_file_name << "'!");
     }
   }
+}
+
+template <class T, class... U>
+void process_args_with_output_template(int argi, int argc, char* argv[], const string& output_template, T processor, U&&... processor_args) {
+  process_args_with_output_template(false, false, argi, argc, argv, output_template, processor, std::forward<U>(processor_args)...);
 }
 
 } // namespace utils
