@@ -3,11 +3,14 @@ Version 1.0.1-devel
 - Morphodita_parsito models (now version 3) require at least
   UDPipe version 1.0.1-devel.
 - CoNLL-U v2 format is supported. Notably spaces in forms
-  and lemmas are now allowed.
+  and lemmas are now allowed, as are empty nodes.
 - Support options for input_format and output_format instances.
 - Preserve all spacing when tokenizing.
 - Optionally generate document-level token ranges in the original text.
-- Optionally respect given segmentation.
+- Optionally respect given segmentation during tokenization.
+- Tokenizer can be trained to allow spaces in tokens
+  (default if there are forms with spaces in the training data).
+- Parser can be trained to return always one root per sentence (default).
 - Improve input_format API to allow inter-block state (for correct
   tracking of inter-sentence spaces and document-level offsets).
 - Improve output_format API to support begin/end document marks
