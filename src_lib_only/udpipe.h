@@ -189,7 +189,6 @@ class model {
 };
 
 class pipeline {
-
  public:
   pipeline(const model* m, const std::string& input, const std::string& tagger, const std::string& parser, const std::string& output);
 
@@ -210,6 +209,8 @@ class pipeline {
  private:
   const model* m;
   std::string input, tokenizer, tagger, parser, output;
+  std::string document_id;
+  bool immediate;
 };
 
 class trainer {
