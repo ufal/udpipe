@@ -1564,14 +1564,15 @@ Bibtex for Referencing
   @InProceedings{udpipe:2016,
     author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}, Jana},
     title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
-    booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16),
+    booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16)},
     year      = {2016},
     month     = {May},
     date      = {23-28},
     location  = {Portorož, Slovenia},
     publisher = {European Language Resources Association (ELRA)},
     address   = {Paris, France},
-    isbn      = {978-2-9517408-9-1}
+    isbn      = {978-2-9517408-9-1},
+    url       = {http://www.lrec-conf.org/proceedings/lrec2016/pdf/873_Paper.pdf},
   }
 
 
