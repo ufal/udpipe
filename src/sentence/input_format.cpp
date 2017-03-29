@@ -69,9 +69,13 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
   while (text.len) {
     // Read line
     string_piece line(text.str, 0);
-    while (line.len < text.len && line.str[line.len] != '\n') line.len++;
-    text.str += line.len + (line.len < text.len);
-    text.len -= line.len + (line.len < text.len);
+    while (line.len < text.len && (line.str[line.len] != '\r' && line.str[line.len] != '\n')) line.len++;
+
+    text.str += line.len, text.len -= line.len;
+    if (text.len >= 2 && text.str[0] == '\r' && text.str[1] == '\n')
+      text.str += 2, text.len -= 2;
+    else if (text.len && *text.str == '\n')
+      text.str++, text.len--;
 
     // Empty lines denote end of tree, unless at the beginning
     if (!line.len) {
