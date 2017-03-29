@@ -189,8 +189,11 @@ int main(int argc, char* argv[]) {
                         options.count("output") ? options["output"] : "conllu");
       pipeline.set_immediate(options.count("immediate"));
 
+      bool binary_input = true;
+      bool binary_output = options.count("output") && options["output"].compare(0, 9, "plaintext") == 0 && options["output"].find("normalized_spaces") == string::npos;
+
       // Process the data
-      process_args_with_output_template(2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string is_name, string) {
+      process_args_with_output_template(binary_input, binary_output, 2, argc, argv, options["outfile"], [&pipeline](istream& is, ostream& os, string is_name, string) {
         string error;
         pipeline.set_document_id(is_name);
         if (!pipeline.process(is, os, error))
