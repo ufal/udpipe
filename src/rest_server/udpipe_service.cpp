@@ -127,6 +127,8 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
     while (input->next_sentence(s, error)) {}
     if (!error.empty())
       return req.respond_error(error.insert(0, "Cannot read input data: ").append("\n"));
+
+    input->reset_document();
   }
 
   input->set_text(data);
