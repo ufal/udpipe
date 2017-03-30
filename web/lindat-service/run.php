@@ -30,7 +30,14 @@ Documentation</a> and the models are described in the
 
     var options = {model: model, data: text};
     var input = jQuery('input[name=option_input]:checked:visible').val();
-    if (input && input == "tokenizer") options.tokenizer = ""; else options.input = input ? input : "conllu";
+    if (input && input == "tokenizer") {
+      options.tokenizer = "";
+      var opts = ["presegmented", "ranges", "normalized_spaces"];
+      for (var i in opts)
+        if (jQuery("#tokenizer_" + opts[i]).prop('checked')) options.tokenizer += (options.tokenizer ? ";" : "") + opts[i];
+    } else {
+      options.input = input ? input : "conllu";
+    }
     if (jQuery('#tagger').prop('checked')) options.tagger = "";
     if (jQuery('#parser').prop('checked')) options.parser = "";
 
@@ -178,6 +185,14 @@ Documentation</a> and the models are described in the
   jQuery(document).on('show.bs.tab', '#output_table_link', showTable);
   jQuery(document).on('show.bs.tab', '#output_tree_link', showTree);
 
+  function inputChanged() {
+    var input = jQuery('input[name=option_input]:checked').val();
+    if (input == "tokenizer")
+      jQuery('#tokenizer_options').show();
+    else
+      jQuery('#tokenizer_options').hide();
+  }
+
   function updateModels() {
     var family = jQuery('input[name=family]:checked').val();
     var suffix_match = new RegExp(family + ".*$");
@@ -229,19 +244,37 @@ Documentation</a> and the models are described in the
         </div>
       </div>
       <div class="form-group row">
-        <label class="col-sm-2 control-label">Input:</label>
-        <div class="col-sm-10">
-          <label title="Tokenize input using a tokenizer" class="radio-inline" id="option_input_tokenizer"><input name="option_input" type="radio" value="tokenizer" checked/>Plain text</label>
-          <label title="The CoNLL-U format" class="radio-inline" id="option_input_conllu"><input name="option_input" type="radio" value="conllu" />CoNLL-U</label>
-          <label title="Sentence on a line, words separated by spaces" class="radio-inline" id="option_input_horizontal"><input name="option_input" type="radio" value="horizontal" />Horizontal</label>
-          <label title="Word on a line, empty line denoting end of sentence" class="radio-inline" id="option_input_vertical"><input name="option_input" type="radio" value="vertical" />Vertical</label>
-        </div>
-      </div>
-      <div class="form-group row">
         <label class="col-sm-2 control-label">Actions:</label>
         <div class="col-sm-10">
           <label class="checkbox-inline" title="Perform POS tagging an lemmatization"><input type="checkbox" id="tagger" checked>Tag and Lemmatize</label>
           <label class="checkbox-inline" title="Perform dependency parsing"><input type="checkbox" id="parser" checked>Parse</label>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="advancedHeading">
+          <div class="collapsed" role="button" data-toggle="collapse" href="#advancedContent" aria-expanded="false" aria-controls="advancedContent">
+            <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span> Advanced Options
+          </div>
+        </div>
+        <div id="advancedContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="advancedHeading">
+          <div class="form-group row">
+            <label class="col-sm-2 control-label">Input <a href="//ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">[?]</a>:</label>
+            <div class="col-sm-10">
+              <label title="Tokenize input using a tokenizer" class="radio-inline" id="option_input_tokenizer"><input name="option_input" type="radio" value="tokenizer" onchange="inputChanged()" checked/>Tokenize plain text</label>
+              <label title="The CoNLL-U format" class="radio-inline" id="option_input_conllu"><input name="option_input" type="radio" value="conllu" onchange="inputChanged()" />CoNLL-U</label>
+              <label title="Sentence on a line, words separated by spaces" class="radio-inline" id="option_input_horizontal"><input name="option_input" type="radio" value="horizontal" onchange="inputChanged()" />Horizontal</label>
+              <label title="Word on a line, empty line denoting end of sentence" class="radio-inline" id="option_input_vertical"><input name="option_input" type="radio" value="vertical" onchange="inputChanged()" />Vertical</label>
+            </div>
+          </div>
+
+          <div class="form-group row" id="tokenizer_options">
+            <label class="col-sm-2 control-label">Tokenizer <a href="//ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_tokenizer">[?]</a>:</label>
+            <div class="col-sm-10">
+              <label class="checkbox-inline" title="Normalize spaces in input file"><input type="checkbox" id="tokenizer_normalized_spaces">Normalize spaces</label>
+              <label class="checkbox-inline" title="The input is already segmented"><input type="checkbox" id="tokenizer_presegmented">Presegmented input</label>
+              <label class="checkbox-inline" title="Save token ranges"><input type="checkbox" id="tokenizer_ranges">Save token ranges</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
