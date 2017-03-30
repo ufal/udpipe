@@ -83,11 +83,11 @@ also returned &ndash; this is guaranteed to be the latest Czech model.</p>
 <tr><th>Parameter</th><th>Mandatory</th><th>Data type</th><th>Description</th></tr>
 <tr><td>data</td><td>yes</td><td>string</td><td>Input text in <b>UTF-8</b>.</td></tr>
 <tr><td>model</td><td>no</td><td>string</td><td>Model to use; see <a href="#model_selection">model selection</a> for model matching rules.</td></tr>
-<tr><td>tokenizer</td><td>no</td><td>string</td><td>If the option is present, the input is assumed to be in plain text and is tokenized. If the parameter has a value, it is passed to the tokenizer.</td></tr>
-<tr><td>input</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>If the tokenizer is not used, the input is assumed to be in the specified <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">input format</a>; default <code>conllu</code>.</td></tr>
+<tr><td>tokenizer</td><td>no</td><td>string</td><td>If the option is present, the input is assumed to be in plain text and is tokenized. If the parameter has a value, it is passed to the tokenizer as <a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_tokenizer">tokenizer options</a>.</td></tr>
+<tr><td>input</td><td>no</td><td>string (<code>conllu</code> / <code>generic_tokenizer</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>If the tokenizer is not used, the input is assumed to be in the specified <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">input format (eventually with options)</a>; default <code>conllu</code>.</td></tr>
 <tr><td>tagger</td><td>no</td><td>string</td><td>If the option is present, the input is POS tagged and lemmatized. If the parameter has a value, it is passed to the tagger.</td></tr>
 <tr><td>parser</td><td>no</td><td>string</td><td>If the option is present, the input is dependency parsed. If the parameter has a value, it is passed to the parser.</td></tr>
-<tr><td>output</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>The <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_output">output format</a> to use; default <code>conllu</code>.</td></tr>
+<tr><td>output</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>matxin</code> / <code>plaintext</code> / <code>vertical</code>)</td><td>The <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_output">output format (eventually with options)</a> to use; default <code>conllu</code>.</td></tr>
 </table>
 
 <p>
