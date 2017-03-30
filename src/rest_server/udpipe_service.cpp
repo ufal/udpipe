@@ -190,7 +190,7 @@ input_format* udpipe_service::get_input_format(microrestd::rest_request& req, co
   auto tokenizer_it = req.params.find("tokenizer");
   if (tokenizer_it != req.params.end()) {
     if (!model->can_tokenize) return error.assign("The required model does not contain a tokenizer!"), nullptr;
-    input_format* tokenizer = model->model->new_tokenizer(Model::DEFAULT);
+    input_format* tokenizer = model->model->new_tokenizer(tokenizer_it->second);
     if (!tokenizer) return error.assign("Cannot construct a tokenizer instance!"), nullptr;
     return is_tokenizer = true, tokenizer;
   }
