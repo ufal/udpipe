@@ -12,7 +12,7 @@ install: $(TARGETS)
 	scp $(TARGETS) quest:/var/www/udpipe/
 
 install-flags:
-	scp flags/*.svg quest:/var/www/udpipe/flags/
+	scp flags/*.png quest:/var/www/udpipe/flags/
 
 .PHONY: clean
 clean:

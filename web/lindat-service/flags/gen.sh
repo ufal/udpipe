@@ -10,4 +10,14 @@ done
 
 rm -rf docs
 
+cp ancient_greek.svg ancient-greek.svg
+cp ancient_greek-proiel.svg ancient-greek-proiel.svg
+cp old_church_slavonic.svg old-church-slavonic.svg
+
+for svg in *.svg; do
+  echo $svg
+  inkscape $svg -e ${svg%.svg}.png -h 32
+done
+rm *.svg
+
 echo All done
