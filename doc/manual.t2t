@@ -35,6 +35,7 @@ in the
 %manual% [UDPipe User's Manual #users_manual].
 Currently the following language models are available:
 
+- CoNLL17 Shared Task Baseline UD 2.0 Models: [udpipe-ud2.0-conll17-170315 http://hdl.handle.net/11234/1-1990] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models])
 - Universal Dependencies 1.2 Models: [udpipe-ud1.2-160523 http://hdl.handle.net/11234/1-1659] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
 
 
