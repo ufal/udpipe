@@ -1,5 +1,5 @@
-TARGETS=.htaccess about.html api-reference.php blob.min.js demo.php filesaver.min.js
-TARGETS+=footer.php header.php js-treex-view.min.js icon.png info.php udpipe.css run.php
+TARGETS=.htaccess about.html api-reference.php blob.min.js bootstrap-select.min.css bootstrap-select.min.js
+TARGETS+=demo.php filesaver.min.js footer.php header.php js-treex-view.min.js icon.png info.php udpipe.css run.php
 all: $(TARGETS)
 
 refresh:

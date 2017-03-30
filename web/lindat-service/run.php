@@ -181,8 +181,9 @@ Documentation</a> and the models are described in the
     jQuery.ajax('//lindat.mff.cuni.cz/services/udpipe/api/models',
                 {dataType: "json", success: function(json) {
       var models_list = '';
-      for (var model in json.models)
-          models_list += "<option" + (models_list ? "" : " selected") + ">" + model + "</option>";
+      for (var model in json.models) {
+        models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(/-ud-1.2-160523$/, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + (models_list ? "" : " selected") + ">" + model + "</option>";
+      }
       jQuery('#model').html(models_list);
     }, complete: function() {
       if (!jQuery('#model').html()) {
@@ -213,7 +214,7 @@ Documentation</a> and the models are described in the
       </div>
       <div class="form-group row">
         <div class="col-sm-offset-2 col-sm-10">
-          <select id="model" class="form-control"></select>
+          <select id="model" class="selectpicker form-control" data-live-search="true"></select>
         </div>
       </div>
       <div class="form-group row">
