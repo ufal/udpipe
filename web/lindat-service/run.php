@@ -9,6 +9,7 @@ Documentation</a> and the models are described in the
 </p>
 
 <script type="text/javascript"><!--
+  var models = {};
   var input_file_content = null;
   var output_file_content = null;
   var output_file_table = null;
@@ -177,14 +178,23 @@ Documentation</a> and the models are described in the
   jQuery(document).on('show.bs.tab', '#output_table_link', showTable);
   jQuery(document).on('show.bs.tab', '#output_tree_link', showTree);
 
+  function updateModels() {
+    var family = jQuery('input[name=family]:checked').val();
+    var suffix_match = new RegExp(family + ".*$");
+
+    var models_list = '';
+    for (var model in models)
+      if (model.indexOf(family) != -1)
+       models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(suffix_match, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + (models_list ? "" : " selected") + ">" + model + "</option>";
+    jQuery('#model').html(models_list);
+    jQuery('#model').selectpicker('refresh');
+  }
+
   jQuery(document).ready(function() {
     jQuery.ajax('//lindat.mff.cuni.cz/services/udpipe/api/models',
                 {dataType: "json", success: function(json) {
-      var models_list = '';
-      for (var model in json.models) {
-        models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(/-ud-1.2-160523$/, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + (models_list ? "" : " selected") + ">" + model + "</option>";
-      }
-      jQuery('#model').html(models_list);
+      models = json.models;
+      updateModels();
     }, complete: function() {
       if (!jQuery('#model').html()) {
         jQuery('#error').text("Cannot obtain the list of models from the service.").show();
@@ -209,7 +219,8 @@ Documentation</a> and the models are described in the
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline"><input name="modelset" type="radio" value="ud1.2" checked />Universal Dependencies 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">description</a>)</label>
+          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.0-conll17-" onchange="updateModels()" checked />CoNLL17 Baseline UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models">description</a>)</label>
+          <label class="radio-inline"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">description</a>)</label>
         </div>
       </div>
       <div class="form-group row">
