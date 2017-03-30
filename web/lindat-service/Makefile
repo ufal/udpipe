@@ -11,6 +11,9 @@ about.html: refresh
 install: $(TARGETS)
 	scp $(TARGETS) quest:/var/www/udpipe/
 
+install-flags:
+	scp flags/*.svg quest:/var/www/udpipe/flags/
+
 .PHONY: clean
 clean:
 	rm -f about.html
