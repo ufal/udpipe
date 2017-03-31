@@ -1,3 +1,9 @@
+Version 3.1.1 [31 Mar 2017]
+---------------------------
+- Support leading + in parse_int and parse_double
+- Support exponent in parse_double
+
+
 Version 3.1.0 [29 Mar 2017]
 ---------------------------
 - Allow specifying binary mode in process_args_with_output_template.

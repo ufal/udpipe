@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <cmath>
+
 #include "common.h"
 #include "string_piece.h"
 
@@ -40,10 +42,10 @@ bool parse_double(string_piece str, const char* value_name, double& value, strin
   while (str.len && (str.str[0] == ' ' || str.str[0] == '\f' || str.str[0] == '\n' || str.str[0] == '\r' || str.str[0] == '\t' || str.str[0] == '\v'))
     str.str++, str.len--;
 
-  // Allow minus
+  // Allow plus/minus
   bool negative = false;
-  if (str.len && str.str[0] == '-') {
-    negative = true;
+  if (str.len && (str.str[0] == '+' || str.str[0] == '-')) {
+    negative = str.str[0] == '-';
     str.str++, str.len--;
   }
 
@@ -69,6 +71,34 @@ bool parse_double(string_piece str, const char* value_name, double& value, strin
     }
 
     value /= divider;
+  }
+  if (!isfinite(value)) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': overflow occured."), false;
+
+  // Optionally parse an exponent
+  if (str.len && (str.str[0] == 'e' || str.str[0] == 'E')) {
+    str.str++, str.len--;
+
+    double exponent = 0;
+    bool exponent_negative = false;
+    if (str.len && (str.str[0] == '+' || str.str[0] == '-')) {
+      exponent_negative = str.str[0] == '-';
+      str.str++, str.len--;
+    }
+
+    while (str.len && str.str[0] >= '0' && str.str[0] <= '9') {
+      exponent = 10 * exponent + (str.str[0] - '0');
+      str.str++, str.len--;
+    }
+
+    exponent = pow(10., exponent_negative ? -exponent : exponent);
+    if (!isfinite(exponent)) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': exponent overflow occured."), false;
+    if (exponent == 0) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': exponent underflow occured."), false;
+
+    if (value) {
+      value *= exponent;
+      if (!isfinite(value)) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': overflow occured."), false;
+      if (value == 0) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': underflow occured."), false;
+    }
   }
 
   // Apply initial minus

@@ -44,8 +44,8 @@ bool parse_int(string_piece str, const char* value_name, int& value, string& err
 
   // Allow minus
   bool positive = true;
-  if (str.len && str.str[0] == '-') {
-    positive = false;
+  if (str.len && (str.str[0] == '+' || str.str[0] == '-')) {
+    positive = str.str[0] == '+';
     str.str++, str.len--;
   }
 
