@@ -170,6 +170,7 @@ Main Classes
 
     static OutputFormat* newOutputFormat(const string& name);
     static OutputFormat* newConlluOutputFormat(const string& options = string());
+    static OutputFormat* newEpeOutputFormat(const string& options = string());
     static OutputFormat* newMatxinOutputFormat(const string& options = string());
     static OutputFormat* newHorizontalOutputFormat(const string& options = string());
     static OutputFormat* newPlaintextOutputFormat(const string& options = string());

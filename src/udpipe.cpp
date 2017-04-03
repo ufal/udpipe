@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
                     "              --input=[conllu|generic_tokenizer|horizontal|vertical]\n"
                     "              --immediate (process sentences immediately during loading)\n"
                     "              --outfile=output file template\n"
-                    "              --output=[conllu|matxin|horizontal|plaintext|vertical]\n"
+                    "              --output=[conllu|epe|matxin|horizontal|plaintext|vertical]\n"
                     "              --tokenize (perform tokenization)\n"
                     "              --tokenizer=tokenizer options, implies --tokenize\n"
                     "              --tag (perform tagging)\n"

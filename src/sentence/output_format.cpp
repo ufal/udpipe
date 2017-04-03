@@ -7,6 +7,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <algorithm>
+
 #include "output_format.h"
 #include "utils/named_values.h"
 #include "utils/parse_int.h"
@@ -97,6 +99,108 @@ ostream& output_format_conllu::write_with_spaces(ostream& os, const string& str)
       os << (chr == ' ' ? '_' : chr);
 
   return os;
+}
+
+// EPE output format
+class output_format_epe : public output_format {
+ public:
+  virtual void write_sentence(const sentence& s, ostream& os) override;
+  virtual void finish_document(ostream& os) override;
+
+ private:
+  class json_builder {
+   public:
+    json_builder& object() { comma(); json.push_back('{'); stack.push_back('}'); return *this; }
+    json_builder& array() { comma(); json.push_back('['); stack.push_back(']'); return *this; }
+    json_builder& close() { if (!stack.empty()) { json.push_back(stack.back()); stack.pop_back(); } comma_needed = true; return *this; }
+    json_builder& key(string_piece name) { comma(); string(name); json.push_back(':'); return *this; }
+    json_builder& value(string_piece value) { comma(); string(value); comma_needed=true; return *this; }
+    json_builder& value(size_t value) { comma(); number(value); comma_needed=true; return *this; }
+    json_builder& value_true() { comma(); json.push_back('t'); json.push_back('r'); json.push_back('u'); json.push_back('e'); comma_needed=true; return *this; }
+
+    string_piece current() const { return string_piece(json.data(), json.size()); }
+    void clear() { json.clear(); stack.clear(); comma_needed=false; }
+
+   private:
+    void comma() {
+      if (comma_needed) {
+        json.push_back(',');
+        json.push_back(' ');
+      }
+      comma_needed = false;
+    }
+    void string(string_piece str) {
+      json.push_back('"');
+      for (; str.len; str.str++, str.len--)
+        switch (*str.str) {
+          case '"': json.push_back('\\'); json.push_back('\"'); break;
+          case '\\': json.push_back('\\'); json.push_back('\\'); break;
+          case '\b': json.push_back('\\'); json.push_back('b'); break;
+          case '\f': json.push_back('\\'); json.push_back('f'); break;
+          case '\n': json.push_back('\\'); json.push_back('n'); break;
+          case '\r': json.push_back('\\'); json.push_back('r'); break;
+          case '\t': json.push_back('\\'); json.push_back('t'); break;
+          default:
+            if (((unsigned char)*str.str) < 32) {
+              json.push_back('u'); json.push_back('0'); json.push_back('0'); json.push_back('0' + (*str.str >> 4)); json.push_back("0123456789ABCDEF"[*str.str & 0xF]);
+            } else {
+              json.push_back(*str.str);
+            }
+        }
+      json.push_back('"');
+    }
+    void number(size_t value) {
+      size_t start_size = json.size();
+      for (; value || start_size == json.size(); value /= 10)
+        json.push_back('0' + (value % 10));
+      reverse(json.begin() + start_size, json.end());
+    }
+
+    std::vector<char> json;
+    std::vector<char> stack;
+    bool comma_needed = false;
+  } json;
+
+  size_t sentences = 0;
+};
+
+void output_format_epe::write_sentence(const sentence& s, ostream& os) {
+  json.object().key("id").value(++sentences).key("nodes").array();
+
+  for (size_t i = 1; i < s.words.size(); i++) {
+    json.object().key("id").value(i).key("form").value(s.words[i].form);
+
+    size_t start, end;
+    if (s.words[i].get_token_range(start, end))
+      json.key("start").value(start).key("end").value(end);
+    if (s.words[i].head == 0)
+      json.key("top").value_true();
+
+    json.key("properties").object()
+        .key("lemma").value(s.words[i].lemma)
+        .key("upos").value(s.words[i].upostag)
+        .key("xpos").value(s.words[i].xpostag)
+        .key("feats").value(s.words[i].feats)
+        .close();
+
+    if (!s.words[i].children.empty()) {
+      json.key("edges").array();
+      for (auto&& child : s.words[i].children)
+        json.object().key("label").value(s.words[child].deprel).key("target").value(child).close();
+      json.close();
+    }
+
+    json.close();
+  }
+  json.close().close();
+
+  string_piece current = json.current();
+  os.write(current.str, current.len).put('\n');
+  json.clear();
+}
+
+void output_format_epe::finish_document(ostream& /*os*/) {
+  sentences = 0;
 }
 
 // Matxin output format
@@ -264,6 +368,10 @@ output_format* output_format::new_conllu_output_format(const string& options) {
   return new output_format_conllu(version);
 }
 
+output_format* output_format::new_epe_output_format(const string& /*options*/) {
+  return new output_format_epe();
+}
+
 output_format* output_format::new_matxin_output_format(const string& /*options*/) {
   return new output_format_matxin();
 }
@@ -301,6 +409,7 @@ output_format* output_format::new_output_format(const string& name) {
   size_t option_offset = equal != string::npos ? equal + 1 : name.size();
 
   if (name.compare(0, name_len, "conllu") == 0) return new_conllu_output_format(name.substr(option_offset));
+  if (name.compare(0, name_len, "epe") == 0) return new_epe_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "matxin") == 0) return new_matxin_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "horizontal") == 0) return new_horizontal_output_format(name.substr(option_offset));
   if (name.compare(0, name_len, "plaintext") == 0) return new_plaintext_output_format(name.substr(option_offset));

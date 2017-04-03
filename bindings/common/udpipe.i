@@ -307,6 +307,9 @@ class output_format {
   %rename(newConlluOutputFormat) new_conllu_output_format;
   %newobject new_conllu_output_format;
   static output_format* new_conllu_output_format(const std::string& options = std::string());
+  %rename(newEpeOutputFormat) new_epe_output_format;
+  %newobject new_epe_output_format;
+  static output_format* new_epe_output_format(const std::string& options = std::string());
   %rename(newMatxinOutputFormat) new_matxin_output_format;
   %newobject new_matxin_output_format;
   static output_format* new_matxin_output_format(const std::string& options = std::string());

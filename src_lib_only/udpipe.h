@@ -159,6 +159,7 @@ class output_format {
   // Static factory methods
   static output_format* new_output_format(const std::string& name);
   static output_format* new_conllu_output_format(const std::string& options = std::string());
+  static output_format* new_epe_output_format(const std::string& options = std::string());
   static output_format* new_matxin_output_format(const std::string& options = std::string());
   static output_format* new_horizontal_output_format(const std::string& options = std::string());
   static output_format* new_plaintext_output_format(const std::string& options = std::string());

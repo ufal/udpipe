@@ -539,6 +539,7 @@ class output_format {
   // Static factory methods
   static [output_format #output_format]* [new_output_format #output_format_new_output_format](const string& name);
   static [output_format #output_format]* [new_conllu_output_format #output_format_new_conllu_output_format](const string() options = std::string());
+  static [output_format #output_format]* [new_epe_output_format #output_format_new_epe_output_format](const string() options = std::string());
   static [output_format #output_format]* [new_matxin_output_format #output_format_new_matxin_output_format](const string() options = std::string());
   static [output_format #output_format]* [new_horizontal_output_format #output_format_new_horizontal_output_format](const string() options = std::string());
   static [output_format #output_format]* [new_plaintext_output_format #output_format_new_plaintext_output_format](const string() options = std::string());
@@ -584,6 +585,7 @@ will write start-of-document mark).
 Create new [``output_format`` #output_format] instance, given its name.
 The following output formats are currently supported:
 - ``conllu``: return the [``new_conllu_output_format`` #output_format_new_conllu_output_format]
+- ``epe``: return the [``new_epe_output_format`` #output_format_new_epe_output_format]
 - ``matxin``: return the [``new_matxin_output_format`` #output_format_new_matxin_output_format]
 - ``horizontal``: return the [``new_horizontal_output_format`` #output_format_new_horizontal_output_format]
 - ``plaintext``: return the [``new_plaintext_output_format`` #output_format_new_plaintext_output_format]
@@ -603,6 +605,15 @@ Supported options:
 - ``v1``: produce output in CoNLL-U v1 format. Note that this is a lossy process, as
 empty nodes are ignored and spaces in forms and lemmas are converted to underscores.
 -
+
+
+=== output_format::new_epe_output_format() ===[output_format_new_epe_output_format]
+``` static [output_format #output_format]* new_epe_output_format(const string() options = std::string());
+
+Creates [``output_format`` #output_format] instance for writing sentences
+in the EPE (Extrinsic Parser Evaluation 2017) interchange format.
+The new instance must be deleted after use.
+
 
 === output_format::new_matxin_output_format() ===[output_format_new_matxin_output_format]
 ``` static [output_format #output_format]* new_matxin_output_format(const string() options = std::string());
