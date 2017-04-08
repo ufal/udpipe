@@ -28,6 +28,7 @@ template <class T>
 class threadsafe_resource_loader {
  public:
   threadsafe_resource_loader(unsigned concurrent_limit) : concurrent_limit(concurrent_limit) {}
+  ~threadsafe_resource_loader();
 
   unsigned add(T* resource);
 
@@ -58,6 +59,17 @@ class threadsafe_resource_loader {
 //
 // Definitions
 //
+
+template <class T>
+threadsafe_resource_loader<T>::~threadsafe_resource_loader() {
+  unique_lock<mutex> lock(resource_mutex);
+
+  for (auto&& loaded_resource : loaded_resources)
+    if (!resources[loaded_resource].used_count && resources[loaded_resource].state == resource_info::LOADED) {
+      resources[loaded_resource].state = resource_info::NOT_LOADED;
+      resources[loaded_resource].resource->release();
+    }
+}
 
 template <class T>
 unsigned threadsafe_resource_loader<T>::add(T* resource) {
