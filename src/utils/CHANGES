@@ -1,3 +1,8 @@
+Version 3.2.0 [08 Apr 2017]
+---------------------------
+- Add threadsafe_resource_loader.h header
+
+
 Version 3.1.1 [31 Mar 2017]
 ---------------------------
 - Support leading + in parse_int and parse_double
