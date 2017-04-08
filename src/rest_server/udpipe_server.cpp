@@ -59,13 +59,18 @@ int main(int argc, char* argv[]) {
   iostreams_init();
 
   options::map options;
-  if (!options::parse({{"daemon",options::value::none},
+  if (!options::parse({{"concurrent_models",options::value::any},
+                       {"daemon",options::value::none},
+                       {"no_preload_default",options::value::none},
                        {"version", options::value::none},
                        {"help", options::value::none}}, argc, argv, options) ||
       options.count("help") ||
       ((argc < 2 || (argc % 3) != 2) && !options.count("version")))
     runtime_failure("Usage: " << argv[0] << " [options] port (model_name model_file acknowledgements)*\n"
-                    "Options: --daemon\n"
+                    "Options: --concurrent_models=maximum concurrently loaded models (default 10)\n"
+                    "         --daemon (daemonize after start)\n"
+                    "         --no_check_models_loadable (do not check models are loadable)\n"
+                    "         --no_preload_default (do not preload default model)\n"
                     "         --version\n"
                     "         --help");
   if (options.count("version")) {
@@ -77,6 +82,9 @@ int main(int argc, char* argv[]) {
 
   // Process options
   int port = parse_int(argv[1], "port number");
+  int concurrent_models = options.count("concurrent_models") ? parse_int(options["concurrent_models"], "concurrent models") : 10;
+  bool no_check_models_loadable = options.count("no_check_models_loadable");
+  bool no_preload_default = options.count("no_preload_default");
 
 #ifndef __linux__
   if (options.count("daemon")) runtime_failure("The --daemon option is currently supported on Linux only!");
@@ -87,7 +95,7 @@ int main(int argc, char* argv[]) {
   for (int i = 2; i < argc; i += 3)
     models.emplace_back(argv[i], argv[i + 1], argv[i + 2]);
 
-  if (!service.init(models))
+  if (!service.init(models, concurrent_models, !no_preload_default, !no_check_models_loadable))
     runtime_failure("Cannot load specified models!");
 
   // Open log file

@@ -213,13 +213,23 @@ server implementation and provides
 The full command syntax of ``udpipe_server`` is
 ```
 udpipe_server [options] port (rest_id model_file acknowledgements)*
-Options: --daemon
+Options: --concurrent_models=maximum concurrently loaded models (default 10)
+         --daemon (daemonize after start)
+         --no_check_models_loadable (do not check models are loadable)
+         --no_preload_default (do not preload default model)
 ```
 
 The ``udpipe_server`` can run either in foreground or in background (when
-``--daemon`` is used). The specified model files are loaded during start and
-kept in memory all the time. This behaviour may change in future to load the
-models on demand.
+``--daemon`` is used).
+
+Since UDPipe 1.1.1, the models are loaded on demand, so that at most
+``concurrent_models`` (default 10) are kept in memory at the same time.
+The model files are opened during start and never closed until the server
+stops. Unless ``no_check_models_loadable`` is specified, the model files
+are also checked to be loadable during start. Note that the default model
+is preloaded and never released, unless ``no_preload_default`` is given.
+(Before UDPipe 1.1.1, specified model files were loaded during start and
+kept in memory all the time.)
 
 == Training UDPipe Models ==[model_training]
 
