@@ -29,7 +29,7 @@ Documentation</a> and the models are described in the
     }
 
     var options = {model: model, data: text};
-    var input = jQuery('input[name=option_input]:checked:visible').val();
+    var input = jQuery('input[name=option_input]:checked').val();
     if (input && input == "tokenizer") {
       options.tokenizer = "";
       var opts = ["presegmented", "ranges", "normalized_spaces"];
