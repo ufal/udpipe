@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
   options::map options;
   if (!options::parse({{"concurrent_models",options::value::any},
                        {"daemon",options::value::none},
+                       {"no_check_models_loadable",options::value::none},
                        {"no_preload_default",options::value::none},
                        {"version", options::value::none},
                        {"help", options::value::none}}, argc, argv, options) ||
