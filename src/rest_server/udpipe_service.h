@@ -85,7 +85,14 @@ class udpipe_service : public microrestd::rest_service {
   typedef threadsafe_resource_loader<model_info> model_loader;
   unique_ptr<model_loader> loader;
 
-  const model_info* get_rest_model(const string& rest_id, string& error);
+  struct loaded_model {
+    const model_info* model;
+    model_loader* loader;
+
+    loaded_model(const model_info* model, model_loader* loader) : model(model), loader(loader) {}
+    ~loaded_model() { loader->release(model->loader_id); }
+  };
+  loaded_model* load_rest_model(const string& rest_id, string& error);
 
   // REST service
   class rest_response_generator : public microrestd::json_response_generator {

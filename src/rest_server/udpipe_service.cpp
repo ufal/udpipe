@@ -95,12 +95,15 @@ bool udpipe_service::handle(microrestd::rest_request& req) {
 }
 
 // Load selected model
-const udpipe_service::model_info* udpipe_service::get_rest_model(const string& rest_id, string& error) {
+udpipe_service::loaded_model* udpipe_service::load_rest_model(const string& rest_id, string& error) {
   auto model_it = rest_models_map.find(rest_id);
   if (model_it == rest_models_map.end())
     return error.assign("Requested model '").append(rest_id).append("' does not exist.\n"), nullptr;
 
-  return model_it->second;
+  if (!loader->load(model_it->second->loader_id))
+    return error.assign("Cannot load required model (UDPipe server internal error)!"), nullptr;
+
+  return new loaded_model(model_it->second, loader.get());
 }
 
 // REST service
@@ -125,15 +128,14 @@ bool udpipe_service::handle_rest_models(microrestd::rest_request& req) {
 bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
   string error;
   auto rest_id = get_rest_model_id(req);
-  auto model = get_rest_model(rest_id, error);
-  if (!model) return req.respond_error(error);
-  if (!loader->load(model->loader_id)) return req.respond_error("Cannot load required model (UDPipe server internal error)!");
+  unique_ptr<loaded_model> loaded(load_rest_model(rest_id, error));
+  if (!loaded) return req.respond_error(error);
 
   auto& data = get_data(req, error); if (!error.empty()) return req.respond_error(error);
   bool tokenizer = false;
-  unique_ptr<input_format> input(get_input_format(req, model, tokenizer, error)); if (!input) return req.respond_error(error);
-  auto& tagger = get_tagger(req, model, error); if (!error.empty()) return req.respond_error(error);
-  auto& parser = get_parser(req, model, error); if (!error.empty()) return req.respond_error(error);
+  unique_ptr<input_format> input(get_input_format(req, loaded->model, tokenizer, error)); if (!input) return req.respond_error(error);
+  auto& tagger = get_tagger(req, loaded->model, error); if (!error.empty()) return req.respond_error(error);
+  auto& parser = get_parser(req, loaded->model, error); if (!error.empty()) return req.respond_error(error);
   unique_ptr<output_format> output(get_output_format(req, error)); if (!output) return req.respond_error(error);
 
   // Try loading the input if tokenizer is not used
@@ -150,10 +152,8 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
   input->set_text(data);
   class generator : public rest_response_generator {
    public:
-    generator(const model_info* model, model_loader* loader, input_format* input, const string& tagger, const string& parser, output_format* output)
-        : rest_response_generator(model), loader(loader), input(input), tagger(tagger), parser(parser), output(output) {}
-
-    ~generator() { loader->release(model->loader_id); }
+    generator(loaded_model* loaded, input_format* input, const string& tagger, const string& parser, output_format* output)
+        : rest_response_generator(loaded->model), loaded(loaded), input(input), tagger(tagger), parser(parser), output(output) {}
 
     bool generate() {
       if (!input->next_sentence(s, error)) {
@@ -167,9 +167,9 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
       }
 
       if (tagger != "none")
-        model->model->tag(s, tagger, error);
+        loaded->model->model->tag(s, tagger, error);
       if (parser != "none")
-        model->model->parse(s, parser, error);
+        loaded->model->model->parse(s, parser, error);
 
       output->write_sentence(s, os);
       json.value(os.str(), true);
@@ -182,13 +182,13 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
     sentence s;
     string error;
     ostringstream os;
-    model_loader* loader;
+    unique_ptr<loaded_model> loaded;
     unique_ptr<input_format> input;
     const string& tagger;
     const string& parser;
     unique_ptr<output_format> output;
   };
-  return req.respond(generator::mime, new generator(model, loader.get(), input.release(), tagger, parser, output.release()));
+  return req.respond(generator::mime, new generator(loaded.release(), input.release(), tagger, parser, output.release()));
 }
 
 // REST service helpers
