@@ -151,6 +151,7 @@ The described API can be comfortably used by <code>curl</code>. Several examples
 <pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' -F 'model=english' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Converting JSON Result to Plain Text</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process | python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process | python3 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process | python2 -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'].encode('utf-8'))"</pre>
 
 <?php require('footer.php') ?>
