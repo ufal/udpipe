@@ -1,5 +1,8 @@
 Revision history for ufal.udpipe
 
+1.1.0.2 [15 Apr 17]
+        Use stdlib=libc++ on OS X.
+
 1.1.0.1 [29 May 17]
         Update UDPipe to 1.1.0.
 
