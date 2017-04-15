@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Prepare API documentation and examples
-make -C ../../../doc manual_bindings_api.txt >/dev/null
+make -C ../../doc manual_bindings_api.txt >/dev/null
 
 cat <<"EOF"
 ufal.udpipe
