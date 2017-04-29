@@ -1,5 +1,6 @@
 Version 1.9.3-devel
 -------------------
+- Document statistical guesser training using train_guesser binary.
 
 
 Version 1.9.2 [22 Sep 16]

@@ -83,7 +83,8 @@ void morpho_statistical_guesser::analyze(string_piece form, vector<tagged_lemma>
 
           if (pref_del_len + suff_del_len > form.len ||
               (pref_del_len && !small_memeq(pref_del, form.str, pref_del_len)) ||
-              (suff_del_len && !small_memeq(suff_del, form.str + form.len - suff_del_len, suff_del_len)))
+              (suff_del_len && !small_memeq(suff_del, form.str + form.len - suff_del_len, suff_del_len)) ||
+              (form.len + pref_add_len - pref_del_len + suff_add_len - suff_del_len == 0))
             continue;
 
           string lemma;
