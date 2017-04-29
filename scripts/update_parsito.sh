@@ -36,14 +36,14 @@ patch -d ../src/parsito/parser parser_nn_trainer.cpp <<EOF
  #include "parsito/network/neural_network_trainer.h"
 @@ -28,7 +27,7 @@
  
- void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name,
+ void parser_nn_trainer::train(const string& transition_system_name, const string& transition_oracle_name, bool single_root,
                                const string& embeddings_description, const string& nodes_description, const network_parameters& parameters,
 -                              unsigned number_of_threads, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
 +                              unsigned /*number_of_threads*/, const vector<tree>& train, const vector<tree>& heldout, binary_encoder& enc) {
    if (train.empty()) runtime_failure("No training data was given!");
  
    // Random generator with fixed seed for reproducibility
-@@ -432,13 +431,7 @@
+@@ -459,13 +458,7 @@
      };
  
      cerr << "Iteration " << iteration << ": ";
