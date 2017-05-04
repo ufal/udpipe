@@ -95,41 +95,36 @@ bool morphodita_tokenizer_wrapper::next_sentence(sentence& s, string& error) {
           tok.form.push_back(chr);
       }
 
-      // Store SpaceAfter or SpacesAfter/SpacesBefore
-      if (normalized_spaces)
-        tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
-      else {
-        // Fill SpacesBefore
-        if (i == 0) {
-          if (forms[0].str > text.str)
-            saved_spaces.append(text.str, forms[0].str - text.str);
-          preceeding_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
-          tok.set_spaces_before(saved_spaces);
-          saved_spaces.clear();
-        } else {
-          tok.set_spaces_before("");
-        }
-        // Fill SpacesAfter
-        if (i+1 < forms.size()) {
-          tok.set_spaces_after(string_piece(forms[i].str + forms[i].len, forms[i+1].str - forms[i].str - forms[i].len));
-        } else {
-          text.len -= forms[i].str + forms[i].len - text.str;
-          text.str = forms[i].str + forms[i].len;
-
-          string_piece following;
-          for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
-                                          (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
-            saved_spaces.append(text.str, following.str - text.str);
-
-          following_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
-          tok.set_spaces_after(saved_spaces);
-          saved_spaces.clear();
-        }
-
-        // SpacesInToken on every token
-        if (tok.form.size() != forms[i].len)
-          tok.set_spaces_in_token(forms[i]);
+      // Track pre-sentence spaces and store SpacesBefore
+      if (i == 0) {
+        if (forms[0].str > text.str)
+          saved_spaces.append(text.str, forms[0].str - text.str);
+        preceeding_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
       }
+      if (!normalized_spaces) {
+        tok.set_spaces_before(i == 0 ? saved_spaces : "");
+      }
+      saved_spaces.clear();
+
+      // Track post-sentence spaces and store SpaceAfter, SpacesInToken and SpacesAfter
+      if (i+1 == forms.size()) {
+        text.len -= forms[i].str + forms[i].len - text.str;
+        text.str = forms[i].str + forms[i].len;
+
+        string_piece following;
+        for (char32_t chr; text.len && (following = text, chr = unilib::utf8::decode(following.str, following.len),
+                                        (unilib::unicode::category(chr) & unilib::unicode::Zs) || chr == '\r' || chr == '\n' || chr == '\t'); text = following)
+          saved_spaces.append(text.str, following.str - text.str);
+
+        following_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
+      }
+      if (normalized_spaces) {
+        tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
+      } else {
+        tok.set_spaces_in_token(tok.form.size() != forms[i].len ? forms[i] : "");
+        tok.set_spaces_after(i+1 == forms.size() ? saved_spaces : string_piece(forms[i].str + forms[i].len, forms[i+1].str - forms[i].str - forms[i].len));
+      }
+      saved_spaces.clear();
 
       // Store TokenRange if requested
       if (token_ranges)
