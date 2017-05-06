@@ -44,6 +44,10 @@ bool gru_tokenizer_trainer::train(unsigned url_email_tokenizer, unsigned segment
     gru_tokenizer_network_trainer<24> network;
     if (!network.train(url_email_tokenizer, segment, allow_spaces, epochs, batch_size, learning_rate, learning_rate_final,
                        dropout, initialization_range, early_stopping, data, heldout, enc, error)) return false;
+  } else if (dimension == 64) {
+    gru_tokenizer_network_trainer<64> network;
+    if (!network.train(url_email_tokenizer, segment, allow_spaces, epochs, batch_size, learning_rate, learning_rate_final,
+                       dropout, initialization_range, early_stopping, data, heldout, enc, error)) return false;
   } else {
     return error.assign("Gru tokenizer dimension '").append(to_string(dimension)).append("' is not supported!"), false;
   }

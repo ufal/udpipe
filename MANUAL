@@ -529,6 +529,10 @@ The tokenizer recognizes the following options:
   implemented recognizer
 - allow_spaces (default 1 if any token contains a space, 0 otherwise): allow
   tokens to contain spaces
+- dimension (default 24): dimension of character embeddings and of the
+  per-character bidirectional GRU. Note that inference time is quadratic in this
+  parameter. Supported values are only 16, 24 and 64, with 64 needed only for
+  languages with complicated tokenization like Japanese, Chinese or Vietnamese.
 - epochs (default 100): the number of epochs to train the tokenizer for
 - batch_size (default 50): batch size used during tokenizer training
 - learning_rate (default 0.005): the learning rate used during tokenizer
