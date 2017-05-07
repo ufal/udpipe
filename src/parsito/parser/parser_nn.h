@@ -28,15 +28,15 @@ class parser_nn : public parser {
  public:
   parser_nn(bool versioned);
 
-  virtual void parse(tree& t, unsigned beam_size = 0) const override;
+  virtual void parse(tree& t, unsigned beam_size = 0, double* cost = nullptr) const override;
 
  protected:
   virtual void load(binary_decoder& data, unsigned cache) override;
 
  private:
   friend class parser_nn_trainer;
-  void parse_greedy(tree& t) const;
-  void parse_beam_search(tree& t, unsigned beam_size) const;
+  void parse_greedy(tree& t, double* cost) const;
+  void parse_beam_search(tree& t, unsigned beam_size, double* cost) const;
 
   bool versioned;
   unsigned version;

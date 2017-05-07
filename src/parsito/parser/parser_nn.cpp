@@ -22,15 +22,16 @@ namespace parsito {
 
 parser_nn::parser_nn(bool versioned) : versioned(versioned) {}
 
-void parser_nn::parse(tree& t, unsigned beam_size) const {
+void parser_nn::parse(tree& t, unsigned beam_size, double* cost) const {
   if (beam_size > 1)
-    parse_beam_search(t, beam_size);
+    parse_beam_search(t, beam_size, cost);
   else
-    parse_greedy(t);
+    parse_greedy(t, cost);
 }
 
-void parser_nn::parse_greedy(tree& t) const {
+void parser_nn::parse_greedy(tree& t, double* cost) const {
   assert(system);
+  if (cost) *cost = 0.;
 
   // Retrieve or create workspace
   workspace* w = workspaces.pop();
@@ -50,7 +51,8 @@ void parser_nn::parse_greedy(tree& t) const {
   }
 
   // Compute which transitions to perform and perform them
-  while (!w->conf.final()) {
+  int transitions = 0;
+  for (; !w->conf.final(); transitions++) {
     // Extract nodes from the configuration
     nodes.extract(w->conf, w->extracted_nodes);
     w->extracted_embeddings.resize(w->extracted_nodes.size());
@@ -58,7 +60,7 @@ void parser_nn::parse_greedy(tree& t) const {
       w->extracted_embeddings[i] = w->extracted_nodes[i] >= 0 ? &w->embeddings[w->extracted_nodes[i]] : nullptr;
 
     // Classify using neural network
-    network.propagate(embeddings, w->extracted_embeddings, w->network_buffer, w->outcomes, &embeddings_cache, false);
+    network.propagate(embeddings, w->extracted_embeddings, w->network_buffer, w->outcomes, &embeddings_cache, cost ? true : false);
 
     // Find most probable applicable transition
     int best = -1;
@@ -68,6 +70,7 @@ void parser_nn::parse_greedy(tree& t) const {
 
     // Perform the best transition
     int child = system->perform(w->conf, best);
+    if (cost) *cost += log(w->outcomes[best]);
 
     // If a node was linked, recompute its embeddings as deprel has changed
     if (child >= 0)
@@ -77,11 +80,14 @@ void parser_nn::parse_greedy(tree& t) const {
       }
   }
 
+  if (cost && transitions)
+    *cost = *cost / transitions * (t.nodes.size() - 1);
+
   // Store workspace
   workspaces.push(w);
 }
 
-void parser_nn::parse_beam_search(tree& t, unsigned beam_size) const {
+void parser_nn::parse_beam_search(tree& t, unsigned beam_size, double* cost) const {
   assert(system);
 
   // Retrieve or create workspace
@@ -185,6 +191,8 @@ void parser_nn::parse_beam_search(tree& t, unsigned beam_size) const {
     if (w->bs_confs[iteration & 1][i].cost > w->bs_confs[iteration & 1][best].cost)
       best = i;
   w->bs_confs[iteration & 1][best].refresh_tree();
+
+  if (cost) *cost = w->bs_confs[iteration & 1][best].cost * (t.nodes.size() - 1);
 
   // Store workspace
   workspaces.push(w);

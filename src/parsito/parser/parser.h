@@ -23,7 +23,7 @@ class parser {
  public:
   virtual ~parser() {};
 
-  virtual void parse(tree& t, unsigned beam_size = 0) const = 0;
+  virtual void parse(tree& t, unsigned beam_size = 0, double* cost = nullptr) const = 0;
 
   enum { NO_CACHE = 0, FULL_CACHE = 2147483647};
   static parser* load(const char* file, unsigned cache = 1000);
