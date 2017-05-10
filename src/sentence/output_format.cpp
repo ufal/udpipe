@@ -161,6 +161,7 @@ class output_format_epe : public output_format {
     bool comma_needed = false;
   } json;
 
+  vector<string_piece> feats;
   size_t sentences = 0;
 };
 
@@ -179,9 +180,16 @@ void output_format_epe::write_sentence(const sentence& s, ostream& os) {
     json.key("properties").object()
         .key("lemma").value(s.words[i].lemma)
         .key("upos").value(s.words[i].upostag)
-        .key("xpos").value(s.words[i].xpostag)
-        .key("feats").value(s.words[i].feats)
-        .close();
+        .key("xpos").value(s.words[i].xpostag);
+    split(s.words[i].feats, '|', feats);
+    for (auto&& feat : feats) {
+      string_piece key(feat.str, 0);
+      while (key.len < feat.len && key.str[key.len] != '=')
+        key.len++;
+      if (key.len + 1 < feat.len)
+        json.key(key).value(string_piece(key.str + key.len + 1, feat.len - key.len - 1));
+    }
+    json.close();
 
     if (!s.words[i].children.empty()) {
       json.key("edges").array();
