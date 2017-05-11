@@ -285,19 +285,21 @@ bool trainer_morphodita_parsito::train_parser(const vector<sentence>& training, 
       int embedding_feats = 20; if (!option_int(parser, "embedding_feats", embedding_feats, error)) return false;
       int embedding_xpostag = 0; if (!option_int(parser, "embedding_xpostag", embedding_xpostag, error)) return false;
       int embedding_form = 50; if (!option_int(parser, "embedding_form", embedding_form, error)) return false;
+      int embedding_form_mincount = 2; if (!option_int(parser, "embedding_form_mincount", embedding_form_mincount, error)) return false;
       int embedding_lemma = 0; if (!option_int(parser, "embedding_lemma", embedding_lemma, error)) return false;
+      int embedding_lemma_mincount = 2; if (!option_int(parser, "embedding_lemma_mincount", embedding_lemma_mincount, error)) return false;
       int embedding_deprel = 20; if (!option_int(parser, "embedding_deprel", embedding_deprel, error)) return false;
       string embeddings;
       if (embedding_upostag) embeddings.append("universal_tag ").append(to_string(embedding_upostag)).append(" 1\n");
       if (embedding_feats) embeddings.append("feats ").append(to_string(embedding_feats)).append(" 1\n");
       if (embedding_xpostag) embeddings.append("tag ").append(to_string(embedding_xpostag)).append(" 1\n");
       if (embedding_form) {
-        embeddings.append("form ").append(to_string(embedding_form)).append(" 2");
+        embeddings.append("form ").append(to_string(embedding_form)).append(" ").append(to_string(embedding_form_mincount));
         if (!option_str(parser, "embedding_form_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_form_file"));
         embeddings.push_back('\n');
       }
       if (embedding_lemma) {
-        embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" 2");
+        embeddings.append("lemma ").append(to_string(embedding_lemma)).append(" ").append(to_string(embedding_lemma_mincount));
         if (!option_str(parser, "embedding_lemma_file").empty()) embeddings.append(" ").append(option_str(parser, "embedding_lemma_file"));
         embeddings.push_back('\n');
       }

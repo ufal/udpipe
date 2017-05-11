@@ -424,6 +424,14 @@ The embeddings used by the parser can be specified as follows:
 - ``embedding_deprel`` (default 20): the dimension of the Deprel embedding used in the parser
 - ``embedding_form_file``: pre-trained word embeddings in ``word2vec`` textual format
 - ``embedding_lemma_file``: pre-trained lemma embeddings in ``word2vec`` textual format
+- ``embedding_form_mincount`` (default 2): for forms not present in the pre-trained embeddings,
+  generate random embeddings if the form appears at least this number of times in the
+  trainig data (forms not present in the pre-trained embeddings and appearing less number
+  of times are considered OOV)
+- ``embedding_lemma_mincount`` (default 2): for lemmas not present in the pre-trained embeddings,
+  generate random embeddings if the lemma appears at least this number of times in the
+  trainig data (lemmas not present in the pre-trained embeddings and appearing less number
+  of times are considered OOV)
 -
 
 The neural network training options:

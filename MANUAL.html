@@ -1206,6 +1206,16 @@ The embeddings used by the parser can be specified as follows:
 </li>
 <li><code>embedding_lemma_file</code>: pre-trained lemma embeddings in <code>word2vec</code> textual format
 </li>
+<li><code>embedding_form_mincount</code> (default 2): for forms not present in the pre-trained embeddings,
+  generate random embeddings if the form appears at least this number of times in the
+  trainig data (forms not present in the pre-trained embeddings and appearing less number
+  of times are considered OOV)
+</li>
+<li><code>embedding_lemma_mincount</code> (default 2): for lemmas not present in the pre-trained embeddings,
+  generate random embeddings if the lemma appears at least this number of times in the
+  trainig data (lemmas not present in the pre-trained embeddings and appearing less number
+  of times are considered OOV)
+</li>
 </ul>
 
 <p style="margin-bottom:0">
