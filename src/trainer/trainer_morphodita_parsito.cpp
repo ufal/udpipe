@@ -541,7 +541,10 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     } else {
       flat_lemmas.insert("greek.expression");
     }
-    const string& dictionary_data = option_str(tagger, "dictionary", model);
+    const string& dictionary_filename = option_str(tagger, "dictionary", model);
+    std::ifstream ifsdic(dictionary_filename);
+    std::string dictionary_data( (std::istreambuf_iterator<char>(ifsdic) ), (std::istreambuf_iterator<char>()    ) );
+
     int max_form_analyses = 0; if (!option_int(tagger, "dictionary_max_form_analyses", max_form_analyses, error, model)) return false;
 
     cerr << "Tagger model " << model+1 << " dictionary options: " << "max_form_analyses=" << max_form_analyses
