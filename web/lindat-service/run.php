@@ -213,6 +213,24 @@ Documentation</a> and the models are described in the
     }, complete: function() {
       if (!jQuery('#model').html()) {
         jQuery('#error').text("Cannot obtain the list of models from the service.").show();
+      }else{
+        <?php
+        if(isset($_GET["model"])) {
+          $model = urldecode($_GET["model"]);
+          echo "opts = $('#model option');";
+          echo "for(i=0;i<opts.length;i++) {";
+          echo "if(opts[i].text.startsWith('$model')) { ";
+          echo "$('#model').selectpicker('val', opts[i].text);";
+          echo "break;";
+          echo "}";
+          echo "}";
+        }
+        if(isset($_GET["data"])) {
+          $data = urldecode($_GET["data"]);
+          echo "jQuery('#input').val('$data');";
+          echo "jQuery('#submit').click();";
+        }
+        ?>
       }
     }});
   });
