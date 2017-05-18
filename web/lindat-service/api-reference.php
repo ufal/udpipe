@@ -145,12 +145,12 @@ The described API can be comfortably used by <code>curl</code>. Several examples
 <pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl --data 'tokenizer=&tagger=&parser=&data=Děti pojedou k babičce. Už se těší.' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Using Files as Input (files must be in UTF-8 encoding)</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
-<h3>Specifying Additional Parameters</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' -F 'model=english' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<h3>Specifying Model Parameters</h3>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Converting JSON Result to Plain Text</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F 'data=@input_file' http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
 
 <?php require('footer.php') ?>
