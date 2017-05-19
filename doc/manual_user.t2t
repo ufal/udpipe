@@ -1,22 +1,22 @@
 UDPipe User's Manual
 ====================
 
-Like any supervised machine learning tool, UDPipe needs a trained linguistic model.
-This section describes the available language models and also the commandline
+Like any supervised machine-learning tool, UDPipe needs a trained linguistic model.
+This section describes the available language models and also the command-line
 tools and interfaces.
 
 
 == Running UDPipe ==[run_udpipe]
 
-Probably the most common usage of UDPipe is to tokenize, tag and parse input using
+Probably the most common usage of UDPipe is to tokenize, tag and parse the input using
 ``` udpipe --tokenize --tag --parse udpipe_model
 
 The input is assumed to be in UTF-8 encoding and can be either already tokenized
-and segmented, or it can be a plain text which is tokenized and segmented automatically.
+and segmented, or it can be a plain text which will be tokenized and segmented automatically.
 
-Any number of files can be specified after the ``udpipe_model`` and if no
-file is given, input is read from standard input. The output is by default
-saved to standard output, but if ``--outfile=name`` is used, it is saved
+Any number of input files can be specified after the ``udpipe_model`` and if no
+file is given, the standard input is used. The output is by default
+saved to the standard output, but if ``--outfile=name`` is used, it is saved
 to the given file name. The output file name can contain a ``{}``, which is
 replaced by a base name of the processed file (i.e., without directories
 and an extension).
@@ -50,17 +50,17 @@ Generic opts: --version
 === Immediate Mode ===[run_udpipe_immediate]
 
 By default UDPipe loads the whole input file into memory before starting
-to process it. That allows to store the space markup (see following Tokenizer
+to process it. That allows to store the space markup (see the following Tokenizer
 section) in most consistent way, i.e., store all spaces following a sentence
 in the last token of that sentence.
 
-However, sometimes it is desirable to process input as soon as possible,
+However, sometimes it is desirable to process the input as soon as possible,
 which can be achieved by specifying the ``--immediate`` option. In immediate mode,
-input is processed and printed as soon as a block of input guaranteed to contain
+the input is processed and printed as soon as a block of input guaranteed to contain
 whole sentences is loaded. Specifically, for most input formats the input is
 processed after loading an empty line (with the exception of ``horizontal``
 input format and ``presegmented`` tokenizer, where the input is processed after
-loading every line).
+each line).
 
 
 === Loading Model On Demand ===[run_udpipe_model_on_demand]
@@ -68,22 +68,22 @@ loading every line).
 Although a model for UDPipe always has to be specified, the model is loaded
 only if really needed. It is therefore possible to use for example ``none``
 as the model in case it is not required for performing the requested
-operation (e.g., converting between formats or using generic tokenizer).
+operation (e.g., converting between formats or using a generic tokenizer).
 
 
 === Tokenizer ===[run_udpipe_tokenizer]
 
-If the ``--tokenize`` input is supplied, the input is assumed to be
+If the ``--tokenize`` option is supplied, the input is assumed to be
 plain text and is tokenized using model tokenizer. Additional arguments to the
 tokenizer might be specified using ``--tokenizer=data`` option (which implies
-``--tokenize``), where ``data`` is semicolon-separated list of the following options:
+``--tokenize``), where ``data`` is a semicolon-separated list of the following options:
 - ``normalized_spaces``: by default, UDPipe uses custom MISC fields to exactly
-  encode spaces in the original document (described below). If
-  ``normalized_spaces`` option is given, only standard CoNLL-U v2 markup
+  encode spaces in the original document (as described below). If the
+  ``normalized_spaces`` option is given, only the standard CoNLL-U v2 markup
   (``SpaceAfter=No`` and ``# newpar``) is used.
-- ``presegmented``: input file is assumed to be already segmented, with every
-  sentence on a line, and is only tokenized (respecting sentence breaks)
-- ``ranges``: for every token, range in the original document is stored in
+- ``presegmented``: the input file is assumed to be already segmented, with each
+  sentence on a separate line, and is only tokenized (respecting sentence breaks)
+- ``ranges``: for each token, a range in the original document is stored in the
   format described below.
 -
 
@@ -91,13 +91,13 @@ tokenizer might be specified using ``--tokenizer=data`` option (which implies
 
 By default, UDPipe uses custom MISC fields to store all spaces in the original
 document. This markup is backward compatible with CoNLL-U v2 ``SpaceAfter=No`` feature.
-This markup can be utilized by ``plaintext`` output format, which allows reconstructing
+This markup can be utilized by the ``plaintext`` output format, which allows reconstructing
 the original document.
 
-Note that in theory not only spaces, but other original content can be saved in this
+Note that in theory not only spaces, but also other original content can be saved in this
 way (for example XML tags if the input was encoded in a XML file).
 
-The markup uses the following MISC fields on //tokens// (not words in multi-word token):
+The markup uses the following MISC fields on //tokens// (not words in multi-word tokens):
 - ``SpacesBefore=content`` (by default empty): spaces/other content preceding the token
 - ``SpacesAfter=content`` (by default a space if ``SpaceAfter=No`` feature is not present, empty otherwise):
   spaces/other content following the token
@@ -106,7 +106,7 @@ The markup uses the following MISC fields on //tokens// (not words in multi-word
   a token contains a tab or newline characters)
 -
 
-The ``content`` of all above three fields must be escaped to allow storing tabs and newlines.
+The ``content`` of all the three fields must be escaped to allow storing tabs and newlines.
 The following C-like schema is used:
 - ``\s``: space
 - ``\t``: tab
@@ -118,12 +118,12 @@ The following C-like schema is used:
 
 ==== Preserving Token Ranges ====[run_udpipe_tokenizer_ranges]
 
-When ``ranges`` tokenizer option is used, range of every token in the original document
-is stored in ``TokenRange`` MISC field.
+When the ``ranges`` tokenizer option is used, the range of each token in the original document
+is stored in the ``TokenRange`` MISC field.
 
 The format of the ``TokenRange`` field (inspired by Python) is ``TokenRange=start:end``,
-where ``start`` is zero-based document-level index of the start of the token
-(counted in Unicode characters) and ``end`` is zero-based document-level index
+where ``start`` is a zero-based document-level index of the start of the token
+(counted in Unicode characters) and ``end`` is a zero-based document-level index
 of the first character following the token (i.e., the length of the token is ``end-start``).
 
 
@@ -146,31 +146,31 @@ input formats are:
   spaces in tokens, Unicode character 'NO-BREAK SPACE' (U+00A0) is considered part of token
   and converted to a space during loading.
 - ``vertical``: each token on a separate line, with an empty line denoting end of sentence;
-  only the first tab-separated word is used as a token, the rest of the line is ignored
+  only the first tab-separated word is used as a token, the rest of the line is ignored.
 -
 
-Note that a model tokenizer can be specified using ``--input`` option too, by
-using ``tokenizer`` input format, for example using ``--input tokenizer=ranges``.
+Note that a model tokenizer can be specified using the ``--input`` option too, by
+using the ``tokenizer`` input format, for example using ``--input tokenizer=ranges``.
 
 
 === Tagger ===[run_udpipe_tagger]
 
-If the ``--tag`` input is supplied, the input is POS tagged lemmatized
+If the ``--tag`` option is supplied, the input is POS tagged and lemmatized
 using the model tagger. Additional arguments to the tagger might be
-specified using ``--tagger=data`` option (which implies ``--tag``).
+specified using the ``--tagger=data`` option (which implies ``--tag``).
 
 
 === Dependency Parsing ===[run_udpipe_parser]
 
-If the ``--parse`` input is supplied, the input is parsed using
+If the ``--parse`` option is supplied, the input is parsed using
 the model dependency parser.  Additional arguments to the parser might be
-specified using ``--parser=data`` option (which implies ``--parse``).
+specified using the ``--parser=data`` option (which implies ``--parse``).
 
 
 === Output Formats ===[run_udpipe_output]
 
 The output format is specified using the ``--output`` option. The individual
-output formats can be parametrized in the same way as input formats, by using
+output formats can be parametrized in the same way as input formats, by using the
 ``format=data`` syntax. Currently supported output formats are:
 - ``conllu`` (default): the [CoNLL-U format http://universaldependencies.org/docs/format.html]
   Supported options:
@@ -184,20 +184,20 @@ output formats can be parametrized in the same way as input formats, by using
   a single space. Because words can contain spaces in CoNLL-U v2, the spaces in
   words are converted to Unicode character 'NO-BREAK SPACE' (U+00A0).
   Supported options:
-  - ``paragraphs``: if given, an empty line is printed after the end of a paragraph
+  - ``paragraphs``: an empty line is printed after the end of a paragraph
   or a document (recognized by ``# newpar`` or ``# newdoc`` comments)
   -
 - ``plaintext``: writes the //tokens// (in the UD sense) using original spacing.
-  By default, UDPipe custom MISC features (``SpacesBefore``, ``SpacesAfter`` and ``SpacesInToken``,
-  see description in the Tokenizer section) are used to reconstruct the exact original spaces.
+  By default, UDPipe's custom MISC features (``SpacesBefore``, ``SpacesAfter`` and ``SpacesInToken``,
+  see the description in the Tokenizer section) are used to reconstruct the exact original spaces.
   However, if the document does not contain these features or if you want only normalized
   spacing, you can use the following option:
   - ``normalized_spaces``: write one sentence on a line, and either one or no space between
-  tokens, using the ``SpaceAfter=No`` feature
+  tokens according to the ``SpaceAfter=No`` feature
   -
-- ``vertical``: each word on a separate line, with an empty line denoting end of sentence.
+- ``vertical``: each word on a separate line, with an empty line denoting the end of sentence.
   Supported options:
-  - ``paragraphs``: if given, an empty line is printed after the end of a paragraph
+  - ``paragraphs``: an empty line is printed after the end of a paragraph
   or a document (recognized by ``# newpar`` or ``# newdoc`` comments)
   -
 -
@@ -205,7 +205,7 @@ output formats can be parametrized in the same way as input formats, by using
 
 == Running the UDPipe REST Server ==[udpipe_server]
 
-UDPipe also provides REST server binary ``udpipe_server``.
+UDPipe also provides a REST server binary called ``udpipe_server``.
 The binary uses [MicroRestD http://github.com/ufal/microrestd] as a REST
 server implementation and provides
 [UDPipe REST API http://lindat.mff.cuni.cz/services/udpipe/api-reference.php].
@@ -236,14 +236,14 @@ kept in memory all the time.)
 Custom UDPipe models can be trained using the following syntax:
 ``` udpipe --train model.output [--heldout=heldout_data] training_file ...
 
-The training data should be in [CoNLL-U format http://universaldependencies.org/docs/format.html].
+The training data should be in the [CoNLL-U format http://universaldependencies.org/docs/format.html].
 
-By default three model components are trained -- a tokenizer, tagger and
-a parser.  Any subset of the model components can be trained and a model
+By default, three model components are trained -- tokenizer, tagger and
+parser.  Any subset of the model components can be trained and a model
 component may be copied from an existing model.
 
 The training options are specified for each model component separately
-using the ``--tokenizer``, ``--tagger`` and ``--parser`` option.
+using the ``--tokenizer``, ``--tagger`` and ``--parser`` options.
 If a model component should not be trained, value ``none`` should
 be used (e.g., ``--tagger=none``).
 
@@ -256,11 +256,11 @@ is exactly ``length`` bytes long.
 === Reusing Components from Existing Models ===[model_training_reusing_components]
 
 The model components (tagger, parser or tagger) can be reused from
-existing models, by specifying ``from_model=file:filename`` option.
+existing models, by specifying the ``from_model=file:filename`` option.
 
 === Random Hyperparameter Search ===[model_training_random_search]
 
-The default values of hyperparameters is set to the values
+The default values of hyperparameters are set to the values
 which were used the most during UD 1.2 models training, but if you
 want to reach best performance, the hyperparameters must be tuned.
 
@@ -269,23 +269,24 @@ You can perform the random search by repeatedly training UDPipe
 (preferably in parallel, most likely on different computers)
 while specifying different training run number -- some of the
 hyperparameters (chosen by us; you can of course override their value
-by specyfing it on command line) change their value on different
+by specifying it on the command line) change their values in different
 training runs. The pseudorandom sequences of hyperparameters
 are of course deterministic.
 
-The training run can be specified by providing ``run=number`` option
-to a model component. The run number 1 is the default one (with best
-hyperparameters for the UD 1.2 models), runs 2 and more randomize
+The training run can be specified by providing the ``run=number`` option
+to a model component. The run number 1 is the default one (with the best
+hyperparameters for the UD 1.2 models), run numbers 2 and more randomize
 the hyperparameters.
 
 === Tokenizer ===[model_training_tokenizer]
 
 The tokenizer is trained using the ``SpaceAfter=No`` features in the CoNLL-U files.
 If the feature is not present, a //detokenizer// can be used to guess
-the ``SpaceAfter=No`` features according to a supplied plain text.
+the ``SpaceAfter=No`` features according to a supplied plain text
+(which typically does not overlap with the texts in the CoNLL-U files).
 
-In order to use the detokenizer, use ``detokenizer=file:filename_with_plaintext``
-option. In UD 1.2 models, optimal performance is achieved with very small plain
+In order to use the detokenizer, use the ``detokenizer=file:filename_with_plaintext``
+option. In UD 1.2 models, the optimal performance is achieved with very small plain
 texts -- only 500kB.
 
 The tokenizer recognizes the following options:
@@ -319,9 +320,9 @@ training, not printed. However, if you would like to obtain the CoNLL-U files
 with automatic detokenization (generated ``SpaceAfter=No`` features), you can
 run UDPipe with the ``--detokenize`` option. In this case, you have to supply
 plain text in the given language (usually the best results are achieved with
-just 500kB or 1MB of text) and UDPipe then detokenizes all given CoNLL-U files.
+just 500kB or 1MB of text) and UDPipe then detokenizes all the given CoNLL-U files.
 
-The complete usage with the ``--detokenize`` option is:
+The complete usage of the ``--detokenize`` option is:
 ```
 udpipe --detokenize [detokenize_opts] raw_text_file [input_files]
 Detokenize opts: --outfile=output file template
@@ -338,13 +339,13 @@ By default, only one model is constructed, which generates all available tags (U
 XPOS, Feats and Lemma). However, we found out during the UD 1.2 models training
 that performance improves if one model tags the UPOS, XPOS and Feats tags, while the
 other is performing lemmatization. Therefore, if you utilize two MorphoDiTa models,
-by default the first one generates all tags and the second one performs lemmatization.
+by default the first one generates all tags (except lemmas) and the second one performs lemmatization.
 
-The number of MorphoDiTa models can be specified using ``models=number`` parameter.
+The number of MorphoDiTa models can be specified using the ``models=number`` parameter.
 All other parameters may be either generic for all models (``guesser_suffix_rules=5``),
 or specific for a given model (``guesser_suffix_rules_2=6``), including the
 ``from_model`` option (therefore, MorphoDiTa models can be trained separately
-and then combined together to one UDPipe model).
+and then combined together into one UDPipe model).
 
 Every model utilizes UPOS for disambiguation and the first model is the one producing
 the UPOS tags on output.
@@ -360,12 +361,12 @@ The tagger recognizes the following options:
 - ``use_feats`` (default for the first model): use the
   Feats internally to perform disambiguation; it may not be outputted
 - ``provide_feats`` (default for the first model): produce the disambiguated Feats field on output
-- ``dictionary_max_form_analyses`` (default 0 - unlimited): the number of
-  maximum number of (most frequent) form analyses from UD training data that are to be
+- ``dictionary_max_form_analyses`` (default 0 - unlimited): the maximum number of
+  (most frequent) form analyses from UD training data that are to be
   kept in the morphological dictionary
-- ``dictionary`` (default empty): use given custom morphological dictionary, where every line contains
+- ``dictionary`` (default empty): use a given custom morphological dictionary, where each line contains
   5 tab-separated fields FORM, LEMMA, UPOSTAG, XPOSTAG and FEATS. Note that this dictionary
-  data is appended to the dictionary created from UD training data, not replacing it.
+  data is appended to the dictionary created from the UD training data, not replacing it.
 - ``guesser_suffix_rules`` (default 8): number of rules generated for every suffix
 - ``guesser_prefixes_max`` (default 4 if ``provide_lemma`, 0 otherwise): maximum
   number of form-generating prefixes to use in the guesser
@@ -375,7 +376,7 @@ The tagger recognizes the following options:
   in training data (assuming that the analyses from the training data may not be all)
 - ``iterations`` (default 20): number of training iterations to perform
 - ``early_stopping`` (default 1 if heldout is given, 0 otherwise): perform
-    early stopping, choosing training iteration maximizing tagging accuracy on heldout data
+    early stopping, choosing training iteration maximizing tagging accuracy on the heldout data
 - ``templates`` (default ``lemmatizer`` for second model, ``tagger`` otherwise): MorphoDiTa
     feature templates to use, either ``lemmatizer`` which focuses more on lemmas, or
     ``tagger`` which focuses more on UPOS/XPOS/FEATS
@@ -389,23 +390,23 @@ During random hyperparameter search, ``guesser_suffix_rules`` is chosen uniforml
 === Parser ===[model_training_parser]
 
 The parsing is performed using [Parsito http://ufal.mff.cuni.cz/parsito], which is a
-transition-based parser using neural network classifier.
+transition-based parser using a neural-network classifier.
 
 The transition-based systems can be configured by the following options:
-- ``transition_system`` (default projective): which transition system to use for parsing (language dependant, you can choose according
-  to language properties or try all and choose the best)
+- ``transition_system`` (default projective): which transition system to use for parsing (language dependent, you can choose according
+  to language properties or try all and choose the best one)
   - ``projective``: projective stack-based arc standard system with ``shift``, ``left_arc`` and ``right_arc`` transitions
-  - ``swap``: fully non-projective system which extends ``projective`` system by adding ``swap`` transition
+  - ``swap``: fully non-projective system which extends ``projective`` system by adding the ``swap`` transition
   - ``link2``: partially non-projective system which extends ``projective`` system by adding ``left_arc2`` and ``right_arc2`` transitions
 - ``transition_oracle`` (default dynamic/static_lazy_static whichever first is applicable): which transition oracle to use for the chosen ``transition_system``:
   - ``transition_system=projective``: available oracles are ``static`` and ``dynamic`` (``dynamic`` usually gives better results, but training time is slower)
   - ``transition_system=swap``: available oracles are ``static_eager`` and ``static_lazy`` (``static_lazy`` almost always gives better results)
   - ``transition_system=link2``: only available oracle is ``static``
 - ``structured_interval`` (default 8): use search-based oracle in addition to the ``translation_oracle`` specified. This almost always gives better results, but makes training 2-3 times slower. For details, see the paper //Straka et al. 2015: Parsing Universal Dependency Treebanks using Neural Networks and Search-Based Oracle//
-- ``single_root`` (default 1): allow only single root when parsing, and make sure only root node has ``root`` deprel (note that training data are checked to be in this format)
+- ``single_root`` (default 1): allow only single root when parsing, and make sure only the root node has the ``root`` deprel (note that training data are checked to be in this format)
 -
 
-The Lemmas/UPOS/XPOS/FEATS used by parser are configured by:
+The Lemmas/UPOS/XPOS/FEATS used by the parser are configured by:
 - ``use_gold_tags`` (default 0): if false and a tagger exists, the
   Lemmas/UPOS/XPOS/FEATS for both the training and heldout data are generated
   by the tagger, otherwise they are taken from the gold data
@@ -422,13 +423,13 @@ The embeddings used by the parser can be specified as follows:
 - ``embedding_lemma_file``: pre-trained lemma embeddings in ``word2vec`` textual format
 -
 
-The neural network training options:
+The neural-network training options:
 - ``iterations`` (default 10): number of training iterations to use
 - ``hidden_layer`` (default 200): the size of the hidden layer
-- ``batch_size`` (default 10): batch size used during neural network training
-- ``learning_rate`` (default 0.02): the learning rate used during neural network training
-- ``learning_rate_final`` (0.001): the final learning rate used during neural network training
-- ``l2`` (0.5): the L2 regularization used during neural network training
+- ``batch_size`` (default 10): batch size used during neural-network training
+- ``learning_rate`` (default 0.02): the learning rate used during neural-network training
+- ``learning_rate_final`` (0.001): the final learning rate used during neural-network training
+- ``l2`` (0.5): the L2 regularization used during neural-network training
 - ``early_stopping`` (default 1 if heldout is given, 0 otherwise): perform
     early stopping, choosing training iteration maximizing LAS on heldout data
 -
@@ -437,20 +438,20 @@ During random hyperparameter search, ``structured_interval`` is chosen uniformly
 //{0,8,10}//, ``learning_rate`` is chosen logarithmically from ``<0.005,0.04)`` and
 ``l2`` is chosen uniformly from ``<0.2,0.6)``.
 
-==== Pretrained Word Embeddings ====[udpipe_training_parser_embeddings]
+==== Pre-trained Word Embeddings ====[udpipe_training_parser_embeddings]
 
-The pretrained word embeddings for forms and lemmas can be specified in
+The pre-trained word embeddings for forms and lemmas can be specified in the
 ``word2vec`` textual format using the ``embedding_form_file`` and
 ``embedding_lemma_file`` options.
 
-Note that pretraining word embeddings even on the UD data itself improves
+Note that pre-training word embeddings even on the UD data itself improves the
 accuracy (we use ``word2vec`` with
 ``-cbow 0 -size 50 -window 10 -negative 5 -hs 0 -sample 1e-1 -threads 12 -binary 0 -iter 15 -min-count 2``
-options to pretrain on UD data after converting it to a horizontal format using
+options to pre-train on the UD data after converting it to the horizontal format using
 ``udpipe --output=horizontal``).
 
-Because forms and lemmas can contain spaces in CoNLL-U v2, these spaces are
-converted to a Unicode character 'NO-BREAK SPACE' (U+00A0) before performing
+Forms and lemmas can contain spaces in CoNLL-U v2, so these spaces are
+converted to a Unicode character 'NO-BREAK SPACE' (U+00A0) before performing the
 embedding lookup, because spaces are usually used to delimit tokens in word
 embedding generating software (both ``word2vec`` and ``glove`` use spaces to
 separate words on input and on output). When using UDPipe to generate
@@ -458,7 +459,7 @@ plain texts from CoNLL-U format using ``--output=horizontal``, this space
 replacing happens automatically.
 
 When looking up an embedding for a given word, the following possibilities are
-tried in order until a match is found (or an embedding for unknown word is returned):
+tried in the following order until a match is found (or an embedding for unknown word is returned):
 - original word
 - all but the first character lowercased
 - all characters lowercased
@@ -472,20 +473,21 @@ Measuring custom model accuracy can be performed by running:
 ``` udpipe --accuracy [udpipe_options] udpipe_model file ...
 
 The command syntax is similar to the regular UDPipe operation, only
-the input must be always in [CoNLL-U format http://universaldependencies.org/docs/format.html]
+the input must be always in the [CoNLL-U format http://universaldependencies.org/docs/format.html]
 and the ``--input`` and ``--output`` options are ignored.
 
 Three different settings (depending on ``--tokenize(r)``, ``--tag(ger)`` and ``--parse(r)``)
 can be evaluated:
 - ``--tokenize(r) [--tag(ger) [--parse(r)]]``: Tokenizer is used to segment
   and tokenize plain text (obtained by ``SpaceAfter=No`` features and ``# newdoc``
-  and ``# newpar`` comments in the input file). Optionally, tagger is used on the
-  resulting data to obtain Lemma/UPOS/XPOS/Feats columns and eventually parser
+  and ``# newpar`` comments in the input file). Optionally, a tagger is used on the
+  resulting data to obtain Lemma/UPOS/XPOS/Feats columns and eventually a parser
   can be used to parse the results.
 
   The tokenizer is evaluated using F1-score on tokens, multi-word tokens, sentences
-  and words. The words are aligned using [CoNLL 2017 Shared Task in UD Parsing http://universaldependencies.org/conll17]
-  word alignment algorithm.  The tagger and parser are evaluated on aligned
+  and words. The words are aligned using a word-alignment algorithm
+  described in the [CoNLL 2017 Shared Task in UD Parsing http://universaldependencies.org/conll17].
+  The tagger and parser are evaluated on aligned
   words, resulting in F1 scores of Lemmas/UPOS/XPOS/Feats/UAS/LAS.
 
 - ``--tag(ger) [--parse(r)]``: The gold segmented and tokenized input
