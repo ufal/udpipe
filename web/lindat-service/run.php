@@ -213,6 +213,8 @@ Documentation</a> and the models are described in the
     }, complete: function() {
       if (!jQuery('#model').html()) {
         jQuery('#error').text("Cannot obtain the list of models from the service.").show();
+      }else{
+	loadParams({"#model": "model", "#input": "data"}, "#submit");
       }
     }});
   });
