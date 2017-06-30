@@ -1,5 +1,8 @@
 Version 1.1.1-devel
 -------------------
+- On-demand loading of models in REST server, with a pool
+  of least recently used models.
+- Make default model in REST server explicit.
 
 
 Version 1.1.0 [29 Mar 17]
