@@ -1,4 +1,4 @@
-DirectoryIndex demo.php
+DirectoryIndex run.php
 
 RewriteEngine on
 
