@@ -211,10 +211,11 @@ Documentation</a> and the models are described in the
       models = json.models;
       updateModels();
     }, complete: function() {
-      if (!jQuery('#model').html()) {
+      if (jQuery('#model').html()) {
+        fillUsingParams({"#model": "model", "#input": "data"});
+        if (jQuery('#input').val()) doSubmit();
+      } else {
         jQuery('#error').text("Cannot obtain the list of models from the service.").show();
-      }else{
-	loadParams({"#model": "model", "#input": "data"}, "#submit");
       }
     }});
   });

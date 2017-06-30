@@ -21,8 +21,7 @@
     <script src="filesaver.min.js" type="text/javascript"></script>
     <script src="js-treex-view.min.js" type="text/javascript"></script>
 
-    <script src="URLParser.js" type="text/javascript"></script>
-    <script src="DefaultParamsLoader.js" type="text/javascript"></script>
+    <script src="fill-using-params.js" type="text/javascript"></script>
   </head>
 
   <body id="lindat-services">
