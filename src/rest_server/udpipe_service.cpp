@@ -16,13 +16,13 @@ namespace ufal {
 namespace udpipe {
 
 // Init the UDPipe service -- load the models
-bool udpipe_service::init(const vector<model_description>& model_descriptions, unsigned concurrent_limit, bool preload_default, bool check_models_loadable) {
-  if (model_descriptions.empty()) return false;
+bool udpipe_service::init(const service_options& options) {
+  if (options.model_descriptions.empty()) return false;
 
   // Init models
   models.clear();
   rest_models_map.clear();
-  for (auto& model_description : model_descriptions) {
+  for (auto& model_description : options.model_descriptions) {
     unique_ptr<ifstream> is(new ifstream(model_description.file));
     if (!is->is_open()) return false;
 
@@ -31,18 +31,18 @@ bool udpipe_service::init(const vector<model_description>& model_descriptions, u
   }
 
   // Create model loader
-  loader.reset(new model_loader(concurrent_limit));
+  loader.reset(new model_loader(options.concurrent_limit));
   for (auto&& model : models)
     loader->add(&model);
 
   // Check that models are loadable if requested
   for (size_t i = 0; i < models.size(); i++)
-    if (check_models_loadable || (preload_default && i == 0)) {
+    if (options.check_models_loadable || (options.preload_default && i == 0)) {
       if (!models[i].load()) return false;
       models[i].fill_capabilities();
-      if (i || !preload_default) models[i].release();
+      if (i || !options.preload_default) models[i].release();
     }
-  if (preload_default && !loader->load(0)) return false;
+  if (options.preload_default && !loader->load(0)) return false;
 
   // Fill rest_models_map with model name and aliases
   for (auto& model : models) {
@@ -76,7 +76,7 @@ bool udpipe_service::init(const vector<model_description>& model_descriptions, u
     if (model.can_parse) json_models.value("parser");
     json_models.close();
   }
-  json_models.indent().close().indent().key("default_model").indent().value(model_descriptions.front().rest_id).finish(true);
+  json_models.indent().close().indent().key("default_model").indent().value(options.default_model).finish(true);
 
   return true;
 }

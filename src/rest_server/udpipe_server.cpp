@@ -53,7 +53,9 @@ class syslog_streambuf : public streambuf {
 #endif
 
 microrestd::rest_server server;
+
 udpipe_service service;
+udpipe_service::service_options service_options;
 
 int main(int argc, char* argv[]) {
   iostreams_init();
@@ -66,8 +68,8 @@ int main(int argc, char* argv[]) {
                        {"version", options::value::none},
                        {"help", options::value::none}}, argc, argv, options) ||
       options.count("help") ||
-      ((argc < 2 || (argc % 3) != 2) && !options.count("version")))
-    runtime_failure("Usage: " << argv[0] << " [options] port (model_name model_file acknowledgements)*\n"
+      ((argc < 3 || (argc % 3) != 0) && !options.count("version")))
+    runtime_failure("Usage: " << argv[0] << " [options] port default_model (model_name model_file acknowledgements)+\n"
                     "Options: --concurrent_models=maximum concurrently loaded models (default 10)\n"
                     "         --daemon (daemonize after start)\n"
                     "         --no_check_models_loadable (do not check models are loadable)\n"
@@ -83,20 +85,20 @@ int main(int argc, char* argv[]) {
 
   // Process options
   int port = parse_int(argv[1], "port number");
-  int concurrent_models = options.count("concurrent_models") ? parse_int(options["concurrent_models"], "concurrent models") : 10;
-  bool no_check_models_loadable = options.count("no_check_models_loadable");
-  bool no_preload_default = options.count("no_preload_default");
+  service_options.default_model = argv[2];
+  service_options.concurrent_limit = options.count("concurrent_models") ? parse_int(options["concurrent_models"], "concurrent models") : 10;
+  service_options.preload_default = !options.count("no_preload_default");
+  service_options.check_models_loadable = !options.count("no_check_models_loadable");
 
 #ifndef __linux__
   if (options.count("daemon")) runtime_failure("The --daemon option is currently supported on Linux only!");
 #endif
 
   // Initialize the service
-  vector<udpipe_service::model_description> models;
   for (int i = 2; i < argc; i += 3)
-    models.emplace_back(argv[i], argv[i + 1], argv[i + 2]);
+    service_options.model_descriptions.emplace_back(argv[i], argv[i + 1], argv[i + 2]);
 
-  if (!service.init(models, concurrent_models, !no_preload_default, !no_check_models_loadable))
+  if (!service.init(service_options))
     runtime_failure("Cannot load specified models!");
 
   // Open log file

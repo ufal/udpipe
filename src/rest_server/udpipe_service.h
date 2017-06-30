@@ -34,7 +34,15 @@ class udpipe_service : public microrestd::rest_service {
         : rest_id(rest_id), file(file), acknowledgements(acknowledgements) {}
   };
 
-  bool init(const vector<model_description>& model_descriptions, unsigned concurrent_limit, bool preload_default, bool check_models_loadable);
+  struct service_options {
+    vector<model_description> model_descriptions;
+    string default_model;
+    unsigned concurrent_limit;
+    bool preload_default;
+    bool check_models_loadable;
+  };
+
+  bool init(const service_options& options);
 
   virtual bool handle(microrestd::rest_request& req) override;
 
