@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Initialize the service
-  for (int i = 2; i < argc; i += 3)
+  for (int i = 3; i < argc; i += 3)
     service_options.model_descriptions.emplace_back(argv[i], argv[i + 1], argv[i + 2]);
 
   if (!service.init(service_options))
