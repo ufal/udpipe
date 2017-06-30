@@ -206,9 +206,20 @@ Documentation</a> and the models are described in the
         }
 
     var models_list = '';
-    for (var model in models)
-      if (model.indexOf(family) != -1)
-       models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(suffix_match, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
+    var current_language = '';
+    for (var model in models) {
+      var family_index = model.indexOf(family);
+      if (family_index == -1) continue;
+      var treebank = model.substr(0, family_index);
+
+      var new_language = false;
+      if (!current_language || !treebank.startsWith(current_language)) {
+        new_language = true;
+        current_language = treebank;
+      }
+
+      models_list += "<option data-content='<span style=\"display: inline-block; width: " + (new_language ? "2.5" : "3.5") + "em\"><img src=\"flags/" + treebank + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
+    }
     jQuery('#model').html(models_list);
     jQuery('#model').selectpicker('refresh');
   }
