@@ -197,10 +197,18 @@ Documentation</a> and the models are described in the
     var family = jQuery('input[name=family]:checked').val();
     var suffix_match = new RegExp(family + ".*$");
 
+    var czech_model = '';
+    for (var model in models)
+      if (model.indexOf(family) != -1)
+        if (model.startsWith("czech")) {
+          czech_model = model;
+          break;
+        }
+
     var models_list = '';
     for (var model in models)
       if (model.indexOf(family) != -1)
-       models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(suffix_match, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + (models_list ? "" : " selected") + ">" + model + "</option>";
+       models_list += "<option data-content='<span style=\"display: inline-block; width: 2.5em\"><img src=\"flags/" + model.replace(suffix_match, "") + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
     jQuery('#model').html(models_list);
     jQuery('#model').selectpicker('refresh');
   }
