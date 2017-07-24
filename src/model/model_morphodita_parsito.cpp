@@ -78,6 +78,10 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
 }
 
 bool model_morphodita_parsito::parse(sentence& s, const string& options, string& error) const {
+  return parse(s, options, error, nullptr);
+}
+
+bool model_morphodita_parsito::parse(sentence& s, const string& options, string& error, double* cost) const {
   error.clear();
 
   if (!parser) return error.assign("No parser defined for the UDPipe model!"), false;
@@ -105,7 +109,7 @@ bool model_morphodita_parsito::parse(sentence& s, const string& options, string&
     c->tree.nodes.back().misc.assign(s.words[i].misc);
   }
 
-  parser->parse(c->tree, beam_search);
+  parser->parse(c->tree, beam_search, cost);
   for (size_t i = 1; i < s.words.size(); i++)
     s.set_head(i, c->tree.nodes[i].head, c->tree.nodes[i].deprel);
 

@@ -59,6 +59,8 @@ class model_morphodita_parsito : public model {
   };
   mutable threadsafe_stack<parser_cache> parser_caches;
 
+  bool parse(sentence& s, const string& options, string& error, double* cost) const;
+
   void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const;
   const string& normalize_form(string_piece form, string& output) const;
   const string& normalize_lemma(string_piece lemma, string& output) const;
