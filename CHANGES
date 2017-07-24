@@ -2,7 +2,11 @@ Version 1.1.1-devel
 -------------------
 - On-demand loading of models in REST server, with a pool
   of least recently used models.
+- Make GRU tokenizer dimension configurable.
+- Track paragraph boundaries even under normalized_spaces.
+- Add EPE output format.
 - Make default model in REST server explicit.
+- Support pre-filling according to URL params in the webapp.
 
 
 Version 1.1.0 [29 Mar 17]
