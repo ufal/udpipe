@@ -24,22 +24,15 @@ Copyright 2017 by Institute of Formal and Applied Linguistics, Faculty of
 Mathematics and Physics, Charles University, Czech Republic.
 
 
-Online
-======
+Online Web Application and Web Service
+======================================
 
+UDPipe Web Application is available at
+http://lindat.mff.cuni.cz/services/udpipe/ using LINDAT/CLARIN infrastructure
+(http://lindat.cz).
 
-Online Demo
------------
-
-LINDAT/CLARIN (http://lindat.cz) hosts UDPipe Online Demo
-(http://lindat.mff.cuni.cz/services/udpipe/).
-
-
-Web Service
------------
-
-LINDAT/CLARIN (http://lindat.cz) also hosts UDPipe Web Service
-(http://lindat.mff.cuni.cz/services/udpipe/api-reference.php).
+UDPipe REST Web Service is also available, with the API documentation available
+at http://lindat.mff.cuni.cz/services/udpipe/api-reference.php.
 
 
 Release
