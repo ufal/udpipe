@@ -15,12 +15,14 @@ Version 1.1.1-devel
 
 == Download ==[download]
 
-UDPipe releases are available on [GitHub http://github.com/ufal/udpipe], either as
-a pre-compiled binary package, or source code only. The binary package contains Linux,
+UDPipe releases are available on [GitHub http://github.com/ufal/udpipe], both as
+source code and as a pre-compiled binary package. The binary package contains Linux,
 Windows and OS X binaries, Java bindings binary, C# bindings binary, and source
 code of UDPipe and all language bindings). While the binary
 packages do not contain compiled Python or Perl bindings, packages for those
-languages are available in standard package repositories, i.e. on PyPI and CPAN.
+languages are available in standard package repositories,
+i.e. on [PyPI https://pypi.python.org/pypi/ufal.udpipe/]
+and [CPAN https://metacpan.org/pod/Ufal::UDPipe].
 
 - [Latest release http://github.com/ufal/udpipe/releases/latest]
 - [All releases http://github.com/ufal/udpipe/releases], [Changelog https://github.com/ufal/udpipe/blob/master/CHANGES]
@@ -28,12 +30,12 @@ languages are available in standard package repositories, i.e. on PyPI and CPAN.
 
 === Language Models ===[language_models]
 
-To use UDpipe, a language model is needed. The language models are available
+To use UDPipe, a language model is needed. The language models are available
 from [LINDAT/CLARIN http://www.lindat.cz] infrastructure and described further
 in the
 %web% [UDPipe User's Manual udpipe/users-manual].
 %manual% [UDPipe User's Manual #users_manual].
-Currently the following language models are available:
+Currently, the following language models are available:
 
 - CoNLL17 Shared Task Baseline UD 2.0 Models: [udpipe-ud2.0-conll17-170315 http://hdl.handle.net/11234/1-1990] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models])
 - Universal Dependencies 1.2 Models: [udpipe-ud1.2-160523 http://hdl.handle.net/11234/1-1659] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
@@ -49,17 +51,17 @@ for some models the original data used to create the model may impose
 additional licensing conditions.
 
 If you use this tool for scientific work, please give credit to us by
-referencing [Straka et al. 2016 #bibtex_for_referencing] and
+referencing [Straka et al. 2016 #bibtex_for_referencing] and the
 [UDPipe website http://ufal.mff.cuni.cz/udpipe].
 
 == Platforms and Requirements ==[platforms_and_requirements]
 
-UDpipe is available as a standalone tool and as a library for Linux/Windows/OS
+UDPipe is available as a standalone tool and as a library for Linux/Windows/OS
 X. It does not require any additional libraries. As any supervised machine
 learning tool, it needs trained linguistic models.
 
 
-= UDPipe Installation =[instalation]
+= UDPipe Installation =[installation]
 
 %web% [UDPipe Installation on separate page. udpipe/install]
 %manual% %!include: manual_install.t2t
@@ -92,13 +94,13 @@ Authors:
 
 This work has been using language resources developed and/or stored and/or distributed by the LINDAT/CLARIN project of the Ministry of Education of the Czech Republic (project //LM2010013//).
 
-%web% Acknowledgements for individual language models are listed in [UDPipe User's Manual page udpipe/users-manual].
+%web% Acknowledgements for individual language models are listed in the [UDPipe User's Manual page udpipe/users-manual].
 %manual% Acknowledgements for individual language models are listed in [UDPipe User's Manual #users_manual].
 
 
 == Publications ==[publications]
 
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.// In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. [UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing. http://www.lrec-conf.org/proceedings/lrec2016/pdf/873_Paper.pdf] In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
 -
 
 == Bibtex for Referencing ==[bibtex_for_referencing]
