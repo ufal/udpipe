@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <algorithm>
+#include <fstream>
 #include <functional>
 #include <sstream>
 
@@ -545,11 +546,14 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     } else {
       flat_lemmas.insert("greek.expression");
     }
-    const string& dictionary_data = option_str(tagger, "dictionary", model);
+
+    if (!option_str(tagger, "dictionary", model).empty())
+      return error.assign("The tagger 'dictionary' option is no longer supported, use 'dictionary_file' instead!"), false;
+    const string& dictionary_file = option_str(tagger, "dictionary_file", model);
     int max_form_analyses = 0; if (!option_int(tagger, "dictionary_max_form_analyses", max_form_analyses, error, model)) return false;
 
     cerr << "Tagger model " << model+1 << " dictionary options: " << "max_form_analyses=" << max_form_analyses
-         << ", custom dictionary data given=" << (!dictionary_data.empty() ? "true" : "false") << endl;
+         << ", custom dictionary_file=" << (dictionary_file.empty() ? "none" : dictionary_file) << endl;
 
     // Guesser options
     int guesser_suffix_len = 4; if (!option_int(tagger, "guesser_suffix_len", guesser_suffix_len, error, model)) return false;
@@ -558,7 +562,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     int guesser_prefixes_max = provide_lemma ? 4 : 0; if (!option_int(tagger, "guesser_prefixes_max", guesser_prefixes_max, error, model)) return false;
     int guesser_prefix_min_count = 10; if (!option_int(tagger, "guesser_prefix_min_count", guesser_prefix_min_count, error, model)) return false;
     int guesser_enrich_dictionary = run <= 1 ? 6 : 3 + hyperparameter_integer(run, 2, 0, 7);
-    if (!dictionary_data.empty()) guesser_enrich_dictionary = 0;
+    if (!dictionary_file.empty()) guesser_enrich_dictionary = 0;
     if (!option_int(tagger, "guesser_enrich_dictionary", guesser_enrich_dictionary, error, model)) return false;
 
     if (run >= 1) cerr << "Random search run " << run << ", guesser_suffix_rules=" << guesser_suffix_rules
@@ -615,23 +619,22 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
     dictionary_special_tags.punctuation_tag = most_frequent_tag(training, "PUNCT", use_xpostag, use_feats, combined_tag);
     dictionary_special_tags.symbol_tag = most_frequent_tag(training, "SYM", use_xpostag, use_feats, combined_tag);
 
-    // Append given dictionary data if available
-    {
+    // Append given dictionary_file if given
+    if (!dictionary_file.empty()) {
+      ifstream is(dictionary_file);
+      if (!is.is_open()) return error.assign("Cannot open dictionary_file '").append(dictionary_file).append("'!"), false;
+
       vector<string_piece> dictionary_parts;
       word entry;
-      string entry_encoded;
-      for (size_t index = 0, line_len; index < dictionary_data.size(); index += line_len + 1) {
+      string entry_encoded, line;
+      while (getline(is, line)) {
         // Skip empty lines
-        while (index < dictionary_data.size() && (dictionary_data[index] == '\r' || dictionary_data[index] == '\n'))
-          index++;
-        for (line_len = 0; index + line_len < dictionary_data.size() && dictionary_data[index + line_len] != '\r' && dictionary_data[index + line_len] != '\n'; )
-          line_len++;
-        if (!line_len) break;
+        if (line.empty()) continue;
 
-        split(string_piece(dictionary_data.c_str() + index, line_len), '\t', dictionary_parts);
+        split(line, '\t', dictionary_parts);
 
         if (dictionary_parts.size() != 5)
-          return error.assign("Dictionary line '").append(dictionary_data, index, line_len).append("' does not contain 5 tab-separated columns!"), false;
+          return error.assign("Dictionary line '").append(line).append("' does not contain 5 tab-separated columns!"), false;
 
         model_normalize_form(dictionary_parts[0], entry.form);
         entry.lemma.assign(dictionary_parts[1].str, dictionary_parts[1].len == 1 && dictionary_parts[1].str[0] == '_' ? 0 : dictionary_parts[1].len);

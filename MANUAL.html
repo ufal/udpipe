@@ -1127,7 +1127,7 @@ The tagger recognizes the following options:
   (most frequent) form analyses from UD training data that are to be
   kept in the morphological dictionary
 </li>
-<li><code>dictionary</code> (default empty): use a given custom morphological dictionary, where each line contains
+<li><code>dictionary_file</code> (default empty): use a given custom morphological dictionary, where each line contains
   5 tab-separated fields FORM, LEMMA, UPOSTAG, XPOSTAG and FEATS. Note that this dictionary
   data is appended to the dictionary created from the UD training data, not replacing it.
 </li>
@@ -1139,7 +1139,7 @@ The tagger recognizes the following options:
 <li><code>guesser_prefix_min_count</code> (default 10): minimum number of occurrences of form-generating
   prefix to consider using it in the guesser
 </li>
-<li><code>guesser_enrich_dictionary</code> (default 6 if no <code>dictionary</code> is passed, 0 otherwise): number of rules generated for forms present
+<li><code>guesser_enrich_dictionary</code> (default 6 if no <code>dictionary_file</code> is passed, 0 otherwise): number of rules generated for forms present
   in training data (assuming that the analyses from the training data may not be all)
 </li>
 <li><code>iterations</code> (default 20): number of training iterations to perform
