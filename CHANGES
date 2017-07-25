@@ -4,6 +4,8 @@ Version 1.1.1-devel
   of least recently used models.
 - Make GRU tokenizer dimension configurable.
 - Track paragraph boundaries even under normalized_spaces.
+- Support experimental sentence segmentation using
+  jointly both the tokenizer and the parser.
 - Add EPE output format.
 - Make default model in REST server explicit.
 - Support pre-filling according to URL params in the webapp.

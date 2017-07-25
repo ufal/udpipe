@@ -14,6 +14,7 @@
 #include "unilib/unicode.h"
 #include "unilib/utf8.h"
 #include "utils/getpara.h"
+#include "utils/parse_double.h"
 #include "utils/parse_int.h"
 
 namespace ufal {
@@ -36,8 +37,30 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
   bool normalized_spaces = parsed_options.count("normalized_spaces");
   bool token_ranges = parsed_options.count("ranges");
 
-  input_format* result = new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces, token_ranges);
-  return (parsed_options.count("presegmented") && result) ? input_format::new_presegmented_tokenizer(result) : result;
+  unique_ptr<input_format> result(new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces, token_ranges));
+
+  // Presegmented
+  if (parsed_options.count("presegmented") && result)
+    result.reset(input_format::new_presegmented_tokenizer(result.release()));
+
+  // Joint with parsing
+  if (parsed_options.count("joint_with_parsing") && result) {
+    int max_sentence_len = 20;
+    if (parsed_options.count("joint_max_sentence_len") && !parse_int(parsed_options["joint_max_sentence_len"], "joint max sentence len", max_sentence_len, parse_error))
+      return nullptr;
+
+    double change_boundary_logprob = -0.5;
+    if (parsed_options.count("joint_change_boundary_logprob") && !parse_double(parsed_options["joint_change_boundary_logprob"], "joint change boundary logprob", change_boundary_logprob, parse_error))
+      return nullptr;
+
+    double sentence_logprob = -0.5;
+    if (parsed_options.count("joint_sentence_logprob") && !parse_double(parsed_options["joint_sentence_logprob"], "joint sentence logprob", sentence_logprob, parse_error))
+      return nullptr;
+
+    result.reset(new joint_with_parsing_tokenizer(result.release(), *this, max_sentence_len, change_boundary_logprob, sentence_logprob));
+  }
+
+  return result.release();
 }
 
 bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, string& error) const {
@@ -161,6 +184,165 @@ model* model_morphodita_parsito::load(istream& is) {
 }
 
 model_morphodita_parsito::model_morphodita_parsito(unsigned version) : version(version) {}
+
+bool model_morphodita_parsito::joint_with_parsing_tokenizer::read_block(istream& is, string& block) const {
+  block.clear();
+
+  for (string line; getline(is, line); ) {
+    block.append(line);
+    block.push_back('\n');
+  }
+
+  if (is.eof() && !block.empty()) is.clear(istream::eofbit);
+  return bool(is);
+}
+
+void model_morphodita_parsito::joint_with_parsing_tokenizer::reset_document(string_piece id) {
+  new_document = true;
+  document_id.assign(id.str, id.len);
+  sentence_id = 1;
+  set_text("");
+  sentences.clear();
+  sentences_index = 0;
+}
+
+void model_morphodita_parsito::joint_with_parsing_tokenizer::set_text(string_piece text, bool make_copy) {
+  if (make_copy) {
+    text_copy.assign(text.str, text.len);
+    text.str = text_copy.c_str();
+  }
+  this->text = text;
+}
+
+bool model_morphodita_parsito::joint_with_parsing_tokenizer::next_sentence(sentence& s, string& error) {
+  error.clear();
+
+  if (text.len) {
+    sentences.clear();
+    sentences_index = 0;
+
+    tokenizer->set_text(text, false);
+
+    sentence input;
+    vector<sentence> paragraph;
+    while (tokenizer->next_sentence(input, error)) {
+      if (input.get_new_par() && !paragraph.empty()) {
+        if (!parse_paragraph(paragraph, error)) return false;
+        for (auto&& sentence : paragraph)
+          sentences.push_back(sentence);
+        paragraph.clear();
+      }
+      paragraph.push_back(input);
+    }
+    if (!error.empty()) return false;
+
+    if (!paragraph.empty()) {
+      if (!parse_paragraph(paragraph, error)) return false;
+      for (auto&& sentence : paragraph)
+        sentences.push_back(sentence);
+    }
+
+    text.len = 0;
+  }
+
+  if (sentences_index < sentences.size()) {
+    s = sentences[sentences_index++];
+    return true;
+  }
+
+  return false;
+}
+
+bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vector<sentence>& paragraph, string& error) {
+  sentence all_words;
+  vector<bool> sentence_boundary(1, true);
+  vector<bool> token_boundary(1, true);
+
+  for (auto&& s : paragraph) {
+    unsigned offset = all_words.words.size() - 1;
+    for (unsigned i = 1; i < s.words.size(); i++) {
+      all_words.words.push_back(s.words[i]);
+      all_words.words.back().id += offset;
+      sentence_boundary.push_back(i+1 == s.words.size());
+      token_boundary.push_back(true);
+    }
+
+    for (auto&& mwt : s.multiword_tokens) {
+      all_words.multiword_tokens.push_back(mwt);
+      all_words.multiword_tokens.back().id_first += offset;
+      all_words.multiword_tokens.back().id_last += offset;
+      for (int i = all_words.multiword_tokens.back().id_first; i < all_words.multiword_tokens.back().id_last; i++)
+        token_boundary[i] = false;
+    }
+  }
+
+  vector<double> best_logprob(all_words.words.size(), -numeric_limits<double>::infinity()); best_logprob[0] = 0.;
+  vector<unsigned> best_length(all_words.words.size(), 0);
+  sentence s;
+
+  for (unsigned start = 1; start < all_words.words.size(); start++) {
+    if (!token_boundary[start - 1]) continue;
+    s.clear();
+    for (unsigned end = start + 1; end <= all_words.words.size() && (end - start) <= unsigned(max_sentence_len); end++) {
+      s.words.push_back(all_words.words[end - 1]);
+      s.words.back().id -= start - 1;
+      if (!token_boundary[end - 1]) continue;
+
+      for (unsigned i = 1; i < s.words.size(); i++) {
+        s.words[i].head = -1;
+        s.words[i].children.clear();
+      }
+
+      double cost;
+      if (!model.tag(s, DEFAULT, error)) return false;
+      if (!model.parse(s, DEFAULT, error, &cost)) return false;
+      cost += sentence_logprob + change_boundary_logprob * (2 - int(sentence_boundary[start - 1]) - int(sentence_boundary[end - 1]));
+      if (best_logprob[start - 1] + cost > best_logprob[end - 1]) {
+        best_logprob[end - 1] = best_logprob[start - 1] + cost;
+        best_length[end - 1] = end - start;
+      }
+    }
+  }
+
+  vector<unsigned> sentence_lengths;
+  for (unsigned end = all_words.words.size(); end > 1; end -= best_length[end - 1])
+    sentence_lengths.push_back(best_length[end - 1]);
+
+  paragraph.clear();
+
+  sentence_lengths.push_back(1);
+  reverse(sentence_lengths.begin(), sentence_lengths.end());
+  for (unsigned i = 1; i < sentence_lengths.size(); i++) {
+    sentence_lengths[i] += sentence_lengths[i - 1];
+
+    paragraph.emplace_back();
+    while (!all_words.multiword_tokens.empty() && unsigned(all_words.multiword_tokens.front().id_first) < sentence_lengths[i]) {
+      paragraph.back().multiword_tokens.push_back(all_words.multiword_tokens.front());
+      paragraph.back().multiword_tokens.back().id_first -= sentence_lengths[i-1] - 1;
+      paragraph.back().multiword_tokens.back().id_last -= sentence_lengths[i-1] - 1;
+      all_words.multiword_tokens.erase(all_words.multiword_tokens.begin());
+    }
+
+    for (unsigned word = sentence_lengths[i - 1]; word < sentence_lengths[i]; word++) {
+      paragraph.back().words.push_back(all_words.words[word]);
+      paragraph.back().words.back().id -= sentence_lengths[i-1] - 1;
+      paragraph.back().words.back().head = -1;
+      paragraph.back().words.back().children.clear();
+    }
+  }
+
+  if (!paragraph.empty()) {
+    if (new_document) {
+      paragraph.front().set_new_doc(true, document_id);
+      new_document = false;
+    }
+
+    paragraph.front().set_new_par(true);
+  }
+
+  return true;
+}
+
 
 void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const {
   // Lemma
