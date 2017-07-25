@@ -96,14 +96,6 @@ referencing Straka et al. 2016 and the UDPipe website
 (http://ufal.mff.cuni.cz/udpipe).
 
 
-Platforms and Requirements
---------------------------
-
-UDPipe is available as a standalone tool and as a library for Linux/Windows/OS
-X. It does not require any additional libraries. As any supervised machine
-learning tool, it needs trained linguistic models.
-
-
 UDPipe Installation
 ===================
 

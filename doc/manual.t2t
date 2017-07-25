@@ -54,12 +54,6 @@ If you use this tool for scientific work, please give credit to us by
 referencing [Straka et al. 2016 #bibtex_for_referencing] and the
 [UDPipe website http://ufal.mff.cuni.cz/udpipe].
 
-== Platforms and Requirements ==[platforms_and_requirements]
-
-UDPipe is available as a standalone tool and as a library for Linux/Windows/OS
-X. It does not require any additional libraries. As any supervised machine
-learning tool, it needs trained linguistic models.
-
 
 = UDPipe Installation =[installation]
 
