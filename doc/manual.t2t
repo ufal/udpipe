@@ -100,24 +100,23 @@ This work has been using language resources developed and/or stored and/or distr
 
 == Publications ==[publications]
 
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. [UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing. http://www.lrec-conf.org/proceedings/lrec2016/pdf/873_Paper.pdf] In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //[UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf]//. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
+- (Straka et al. 2017) Milan Straka and Jana Straková. //[Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe http://ufal.mff.cuni.cz/~straka/papers/2017-conll_udpipe.pdf]//. In Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies, Vancouver, Canada, August 2017.
 -
 
 == Bibtex for Referencing ==[bibtex_for_referencing]
 
 ```
-@InProceedings{udpipe:2016,
-  author    = {Straka, Milan and Haji\v{c}, Jan and Strakov\'{a}, Jana},
-  title     = {{UDPipe:} Trainable Pipeline for Processing {CoNLL-U} Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing},
-  booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC'16)},
-  year      = {2016},
-  month     = {May},
-  date      = {23-28},
-  location  = {Portorož, Slovenia},
-  publisher = {European Language Resources Association (ELRA)},
-  address   = {Paris, France},
-  isbn      = {978-2-9517408-9-1},
-  url       = {http://www.lrec-conf.org/proceedings/lrec2016/pdf/873_Paper.pdf},
+@InProceedings{udpipe:2017,
+  author    = {Straka, Milan  and  Strakov\'{a}, Jana},
+  title     = {Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe},
+  booktitle = {Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies},
+  month     = {August},
+  year      = {2017},
+  address   = {Vancouver, Canada},
+  publisher = {Association for Computational Linguistics},
+  pages     = {88--99},
+  url       = {http://www.aclweb.org/anthology/K/K17/K17-3009.pdf}
 }
 ```
 

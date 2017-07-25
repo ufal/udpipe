@@ -2,12 +2,10 @@ UDPipe
 ======
 
 
-UDPipe is n trainable pipeline for tokenization, tagging, lemmatization and
+UDPipe is a trainable pipeline for tokenization, tagging, lemmatization and
 dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
-annotated data in [CoNLL-U format http://universaldependencies.org/format.html].
-Trained models are provided for
-nearly all [UD treebanks http://universaldependencies.org].
-UDPipe is available as a binary for Linux/Windows/OS X, as a library for
+annotated data in [CoNLL-U format http://universaldependencies.org/format.html]. Trained models are provided for
+nearly all [UD treebanks http://universaldependencies.org]. UDPipe is available as a binary for Linux/Windows/OS X, as a library for
 C++, Python, Perl, Java, C#, and as a web service.
 
 UDPipe is a free software distributed under the
@@ -17,5 +15,5 @@ are free for non-commercial use and distributed under the
 models the original data used to create the model may impose additional
 licensing conditions. UDPipe is versioned using [Semantic Versioning http://semver.org/].
 
-Copyright 2016-2017 by Institute of Formal and Applied Linguistics, Faculty of
+Copyright 2017 by Institute of Formal and Applied Linguistics, Faculty of
 Mathematics and Physics, Charles University, Czech Republic.
