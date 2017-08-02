@@ -1,8 +1,8 @@
-Version 1.1.1-devel
--------------------
+Version 1.2.0 [01 Aug 17]
+-------------------------
 - On-demand loading of models in REST server, with a pool
   of least recently used models.
-- Make GRU tokenizer dimension configurable.
+- Make GRU tokenizer dimension configurable (16, 24, 64 supported).
 - Track paragraph boundaries even under normalized_spaces.
 - Support experimental sentence segmentation using
   jointly both the tokenizer and the parser.
