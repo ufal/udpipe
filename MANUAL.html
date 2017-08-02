@@ -1401,7 +1401,8 @@ were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-
 <p>
 The Universal Dependencies 2.0 models contain 68 models of 50 languages, each consisting of
 a tokenizer, tagger, lemmatizer and dependency parser, all trained using
-the UD data.
+the UD data. Note that we use custom train-dev split, by moving sentences from the beginning
+of dev data to the end of train data, until tne training data is at least 9 times the dev data.
 </p>
 <p>
 The tokenizer is trained using the <code>SpaceAfter=No</code> features. If the features
@@ -1414,6 +1415,16 @@ The tagger, lemmatizer and parser are trained using gold UD data.
 <p>
 Details about model architecture and training process can be found in the
 (Straka et al. 2017) paper.
+</p>
+
+<a id="universal_dependencies_20_reprodusible_training" name="universal_dependencies_20_reprodusible_training"></a>
+<h4>5.4.3.1. Reproducible Training</h4>
+
+<p>
+In case you want to train the same models, scripts for downloading and
+resplitting UD 2.0 data, precomputed word embedding, raw texts for tokenizers,
+all hyperparameter values and training scripts are available in the
+second archive on the <a href="http://hdl.handle.net/11234/1-2364">model download page</a>.
 </p>
 
 <a id="universal_dependencies_20_models_performance" name="universal_dependencies_20_models_performance"></a>

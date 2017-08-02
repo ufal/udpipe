@@ -845,7 +845,9 @@ Model Description
 
 The Universal Dependencies 2.0 models contain 68 models of 50 languages, each
 consisting of a tokenizer, tagger, lemmatizer and dependency parser, all trained
-using the UD data.
+using the UD data. Note that we use custom train-dev split, by moving sentences
+from the beginning of dev data to the end of train data, until tne training data
+is at least 9 times the dev data.
 
 The tokenizer is trained using the SpaceAfter=No features. If the features are
 not present in the data, they can be filled in using raw text in the language in
@@ -855,6 +857,15 @@ The tagger, lemmatizer and parser are trained using gold UD data.
 
 Details about model architecture and training process can be found in the
 (Straka et al. 2017) paper.
+
+
+Reproducible Training
+---------------------
+
+In case you want to train the same models, scripts for downloading and
+resplitting UD 2.0 data, precomputed word embedding, raw texts for tokenizers,
+all hyperparameter values and training scripts are available in the second
+archive on the model download page (http://hdl.handle.net/11234/1-2364).
 
 
 Model Performance
