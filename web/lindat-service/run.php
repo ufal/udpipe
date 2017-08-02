@@ -256,7 +256,8 @@ Documentation</a> and the models are described in the
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.0-conll17-" onchange="updateModels()" checked />CoNLL17 Baseline UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models">description</a>)</label>
+          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.0-1" onchange="updateModels()" checked />UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_20_models">description</a>)</label>
+          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.0-conll17-" onchange="updateModels()" />CoNLL17 Baseline UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models">description</a>)</label>
           <label class="radio-inline"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">description</a>)</label>
         </div>
       </div>
