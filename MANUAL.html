@@ -95,23 +95,35 @@
       </li>
       </ul>
     </li>
-    <li><a href="#conll17_shared_task_baseline_ud_20_models">5.4. CoNLL17 Shared Task Baseline UD 2.0 Models</a>
+    <li><a href="#universal_dependencies_20_models">5.4. Universal Dependencies 2.0 Models</a>
       <ul>
-      <li><a href="#conll17_shared_task_baseline_ud_20_models_download">5.4.1. Download</a>
+      <li><a href="#universal_dependencies_20_models_download">5.4.1. Download</a>
       </li>
-      <li><a href="#conll17_shared_task_baseline_ud_20_models_ackowledgements">5.4.2. Acknowledgements</a>
+      <li><a href="#universal_dependencies_20_models_acknowledgements">5.4.2. Acknowledgements</a>
+      </li>
+      <li><a href="#universal_dependencies_20_models_description">5.4.3. Model Description</a>
+      </li>
+      <li><a href="#universal_dependencies_20_models_performance">5.4.4. Model Performance</a>
       </li>
       </ul>
     </li>
-    <li><a href="#universal_dependencies_12_models">5.5. Universal Dependencies 1.2 Models</a>
+    <li><a href="#conll17_shared_task_baseline_ud_20_models">5.5. CoNLL17 Shared Task Baseline UD 2.0 Models</a>
       <ul>
-      <li><a href="#universal_dependencies_12_models_download">5.5.1. Download</a>
+      <li><a href="#conll17_shared_task_baseline_ud_20_models_download">5.5.1. Download</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_acknowledgements">5.5.2. Acknowledgements</a>
+      <li><a href="#conll17_shared_task_baseline_ud_20_models_ackowledgements">5.5.2. Acknowledgements</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_description">5.5.3. Model Description</a>
+      </ul>
+    </li>
+    <li><a href="#universal_dependencies_12_models">5.6. Universal Dependencies 1.2 Models</a>
+      <ul>
+      <li><a href="#universal_dependencies_12_models_download">5.6.1. Download</a>
       </li>
-      <li><a href="#universal_dependencies_12_models_performance">5.5.4. Model Performance</a>
+      <li><a href="#universal_dependencies_12_models_acknowledgements">5.6.2. Acknowledgements</a>
+      </li>
+      <li><a href="#universal_dependencies_12_models_description">5.6.3. Model Description</a>
+      </li>
+      <li><a href="#universal_dependencies_12_models_performance">5.6.4. Model Performance</a>
       </li>
       </ul>
     </li>
@@ -395,6 +407,8 @@ Currently, the following language models are available:
 </p>
 
 <ul>
+<li>Universal Dependencies 2.0 Models: <a href="http://hdl.handle.net/11234/1-2364">udpipe-ud2.0-170801</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_20_models">documentation</a>)
+</li>
 <li>CoNLL17 Shared Task Baseline UD 2.0 Models: <a href="http://hdl.handle.net/11234/1-1990">udpipe-ud2.0-conll17-170315</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models">documentation</a>)
 </li>
 <li>Universal Dependencies 1.2 Models: <a href="http://hdl.handle.net/11234/1-1659">udpipe-ud1.2-160523</a> (<a href="http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models">documentation</a>)
@@ -1327,8 +1341,2761 @@ can be evaluated:
 </li>
 </ul>
 
+<a id="universal_dependencies_20_models" name="universal_dependencies_20_models"></a>
+<h2>5.4. Universal Dependencies 2.0 Models</h2>
+
+<p>
+Universal Dependencies 2.0 Models are distributed under the
+<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a> licence.
+The models are based solely on
+<a href="http://hdl.handle.net/11234/1-1983">Universal Dependencies 2.0</a> treebanks.
+The models work in UDPipe version 1.2 and later.
+</p>
+<p>
+Universal Dependencies 2.0 Models are versioned according to the date released
+in the format <code>YYMMDD</code>, where <code>YY</code>, <code>MM</code> and <code>DD</code> are two-digit
+representation of year, month and day, respectively. The latest version is 170801.
+</p>
+
+<a id="universal_dependencies_20_models_download" name="universal_dependencies_20_models_download"></a>
+<h3>5.4.1. Download</h3>
+
+<p>
+The latest version 170801 of the Universal Dependencies 2.0 models can be downloaded
+from <a href="http://hdl.handle.net/11234/1-2364">LINDAT/CLARIN repository</a>.
+</p>
+
+<a id="universal_dependencies_20_models_acknowledgements" name="universal_dependencies_20_models_acknowledgements"></a>
+<h3>5.4.2. Acknowledgements</h3>
+
+<p>
+This work has been partially supported and has been using language resources
+and tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project <i>LM2015071</i>).
+The wark was also partially supported by OP VVV projects
+CZ.02.1.01/0.0/0.0/16\_013/0001781 and CZ.02.2.69/0.0/0.0/16\_018/0002373, and
+by SVV project number 260 453.
+</p>
+<p>
+The models were trained on <a href="http://hdl.handle.net/11234/1-1983">Universal Dependencies 2.0</a> treebanks.
+</p>
+<p>
+For the UD treebanks which do not contain original plain text version,
+raw text is used to train the tokenizer instead. The plain texts
+were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-9">W2C &ndash; Web to Corpus</a>.
+</p>
+
+<a id="universal_dependencies_20_models_publications" name="universal_dependencies_20_models_publications"></a>
+<h4>5.4.2.1. Publications</h4>
+
+<ul>
+<li>(Straka et al. 2017) Milan Straka and Jana Straková. <i><a href="http://ufal.mff.cuni.cz/~straka/papers/2017-conll_udpipe.pdf">Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe</a></i>. In Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies, Vancouver, Canada, August 2017.
+</li>
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i><a href="http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf">UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing</a></i>. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
+</li>
+</ul>
+
+<a id="universal_dependencies_20_models_description" name="universal_dependencies_20_models_description"></a>
+<h3>5.4.3. Model Description</h3>
+
+<p>
+The Universal Dependencies 2.0 models contain 68 models of 50 languages, each consisting of
+a tokenizer, tagger, lemmatizer and dependency parser, all trained using
+the UD data.
+</p>
+<p>
+The tokenizer is trained using the <code>SpaceAfter=No</code> features. If the features
+are not present in the data, they can be filled in using raw text in the
+language in question.
+</p>
+<p>
+The tagger, lemmatizer and parser are trained using gold UD data.
+</p>
+<p>
+Details about model architecture and training process can be found in the
+(Straka et al. 2017) paper.
+</p>
+
+<a id="universal_dependencies_20_models_performance" name="universal_dependencies_20_models_performance"></a>
+<h3>5.4.4. Model Performance</h3>
+
+<p>
+We present the tagger, lemmatizer and parser performance, measured
+on the testing portion of the data, evaluated in three different settings:
+using raw text only, using gold tokenization only, and using gold tokenization
+plus gold morphology (UPOS, XPOS, FEATS and Lemma).
+</p>
+
+<table border="1">
+<tr>
+<th>Treebank</th>
+<th>Mode</th>
+<th>Words</th>
+<th>Sents</th>
+<th>UPOS</th>
+<th>XPOS</th>
+<th>Feats</th>
+<th>AllTags</th>
+<th>Lemma</th>
+<th>UAS</th>
+<th>LAS</th>
+</tr>
+<tr>
+<td>Ancient Greek</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">98.7%</td>
+<td>82.4%</td>
+<td>72.3%</td>
+<td align="right">85.8%</td>
+<td align="right">72.3%</td>
+<td align="right">82.6%</td>
+<td>64.4%</td>
+<td>57.8%</td>
+</tr>
+<tr>
+<td>Ancient Greek</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>82.4%</td>
+<td>72.4%</td>
+<td align="right">85.8%</td>
+<td align="right">72.3%</td>
+<td align="right">82.7%</td>
+<td>64.6%</td>
+<td>57.9%</td>
+</tr>
+<tr>
+<td>Ancient Greek</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>69.2%</td>
+<td>64.4%</td>
+</tr>
+<tr>
+<td>Ancient Greek-PROIEL</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">47.2%</td>
+<td>95.8%</td>
+<td>96.0%</td>
+<td align="right">88.6%</td>
+<td align="right">87.2%</td>
+<td align="right">92.6%</td>
+<td>71.8%</td>
+<td>67.1%</td>
+</tr>
+<tr>
+<td>Ancient Greek-PROIEL</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.8%</td>
+<td>96.1%</td>
+<td align="right">88.7%</td>
+<td align="right">87.2%</td>
+<td align="right">92.8%</td>
+<td>77.2%</td>
+<td>72.3%</td>
+</tr>
+<tr>
+<td>Ancient Greek-PROIEL</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>79.7%</td>
+<td>76.1%</td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td>Raw text</td>
+<td align="right">93.8%</td>
+<td align="right">83.1%</td>
+<td>88.4%</td>
+<td>83.4%</td>
+<td align="right">83.5%</td>
+<td align="right">82.3%</td>
+<td align="right">87.5%</td>
+<td>71.7%</td>
+<td>65.8%</td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.4%</td>
+<td>89.5%</td>
+<td align="right">89.6%</td>
+<td align="right">88.3%</td>
+<td align="right">92.6%</td>
+<td>81.3%</td>
+<td>74.3%</td>
+</tr>
+<tr>
+<td>Arabic</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>82.9%</td>
+<td>77.9%</td>
+</tr>
+<tr>
+<td>Basque</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">99.5%</td>
+<td>93.2%</td>
+<td align="center">-</td>
+<td align="right">87.6%</td>
+<td align="center">-</td>
+<td align="right">93.8%</td>
+<td>75.8%</td>
+<td>70.7%</td>
+</tr>
+<tr>
+<td>Basque</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>93.3%</td>
+<td align="center">-</td>
+<td align="right">87.7%</td>
+<td align="center">-</td>
+<td align="right">93.9%</td>
+<td>75.9%</td>
+<td>70.8%</td>
+</tr>
+<tr>
+<td>Basque</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>82.3%</td>
+<td>78.4%</td>
+</tr>
+<tr>
+<td>Belarusian</td>
+<td>Raw text</td>
+<td align="right">99.4%</td>
+<td align="right">76.8%</td>
+<td>88.2%</td>
+<td>85.6%</td>
+<td align="right">71.7%</td>
+<td align="right">68.6%</td>
+<td align="right">81.3%</td>
+<td>68.0%</td>
+<td>60.6%</td>
+</tr>
+<tr>
+<td>Belarusian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.7%</td>
+<td>85.7%</td>
+<td align="right">72.4%</td>
+<td align="right">69.2%</td>
+<td align="right">81.5%</td>
+<td>69.4%</td>
+<td>61.9%</td>
+</tr>
+<tr>
+<td>Belarusian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>76.8%</td>
+<td>74.0%</td>
+</tr>
+<tr>
+<td>Bulgarian</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">93.9%</td>
+<td>97.6%</td>
+<td>94.6%</td>
+<td align="right">95.6%</td>
+<td align="right">94.0%</td>
+<td align="right">94.6%</td>
+<td>88.8%</td>
+<td>84.8%</td>
+</tr>
+<tr>
+<td>Bulgarian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.7%</td>
+<td>94.7%</td>
+<td align="right">95.6%</td>
+<td align="right">94.1%</td>
+<td align="right">94.7%</td>
+<td>89.5%</td>
+<td>85.5%</td>
+</tr>
+<tr>
+<td>Bulgarian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.6%</td>
+<td>89.1%</td>
+</tr>
+<tr>
+<td>Catalan</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">99.2%</td>
+<td>98.0%</td>
+<td>98.0%</td>
+<td align="right">97.1%</td>
+<td align="right">96.5%</td>
+<td align="right">97.9%</td>
+<td>88.8%</td>
+<td>85.7%</td>
+</tr>
+<tr>
+<td>Catalan</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>98.0%</td>
+<td>98.0%</td>
+<td align="right">97.2%</td>
+<td align="right">96.5%</td>
+<td align="right">97.9%</td>
+<td>88.8%</td>
+<td>85.8%</td>
+</tr>
+<tr>
+<td>Catalan</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.1%</td>
+<td>88.7%</td>
+</tr>
+<tr>
+<td>Chinese</td>
+<td>Raw text</td>
+<td align="right">90.2%</td>
+<td align="right">98.8%</td>
+<td>84.0%</td>
+<td>83.8%</td>
+<td align="right">89.0%</td>
+<td align="right">82.7%</td>
+<td align="right">90.2%</td>
+<td>62.9%</td>
+<td>58.7%</td>
+</tr>
+<tr>
+<td>Chinese</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.2%</td>
+<td>92.0%</td>
+<td align="right">98.7%</td>
+<td align="right">90.8%</td>
+<td>100.0%</td>
+<td>75.6%</td>
+<td>70.1%</td>
+</tr>
+<tr>
+<td>Chinese</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>84.1%</td>
+<td>81.4%</td>
+</tr>
+<tr>
+<td>Coptic</td>
+<td>Raw text</td>
+<td align="right">65.8%</td>
+<td align="right">35.7%</td>
+<td>62.6%</td>
+<td>62.1%</td>
+<td align="right">65.7%</td>
+<td align="right">62.1%</td>
+<td align="right">64.6%</td>
+<td>41.1%</td>
+<td>39.3%</td>
+</tr>
+<tr>
+<td>Coptic</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.1%</td>
+<td>94.3%</td>
+<td align="right">99.7%</td>
+<td align="right">94.2%</td>
+<td align="right">96.2%</td>
+<td>83.2%</td>
+<td>79.2%</td>
+</tr>
+<tr>
+<td>Coptic</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.1%</td>
+<td>84.9%</td>
+</tr>
+<tr>
+<td>Croatian</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">97.0%</td>
+<td>95.9%</td>
+<td align="center">-</td>
+<td align="right">84.3%</td>
+<td align="center">-</td>
+<td align="right">94.4%</td>
+<td>83.6%</td>
+<td>77.9%</td>
+</tr>
+<tr>
+<td>Croatian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.0%</td>
+<td align="center">-</td>
+<td align="right">84.4%</td>
+<td align="center">-</td>
+<td align="right">94.4%</td>
+<td>83.9%</td>
+<td>78.1%</td>
+</tr>
+<tr>
+<td>Croatian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.1%</td>
+<td>83.2%</td>
+</tr>
+<tr>
+<td>Czech</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">91.6%</td>
+<td>98.3%</td>
+<td>92.8%</td>
+<td align="right">92.1%</td>
+<td align="right">91.7%</td>
+<td align="right">97.8%</td>
+<td>86.8%</td>
+<td>83.2%</td>
+</tr>
+<tr>
+<td>Czech</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>98.4%</td>
+<td>92.9%</td>
+<td align="right">92.2%</td>
+<td align="right">91.9%</td>
+<td align="right">97.9%</td>
+<td>87.7%</td>
+<td>84.1%</td>
+</tr>
+<tr>
+<td>Czech</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>90.2%</td>
+<td>87.5%</td>
+</tr>
+<tr>
+<td>Czech-CAC</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">99.8%</td>
+<td>98.1%</td>
+<td>90.6%</td>
+<td align="right">89.4%</td>
+<td align="right">89.1%</td>
+<td align="right">97.0%</td>
+<td>86.9%</td>
+<td>82.7%</td>
+</tr>
+<tr>
+<td>Czech-CAC</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>98.1%</td>
+<td>90.7%</td>
+<td align="right">89.5%</td>
+<td align="right">89.1%</td>
+<td align="right">97.1%</td>
+<td>87.0%</td>
+<td>82.8%</td>
+</tr>
+<tr>
+<td>Czech-CAC</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>89.7%</td>
+<td>86.6%</td>
+</tr>
+<tr>
+<td>Czech-CLTT</td>
+<td>Raw text</td>
+<td align="right">99.5%</td>
+<td align="right">92.3%</td>
+<td>96.5%</td>
+<td>87.5%</td>
+<td align="right">87.8%</td>
+<td align="right">87.3%</td>
+<td align="right">96.8%</td>
+<td>80.2%</td>
+<td>76.6%</td>
+</tr>
+<tr>
+<td>Czech-CLTT</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.0%</td>
+<td>87.9%</td>
+<td align="right">88.3%</td>
+<td align="right">87.7%</td>
+<td align="right">97.2%</td>
+<td>81.0%</td>
+<td>77.6%</td>
+</tr>
+<tr>
+<td>Czech-CLTT</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>83.8%</td>
+<td>80.8%</td>
+</tr>
+<tr>
+<td>Danish</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">77.9%</td>
+<td>95.2%</td>
+<td align="center">-</td>
+<td align="right">94.2%</td>
+<td align="center">-</td>
+<td align="right">94.9%</td>
+<td>78.4%</td>
+<td>74.7%</td>
+</tr>
+<tr>
+<td>Danish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.5%</td>
+<td align="center">-</td>
+<td align="right">94.5%</td>
+<td align="center">-</td>
+<td align="right">95.0%</td>
+<td>80.4%</td>
+<td>76.6%</td>
+</tr>
+<tr>
+<td>Danish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>85.6%</td>
+<td>82.7%</td>
+</tr>
+<tr>
+<td>Dutch</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">77.6%</td>
+<td>91.4%</td>
+<td>88.1%</td>
+<td align="right">89.3%</td>
+<td align="right">87.0%</td>
+<td align="right">89.9%</td>
+<td>75.4%</td>
+<td>69.6%</td>
+</tr>
+<tr>
+<td>Dutch</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.8%</td>
+<td>88.8%</td>
+<td align="right">89.9%</td>
+<td align="right">87.7%</td>
+<td align="right">90.1%</td>
+<td>77.0%</td>
+<td>71.2%</td>
+</tr>
+<tr>
+<td>Dutch</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>82.9%</td>
+<td>79.4%</td>
+</tr>
+<tr>
+<td>Dutch-LassySmall</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">80.4%</td>
+<td>97.6%</td>
+<td align="center">-</td>
+<td align="right">97.2%</td>
+<td align="center">-</td>
+<td align="right">98.1%</td>
+<td>84.4%</td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td>Dutch-LassySmall</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.7%</td>
+<td align="center">-</td>
+<td align="right">97.4%</td>
+<td align="center">-</td>
+<td align="right">98.2%</td>
+<td>87.5%</td>
+<td>85.0%</td>
+</tr>
+<tr>
+<td>Dutch-LassySmall</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>89.7%</td>
+<td>87.4%</td>
+</tr>
+<tr>
+<td>English</td>
+<td>Raw text</td>
+<td align="right">99.0%</td>
+<td align="right">76.6%</td>
+<td>93.5%</td>
+<td>92.9%</td>
+<td align="right">94.4%</td>
+<td align="right">91.5%</td>
+<td align="right">96.0%</td>
+<td>80.2%</td>
+<td>77.2%</td>
+</tr>
+<tr>
+<td>English</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.5%</td>
+<td>93.9%</td>
+<td align="right">95.4%</td>
+<td align="right">92.5%</td>
+<td align="right">96.9%</td>
+<td>84.3%</td>
+<td>81.2%</td>
+</tr>
+<tr>
+<td>English</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.8%</td>
+<td>86.0%</td>
+</tr>
+<tr>
+<td>English-LinES</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">86.2%</td>
+<td>95.0%</td>
+<td>92.7%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>78.6%</td>
+<td>74.4%</td>
+</tr>
+<tr>
+<td>English-LinES</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.1%</td>
+<td>92.8%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>79.5%</td>
+<td>75.3%</td>
+</tr>
+<tr>
+<td>English-LinES</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>84.1%</td>
+<td>81.1%</td>
+</tr>
+<tr>
+<td>English-ParTUT</td>
+<td>Raw text</td>
+<td align="right">99.6%</td>
+<td align="right">97.5%</td>
+<td>94.2%</td>
+<td>94.0%</td>
+<td align="right">93.3%</td>
+<td align="right">92.0%</td>
+<td align="right">96.9%</td>
+<td>81.6%</td>
+<td>77.9%</td>
+</tr>
+<tr>
+<td>English-ParTUT</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.6%</td>
+<td>94.4%</td>
+<td align="right">93.6%</td>
+<td align="right">92.3%</td>
+<td align="right">97.3%</td>
+<td>82.1%</td>
+<td>78.4%</td>
+</tr>
+<tr>
+<td>English-ParTUT</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>86.4%</td>
+<td>84.5%</td>
+</tr>
+<tr>
+<td>Estonian</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">94.2%</td>
+<td>91.2%</td>
+<td>93.2%</td>
+<td align="right">85.0%</td>
+<td align="right">83.2%</td>
+<td align="right">84.5%</td>
+<td>72.4%</td>
+<td>65.6%</td>
+</tr>
+<tr>
+<td>Estonian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.3%</td>
+<td>93.2%</td>
+<td align="right">85.0%</td>
+<td align="right">83.3%</td>
+<td align="right">84.5%</td>
+<td>72.8%</td>
+<td>66.0%</td>
+</tr>
+<tr>
+<td>Estonian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>83.1%</td>
+<td>79.6%</td>
+</tr>
+<tr>
+<td>Finnish</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">86.7%</td>
+<td>94.5%</td>
+<td>95.7%</td>
+<td align="right">91.5%</td>
+<td align="right">90.3%</td>
+<td align="right">86.5%</td>
+<td>80.5%</td>
+<td>76.9%</td>
+</tr>
+<tr>
+<td>Finnish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.9%</td>
+<td>96.0%</td>
+<td align="right">91.8%</td>
+<td align="right">90.7%</td>
+<td align="right">86.8%</td>
+<td>82.0%</td>
+<td>78.4%</td>
+</tr>
+<tr>
+<td>Finnish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>86.9%</td>
+<td>84.7%</td>
+</tr>
+<tr>
+<td>Finnish-FTB</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">86.4%</td>
+<td>92.0%</td>
+<td>91.0%</td>
+<td align="right">92.5%</td>
+<td align="right">89.2%</td>
+<td align="right">88.9%</td>
+<td>80.1%</td>
+<td>75.7%</td>
+</tr>
+<tr>
+<td>Finnish-FTB</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.2%</td>
+<td>91.3%</td>
+<td align="right">92.7%</td>
+<td align="right">89.5%</td>
+<td align="right">88.9%</td>
+<td>81.7%</td>
+<td>77.3%</td>
+</tr>
+<tr>
+<td>Finnish-FTB</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.8%</td>
+<td>86.5%</td>
+</tr>
+<tr>
+<td>French</td>
+<td>Raw text</td>
+<td align="right">98.9%</td>
+<td align="right">94.6%</td>
+<td>95.4%</td>
+<td align="center">-</td>
+<td align="right">95.5%</td>
+<td align="center">-</td>
+<td align="right">96.6%</td>
+<td>84.2%</td>
+<td>80.7%</td>
+</tr>
+<tr>
+<td>French</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.5%</td>
+<td align="center">-</td>
+<td align="right">96.5%</td>
+<td align="center">-</td>
+<td align="right">97.6%</td>
+<td>85.4%</td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td>French</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.4%</td>
+<td>86.0%</td>
+</tr>
+<tr>
+<td>French-ParTUT</td>
+<td>Raw text</td>
+<td align="right">99.0%</td>
+<td align="right">97.8%</td>
+<td>94.5%</td>
+<td>94.2%</td>
+<td align="right">91.9%</td>
+<td align="right">90.8%</td>
+<td align="right">94.3%</td>
+<td>82.9%</td>
+<td>78.7%</td>
+</tr>
+<tr>
+<td>French-ParTUT</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.6%</td>
+<td>95.3%</td>
+<td align="right">92.7%</td>
+<td align="right">91.6%</td>
+<td align="right">95.2%</td>
+<td>84.1%</td>
+<td>80.2%</td>
+</tr>
+<tr>
+<td>French-ParTUT</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.1%</td>
+<td>85.3%</td>
+</tr>
+<tr>
+<td>French-Sequoia</td>
+<td>Raw text</td>
+<td align="right">99.1%</td>
+<td align="right">84.0%</td>
+<td>95.9%</td>
+<td align="center">-</td>
+<td align="right">95.1%</td>
+<td align="center">-</td>
+<td align="right">96.8%</td>
+<td>83.2%</td>
+<td>80.6%</td>
+</tr>
+<tr>
+<td>French-Sequoia</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.8%</td>
+<td align="center">-</td>
+<td align="right">96.0%</td>
+<td align="center">-</td>
+<td align="right">97.7%</td>
+<td>85.1%</td>
+<td>82.7%</td>
+</tr>
+<tr>
+<td>French-Sequoia</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.7%</td>
+<td>87.4%</td>
+</tr>
+<tr>
+<td>Galician</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">95.8%</td>
+<td>97.2%</td>
+<td>96.7%</td>
+<td align="right">99.7%</td>
+<td align="right">96.4%</td>
+<td align="right">97.1%</td>
+<td>81.0%</td>
+<td>77.8%</td>
+</tr>
+<tr>
+<td>Galician</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.2%</td>
+<td>96.8%</td>
+<td align="right">99.8%</td>
+<td align="right">96.4%</td>
+<td align="right">97.1%</td>
+<td>81.2%</td>
+<td>77.9%</td>
+</tr>
+<tr>
+<td>Galician</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>83.1%</td>
+<td>80.5%</td>
+</tr>
+<tr>
+<td>Galician-TreeGal</td>
+<td>Raw text</td>
+<td align="right">98.7%</td>
+<td align="right">86.7%</td>
+<td>91.1%</td>
+<td>87.8%</td>
+<td align="right">89.9%</td>
+<td align="right">87.0%</td>
+<td align="right">92.6%</td>
+<td>71.5%</td>
+<td>66.3%</td>
+</tr>
+<tr>
+<td>Galician-TreeGal</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.4%</td>
+<td>88.8%</td>
+<td align="right">91.0%</td>
+<td align="right">88.0%</td>
+<td align="right">93.7%</td>
+<td>74.4%</td>
+<td>68.7%</td>
+</tr>
+<tr>
+<td>Galician-TreeGal</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>81.5%</td>
+<td>77.1%</td>
+</tr>
+<tr>
+<td>German</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">79.3%</td>
+<td>90.7%</td>
+<td>94.7%</td>
+<td align="right">80.5%</td>
+<td align="right">76.3%</td>
+<td align="right">95.4%</td>
+<td>74.0%</td>
+<td>68.6%</td>
+</tr>
+<tr>
+<td>German</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.2%</td>
+<td>95.0%</td>
+<td align="right">80.9%</td>
+<td align="right">76.7%</td>
+<td align="right">95.6%</td>
+<td>76.5%</td>
+<td>70.7%</td>
+</tr>
+<tr>
+<td>German</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>84.7%</td>
+<td>82.2%</td>
+</tr>
+<tr>
+<td>Gothic</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">29.5%</td>
+<td>94.2%</td>
+<td>94.8%</td>
+<td align="right">87.6%</td>
+<td align="right">85.6%</td>
+<td align="right">92.9%</td>
+<td>69.7%</td>
+<td>63.5%</td>
+</tr>
+<tr>
+<td>Gothic</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.8%</td>
+<td>95.3%</td>
+<td align="right">88.0%</td>
+<td align="right">86.5%</td>
+<td align="right">92.9%</td>
+<td>78.8%</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>Gothic</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>82.2%</td>
+<td>78.3%</td>
+</tr>
+<tr>
+<td>Greek</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">88.2%</td>
+<td>95.8%</td>
+<td>95.8%</td>
+<td align="right">90.3%</td>
+<td align="right">89.1%</td>
+<td align="right">94.5%</td>
+<td>84.2%</td>
+<td>80.4%</td>
+</tr>
+<tr>
+<td>Greek</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.0%</td>
+<td>96.0%</td>
+<td align="right">90.5%</td>
+<td align="right">89.3%</td>
+<td align="right">94.6%</td>
+<td>85.0%</td>
+<td>81.1%</td>
+</tr>
+<tr>
+<td>Greek</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.9%</td>
+<td>85.9%</td>
+</tr>
+<tr>
+<td>Hebrew</td>
+<td>Raw text</td>
+<td align="right">85.2%</td>
+<td>100.0%</td>
+<td>80.9%</td>
+<td>80.9%</td>
+<td align="right">77.6%</td>
+<td align="right">76.8%</td>
+<td align="right">79.6%</td>
+<td>62.2%</td>
+<td>57.9%</td>
+</tr>
+<tr>
+<td>Hebrew</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.1%</td>
+<td>95.1%</td>
+<td align="right">91.3%</td>
+<td align="right">90.5%</td>
+<td align="right">93.2%</td>
+<td>84.5%</td>
+<td>78.9%</td>
+</tr>
+<tr>
+<td>Hebrew</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.8%</td>
+<td>84.3%</td>
+</tr>
+<tr>
+<td>Hindi</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">99.1%</td>
+<td>95.8%</td>
+<td>94.9%</td>
+<td align="right">90.3%</td>
+<td align="right">87.7%</td>
+<td align="right">98.0%</td>
+<td>91.3%</td>
+<td>87.3%</td>
+</tr>
+<tr>
+<td>Hindi</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.8%</td>
+<td>94.9%</td>
+<td align="right">90.3%</td>
+<td align="right">87.7%</td>
+<td align="right">98.0%</td>
+<td>91.4%</td>
+<td>87.3%</td>
+</tr>
+<tr>
+<td>Hindi</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>93.9%</td>
+<td>91.0%</td>
+</tr>
+<tr>
+<td>Hungarian</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">96.2%</td>
+<td>91.6%</td>
+<td align="center">-</td>
+<td align="right">70.5%</td>
+<td align="center">-</td>
+<td align="right">89.3%</td>
+<td>74.1%</td>
+<td>68.1%</td>
+</tr>
+<tr>
+<td>Hungarian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.8%</td>
+<td align="center">-</td>
+<td align="right">70.6%</td>
+<td align="center">-</td>
+<td align="right">89.5%</td>
+<td>74.5%</td>
+<td>68.5%</td>
+</tr>
+<tr>
+<td>Hungarian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>81.2%</td>
+<td>78.5%</td>
+</tr>
+<tr>
+<td>Indonesian</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">92.0%</td>
+<td>93.5%</td>
+<td align="center">-</td>
+<td align="right">99.5%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>80.6%</td>
+<td>74.3%</td>
+</tr>
+<tr>
+<td>Indonesian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>93.5%</td>
+<td align="center">-</td>
+<td align="right">99.6%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>80.8%</td>
+<td>74.5%</td>
+</tr>
+<tr>
+<td>Indonesian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>83.1%</td>
+<td>79.1%</td>
+</tr>
+<tr>
+<td>Irish</td>
+<td>Raw text</td>
+<td align="right">99.4%</td>
+<td align="right">94.3%</td>
+<td>88.0%</td>
+<td>86.9%</td>
+<td align="right">75.1%</td>
+<td align="right">72.7%</td>
+<td align="right">85.5%</td>
+<td>72.5%</td>
+<td>62.4%</td>
+</tr>
+<tr>
+<td>Irish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.5%</td>
+<td>87.4%</td>
+<td align="right">75.5%</td>
+<td align="right">73.1%</td>
+<td align="right">86.0%</td>
+<td>73.3%</td>
+<td>63.1%</td>
+</tr>
+<tr>
+<td>Irish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>78.1%</td>
+<td>71.4%</td>
+</tr>
+<tr>
+<td>Italian</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">97.1%</td>
+<td>97.2%</td>
+<td>97.0%</td>
+<td align="right">97.0%</td>
+<td align="right">96.1%</td>
+<td align="right">97.3%</td>
+<td>88.8%</td>
+<td>86.1%</td>
+</tr>
+<tr>
+<td>Italian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.4%</td>
+<td>97.2%</td>
+<td align="right">97.2%</td>
+<td align="right">96.3%</td>
+<td align="right">97.5%</td>
+<td>89.3%</td>
+<td>86.6%</td>
+</tr>
+<tr>
+<td>Italian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.3%</td>
+<td>89.7%</td>
+</tr>
+<tr>
+<td>Japanese</td>
+<td>Raw text</td>
+<td align="right">91.9%</td>
+<td align="right">95.1%</td>
+<td>89.1%</td>
+<td align="center">-</td>
+<td align="right">91.8%</td>
+<td align="center">-</td>
+<td align="right">91.1%</td>
+<td>78.0%</td>
+<td>76.6%</td>
+</tr>
+<tr>
+<td>Japanese</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.6%</td>
+<td align="center">-</td>
+<td>100.0%</td>
+<td align="center">-</td>
+<td align="right">99.0%</td>
+<td>93.4%</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Japanese</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.6%</td>
+<td>95.0%</td>
+</tr>
+<tr>
+<td>Kazakh</td>
+<td>Raw text</td>
+<td align="right">94.0%</td>
+<td align="right">84.9%</td>
+<td>52.0%</td>
+<td>52.1%</td>
+<td align="right">47.2%</td>
+<td align="right">40.0%</td>
+<td align="right">59.2%</td>
+<td>40.2%</td>
+<td>23.9%</td>
+</tr>
+<tr>
+<td>Kazakh</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>55.4%</td>
+<td>55.4%</td>
+<td align="right">50.1%</td>
+<td align="right">42.2%</td>
+<td align="right">63.1%</td>
+<td>45.2%</td>
+<td>27.0%</td>
+</tr>
+<tr>
+<td>Kazakh</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>60.5%</td>
+<td>42.5%</td>
+</tr>
+<tr>
+<td>Korean</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">92.7%</td>
+<td>94.4%</td>
+<td>89.7%</td>
+<td align="right">99.3%</td>
+<td align="right">89.7%</td>
+<td align="right">99.4%</td>
+<td>67.4%</td>
+<td>60.5%</td>
+</tr>
+<tr>
+<td>Korean</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.7%</td>
+<td>90.0%</td>
+<td align="right">99.6%</td>
+<td align="right">90.0%</td>
+<td align="right">99.7%</td>
+<td>68.4%</td>
+<td>61.5%</td>
+</tr>
+<tr>
+<td>Korean</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>71.7%</td>
+<td>65.8%</td>
+</tr>
+<tr>
+<td>Latin</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">98.0%</td>
+<td>83.4%</td>
+<td>67.6%</td>
+<td align="right">72.5%</td>
+<td align="right">67.6%</td>
+<td align="right">51.2%</td>
+<td>56.5%</td>
+<td>46.0%</td>
+</tr>
+<tr>
+<td>Latin</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>83.4%</td>
+<td>67.6%</td>
+<td align="right">72.5%</td>
+<td align="right">67.6%</td>
+<td align="right">51.2%</td>
+<td>56.6%</td>
+<td>46.1%</td>
+</tr>
+<tr>
+<td>Latin</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>67.8%</td>
+<td>61.5%</td>
+</tr>
+<tr>
+<td>Latin-ITTB</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">82.5%</td>
+<td>97.2%</td>
+<td>92.7%</td>
+<td align="right">93.5%</td>
+<td align="right">91.3%</td>
+<td align="right">97.8%</td>
+<td>79.7%</td>
+<td>76.0%</td>
+</tr>
+<tr>
+<td>Latin-ITTB</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.3%</td>
+<td>92.8%</td>
+<td align="right">93.6%</td>
+<td align="right">91.4%</td>
+<td align="right">97.9%</td>
+<td>81.8%</td>
+<td>78.1%</td>
+</tr>
+<tr>
+<td>Latin-ITTB</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.6%</td>
+<td>85.2%</td>
+</tr>
+<tr>
+<td>Latin-PROIEL</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">31.0%</td>
+<td>94.9%</td>
+<td>95.0%</td>
+<td align="right">87.7%</td>
+<td align="right">86.7%</td>
+<td align="right">94.8%</td>
+<td>66.1%</td>
+<td>60.7%</td>
+</tr>
+<tr>
+<td>Latin-PROIEL</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.2%</td>
+<td>95.2%</td>
+<td align="right">88.4%</td>
+<td align="right">87.4%</td>
+<td align="right">95.0%</td>
+<td>75.3%</td>
+<td>69.4%</td>
+</tr>
+<tr>
+<td>Latin-PROIEL</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>79.0%</td>
+<td>75.0%</td>
+</tr>
+<tr>
+<td>Latvian</td>
+<td>Raw text</td>
+<td align="right">99.2%</td>
+<td align="right">97.1%</td>
+<td>89.6%</td>
+<td>76.2%</td>
+<td align="right">83.2%</td>
+<td align="right">75.7%</td>
+<td align="right">87.6%</td>
+<td>69.2%</td>
+<td>62.8%</td>
+</tr>
+<tr>
+<td>Latvian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>90.2%</td>
+<td>76.8%</td>
+<td align="right">84.0%</td>
+<td align="right">76.3%</td>
+<td align="right">88.3%</td>
+<td>70.3%</td>
+<td>63.9%</td>
+</tr>
+<tr>
+<td>Latvian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>78.7%</td>
+<td>74.9%</td>
+</tr>
+<tr>
+<td>Lithuanian</td>
+<td>Raw text</td>
+<td align="right">98.2%</td>
+<td align="right">92.0%</td>
+<td>74.0%</td>
+<td>73.0%</td>
+<td align="right">68.9%</td>
+<td align="right">63.7%</td>
+<td align="right">73.5%</td>
+<td>44.0%</td>
+<td>32.4%</td>
+</tr>
+<tr>
+<td>Lithuanian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>74.6%</td>
+<td>73.5%</td>
+<td align="right">69.7%</td>
+<td align="right">64.2%</td>
+<td align="right">74.2%</td>
+<td>44.6%</td>
+<td>33.0%</td>
+</tr>
+<tr>
+<td>Lithuanian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>55.6%</td>
+<td>46.5%</td>
+</tr>
+<tr>
+<td>Norwegian-Bokmaal</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">96.5%</td>
+<td>96.9%</td>
+<td align="center">-</td>
+<td align="right">95.3%</td>
+<td align="center">-</td>
+<td align="right">96.6%</td>
+<td>86.9%</td>
+<td>84.1%</td>
+</tr>
+<tr>
+<td>Norwegian-Bokmaal</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.1%</td>
+<td align="center">-</td>
+<td align="right">95.5%</td>
+<td align="center">-</td>
+<td align="right">96.8%</td>
+<td>87.5%</td>
+<td>84.7%</td>
+</tr>
+<tr>
+<td>Norwegian-Bokmaal</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.7%</td>
+<td>89.6%</td>
+</tr>
+<tr>
+<td>Norwegian-Nynorsk</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">92.2%</td>
+<td>96.5%</td>
+<td align="center">-</td>
+<td align="right">94.9%</td>
+<td align="center">-</td>
+<td align="right">96.4%</td>
+<td>85.6%</td>
+<td>82.5%</td>
+</tr>
+<tr>
+<td>Norwegian-Nynorsk</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.6%</td>
+<td align="center">-</td>
+<td align="right">95.0%</td>
+<td align="center">-</td>
+<td align="right">96.5%</td>
+<td>86.5%</td>
+<td>83.3%</td>
+</tr>
+<tr>
+<td>Norwegian-Nynorsk</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.0%</td>
+<td>88.6%</td>
+</tr>
+<tr>
+<td>Old Church Slavonic</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">40.5%</td>
+<td>93.8%</td>
+<td>93.8%</td>
+<td align="right">86.9%</td>
+<td align="right">85.7%</td>
+<td align="right">91.2%</td>
+<td>73.6%</td>
+<td>66.9%</td>
+</tr>
+<tr>
+<td>Old Church Slavonic</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.1%</td>
+<td>94.1%</td>
+<td align="right">87.6%</td>
+<td align="right">86.5%</td>
+<td align="right">91.2%</td>
+<td>81.6%</td>
+<td>74.7%</td>
+</tr>
+<tr>
+<td>Old Church Slavonic</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>86.7%</td>
+<td>82.2%</td>
+</tr>
+<tr>
+<td>Persian</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">98.2%</td>
+<td>96.0%</td>
+<td>96.0%</td>
+<td align="right">96.1%</td>
+<td align="right">95.4%</td>
+<td align="right">93.5%</td>
+<td>83.3%</td>
+<td>79.4%</td>
+</tr>
+<tr>
+<td>Persian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.4%</td>
+<td>96.3%</td>
+<td align="right">96.4%</td>
+<td align="right">95.7%</td>
+<td align="right">93.8%</td>
+<td>83.8%</td>
+<td>80.0%</td>
+</tr>
+<tr>
+<td>Persian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.7%</td>
+<td>84.9%</td>
+</tr>
+<tr>
+<td>Polish</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">99.7%</td>
+<td>95.6%</td>
+<td>84.0%</td>
+<td align="right">84.1%</td>
+<td align="right">83.1%</td>
+<td align="right">93.4%</td>
+<td>86.7%</td>
+<td>80.7%</td>
+</tr>
+<tr>
+<td>Polish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.7%</td>
+<td>84.1%</td>
+<td align="right">84.2%</td>
+<td align="right">83.3%</td>
+<td align="right">93.6%</td>
+<td>87.0%</td>
+<td>81.0%</td>
+</tr>
+<tr>
+<td>Polish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.9%</td>
+<td>89.5%</td>
+</tr>
+<tr>
+<td>Portuguese</td>
+<td>Raw text</td>
+<td align="right">99.6%</td>
+<td align="right">89.4%</td>
+<td>96.4%</td>
+<td>72.7%</td>
+<td align="right">93.3%</td>
+<td align="right">71.6%</td>
+<td align="right">96.8%</td>
+<td>86.0%</td>
+<td>82.6%</td>
+</tr>
+<tr>
+<td>Portuguese</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.8%</td>
+<td>73.0%</td>
+<td align="right">93.7%</td>
+<td align="right">71.9%</td>
+<td align="right">97.2%</td>
+<td>87.2%</td>
+<td>83.6%</td>
+</tr>
+<tr>
+<td>Portuguese</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>89.6%</td>
+<td>87.5%</td>
+</tr>
+<tr>
+<td>Portuguese-BR</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">96.8%</td>
+<td>97.0%</td>
+<td>97.0%</td>
+<td align="right">99.7%</td>
+<td align="right">97.0%</td>
+<td align="right">98.8%</td>
+<td>88.5%</td>
+<td>86.3%</td>
+</tr>
+<tr>
+<td>Portuguese-BR</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>97.2%</td>
+<td>97.2%</td>
+<td align="right">99.9%</td>
+<td align="right">97.2%</td>
+<td align="right">98.9%</td>
+<td>88.8%</td>
+<td>86.6%</td>
+</tr>
+<tr>
+<td>Portuguese-BR</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>90.5%</td>
+<td>89.1%</td>
+</tr>
+<tr>
+<td>Romanian</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">93.9%</td>
+<td>96.6%</td>
+<td>95.9%</td>
+<td align="right">96.0%</td>
+<td align="right">95.7%</td>
+<td align="right">96.5%</td>
+<td>85.6%</td>
+<td>80.2%</td>
+</tr>
+<tr>
+<td>Romanian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.9%</td>
+<td>96.2%</td>
+<td align="right">96.3%</td>
+<td align="right">96.0%</td>
+<td align="right">96.8%</td>
+<td>86.2%</td>
+<td>80.8%</td>
+</tr>
+<tr>
+<td>Romanian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>87.8%</td>
+<td>83.0%</td>
+</tr>
+<tr>
+<td>Russian</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">96.9%</td>
+<td>94.7%</td>
+<td>94.4%</td>
+<td align="right">84.4%</td>
+<td align="right">82.8%</td>
+<td align="right">75.0%</td>
+<td>80.3%</td>
+<td>75.5%</td>
+</tr>
+<tr>
+<td>Russian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.8%</td>
+<td>94.5%</td>
+<td align="right">84.5%</td>
+<td align="right">82.9%</td>
+<td align="right">75.1%</td>
+<td>80.8%</td>
+<td>76.0%</td>
+</tr>
+<tr>
+<td>Russian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>84.8%</td>
+<td>81.9%</td>
+</tr>
+<tr>
+<td>Russian-SynTagRus</td>
+<td>Raw text</td>
+<td align="right">99.6%</td>
+<td align="right">98.0%</td>
+<td>98.0%</td>
+<td align="center">-</td>
+<td align="right">93.6%</td>
+<td align="center">-</td>
+<td align="right">95.6%</td>
+<td>89.8%</td>
+<td>87.2%</td>
+</tr>
+<tr>
+<td>Russian-SynTagRus</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>98.4%</td>
+<td align="center">-</td>
+<td align="right">93.9%</td>
+<td align="center">-</td>
+<td align="right">95.9%</td>
+<td>90.4%</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>Russian-SynTagRus</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.8%</td>
+<td>90.5%</td>
+</tr>
+<tr>
+<td>Sanskrit</td>
+<td>Raw text</td>
+<td align="right">88.1%</td>
+<td align="right">29.0%</td>
+<td>52.0%</td>
+<td align="center">-</td>
+<td align="right">35.2%</td>
+<td align="center">-</td>
+<td align="right">50.2%</td>
+<td>38.8%</td>
+<td>22.5%</td>
+</tr>
+<tr>
+<td>Sanskrit</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>57.6%</td>
+<td align="center">-</td>
+<td align="right">43.6%</td>
+<td align="center">-</td>
+<td align="right">60.6%</td>
+<td>58.5%</td>
+<td>34.3%</td>
+</tr>
+<tr>
+<td>Sanskrit</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>72.9%</td>
+<td>58.5%</td>
+</tr>
+<tr>
+<td>Slovak</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">83.5%</td>
+<td>93.2%</td>
+<td>77.5%</td>
+<td align="right">79.7%</td>
+<td align="right">77.1%</td>
+<td align="right">85.9%</td>
+<td>80.4%</td>
+<td>75.2%</td>
+</tr>
+<tr>
+<td>Slovak</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>93.3%</td>
+<td>77.6%</td>
+<td align="right">79.9%</td>
+<td align="right">77.2%</td>
+<td align="right">86.0%</td>
+<td>82.0%</td>
+<td>76.9%</td>
+</tr>
+<tr>
+<td>Slovak</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.2%</td>
+<td>85.5%</td>
+</tr>
+<tr>
+<td>Slovenian</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">98.9%</td>
+<td>96.2%</td>
+<td>88.2%</td>
+<td align="right">88.5%</td>
+<td align="right">87.7%</td>
+<td align="right">95.3%</td>
+<td>84.9%</td>
+<td>81.6%</td>
+</tr>
+<tr>
+<td>Slovenian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>96.2%</td>
+<td>88.2%</td>
+<td align="right">88.6%</td>
+<td align="right">87.7%</td>
+<td align="right">95.4%</td>
+<td>85.0%</td>
+<td>81.7%</td>
+</tr>
+<tr>
+<td>Slovenian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>91.8%</td>
+<td>90.5%</td>
+</tr>
+<tr>
+<td>Slovenian-SST</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">17.8%</td>
+<td>89.0%</td>
+<td>81.1%</td>
+<td align="right">81.3%</td>
+<td align="right">78.6%</td>
+<td align="right">91.6%</td>
+<td>53.0%</td>
+<td>46.6%</td>
+</tr>
+<tr>
+<td>Slovenian-SST</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>89.4%</td>
+<td>81.6%</td>
+<td align="right">81.8%</td>
+<td align="right">79.3%</td>
+<td align="right">91.7%</td>
+<td>63.4%</td>
+<td>56.0%</td>
+</tr>
+<tr>
+<td>Slovenian-SST</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>75.5%</td>
+<td>70.6%</td>
+</tr>
+<tr>
+<td>Spanish</td>
+<td>Raw text</td>
+<td align="right">99.7%</td>
+<td align="right">95.3%</td>
+<td>95.5%</td>
+<td align="center">-</td>
+<td align="right">96.1%</td>
+<td align="center">-</td>
+<td align="right">95.9%</td>
+<td>84.9%</td>
+<td>81.4%</td>
+</tr>
+<tr>
+<td>Spanish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.8%</td>
+<td align="center">-</td>
+<td align="right">96.3%</td>
+<td align="center">-</td>
+<td align="right">96.1%</td>
+<td>85.5%</td>
+<td>81.9%</td>
+</tr>
+<tr>
+<td>Spanish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.0%</td>
+<td>85.3%</td>
+</tr>
+<tr>
+<td>Spanish-AnCora</td>
+<td>Raw text</td>
+<td align="right">99.9%</td>
+<td align="right">98.0%</td>
+<td>98.1%</td>
+<td>98.1%</td>
+<td align="right">97.5%</td>
+<td align="right">96.8%</td>
+<td align="right">98.1%</td>
+<td>87.7%</td>
+<td>84.5%</td>
+</tr>
+<tr>
+<td>Spanish-AnCora</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>98.2%</td>
+<td>98.2%</td>
+<td align="right">97.5%</td>
+<td align="right">96.9%</td>
+<td align="right">98.1%</td>
+<td>87.8%</td>
+<td>84.7%</td>
+</tr>
+<tr>
+<td>Spanish-AnCora</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>90.2%</td>
+<td>87.6%</td>
+</tr>
+<tr>
+<td>Swedish</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">94.6%</td>
+<td>95.6%</td>
+<td>93.9%</td>
+<td align="right">94.4%</td>
+<td align="right">92.8%</td>
+<td align="right">95.5%</td>
+<td>81.4%</td>
+<td>77.8%</td>
+</tr>
+<tr>
+<td>Swedish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>95.8%</td>
+<td>94.1%</td>
+<td align="right">94.6%</td>
+<td align="right">93.1%</td>
+<td align="right">95.7%</td>
+<td>82.1%</td>
+<td>78.4%</td>
+</tr>
+<tr>
+<td>Swedish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.0%</td>
+<td>85.0%</td>
+</tr>
+<tr>
+<td>Swedish-LinES</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">85.7%</td>
+<td>94.8%</td>
+<td>92.2%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>80.4%</td>
+<td>75.7%</td>
+</tr>
+<tr>
+<td>Swedish-LinES</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.8%</td>
+<td>92.3%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>81.3%</td>
+<td>76.6%</td>
+</tr>
+<tr>
+<td>Swedish-LinES</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>86.0%</td>
+<td>82.6%</td>
+</tr>
+<tr>
+<td>Tamil</td>
+<td>Raw text</td>
+<td align="right">95.3%</td>
+<td align="right">89.2%</td>
+<td>82.2%</td>
+<td>77.7%</td>
+<td align="right">80.9%</td>
+<td align="right">77.2%</td>
+<td align="right">85.3%</td>
+<td>59.5%</td>
+<td>52.0%</td>
+</tr>
+<tr>
+<td>Tamil</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>85.8%</td>
+<td>81.0%</td>
+<td align="right">84.2%</td>
+<td align="right">80.3%</td>
+<td align="right">89.1%</td>
+<td>64.9%</td>
+<td>56.5%</td>
+</tr>
+<tr>
+<td>Tamil</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>78.9%</td>
+<td>71.8%</td>
+</tr>
+<tr>
+<td>Turkish</td>
+<td>Raw text</td>
+<td align="right">98.1%</td>
+<td align="right">96.8%</td>
+<td>92.4%</td>
+<td>91.5%</td>
+<td align="right">87.3%</td>
+<td align="right">85.5%</td>
+<td align="right">90.2%</td>
+<td>62.9%</td>
+<td>55.8%</td>
+</tr>
+<tr>
+<td>Turkish</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>94.0%</td>
+<td>93.0%</td>
+<td align="right">88.9%</td>
+<td align="right">87.0%</td>
+<td align="right">91.7%</td>
+<td>65.5%</td>
+<td>58.0%</td>
+</tr>
+<tr>
+<td>Turkish</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>66.8%</td>
+<td>61.1%</td>
+</tr>
+<tr>
+<td>Ukrainian</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">95.1%</td>
+<td>88.5%</td>
+<td>70.7%</td>
+<td align="right">70.9%</td>
+<td align="right">67.6%</td>
+<td align="right">86.7%</td>
+<td>69.9%</td>
+<td>61.5%</td>
+</tr>
+<tr>
+<td>Ukrainian</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.6%</td>
+<td>70.8%</td>
+<td align="right">71.0%</td>
+<td align="right">67.7%</td>
+<td align="right">86.9%</td>
+<td>70.2%</td>
+<td>61.8%</td>
+</tr>
+<tr>
+<td>Ukrainian</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>79.0%</td>
+<td>74.5%</td>
+</tr>
+<tr>
+<td>Urdu</td>
+<td>Raw text</td>
+<td>100.0%</td>
+<td align="right">98.3%</td>
+<td>92.4%</td>
+<td>90.5%</td>
+<td align="right">80.6%</td>
+<td align="right">76.3%</td>
+<td align="right">93.0%</td>
+<td>84.6%</td>
+<td>77.6%</td>
+</tr>
+<tr>
+<td>Urdu</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>92.4%</td>
+<td>90.5%</td>
+<td align="right">80.7%</td>
+<td align="right">76.3%</td>
+<td align="right">93.0%</td>
+<td>84.7%</td>
+<td>77.7%</td>
+</tr>
+<tr>
+<td>Urdu</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>88.2%</td>
+<td>83.0%</td>
+</tr>
+<tr>
+<td>Uyghur</td>
+<td>Raw text</td>
+<td align="right">99.8%</td>
+<td align="right">67.2%</td>
+<td>74.7%</td>
+<td>79.1%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>55.1%</td>
+<td>35.0%</td>
+</tr>
+<tr>
+<td>Uyghur</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>75.1%</td>
+<td>79.3%</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>56.5%</td>
+<td>35.8%</td>
+</tr>
+<tr>
+<td>Uyghur</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>62.3%</td>
+<td>42.0%</td>
+</tr>
+<tr>
+<td>Vietnamese</td>
+<td>Raw text</td>
+<td align="right">85.3%</td>
+<td align="right">92.9%</td>
+<td>77.4%</td>
+<td>75.4%</td>
+<td align="right">85.1%</td>
+<td align="right">75.4%</td>
+<td align="right">84.5%</td>
+<td>46.9%</td>
+<td>42.5%</td>
+</tr>
+<tr>
+<td>Vietnamese</td>
+<td>Gold tok</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>89.3%</td>
+<td>86.8%</td>
+<td align="right">99.6%</td>
+<td align="right">86.8%</td>
+<td align="right">99.0%</td>
+<td>64.4%</td>
+<td>57.2%</td>
+</tr>
+<tr>
+<td>Vietnamese</td>
+<td>Gold tok+morph</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td>70.7%</td>
+<td>67.9%</td>
+</tr>
+</table>
+
 <a id="conll17_shared_task_baseline_ud_20_models" name="conll17_shared_task_baseline_ud_20_models"></a>
-<h2>5.4. CoNLL17 Shared Task Baseline UD 2.0 Models</h2>
+<h2>5.5. CoNLL17 Shared Task Baseline UD 2.0 Models</h2>
 
 <p>
 As part of CoNLL 2017 Shared Task in UD Parsing, baseline models
@@ -1346,7 +4113,7 @@ performance are available in the model archive.
 </p>
 
 <a id="conll17_shared_task_baseline_ud_20_models_download" name="conll17_shared_task_baseline_ud_20_models_download"></a>
-<h3>5.4.1. Download</h3>
+<h3>5.5.1. Download</h3>
 
 <p>
 The CoNLL17 Shared Task Baseline UD 2.0 Models can be downloaded
@@ -1354,7 +4121,7 @@ from <a href="http://hdl.handle.net/11234/1-1990">LINDAT/CLARIN repository</a>.
 </p>
 
 <a id="conll17_shared_task_baseline_ud_20_models_ackowledgements" name="conll17_shared_task_baseline_ud_20_models_ackowledgements"></a>
-<h3>5.4.2. Acknowledgements</h3>
+<h3>5.5.2. Acknowledgements</h3>
 
 <p>
 This work has been partially supported and has been using language resources
@@ -1366,7 +4133,7 @@ The models were trained on a <a href="http://hdl.handle.net/11234/1-1983">Univer
 </p>
 
 <a id="universal_dependencies_12_models" name="universal_dependencies_12_models"></a>
-<h2>5.5. Universal Dependencies 1.2 Models</h2>
+<h2>5.6. Universal Dependencies 1.2 Models</h2>
 
 <p>
 Universal Dependencies 1.2 Models are distributed under the
@@ -1382,7 +4149,7 @@ representation of year, month and day, respectively. The latest version is 16052
 </p>
 
 <a id="universal_dependencies_12_models_download" name="universal_dependencies_12_models_download"></a>
-<h3>5.5.1. Download</h3>
+<h3>5.6.1. Download</h3>
 
 <p>
 The latest version 160523 of the Universal Dependencies 1.2 models can be downloaded
@@ -1390,7 +4157,7 @@ from <a href="http://hdl.handle.net/11234/1-1659">LINDAT/CLARIN repository</a>.
 </p>
 
 <a id="universal_dependencies_12_models_acknowledgements" name="universal_dependencies_12_models_acknowledgements"></a>
-<h3>5.5.2. Acknowledgements</h3>
+<h3>5.6.2. Acknowledgements</h3>
 
 <p>
 This work has been partially supported and has been using language resources
@@ -1407,7 +4174,7 @@ were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-
 </p>
 
 <a id="universal_dependencies_12_models_publications" name="universal_dependencies_12_models_publications"></a>
-<h4>5.5.2.1. Publications</h4>
+<h4>5.6.2.1. Publications</h4>
 
 <ul>
 <li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i>UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing.</i> LREC 2016, Portorož, Slovenia, May 2016.
@@ -1415,7 +4182,7 @@ were taken from the <a href="http://hdl.handle.net/11858/00-097C-0000-0022-6133-
 </ul>
 
 <a id="universal_dependencies_12_models_description" name="universal_dependencies_12_models_description"></a>
-<h3>5.5.3. Model Description</h3>
+<h3>5.6.3. Model Description</h3>
 
 <p>
 The Universal Dependencies 1.2 models contain 36 models, each consisting of
@@ -1437,7 +4204,7 @@ Details about model architecture and training process can be found in the
 </p>
 
 <a id="universal_dependencies_12_models_performance" name="universal_dependencies_12_models_performance"></a>
-<h3>5.5.4. Model Performance</h3>
+<h3>5.6.4. Model Performance</h3>
 
 <p>
 We present the tagger, lemmatizer and parser performance, measured
@@ -3557,9 +6324,9 @@ Acknowledgements for individual language models are listed in <a href="#users_ma
 <h2>8.1. Publications</h2>
 
 <ul>
-<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i><a href="http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf">UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing</a></i>. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
-</li>
 <li>(Straka et al. 2017) Milan Straka and Jana Straková. <i><a href="http://ufal.mff.cuni.cz/~straka/papers/2017-conll_udpipe.pdf">Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe</a></i>. In Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies, Vancouver, Canada, August 2017.
+</li>
+<li>(Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. <i><a href="http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf">UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing</a></i>. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
 </li>
 </ul>
 

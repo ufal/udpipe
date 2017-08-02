@@ -37,6 +37,7 @@ in the
 %manual% [UDPipe User's Manual #users_manual].
 Currently, the following language models are available:
 
+- Universal Dependencies 2.0 Models: [udpipe-ud2.0-170801 http://hdl.handle.net/11234/1-2364] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_20_models])
 - CoNLL17 Shared Task Baseline UD 2.0 Models: [udpipe-ud2.0-conll17-170315 http://hdl.handle.net/11234/1-1990] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#conll17_shared_task_baseline_ud_20_models])
 - Universal Dependencies 1.2 Models: [udpipe-ud1.2-160523 http://hdl.handle.net/11234/1-1659] ([documentation http://ufal.mff.cuni.cz/udpipe/users-manual#universal_dependencies_12_models])
 
@@ -94,8 +95,8 @@ This work has been using language resources developed and/or stored and/or distr
 
 == Publications ==[publications]
 
-- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //[UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf]//. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
 - (Straka et al. 2017) Milan Straka and Jana Straková. //[Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe http://ufal.mff.cuni.cz/~straka/papers/2017-conll_udpipe.pdf]//. In Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies, Vancouver, Canada, August 2017.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //[UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf]//. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
 -
 
 == Bibtex for Referencing ==[bibtex_for_referencing]
