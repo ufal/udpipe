@@ -1,3 +1,7 @@
+Version 1.2.1-devel
+-------------------
+
+
 Version 1.2.0 [01 Aug 17]
 -------------------------
 - On-demand loading of models in REST server, with a pool
