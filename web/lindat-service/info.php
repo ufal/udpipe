@@ -19,7 +19,7 @@
   </tr>
   <tr>
       <th>Status</th>
-      <td>Stable, version 1.1</td>
+      <td>Stable, version 1.2</td>
   </tr>
   <tr>
       <th>OS</th>
