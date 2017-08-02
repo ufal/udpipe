@@ -18,10 +18,10 @@ install: doc
 	$(call cp,manual_bindings_python.txt,../bindings/README.PYTHON)
 
 %.html: %.t2t $(wildcard *.t2t)
-	$(call t2t_docsys_html,$@,$<,manual $(if $(findstring _,$*),striplevel))
+	$(call t2t_docsys_html,$@,-C t2t_align_percent_cells_right.conf $<,manual $(if $(findstring _,$*),striplevel))
 
 web%html: manual%t2t $(wildcard *.t2t)
-	$(call t2t_docsys_html,$@,$<,web html_addlevel $(if $(findstring _,$*),striplevel))
+	$(call t2t_docsys_html,$@,-C t2t_align_percent_cells_right.conf $<,web html_addlevel $(if $(findstring _,$*),striplevel))
 
 %.txt: %.t2t $(wildcard *.t2t)
 	$(call t2t_docsys_txt,$@,$<,manual $(if $(findstring _,$*),striplevel))
@@ -30,7 +30,7 @@ web%html: manual%t2t $(wildcard *.t2t)
 	$(call t2t_docsys_md,$@,$<,manual $(if $(findstring _,$*),striplevel))
 
 %.pdf: %.t2t $(wildcard *.t2t)
-	$(call t2t_docsys_pdf,$@,$<,manual $(if $(findstring _,$*),striplevel))
+	$(call t2t_docsys_pdf,$@,-C t2t_align_percent_cells_right.conf $<,manual $(if $(findstring _,$*),striplevel))
 
 .PHONY: clean
 clean:
