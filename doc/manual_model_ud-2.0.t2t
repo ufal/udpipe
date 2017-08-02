@@ -48,7 +48,7 @@ were taken from the [W2C -- Web to Corpus http://hdl.handle.net/11858/00-097C-00
 The Universal Dependencies 2.0 models contain 68 models of 50 languages, each consisting of
 a tokenizer, tagger, lemmatizer and dependency parser, all trained using
 the UD data. Note that we use custom train-dev split, by moving sentences from the beginning
-of dev data to the end of train data, until tne training data is at least 9 times the dev data.
+of dev data to the end of train data, until the training data is at least 9 times the dev data.
 
 The tokenizer is trained using the ``SpaceAfter=No`` features. If the features
 are not present in the data, they can be filled in using raw text in the
