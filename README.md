@@ -6,6 +6,7 @@ dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be trai
 annotated data in [CoNLL-U format](http://universaldependencies.org/format.html). Trained models are provided for
 nearly all [UD treebanks](http://universaldependencies.org). UDPipe is available as a binary for Linux/Windows/OS X, as a library for
 C++, Python, Perl, Java, C#, and as a web service.
+Externally, [R wrapper](https://github.com/bnosac/udpipe) is also maintained.
 
 UDPipe is a free software distributed under the
 [Mozilla Public License 2.0](http://www.mozilla.org/MPL/2.0/) and the linguistic models
