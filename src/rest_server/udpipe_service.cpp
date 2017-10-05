@@ -23,7 +23,7 @@ bool udpipe_service::init(const service_options& options) {
   models.clear();
   rest_models_map.clear();
   for (auto& model_description : options.model_descriptions) {
-    unique_ptr<ifstream> is(new ifstream(model_description.file));
+    unique_ptr<ifstream> is(new ifstream(model_description.file, std::ios::binary));
     if (!is->is_open()) return false;
 
     // Store the model

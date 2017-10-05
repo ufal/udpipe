@@ -206,7 +206,7 @@ else ifeq ($(PLATFORM),win-vs)
     DYN_C_FLAGS += /LD
     LD_FLAGS += /OPT:REF /OPT:ICF
   else ifeq ($(MODE),debug)
-    C_FLAGS += /Od /Z7 /MTd /RTC1 /D _DEBUG
+    C_FLAGS += /Od /Z7 /MTd /RTC1 /D _DEBUG /D _ITERATOR_DEBUG_LEVEL=0
     DYN_C_FLAGS += /LDd
     LD_FLAGS += /DEBUG
   endif
