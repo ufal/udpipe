@@ -37,7 +37,28 @@ function fillUsingParams(mapping, button) {
         control.checked = true;
       }
     } else if (control.is('textarea')) {
-      control.val(value);
+      // specific handling of url-only values
+      // - load the contents instead of the url value
+      var url_pattern = new RegExp(
+        '^((news|(ht|f)tp(s?)):\\/\\/)'+
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+        '((\\d{1,3}\\.){3}\\d{1,3}))'+
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+        '(\\?[;&a-z\\d%_.~+=-]*)?'+
+        '(\\#[-a-z\\d_]*)?$','i');
+      if (url_pattern.test(value))
+      {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', value, false);
+        xhr.onload = function () {
+            if (this.status === 200) {
+              control.val(this.responseText);
+            }
+        };
+        xhr.send();
+      }else {
+        control.val(value);
+      }
     } else if (control.is('select')) {
       var options = jQuery('option', control);
       for (var i in options)
