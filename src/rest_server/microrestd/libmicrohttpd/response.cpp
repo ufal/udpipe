@@ -286,7 +286,7 @@ MHD_create_response_from_callback (uint64_t size,
  */
 int
 MHD_set_response_options (struct MHD_Response *response,
-                          enum MHD_ResponseFlags flags,
+                          int /*enum MHD_ResponseFlags*/ flags,
                           ...)
 {
   va_list ap;
@@ -294,7 +294,7 @@ MHD_set_response_options (struct MHD_Response *response,
   enum MHD_ResponseOptions ro;
 
   ret = MHD_YES;
-  response->flags = flags;
+  response->flags = (enum MHD_ResponseFlags) flags;
   va_start (ap, flags);
   while (MHD_RO_END != (ro = (enum MHD_ResponseOptions) va_arg (ap, int)))
   {

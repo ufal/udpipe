@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 #include "string_piece.h"
@@ -27,6 +28,9 @@ class json_builder {
   inline json_builder& array();
   inline json_builder& key(string_piece str);
   inline json_builder& value(string_piece str, bool append = false);
+  inline json_builder& value(int number);
+  inline json_builder& value_bool(bool boolean);
+  inline json_builder& value(std::nullptr_t null);
   inline json_builder& value_xml_escape(string_piece str, bool append = false);
   inline json_builder& indent();
   inline json_builder& close();
@@ -95,6 +99,32 @@ json_builder& json_builder::value(string_piece str, bool append) {
   }
   mode = IN_VALUE;
   encode(str);
+  return *this;
+}
+
+json_builder& json_builder::value(int number) {
+  normalize_mode(true);
+  for (auto&& chr : std::to_string(number))
+    json.push_back(chr);
+  mode = AFTER_VALUE;
+  return *this;
+}
+
+json_builder& json_builder::value_bool(bool boolean) {
+  normalize_mode(true);
+  if (boolean) {
+    json.push_back('t'); json.push_back('r'); json.push_back('u'); json.push_back('e');
+  } else {
+    json.push_back('f'); json.push_back('a'); json.push_back('l'); json.push_back('s'); json.push_back('e');
+  }
+  mode = AFTER_VALUE;
+  return *this;
+}
+
+json_builder& json_builder::value(std::nullptr_t /*null*/) {
+  normalize_mode(true);
+  json.push_back('n'); json.push_back('u'); json.push_back('l'); json.push_back('l');
+  mode = AFTER_VALUE;
   return *this;
 }
 

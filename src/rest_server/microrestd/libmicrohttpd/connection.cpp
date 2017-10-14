@@ -2856,7 +2856,7 @@ MHD_get_connection_info (struct MHD_Connection *connection,
  */
 int
 MHD_set_connection_option (struct MHD_Connection *connection,
-			   enum MHD_CONNECTION_OPTION option,
+			   int /*enum MHD_CONNECTION_OPTION*/ option,
 			   ...)
 {
   va_list ap;
