@@ -23,6 +23,7 @@ bool udpipe_service::init(const service_options& options) {
   // Init models
   models.clear();
   models_map.clear();
+  models.reserve(options.model_descriptions.size());
   for (auto& model_description : options.model_descriptions) {
     unique_ptr<ifstream> is(new ifstream(model_description.file));
     if (!is->is_open()) return false;
