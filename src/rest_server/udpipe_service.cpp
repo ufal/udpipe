@@ -100,6 +100,10 @@ unordered_map<string, bool (udpipe_service::*)(microrestd::rest_request&)> udpip
   // REST service
   {"/models", &udpipe_service::handle_models},
   {"/process", &udpipe_service::handle_process},
+  // Weblicht service
+  {"/weblicht/tokenize", &udpipe_service::handle_weblicht_tokenize},
+  {"/weblicht/tag", &udpipe_service::handle_weblicht_tag},
+  {"/weblicht/parse", &udpipe_service::handle_weblicht_parse},
 };
 
 // Handle a request using the specified URL/handler map
@@ -129,8 +133,6 @@ udpipe_service::rest_response_generator::rest_response_generator(const model_inf
   if (!model->acknowledgements.empty()) json.indent().value(model->acknowledgements);
   json.indent().close().indent().key("result").indent().value("");
 }
-
-// REST service handlers
 
 bool udpipe_service::handle_models(microrestd::rest_request& req) {
   return req.respond(rest_response_generator::mime, json_models);
@@ -202,8 +204,124 @@ bool udpipe_service::handle_process(microrestd::rest_request& req) {
   return req.respond(generator::mime, new generator(loaded.release(), input.release(), tagger, parser, output.release()));
 }
 
-// REST service helpers
+// Weblicht service
+udpipe_service::weblicht_response_generator::weblicht_response_generator(const model_info* model) : model(model) {}
 
+microrestd::string_piece udpipe_service::weblicht_response_generator::current() const {
+  return microrestd::string_piece(data.data(), data.size());
+}
+
+void udpipe_service::weblicht_response_generator::consume(size_t length) {
+  data.erase(0, length);
+}
+
+void udpipe_service::weblicht_response_generator::append(const string& data) {
+  this->data.append(data.begin(), data.end());
+}
+
+const char* udpipe_service::weblicht_response_generator::mime = "application/conllu";
+
+bool udpipe_service::handle_weblicht_tokenize(microrestd::rest_request& req) {
+  string error;
+  auto id = get_model_id(req);
+  unique_ptr<loaded_model> loaded(load_model(id, error));
+  if (!loaded) return req.respond_error(error);
+
+  unique_ptr<input_format> tokenizer(loaded->model->model->new_tokenizer(req.params["tokenizer"]));
+  if (!tokenizer) return req.respond_error("Cannot create a tokenizer for a given model");
+  unique_ptr<output_format> output(output_format::new_conllu_output_format());
+  if (!output) return req.respond_error("Cannot create CoNLL-U output format");
+
+  tokenizer->set_text(req.body);
+
+  class generator : public weblicht_response_generator {
+   public:
+    generator(loaded_model* loaded, input_format* tokenizer, output_format* output)
+        : weblicht_response_generator(loaded->model), loaded(loaded), tokenizer(tokenizer), output(output) {}
+
+    bool generate() {
+      if (!tokenizer->next_sentence(s, error)) {
+        output->finish_document(os); append(os.str()); os.str(string());
+        return false;
+      }
+
+      output->write_sentence(s, os); append(os.str()); os.str(string());
+      return true;
+    }
+
+   private:
+    sentence s;
+    string error;
+    ostringstream os;
+    unique_ptr<loaded_model> loaded;
+    unique_ptr<input_format> tokenizer;
+    unique_ptr<output_format> output;
+  };
+  return req.respond(generator::mime, new generator(loaded.release(), tokenizer.release(), output.release()));
+}
+
+bool udpipe_service::handle_weblicht_tag(microrestd::rest_request& req) {
+  return handle_weblicht_tag_parse(req, &req.params["tagger"], nullptr);
+}
+
+bool udpipe_service::handle_weblicht_parse(microrestd::rest_request& req) {
+  return handle_weblicht_tag_parse(req, nullptr, &req.params["parser"]);
+}
+
+bool udpipe_service::handle_weblicht_tag_parse(microrestd::rest_request& req, const string* tagger, const string* parser) {
+  string error;
+  auto id = get_model_id(req);
+  unique_ptr<loaded_model> loaded(load_model(id, error));
+  if (!loaded) return req.respond_error(error);
+
+  unique_ptr<input_format> input(input_format::new_conllu_input_format());
+  if (!input) return req.respond_error("Cannot create CoNLL-U input format");
+  unique_ptr<output_format> output(output_format::new_conllu_output_format());
+  if (!output) return req.respond_error("Cannot create CoNLL-U output format");
+
+  // Try loading the input CoNLL-U file
+  input->set_text(req.body);
+  sentence s;
+  while (input->next_sentence(s, error)) {}
+  if (!error.empty())
+    return req.respond_error(error.insert(0, "Cannot read input CoNLL-U file: ").append("\n"));
+
+  input->reset_document();
+  input->set_text(req.body);
+  class generator : public weblicht_response_generator {
+   public:
+    generator(loaded_model* loaded, const string* tagger, const string* parser, input_format* input, output_format* output)
+        : weblicht_response_generator(loaded->model), loaded(loaded), tagger(tagger), parser(parser), input(input), output(output) {}
+
+    bool generate() {
+      if (!input->next_sentence(s, error)) {
+        output->finish_document(os); append(os.str()); os.str(string());
+        return false;
+      }
+
+      if (tagger) model->model->tag(s, *tagger, error);
+      if (parser) model->model->parse(s, *parser, error);
+
+      output->write_sentence(s, os); append(os.str()); os.str(string());
+      return true;
+    }
+
+   private:
+    sentence s;
+    string error;
+    ostringstream os;
+    unique_ptr<loaded_model> loaded;
+    const string* tagger;
+    const string* parser;
+    unique_ptr<input_format> input;
+    unique_ptr<output_format> output;
+  };
+  return req.respond(generator::mime, new generator(loaded.release(), tagger, parser, input.release(), output.release()));
+
+  return req.respond_error("Not implemented");
+}
+
+// Helper functions
 const string& udpipe_service::get_model_id(microrestd::rest_request& req) {
   static string empty;
 

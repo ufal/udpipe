@@ -113,6 +113,26 @@ class udpipe_service : public microrestd::rest_service {
   bool handle_models(microrestd::rest_request& req);
   bool handle_process(microrestd::rest_request& req);
 
+  // Weblicht service
+  class weblicht_response_generator : public microrestd::response_generator {
+   public:
+    weblicht_response_generator(const model_info* model);
+    virtual microrestd::string_piece current() const override;
+    virtual void consume(size_t length) override;
+    void append(const string& data);
+
+    static const char* mime;
+   protected:
+    string data;
+    const model_info* model;
+  };
+
+  bool handle_weblicht_tokenize(microrestd::rest_request& req);
+  bool handle_weblicht_tag(microrestd::rest_request& req);
+  bool handle_weblicht_parse(microrestd::rest_request& req);
+  bool handle_weblicht_tag_parse(microrestd::rest_request& req, const string* tagger, const string* parser);
+
+  // Helper functions
   const string& get_model_id(microrestd::rest_request& req);
   const string& get_data(microrestd::rest_request& req, string& error);
   input_format* get_input_format(microrestd::rest_request& req, const model_info* model, bool& is_tokenizer, string& error);
