@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "udpipe_service.h"
+#include "utils/split.h"
 
 namespace ufal {
 namespace udpipe {
@@ -21,14 +22,48 @@ bool udpipe_service::init(const service_options& options) {
 
   // Init models
   models.clear();
-  rest_models_map.clear();
+  models_map.clear();
   for (auto& model_description : options.model_descriptions) {
     unique_ptr<ifstream> is(new ifstream(model_description.file));
     if (!is->is_open()) return false;
 
+    // Split the ids
+    vector<string> ids;
+    split(model_description.ids, ':', ids);
+    if (ids.empty()) return false;
+
     // Store the model
-    models.emplace_back(model_description.rest_id, model_description.acknowledgements, models.size(), is.release());
+    models.emplace_back(ids.front(), model_description.acknowledgements, models.size(), is.release());
+
+    // Fail if this model id is aready in use.
+    if (!models_map.emplace(ids.front(), &models.back()).second) return false;
+
+    // Fill models_map with model aliases
+    for (auto&& id : ids) {
+      models_map.emplace(id, &models.back());
+
+      // Create (but not overwrite) id without version.
+      for (unsigned i = 0; i+1+6 < id.size(); i++)
+        if (id[i] == '-') {
+          bool is_version = true;
+          for (unsigned j = i+1; j < i+1+6; j++)
+            is_version = is_version && id[j] >= '0' && id[j] <= '9';
+          if (is_version)
+            models_map.emplace(id.substr(0, i) + id.substr(i+1+6), &models.back());
+        }
+
+      // Create (but not overwrite) hyphen-separated prefixes.
+      for (unsigned i = 0; i < id.size(); i++)
+        if (id[i] == '-')
+          models_map.emplace(id.substr(0, i), &models.back());
+    }
   }
+
+  // Resolve default model
+  if (!models_map.count(options.default_model)) return false;
+
+  const model_info* default_model = models_map[options.default_model];
+  models_map[string()] = default_model;
 
   // Create model loader
   loader.reset(new model_loader(options.concurrent_limit));
@@ -37,46 +72,27 @@ bool udpipe_service::init(const service_options& options) {
 
   // Check that models are loadable if requested
   for (size_t i = 0; i < models.size(); i++)
-    if (options.check_models_loadable || (options.preload_default && i == 0)) {
+    if (options.check_models_loadable ||
+        (options.preload_default && &models[i] == default_model)) {
       if (!models[i].load()) return false;
       models[i].fill_capabilities();
-      if (i || !options.preload_default) models[i].release();
+      if (&models[i] != default_model || !options.preload_default) models[i].release();
+    } else {
+      // Assume the model has a tokenizer, tagger and a parser
+      models[i].can_tokenize = models[i].can_tag = models[i].can_parse = true;
     }
-  if (options.preload_default && !loader->load(0)) return false;
+  if (options.preload_default && !loader->load(default_model->loader_id)) return false;
 
-  // Fill rest_models_map with model name and aliases
-  for (auto& model : models) {
-    // Fail if this model id is aready in use.
-    if (!rest_models_map.emplace(model.rest_id, &model).second) return false;
-
-    // Create (but not overwrite) id without version.
-    for (unsigned i = 0; i+1+6 < model.rest_id.size(); i++)
-      if (model.rest_id[i] == '-') {
-        bool is_version = true;
-        for (unsigned j = i+1; j < i+1+6; j++)
-          is_version = is_version && model.rest_id[j] >= '0' && model.rest_id[j] <= '9';
-        if (is_version)
-          rest_models_map.emplace(model.rest_id.substr(0, i) + model.rest_id.substr(i+1+6), &model);
-      }
-
-    // Create (but not overwrite) hyphen-separated prefixes.
-    for (unsigned i = 0; i < model.rest_id.size(); i++)
-      if (model.rest_id[i] == '-')
-        rest_models_map.emplace(model.rest_id.substr(0, i), &model);
-  }
-  // Default model
-  rest_models_map.emplace(string(), &models.front());
-
-  // Init REST service
+  // Fill json_models
   json_models.clear().object().indent().key("models").indent().object();
   for (auto& model : models) {
-    json_models.indent().key(model.rest_id).indent().array();
+    json_models.indent().key(model.id).indent().array();
     if (model.can_tokenize) json_models.value("tokenizer");
     if (model.can_tag) json_models.value("tagger");
     if (model.can_parse) json_models.value("parser");
     json_models.close();
   }
-  json_models.indent().close().indent().key("default_model").indent().value(options.default_model).finish(true);
+  json_models.indent().close().indent().key("default_model").indent().value(default_model->id).finish(true);
 
   return true;
 }
@@ -84,8 +100,8 @@ bool udpipe_service::init(const service_options& options) {
 // Handlers with their URLs
 unordered_map<string, bool (udpipe_service::*)(microrestd::rest_request&)> udpipe_service::handlers = {
   // REST service
-  {"/models", &udpipe_service::handle_rest_models},
-  {"/process", &udpipe_service::handle_rest_process},
+  {"/models", &udpipe_service::handle_models},
+  {"/process", &udpipe_service::handle_process},
 };
 
 // Handle a request using the specified URL/handler map
@@ -95,10 +111,10 @@ bool udpipe_service::handle(microrestd::rest_request& req) {
 }
 
 // Load selected model
-udpipe_service::loaded_model* udpipe_service::load_rest_model(const string& rest_id, string& error) {
-  auto model_it = rest_models_map.find(rest_id);
-  if (model_it == rest_models_map.end())
-    return error.assign("Requested model '").append(rest_id).append("' does not exist.\n"), nullptr;
+udpipe_service::loaded_model* udpipe_service::load_model(const string& id, string& error) {
+  auto model_it = models_map.find(id);
+  if (model_it == models_map.end())
+    return error.assign("Requested model '").append(id).append("' does not exist.\n"), nullptr;
 
   if (!loader->load(model_it->second->loader_id))
     return error.assign("Cannot load required model (UDPipe server internal error)!"), nullptr;
@@ -112,7 +128,7 @@ inline microrestd::string_piece sp(const char* str, size_t len) { return microre
 
 udpipe_service::rest_response_generator::rest_response_generator(const model_info* model) : model(model) {
   json.object();
-  json.indent().key("model").indent().value(model->rest_id);
+  json.indent().key("model").indent().value(model->id);
   json.indent().key("acknowledgements").indent().array();
   json.indent().value("http://ufal.mff.cuni.cz/udpipe#udpipe_acknowledgements");
   if (!model->acknowledgements.empty()) json.indent().value(model->acknowledgements);
@@ -121,14 +137,14 @@ udpipe_service::rest_response_generator::rest_response_generator(const model_inf
 
 // REST service handlers
 
-bool udpipe_service::handle_rest_models(microrestd::rest_request& req) {
+bool udpipe_service::handle_models(microrestd::rest_request& req) {
   return req.respond(rest_response_generator::mime, json_models);
 }
 
-bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
+bool udpipe_service::handle_process(microrestd::rest_request& req) {
   string error;
-  auto rest_id = get_rest_model_id(req);
-  unique_ptr<loaded_model> loaded(load_rest_model(rest_id, error));
+  auto id = get_model_id(req);
+  unique_ptr<loaded_model> loaded(load_model(id, error));
   if (!loaded) return req.respond_error(error);
 
   auto& data = get_data(req, error); if (!error.empty()) return req.respond_error(error);
@@ -193,7 +209,7 @@ bool udpipe_service::handle_rest_process(microrestd::rest_request& req) {
 
 // REST service helpers
 
-const string& udpipe_service::get_rest_model_id(microrestd::rest_request& req) {
+const string& udpipe_service::get_model_id(microrestd::rest_request& req) {
   static string empty;
 
   auto model_it = req.params.find("model");

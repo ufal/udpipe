@@ -225,7 +225,7 @@ server implementation and provides
 
 The full command syntax of ``udpipe_server`` is
 ```
-udpipe_server [options] port default_model (rest_id model_file acknowledgements)*
+udpipe_server [options] port default_model (model_ids model_file acknowledgements)*
 Options: --concurrent_models=maximum concurrently loaded models (default 10)
          --daemon (daemonize after start)
          --no_check_models_loadable (do not check models are loadable)
@@ -234,6 +234,15 @@ Options: --concurrent_models=maximum concurrently loaded models (default 10)
 
 The ``udpipe_server`` can run either in foreground or in background (when
 ``--daemon`` is used).
+
+For every model, you specify three arguments:
+- ``model_ids``: possibly multiple model ids, separated by a semicolon. Note
+  that apart from splitting on semicolon, every hyphen-separated prefix of
+  any id is also considered an id
+- ``model_file``: filename containing the model
+- ``acknowledgements``: if non-empty, it is added to a list of acknowledgements
+  returned when using this model
+-
 
 Since UDPipe 1.1.1, the models are loaded on demand, so that at most
 ``concurrent_models`` (default 10) are kept in memory at the same time.
