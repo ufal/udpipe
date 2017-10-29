@@ -124,9 +124,6 @@ udpipe_service::loaded_model* udpipe_service::load_model(const string& id, strin
 }
 
 // REST service
-inline microrestd::string_piece sp(string_piece str) { return microrestd::string_piece(str.str, str.len); }
-inline microrestd::string_piece sp(const char* str, size_t len) { return microrestd::string_piece(str, len); }
-
 udpipe_service::rest_response_generator::rest_response_generator(const model_info* model) : model(model) {
   json.object();
   json.indent().key("model").indent().value(model->id);
