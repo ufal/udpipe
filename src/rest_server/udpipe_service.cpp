@@ -78,9 +78,6 @@ bool udpipe_service::init(const service_options& options) {
       if (!models[i].load()) return false;
       models[i].fill_capabilities();
       if (&models[i] != default_model || !options.preload_default) models[i].release();
-    } else {
-      // Assume the model has a tokenizer, tagger and a parser
-      models[i].can_tokenize = models[i].can_tag = models[i].can_parse = true;
     }
   if (options.preload_default && !loader->load(default_model->loader_id)) return false;
 

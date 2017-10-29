@@ -52,7 +52,7 @@ class udpipe_service : public microrestd::rest_service {
   // Models
   struct model_info {
     model_info(const string& id, const string& acknowledgements, unsigned loader_id, istream* is)
-        : id(id), acknowledgements(acknowledgements), loader_id(loader_id), is(is), model(nullptr), can_tokenize(true), can_tag(true), can_parse(true) {}
+        : id(id), acknowledgements(acknowledgements), loader_id(loader_id), is(is) {}
 
     bool load() {
       if (!model) {
@@ -83,9 +83,9 @@ class udpipe_service : public microrestd::rest_service {
     unsigned loader_id;
     unique_ptr<istream> is;
     unique_ptr<Model> model;
-    bool can_tokenize;
-    bool can_tag;
-    bool can_parse;
+    bool can_tokenize = true;
+    bool can_tag = true;
+    bool can_parse = true;
   };
   vector<model_info> models;
   unordered_map<string, const model_info*> models_map;
