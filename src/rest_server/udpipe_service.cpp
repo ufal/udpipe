@@ -43,16 +43,6 @@ bool udpipe_service::init(const service_options& options) {
     for (auto&& id : ids) {
       models_map.emplace(id, &models.back());
 
-      // Create (but not overwrite) id without version.
-      for (unsigned i = 0; i+1+6 < id.size(); i++)
-        if (id[i] == '-') {
-          bool is_version = true;
-          for (unsigned j = i+1; j < i+1+6; j++)
-            is_version = is_version && id[j] >= '0' && id[j] <= '9';
-          if (is_version)
-            models_map.emplace(id.substr(0, i) + id.substr(i+1+6), &models.back());
-        }
-
       // Create (but not overwrite) hyphen-separated prefixes.
       for (unsigned i = 0; i < id.size(); i++)
         if (id[i] == '-')
