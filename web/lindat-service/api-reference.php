@@ -125,15 +125,14 @@ the <code>model</code> option:</p>
   <li>The <code>model</code> option can specify one of the models returned
   by the <a href="#models">models</a> method.</li>
 
-  <li>Version info in the <code>-YYMMDD</code> format can be left out when
-  supplying <code>model</code> option &ndash; the latest avilable model will be
-  used.</li>
-
   <li>The <code>model</code> option may be only several first words of model
   name. In this case, the latest most suitable model is used.</li>
+
+  <li>The <code>model</code> can be ISO 639-1 or ISO 639-2 code of a language.
+  If available, newest model for the requested language is used.</li>
 </ul>
 
-<p><span class="fa fa-info-circle"></span> Note that the last possibility allows using <code>czech</code> or <code>english</code> as models.</p>
+<p><span class="fa fa-info-circle"></span> Note that the last two possibilities allow using <code>czech</code>, <code>cs</code>, <code>ces</code>, <code>cze</code>, <code>english</code>, <code>en</code> or <code>eng</code> as models.</p>
 
 <hr />
 
