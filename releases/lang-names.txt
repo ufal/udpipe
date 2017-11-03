@@ -1,70 +1,70 @@
+grc ancient_greek grc
 grc_proiel ancient_greek-proiel
-grc ancient_greek
+ar arabic ar ara
 ar_nyuad arabic-nyuad
-ar arabic
-eu basque
-be belarusian
-bg bulgarian
-ca catalan
-zh chinese
-cop coptic
-hr croatian
+eu basque eu eus baq
+be belarusian be bel
+bg bulgarian bg bul
+ca catalan ca cat
+zh chinese zh zho chi
+cop coptic cop
+hr croatian hr hrv
+cs czech cs ces cze
 cs_cac czech-cac
 cs_cltt czech-cltt
-cs czech
-da danish
+da danish da dan
+nl dutch nl nld dut
 nl_lassysmall dutch-lassysmall
-nl dutch
+en english en eng
 en_lines english-lines
 en_partut english-partut
-en english
-et estonian
+et estonian et est
+fi finnish fi fin
 fi_ftb finnish-ftb
-fi finnish
+fr french fr fra fre
 fr_partut french-partut
 fr_sequoia french-sequoia
-fr french
+gl galician gl glg
 gl_treegal galician-treegal
-gl galician
-de german
-got gothic
-el greek
-he hebrew
-hi hindi
-hu hungarian
-id indonesian
-ga irish
+de german de deu ger
+got gothic got
+el greek el ell gre
+he hebrew he heb
+hi hindi hi hin
+hu hungarian hu hun
+id indonesian id ind
+ga irish ga gle
+it italian it ita
 it_partut italian-partut
-it italian
-ja japanese
-kk kazakh
-ko korean
+ja japanese ja jpn
+kk kazakh kk kaz
+ko korean ko kor
+la latin la lat
 la_ittb latin-ittb
 la_proiel latin-proiel
-la latin
-lv latvian
-lt lithuanian
-no_bokmaal norwegian-bokmaal
-no_nynorsk norwegian-nynorsk
-cu old_church_slavonic
-fa persian
-pl polish
+lv latvian lv lav
+lt lithuanian lt lit
+no_bokmaal norwegian-bokmaal nb nob
+no_nynorsk norwegian-nynorsk nn nno
+cu old_church_slavonic cu chu
+fa persian fa fas per
+pl polish pl pol
+pt portuguese pt por
 pt_br portuguese-br
-pt portuguese
-ro romanian
+ro romanian ro ron rum
+ru russian ru rus
 ru_syntagrus russian-syntagrus
-ru russian
-sa sanskrit
-sk slovak
+sa sanskrit sa san
+sk slovak sk slk slo
+sl slovenian sl slv
 sl_sst slovenian-sst
-sl slovenian
+es spanish es spa
 es_ancora spanish-ancora
-es spanish
+sv swedish sv swe
 sv_lines swedish-lines
-sv swedish
-ta tamil
-tr turkish
-uk ukrainian
-ur urdu
-ug uyghur
-vi vietnamese
+ta tamil ta tam
+tr turkish tr tur
+uk ukrainian uk ukr
+ur urdu ur urd
+ug uyghur ug uig
+vi vietnamese vi vie
