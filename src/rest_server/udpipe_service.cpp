@@ -307,8 +307,6 @@ bool udpipe_service::handle_weblicht_tag_parse(microrestd::rest_request& req, co
     unique_ptr<output_format> output;
   };
   return req.respond(generator::mime, new generator(loaded.release(), tagger, parser, input.release(), output.release()));
-
-  return req.respond_error("Not implemented");
 }
 
 // Helper functions
