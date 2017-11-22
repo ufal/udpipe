@@ -92,7 +92,6 @@ double tagger_trainer<TaggerTrainer>::load_data(istream& is, const morpho& d, bo
     forms++;
     sentence& s = sentences.back();
     s.words.emplace_back(tokens[0]);
-    s.forms.emplace_back(string_piece(s.words.back().c_str(), d.raw_form_len(s.words.back())));
     s.gold.emplace_back(tokens[1], tokens[2]);
     s.gold_index.emplace_back(-1);
 
@@ -113,6 +112,11 @@ double tagger_trainer<TaggerTrainer>::load_data(istream& is, const morpho& d, bo
     }
   }
   if (!sentences.empty() && sentences.back().words.empty()) sentences.pop_back();
+
+  // Fill the forms string_pieces now that the sentences will not reallocate
+  for (auto&& sentence : sentences)
+    for (auto&& word : sentence.words)
+      sentence.forms.emplace_back(string_piece(word.c_str(), d.raw_form_len(word)));
 
   return forms_matched / double(forms);
 }
