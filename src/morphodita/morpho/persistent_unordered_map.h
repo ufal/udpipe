@@ -87,7 +87,7 @@ struct persistent_unordered_map::fnv_hash {
 
     size = data.next_4B();
     this->data.resize(size);
-    memcpy(this->data.data(), data.next<char>(size), size);
+    if (size) memcpy(this->data.data(), data.next<char>(size), size);
   }
 
   inline uint32_t index(const char* data, int len) const {
