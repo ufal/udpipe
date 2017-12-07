@@ -61,17 +61,23 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
   }
 
   // Determine casing
-  enum { UC_FIRST, UC_ALL, OTHER } casing = OTHER;
-
+  //enum { UC_FIRST, UC_ALL, OTHER } casing = OTHER;
+  int uc_first;
+  int uc_all;
+  int casing;
+  uc_first = 1;
+  uc_all = 2;
+  casing = 3;
+  
   if (unicode::category(utf8::first(token.str, token.len)) & unicode::Lut) {
-    casing = UC_ALL;
+    casing = uc_all;
     for (auto&& chr : utf8::decoder(token.str, token.len))
-      if (unicode::category(chr) & (unicode::L & ~unicode::Lut)) { casing = UC_FIRST; break; }
+      if (unicode::category(chr) & (unicode::L & ~unicode::Lut)) { casing = uc_first; break; }
   }
-
+  
   // Fill the multiword token
   s.multiword_tokens.emplace_back(s.words.back().id, s.words.back().id + it->second.words.size() - 1, token, misc);
-
+  
   s.words.back().form.clear();
   if (prefix_len) {
     // Note that prefix_len is measured in byte length of lowercased characters
@@ -81,10 +87,10 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
     s.words.back().form.assign(token.str, token.len - suffix.len);
   }
   for (auto&& chr : utf8::decoder(it->second.words[0]))
-    utf8::append(s.words.back().form, casing == UC_ALL || (casing == UC_FIRST && s.words.back().form.empty()) ? unicode::uppercase(chr) : chr);
-
+    utf8::append(s.words.back().form, casing == uc_all || (casing == uc_first && s.words.back().form.empty()) ? unicode::uppercase(chr) : chr);
+  
   for (size_t i = 1; i < it->second.words.size(); i++)
-    if (casing != UC_ALL) {
+    if (casing != uc_all) {
       s.add_word(it->second.words[i]);
     } else {
       s.add_word();
