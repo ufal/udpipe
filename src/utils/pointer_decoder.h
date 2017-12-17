@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <cstring>
+
 #include "common.h"
 
 namespace ufal {
@@ -43,13 +45,15 @@ unsigned pointer_decoder::next_1B() {
 }
 
 unsigned pointer_decoder::next_2B() {
-  unsigned result = *(uint16_t*)data;
+  uint16_t result;
+  memcpy(&result, data, sizeof(uint16_t));
   data += sizeof(uint16_t);
   return result;
 }
 
 unsigned pointer_decoder::next_4B() {
-  unsigned result = *(uint32_t*)data;
+  uint32_t result;
+  memcpy(&result, data, sizeof(uint32_t));
   data += sizeof(uint32_t);
   return result;
 }

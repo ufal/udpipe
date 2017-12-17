@@ -287,12 +287,12 @@ Conditions:
   Mf_GetPointerToCurrentPos_Func's result must be used only before any other function
 */
 
-typedef void (*Mf_Init_Func)(void *object);
-typedef uint8_t (*Mf_GetIndexByte_Func)(void *object, int32_t index);
-typedef uint32_t (*Mf_GetNumAvailableBytes_Func)(void *object);
-typedef const uint8_t * (*Mf_GetPointerToCurrentPos_Func)(void *object);
-typedef uint32_t (*Mf_GetMatches_Func)(void *object, uint32_t *distances);
-typedef void (*Mf_Skip_Func)(void *object, uint32_t);
+typedef void (*Mf_Init_Func)(CMatchFinder *object);
+typedef uint8_t (*Mf_GetIndexByte_Func)(CMatchFinder *object, int32_t index);
+typedef uint32_t (*Mf_GetNumAvailableBytes_Func)(CMatchFinder *object);
+typedef uint8_t * (*Mf_GetPointerToCurrentPos_Func)(CMatchFinder *object);
+typedef uint32_t (*Mf_GetMatches_Func)(CMatchFinder *object, uint32_t *distances);
+typedef void (*Mf_Skip_Func)(CMatchFinder *object, uint32_t);
 
 struct IMatchFinder
 {
@@ -1370,7 +1370,7 @@ struct CSaveState
 struct CLzmaEnc
 {
   IMatchFinder matchFinder;
-  void *matchFinderObj;
+  CMatchFinder *matchFinderObj;
 
   CMatchFinder matchFinderBase;
 

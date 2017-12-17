@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <cstring>
 #include <stdexcept>
 
 #include "common.h"
@@ -65,14 +66,16 @@ unsigned binary_decoder::next_1B() throw (binary_decoder_error) {
 
 unsigned binary_decoder::next_2B() throw (binary_decoder_error) {
   if (data + sizeof(uint16_t) > data_end) throw binary_decoder_error("No more data in binary_decoder");
-  unsigned result = *(uint16_t*)data;
+  uint16_t result;
+  memcpy(&result, data, sizeof(uint16_t));
   data += sizeof(uint16_t);
   return result;
 }
 
 unsigned binary_decoder::next_4B() throw (binary_decoder_error) {
   if (data + sizeof(uint32_t) > data_end) throw binary_decoder_error("No more data in binary_decoder");
-  unsigned result = *(uint32_t*)data;
+  uint32_t result;
+  memcpy(&result, data, sizeof(uint32_t));
   data += sizeof(uint32_t);
   return result;
 }

@@ -1,3 +1,23 @@
+Version 3.4.1 [17 Dec 2017]
+---------------------------
+- Fix bug in binary_decoder and pointer_decoder introduces by 3.4.0.
+- Unify the pointer and value types for unaligned_{lower,upper}_bound.
+
+
+Version 3.4.0 [17 Dec 2017]
+---------------------------
+- New unaligned_access.h header providing several methods for loading
+  and storing values using unaligned pointers.
+- Fix unaligned loads in binary_decoder and pointer_decoder.
+- Make UndefinedBehaviourSanitizer happy in compressor_save.cpp.
+
+
+Version 3.3.0 [24 Aug 2017]
+---------------------------
+- Add run_process method executing given executable with given arguments,
+  optionaly capturing standard output.
+
+
 Version 3.2.1 [08 Apr 2017]
 ---------------------------
 - Add threadsafe_resource_loader destructor freeing currently
