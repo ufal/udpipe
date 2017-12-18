@@ -14,6 +14,7 @@
 #include "tagger.h"
 #include "utils/binary_decoder.h"
 #include "utils/compressor.h"
+#include "utils/unaligned_access.h"
 
 namespace ufal {
 namespace udpipe {
@@ -50,7 +51,7 @@ class persistent_elementary_feature_map : public persistent_unordered_map {
 
   elementary_feature_value value(const char* feature, int len) const {
     auto* it = at_typed<elementary_feature_value>(feature, len);
-    return it ? *it : elementary_feature_unknown;
+    return it ? unaligned_load<elementary_feature_value>(it) : elementary_feature_unknown;
   }
 };
 

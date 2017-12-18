@@ -15,6 +15,7 @@
 #include "small_stringops.h"
 #include "tag_filter.h"
 #include "utils/binary_decoder.h"
+#include "utils/unaligned_access.h"
 
 namespace ufal {
 namespace udpipe {
@@ -98,14 +99,14 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
           unsigned char* root_data = roots.fill(root.data(), root_len, sizeof(uint16_t) + sizeof(uint32_t) + sizeof(uint8_t));
           unsigned root_offset = root_data - root_len - roots.data_start(root_len);
 
-          *(uint16_t*)(root_data) = clas; root_data += sizeof(uint16_t);
-          *(uint32_t*)(root_data) = lemma_offset; root_data += sizeof(uint32_t);
-          *(uint8_t*)(root_data) = lemma_len; root_data += sizeof(uint8_t);
+          unaligned_store_inc<uint16_t>(root_data, clas);
+          unaligned_store_inc<uint32_t>(root_data, lemma_offset);
+          unaligned_store_inc<uint8_t>(root_data, lemma_len);
           assert(uint8_t(lemma_len) == lemma_len);
 
-          *(uint32_t*)(lemma_data) = root_offset; lemma_data += sizeof(uint32_t);
-          *(uint8_t*)(lemma_data) = root_len; lemma_data += sizeof(uint8_t);
-          *(uint16_t*)(lemma_data) = clas; lemma_data += sizeof(uint16_t);
+          unaligned_store_inc<uint32_t>(lemma_data, root_offset);
+          unaligned_store_inc<uint8_t>(lemma_data, root_len);
+          unaligned_store_inc<uint16_t>(lemma_data, clas);
           assert(uint8_t(root_len) == root_len);
         }
       }
@@ -135,20 +136,22 @@ void morpho_dictionary<LemmaAddinfo>::load(binary_decoder& data) {
   suffixes.iter_all([this](const char* suffix, int len, pointer_decoder& data) mutable {
     unsigned classes_len = data.next_2B();
     const uint16_t* classes_ptr = data.next<uint16_t>(classes_len);
-    // Following volatile is needed to overcome vectorizer bug in g++ 6.3.0 (among other versions).
-    volatile const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
-    uint32_t tags_len = indices_ptr[0];
+    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
+    uint32_t tags_len = unaligned_load<uint16_t>(indices_ptr);
     for (unsigned i = 0; i < classes_len; i++)
-      tags_len += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
+      tags_len += uint16_t(unaligned_load<uint16_t>(indices_ptr + i + 1) - unaligned_load<uint16_t>(indices_ptr + i));
     const uint16_t* tags_ptr = data.next<uint16_t>(tags_len);
 
     string suffix_str(suffix, len);
-    uint32_t index = indices_ptr[0], prev_index = 0;
+    uint32_t index = unaligned_load<uint16_t>(indices_ptr), prev_index = 0;
     for (unsigned i = 0; i < classes_len; i++) {
-      if (classes_ptr[i] >= classes.size()) classes.resize(classes_ptr[i] + 1);
+      auto classes_ptr_i = unaligned_load<uint16_t>(classes_ptr + i);
+      if (classes_ptr_i >= classes.size()) classes.resize(classes_ptr_i + 1);
       prev_index = index;
-      index += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
-      classes[classes_ptr[i]].emplace_back(suffix_str, vector<uint16_t>(tags_ptr + prev_index, tags_ptr + index));
+      index += uint16_t(unaligned_load<uint16_t>(indices_ptr + i + 1) - unaligned_load<uint16_t>(indices_ptr + i));
+      classes[classes_ptr_i].emplace_back(suffix_str, vector<uint16_t>());
+      for (const uint16_t* ptr = tags_ptr + prev_index; ptr < tags_ptr + index; ptr++)
+        classes[classes_ptr_i].back().second.emplace_back(unaligned_load<uint16_t>(ptr));
     }
   });
 }
@@ -169,26 +172,27 @@ void morpho_dictionary<LemmaAddinfo>::analyze(string_piece form, vector<tagged_l
   }
 
   for (int root_len = int(form.len) - --suff_len; suff_len >= 0 && root_len < int(roots.max_length()); suff_len--, root_len++)
-    if (*suff[suff_len]) {
-      unsigned suff_classes = *suff[suff_len];
+    if (unaligned_load<uint16_t>(suff[suff_len])) {
+      unsigned suff_classes = unaligned_load<uint16_t>(suff[suff_len]);
       uint16_t* suff_data = suff[suff_len] + 1;
 
       roots.iter(form.str, root_len, [&](const char* root, pointer_decoder& root_data) {
-        unsigned root_class = root_data.next_2B();
+        uint16_t root_class = root_data.next_2B();
         unsigned lemma_offset = root_data.next_4B();
         unsigned lemma_len = root_data.next_1B();
 
         if (small_memeq(form.str, root, root_len)) {
-          uint16_t* suffix_class_ptr = lower_bound(suff_data, suff_data + suff_classes, root_class);
-          if (suffix_class_ptr < suff_data + suff_classes && *suffix_class_ptr == root_class) {
+          uint16_t* suffix_class_ptr = unaligned_lower_bound(suff_data, suff_classes, root_class);
+          if (suffix_class_ptr < suff_data + suff_classes && unaligned_load<uint16_t>(suffix_class_ptr) == root_class) {
             const unsigned char* lemma_data = this->lemmas.data_start(lemma_len) + lemma_offset;
             string lemma((const char*)lemma_data, lemma_len);
             if (lemma_data[lemma_len]) lemma += LemmaAddinfo::format(lemma_data + lemma_len + 1, lemma_data[lemma_len]);
 
             uint16_t* suff_tag_indices = suff_data + suff_classes;
             uint16_t* suff_tags = suff_tag_indices + suff_classes + 1;
-            for (unsigned i = suff_tag_indices[suffix_class_ptr - suff_data]; i < suff_tag_indices[suffix_class_ptr - suff_data + 1]; i++)
-              lemmas.emplace_back(lemma, tags[suff_tags[i]]);
+            for (unsigned i = unaligned_load<uint16_t>(suff_tag_indices + (suffix_class_ptr - suff_data));
+                 i < unaligned_load<uint16_t>(suff_tag_indices + (suffix_class_ptr - suff_data) + 1); i++)
+              lemmas.emplace_back(lemma, tags[unaligned_load<uint16_t>(suff_tags + i)]);
           }
         }
       });

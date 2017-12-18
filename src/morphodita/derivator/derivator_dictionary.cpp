@@ -10,6 +10,7 @@
 #include "derivator_dictionary.h"
 #include "utils/binary_decoder.h"
 #include "utils/compressor.h"
+#include "utils/unaligned_access.h"
 
 namespace ufal {
 namespace udpipe {
@@ -114,9 +115,9 @@ bool derivator_dictionary::load(istream& is) {
           unsigned char* lemma_data = derinet.fill(lemma.data(), lemma.size(), 1 + lemma_comment_len + 4 + 2 + 4 * children);
           *lemma_data++ = lemma_comment_len;
           while (lemma_comment_len--) *lemma_data++ = *lemma_comment++;
-          *(uint32_t*)(lemma_data) = 0; lemma_data += sizeof(uint32_t);
-          *(uint16_t*)(lemma_data) = children; lemma_data += sizeof(uint16_t);
-          if (children) ((uint32_t*)lemma_data)[children - 1] = 0;
+          unaligned_store_inc<uint32_t>(lemma_data, 0);
+          unaligned_store_inc<uint16_t>(lemma_data, children);
+          if (children) unaligned_store<uint32_t>(((uint32_t*)lemma_data) + children - 1, 0);
         } else if (pass == 3 && !parent.empty()) {
           auto lemma_data = derinet.at(lemma.data(), lemma.size(), [](pointer_decoder& data) {
             data.next<char>(data.next_1B());
@@ -132,15 +133,16 @@ bool derivator_dictionary::load(istream& is) {
 
           unsigned parent_offset = parent_data - parent.size() - derinet.data_start(parent.size());
           assert(parent.size() < (1<<8) && parent_offset < (1<<24));
-          *(uint32_t*)(lemma_data + 1 + *lemma_data) = (parent_offset << 8) | parent.size();
+          unaligned_store<uint32_t>((void *)(lemma_data + 1 + *lemma_data), (parent_offset << 8) | parent.size());
 
           unsigned lemma_offset = lemma_data - lemma.size() - derinet.data_start(lemma.size());
           assert(lemma.size() < (1<<8) && lemma_offset < (1<<24));
-          auto children_len = *(uint16_t*)(parent_data + 1 + *parent_data + 4);
+          auto children_len = unaligned_load<uint16_t>(parent_data + 1 + *parent_data + 4);
           auto children = (uint32_t*)(parent_data + 1 + *parent_data + 4 + 2);
-          auto child_index = children[children_len-1];
-          children[child_index] = (lemma_offset << 8) | lemma.size();
-          if (child_index+1 < children_len) children[children_len-1]++;
+          auto child_index = unaligned_load<uint32_t>(children + children_len - 1);
+          unaligned_store<uint32_t>(children + child_index, (lemma_offset << 8) | lemma.size());
+          if (child_index+1 < children_len)
+            unaligned_store<uint32_t>(children + children_len - 1, unaligned_load<uint32_t>(children + children_len - 1) + 1);
         }
       }
 

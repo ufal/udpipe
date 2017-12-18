@@ -24,12 +24,12 @@ class tag_filter {
 
  private:
   struct char_filter {
-    char_filter(int pos, bool negate, const char* chars, int len) : pos(pos), negate(negate), chars(chars), len(len) {}
+    char_filter(int pos, bool negate, int chars_offset, int chars_len)
+        : pos(pos), negate(negate), chars_offset(chars_offset), chars_len(chars_len) {}
 
     int pos;
     bool negate;
-    const char* chars;
-    int len;
+    int chars_offset, chars_len;
   };
 
   string wildcard;
@@ -46,10 +46,10 @@ inline bool tag_filter::matches(const char* tag) const {
       if (!tag[tag_pos++])
         return true;
 
-    // We assume filter.len >= 1.
-    bool matched = (*filter.chars == tag[tag_pos]) ^ filter.negate;
-    for (int i = 1; i < filter.len && !matched; i++)
-      matched = (filter.chars[i] == tag[tag_pos]) ^ filter.negate;
+    // We assume filter.chars_len >= 1.
+    bool matched = (wildcard[filter.chars_offset] == tag[tag_pos]) ^ filter.negate;
+    for (int i = 1; i < filter.chars_len && ((!matched) ^ filter.negate); i++)
+      matched = (wildcard[filter.chars_offset + i] == tag[tag_pos]) ^ filter.negate;
     if (!matched) return false;
   }
   return true;

@@ -15,6 +15,7 @@
 #include "persistent_unordered_map.h"
 #include "small_stringops.h"
 #include "utils/binary_decoder.h"
+#include "utils/unaligned_access.h"
 
 namespace ufal {
 namespace udpipe {
@@ -68,7 +69,7 @@ void morpho_prefix_guesser<MorphoDictionary>::analyze(string_piece form, vector<
     if (initial) {
       auto found = prefixes_initial.at_typed<uint32_t>(form.str, initial);
       if (!found) break;
-      initial_mask = *found;
+      initial_mask = unaligned_load<uint32_t>(found);
     }
 
     // If we have found an initial prefix (including the empty one), match middle prefixes.
@@ -81,9 +82,9 @@ void morpho_prefix_guesser<MorphoDictionary>::analyze(string_piece form, vector<
         for (unsigned i = middle + 1; i < form.len; i++) {
           auto found = prefixes_middle.at_typed<uint32_t>(form.str + middle, i - middle);
           if (!found) break;
-          if (*found) {
+          if (unaligned_load<uint32_t>(found)) {
             if (i + 1 > middle_masks.size()) middle_masks.resize(i + 1);
-            middle_masks[i] |= middle_masks[middle] & *found;
+            middle_masks[i] |= middle_masks[middle] & unaligned_load<uint32_t>(found);
           }
         }
 

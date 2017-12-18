@@ -48,7 +48,7 @@ class morpho {
   static morpho* load(istream& is);
   static morpho* load(const char* fname);
 
-  enum guesser_mode { NO_GUESSER = 0, GUESSER = 1 };
+  enum guesser_mode { NO_GUESSER = 0, GUESSER = 1, GUESSER_UNSPECIFIED = -1 };
 
   // Perform morphologic analysis of a form. The form is given by a pointer and
   // length and therefore does not need to be '\0' terminated.  The guesser

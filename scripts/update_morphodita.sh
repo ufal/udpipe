@@ -56,30 +56,33 @@ patch -d ../src/morphodita/morpho <<EOF
          enc.add_2B(tag);
 EOF
 patch -d ../src/morphodita/morpho <<EOF
---- morpho_dictionary.h	2017-03-01 04:27:07.796949729 +0100
-+++ morpho_dictionary.h.new	2017-03-01 04:27:06.636949755 +0100
-@@ -135,13 +135,20 @@
+--- morpho_dictionary.h	2017-12-18 10:08:00.344536475 +0100
++++ morpho_dictionary.h.new	2017-12-18 10:14:35.935694091 +0100
+@@ -136,17 +136,21 @@
    suffixes.iter_all([this](const char* suffix, int len, pointer_decoder& data) mutable {
      unsigned classes_len = data.next_2B();
      const uint16_t* classes_ptr = data.next<uint16_t>(classes_len);
 -    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len);
 -    const uint16_t* tags_ptr = data.next<uint16_t>(data.next_2B());
-+    // Following volatile is needed to overcome vectorizer bug in g++ 6.3.0 (among other versions).
-+    volatile const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
-+    uint32_t tags_len = indices_ptr[0];
++    const uint16_t* indices_ptr = data.next<uint16_t>(classes_len + 1);
++    uint32_t tags_len = unaligned_load<uint16_t>(indices_ptr);
 +    for (unsigned i = 0; i < classes_len; i++)
-+      tags_len += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
++      tags_len += uint16_t(unaligned_load<uint16_t>(indices_ptr + i + 1) - unaligned_load<uint16_t>(indices_ptr + i));
 +    const uint16_t* tags_ptr = data.next<uint16_t>(tags_len);
  
      string suffix_str(suffix, len);
-+    uint32_t index = indices_ptr[0], prev_index = 0;
++    uint32_t index = unaligned_load<uint16_t>(indices_ptr), prev_index = 0;
      for (unsigned i = 0; i < classes_len; i++) {
-       if (classes_ptr[i] >= classes.size()) classes.resize(classes_ptr[i] + 1);
--      classes[classes_ptr[i]].emplace_back(suffix_str, vector<uint16_t>(tags_ptr + indices_ptr[i], tags_ptr + indices_ptr[i+1]));
+       auto classes_ptr_i = unaligned_load<uint16_t>(classes_ptr + i);
+       if (classes_ptr_i >= classes.size()) classes.resize(classes_ptr_i + 1);
 +      prev_index = index;
-+      index += uint16_t(indices_ptr[i + 1] - indices_ptr[i]);
-+      classes[classes_ptr[i]].emplace_back(suffix_str, vector<uint16_t>(tags_ptr + prev_index, tags_ptr + index));
++      index += uint16_t(unaligned_load<uint16_t>(indices_ptr + i + 1) - unaligned_load<uint16_t>(indices_ptr + i));
+       classes[classes_ptr_i].emplace_back(suffix_str, vector<uint16_t>());
+-      for (const uint16_t* ptr = tags_ptr + unaligned_load<uint16_t>(indices_ptr + i),
+-                         * end = tags_ptr + unaligned_load<uint16_t>(indices_ptr + i + 1);
+-           ptr < end; ptr++)
++      for (const uint16_t* ptr = tags_ptr + prev_index; ptr < tags_ptr + index; ptr++)
+         classes[classes_ptr_i].back().second.emplace_back(unaligned_load<uint16_t>(ptr));
      }
    });
- }
 EOF

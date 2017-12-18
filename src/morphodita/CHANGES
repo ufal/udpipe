@@ -1,6 +1,9 @@
 Version 1.9.3-devel
 -------------------
 - Document statistical guesser training using train_guesser binary.
+- Add explicit GUESSER_UNSPECIFIED guesser mode already used by tagger.
+- Fix unaligned pointer access and other UndefinedBehaviourSanitizer findings.
+- Fix bug in tag_filter incorrectly matching negates sets of 2+ characters.
 
 
 Version 1.9.2 [22 Sep 16]

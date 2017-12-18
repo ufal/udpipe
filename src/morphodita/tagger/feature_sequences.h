@@ -69,7 +69,7 @@ class persistent_feature_sequence_map : public persistent_unordered_map {
 
   feature_sequence_score score(const char* feature, int len) const {
     auto* it = at_typed<feature_sequence_score>(feature, len);
-    return it ? *it : 0;
+    return it ? unaligned_load<feature_sequence_score>(it) : 0;
   }
 };
 

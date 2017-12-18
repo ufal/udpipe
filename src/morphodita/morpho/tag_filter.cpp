@@ -21,21 +21,22 @@ tag_filter::tag_filter(const char* filter) {
   wildcard.assign(filter);
   filter = wildcard.c_str();
 
-  for (int tag_pos = 0; *filter; tag_pos++, filter++) {
-    if (*filter == '?') continue;
-    if (*filter == '[') {
-      filter++;
+  for (int tag_pos = 0, filter_pos = 0; filter[filter_pos]; tag_pos++, filter_pos++) {
+    if (filter[filter_pos] == '?') continue;
+    if (filter[filter_pos] == '[') {
+      filter_pos++;
 
       bool negate = false;
-      if (*filter == '^') negate = true, filter++;
+      if (filter[filter_pos] == '^') negate = true, filter_pos++;
 
-      const char* chars = filter;
-      for (bool first = true; *filter && (first || *filter != ']'); first = false) filter++;
+      int chars_start = filter_pos;
+      for (bool first = true; filter[filter_pos] && (first || filter[filter_pos] != ']'); first = false)
+        filter_pos++;
 
-      filters.emplace_back(tag_pos, negate, chars, filter - chars);
-      if (!*filter) break;
+      filters.emplace_back(tag_pos, negate, chars_start, filter_pos - chars_start);
+      if (!filter[filter_pos]) break;
     } else {
-      filters.emplace_back(tag_pos, false, filter, 1);
+      filters.emplace_back(tag_pos, false, filter_pos, 1);
     }
   }
 }

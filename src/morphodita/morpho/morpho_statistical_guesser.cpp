@@ -10,6 +10,7 @@
 #include "morpho_statistical_guesser.h"
 #include "small_stringops.h"
 #include "utils/binary_decoder.h"
+#include "utils/unaligned_access.h"
 
 namespace ufal {
 namespace udpipe {
@@ -93,7 +94,7 @@ void morpho_statistical_guesser::analyze(string_piece form, vector<tagged_lemma>
           if (pref_del_len + suff_del_len < form.len) lemma.append(form.str + pref_del_len, form.len - pref_del_len - suff_del_len);
           if (suff_add_len) lemma.append(suff_add, suff_add_len);
           while (tags_len--)
-            lemmas.emplace_back(lemma, this->tags[*tags++]);
+            lemmas.emplace_back(lemma, this->tags[unaligned_load_inc<uint16_t>(tags)]);
         }
       }
       break;
