@@ -66,6 +66,7 @@ int main(int argc, char* argv[]) {
                        {"no_check_models_loadable",options::value::none},
                        {"no_preload_default",options::value::none},
                        {"version", options::value::none},
+                       {"max_input_size", options::value::any},
                        {"help", options::value::none}}, argc, argv, options) ||
       options.count("help") ||
       ((argc < 3 || (argc % 3) != 0) && !options.count("version")))
@@ -74,6 +75,7 @@ int main(int argc, char* argv[]) {
                     "         --daemon (daemonize after start)\n"
                     "         --no_check_models_loadable (do not check models are loadable)\n"
                     "         --no_preload_default (do not preload default model)\n"
+                    "         --max_input_size (maximum upload limit in POST method)"
                     "         --version\n"
                     "         --help");
   if (options.count("version")) {
@@ -122,7 +124,9 @@ int main(int argc, char* argv[]) {
   // Start the server
   server.set_log_file(&log_file);
   server.set_max_connections(256);
-  server.set_max_request_body_size(1<<20);
+  unsigned max_req_body_size = options.count("max_input_size") ?
+      parse_int(options["max_input_size"], "max_input_size") : 1<<20;
+  server.set_max_request_body_size(max_req_body_size);
   server.set_min_generated(32 * (1<<10));
   server.set_threads(0);
   server.set_timeout(60);

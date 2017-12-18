@@ -182,7 +182,6 @@ bool rest_server::microhttpd_request::process_request_body(const char* request_b
     if (need_post_processor) {
       if (!post_processor || MHD_post_process(post_processor.get(), request_body, request_body_len) != MHD_YES)
         return false;
-    } else {
       body.append(request_body, request_body_len);
     }
     if (server.max_request_body_size) remaining_request_body_size -= request_body_len;
