@@ -60,12 +60,41 @@ function fillUsingParams(mapping, button) {
         control.val(value);
       }
     } else if (control.is('select')) {
-      var options = jQuery('option', control);
-      for (var i in options)
-        if(options[i].text.startsWith(value)) {
-          control.selectpicker('val', options[i].text);
-          break;
+
+      // set value based on prefix
+      var select_model = function(prefix) {
+        var options = jQuery('option', control);
+        for (var i = 0; i < options.length; ++i) {
+          if (options[i].text.startsWith(prefix)) {
+            control.selectpicker('val', options[i].text);
+            return;
+          }
         }
+      };
+
+      // special handling of models because of ISO support
+      if (value_from_param === "model") {
+        var models = [];
+        jQuery.ajax('https://raw.githubusercontent.com/ufal/udpipe/master/releases/lang-names.txt', {
+          dataType: "text", type: "GET", success: function(data) {
+            data.split(/\r?\n/).forEach(function(e) { models.push(e.split(' ')); });
+          },
+          complete: function() {
+            var prefix = value;
+            for (var i = 0; i < models.length; ++i) {
+              for (var j = 0; j < models[i].length; ++j) {
+                if (models[i][j] === value) {
+                  // first value is the model prefix in the above document
+                  select_model(models[i][1]);
+                  break;
+                }
+              }
+            } // for
+          }
+        });
+      }else{
+        select_model(value);
+      }
     }
   }
 }
