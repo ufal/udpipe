@@ -25,7 +25,7 @@ bool udpipe_service::init(const service_options& options) {
   models_map.clear();
   models.reserve(options.model_descriptions.size());
   for (auto& model_description : options.model_descriptions) {
-    unique_ptr<ifstream> is(new ifstream(model_description.file));
+    unique_ptr<ifstream> is(new ifstream(model_description.file, ifstream::binary));
     if (!is->is_open()) return false;
 
     // Split the ids
