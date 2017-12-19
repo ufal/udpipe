@@ -231,8 +231,26 @@ Documentation</a> and the models are described in the
       updateModels();
     }, complete: function() {
       if (jQuery('#model').html()) {
-        fillUsingParams({"#model": "model", "#input": "data"});
-        if (jQuery('#input').val()) doSubmit();
+        fillUsingParams(function() { if (jQuery('#input').val()) doSubmit(); },
+          [{param: 'model', selector: '#model', process: function(processed, value) {
+             if (value in models) {
+               processed(value);
+             } else {
+               jQuery.ajax('//lindat.mff.cuni.cz/services/udpipe/api/process',
+                      {dataType: "json", data: {model: value, data: ''}, type: "POST", success: function(json) {
+                        if ('model' in json) processed(json.model);
+                      }});
+             }}},
+           {param: 'data', selector: '#input', process: function(processed, value) {
+             var url_pattern = new RegExp(
+               '^((news|(ht|f)tp(s?)):\\/\\/)((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
+               '((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
+               '(\\?[;&a-z\\d%_.~+=-]*)?(\\#[-a-z\\d_]*)?$','i');
+             if (url_pattern.test(value)) {
+               jQuery.ajax(value, {dataType: 'text', success: function(result) { processed(result); }});
+             } else {
+               processed(value);
+             }}}]);
       } else {
         jQuery('#error').text("Cannot obtain the list of models from the service.").show();
       }

@@ -19,17 +19,11 @@ function parseUrlParams(location) {
   return param_dict;
 }
 
-function fillUsingParams(mapping, button) {
+function fillUsingParams(completed, mappings) {
   var url_params = parseUrlParams(window.location);
 
-  for (var control_selector in mapping) {
-    var value_from_param = mapping[control_selector];
-    if (!(value_from_param in url_params)) continue;
-
-    var value = url_params[value_from_param];
-    if (!value) continue;
-
-    var control = jQuery(control_selector);
+  function setValue(mapping, value) {
+    var control = jQuery(mapping.selector);
     if (control.is('input')) {
       if (control.type == 'text' || control.type == 'hidden') {
         control.val(value);
@@ -37,35 +31,24 @@ function fillUsingParams(mapping, button) {
         control.checked = true;
       }
     } else if (control.is('textarea')) {
-      // specific handling of url-only values
-      // - load the contents instead of the url value
-      var url_pattern = new RegExp(
-        '^((news|(ht|f)tp(s?)):\\/\\/)'+
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+
-        '((\\d{1,3}\\.){3}\\d{1,3}))'+
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+
-        '(\\?[;&a-z\\d%_.~+=-]*)?'+
-        '(\\#[-a-z\\d_]*)?$','i');
-      if (url_pattern.test(value))
-      {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', value, false);
-        xhr.onload = function () {
-            if (this.status === 200) {
-              control.val(this.responseText);
-            }
-        };
-        xhr.send();
-      }else {
-        control.val(value);
-      }
+      control.val(value);
     } else if (control.is('select')) {
-      var options = jQuery('option', control);
-      for (var i in options)
-        if(options[i].text.startsWith(value)) {
-          control.selectpicker('val', options[i].text);
-          break;
-        }
+      control.selectpicker('val', value);
     }
   }
+
+  function processMappings() {
+    while (mappings.length) {
+      var mapping = mappings.shift();
+      if (!(mapping.param in url_params)) continue;
+
+      var param_value = url_params[mapping.param];
+      if (!param_value) continue;
+
+      return mapping.process(function(processed_value) { setValue(mapping, processed_value); processMappings(); }, param_value);
+    }
+    completed();
+  }
+
+  processMappings();
 }
