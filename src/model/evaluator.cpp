@@ -367,7 +367,7 @@ void evaluator::word_alignment::best_alignment(const evaluation_data& system, co
   for (auto&& match : alignment.matched)
     gold_aligned[match.system.id - 1] = match.gold.id;
   for (auto&& match : alignment.matched)
-    if (match.system.head)
+    if (match.system.head > 0)
       match.system.head = gold_aligned[match.system.head - 1];
 }
 
