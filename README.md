@@ -25,4 +25,7 @@ offers online demo.
 UDPipe development repository http://github.com/ufal/udpipe is hosted
 on GitHub.
 
-Instructions how to build UDPipe REST server as Docker image is here: [https://github.com/samisalkosuo/udpipe-rest-server-docker](https://github.com/samisalkosuo/udpipe-rest-server-docker). Instructions how to train UDPipe language models using a Docker image is also there.
+*Third-party contribution:* Instructions how to build UDPipe REST server as
+Docker image is here: http://github.com/samisalkosuo/udpipe-rest-server-docker.
+Instructions how to train UDPipe language models using a Docker image is also
+there.
