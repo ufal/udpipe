@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <unordered_map>
 
 #include "common.h"
@@ -93,8 +94,8 @@ void gru_tokenizer_network::matrix<R, C>::clear() {
 
 template <int R, int C>
 void gru_tokenizer_network::matrix<R, C>::load(binary_decoder& data) {
-  for (int i = 0; i < R; i++) copy_n(data.next<float>(C), C, w[i]);
-  copy_n(data.next<float>(R), R, b);
+  for (int i = 0; i < R; i++) memcpy(w[i], data.next<float>(C), sizeof(float) * C);
+  memcpy(b, data.next<float>(R), sizeof(float) * R);
 }
 
 template <int D>
