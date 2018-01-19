@@ -7,6 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <cstring>
 #include <limits>
 
 #include "common.h"
@@ -98,8 +99,8 @@ void embedding::load(binary_decoder& data) {
   unknown_index = data.next_1B() ? dictionary.size() : -1;
 
   // Load weights
-  const float* weights_ptr = data.next<float>(dimension * (dictionary.size() + (unknown_index >= 0)));
-  weights.assign(weights_ptr, weights_ptr + dimension * (dictionary.size() + (unknown_index >= 0)));
+  weights.resize(dimension * (dictionary.size() + (unknown_index >= 0)));
+  memcpy(weights.data(), data.next<float>(weights.size()), sizeof(float) * weights.size());
 }
 
 } // namespace parsito

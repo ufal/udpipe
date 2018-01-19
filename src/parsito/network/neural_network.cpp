@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <cmath>
+#include <cstring>
 
 #include "neural_network.h"
 
@@ -21,8 +22,8 @@ void neural_network::load_matrix(binary_decoder& data, vector<vector<float>>& m)
 
   m.resize(rows);
   for (auto&& row : m) {
-    const float* row_ptr = data.next<float>(columns);
-    row.assign(row_ptr, row_ptr + columns);
+    row.resize(columns);
+    memcpy(row.data(), data.next<float>(columns), sizeof(float) * columns);
   }
 }
 
