@@ -32,8 +32,8 @@ class RunUDPipe {
         // Read whole input
         StringBuilder textBuilder = new StringBuilder();
         string line;
-        while ((line = Console.In.ReadLine()) != null)
-            textBuilder.Append(line).Append('\n');
+        while (!string.IsNullOrEmpty(line = Console.In.ReadLine()))
+            textBuilder.AppendLine(line);
 
         // Process data
         string text = textBuilder.ToString();
