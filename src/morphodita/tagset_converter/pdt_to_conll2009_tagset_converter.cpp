@@ -19,7 +19,7 @@ namespace morphodita {
 static const char* names[15] = {"POS", "SubPOS", "Gen", "Num", "Cas", "PGe", "PNu", "Per", "Ten", "Gra", "Neg", "Voi", "", "", "Var"};
 
 inline void pdt_to_conll2009_tagset_converter::convert_tag(const string& lemma, string& tag) const {
-  char pdt_tag[15];
+  char pdt_tag[16];
   strncpy(pdt_tag, tag.c_str(), 15);
 
   // Clear the tag
