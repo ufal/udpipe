@@ -1,3 +1,8 @@
+Version 1.1.2 [19 Jul 18]
+-------------------
+- Fix compilation on TDM-GCC.
+
+
 Version 1.1.1 [11 Oct 17]
 -------------------------
 - Fix undefined behaviour resulting from incorrect usage

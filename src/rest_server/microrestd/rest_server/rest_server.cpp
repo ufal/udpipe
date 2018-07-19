@@ -516,7 +516,7 @@ template <typename... Args> void rest_server::log(Args&&... args) {
   time_t time_now;
   time_now = time(nullptr);
   tm tm_now;
-#ifdef _MSC_VER
+#if defined(_WIN32) && !defined(__CYGWIN__)
   localtime_s(&tm_now, &time_now);
 #else
   localtime_r(&time_now, &tm_now);
