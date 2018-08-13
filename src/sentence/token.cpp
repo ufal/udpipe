@@ -124,6 +124,7 @@ void token::set_token_range(size_t start, size_t end) {
 }
 
 // Private MISC field helpers
+        // Name1=Value1|Name2=Value2|Name3=Value3
 bool token::get_misc_field(string_piece name, string_piece& value) const {
   for (size_t index = 0; index < misc.size(); ) {
     if (misc.compare(index, name.len, name.str, name.len) == 0 && misc[index + name.len] == '=') {
@@ -207,6 +208,19 @@ void token::unescape_spaces(string_piece escaped_spaces, string& spaces) const {
         spaces.push_back(escaped_spaces.str[i]);
     }
 }
+
+    string token::create_all_analyzes_misc_field(string &encoded_value) {
+
+      string _misc = start_misc_field("ALL_ANALYZES");
+      return _misc + encoded_value;
+
+    }
+
+    void token::remove_all_analyzes_field() {
+
+      remove_misc_field("ALL_ANALYZES");
+
+    }
 
 
 } // namespace udpipe

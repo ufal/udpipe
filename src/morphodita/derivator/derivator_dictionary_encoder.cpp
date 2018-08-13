@@ -117,7 +117,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
       derinet[lemma.second.parent].children++;
 
       if (verbose)
-//        cerr << lemma.first << lemma.second.comment << " -> " << lemma.second.parent << derinet[lemma.second.parent].comment << endl;
+        cerr << lemma.first << lemma.second.comment << " -> " << lemma.second.parent << derinet[lemma.second.parent].comment << endl;
     }
 
   // Make sure the derinet contains no cycles

@@ -38,6 +38,10 @@ class token {
   bool get_token_range(size_t& start, size_t& end) const;
   void set_token_range(size_t start, size_t end);
 
+  // PROVIDE_ALL_ANALYZES
+    string create_all_analyzes_misc_field(string &encoded_value);
+    void remove_all_analyzes_field();
+
  private:
   bool get_misc_field(string_piece name, string_piece& value) const;
   void remove_misc_field(string_piece name);

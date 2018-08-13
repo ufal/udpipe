@@ -55,7 +55,9 @@ struct viterbi<FeatureSequences>::node {
 };
 
 template <class FeatureSequences>
-void viterbi<FeatureSequences>::tag(const vector<string_piece>& forms, const vector<vector<tagged_lemma>>& analyses, cache& c, vector<int>& tags) const {
+void viterbi<FeatureSequences>::tag(const vector<string_piece>& forms,
+                                    const vector<vector<tagged_lemma>>& analyses,
+                                    cache& c, vector<int>& tags) const {
   if (!forms.size()) return;
 
   // Count number of nodes and allocate
@@ -93,7 +95,9 @@ void viterbi<FeatureSequences>::tag(const vector<string_piece>& forms, const vec
 
         // Compute dynamic elementary features and score
         features.compute_dynamic_features(i, tag, prev >= 0 ? &c.nodes[prev].dynamic : nullptr, dynamic, c.features_cache);
-        score = (nodes_prev + 1 == nodes_now && analyses[i].size() == 1 ? 0 : features.score(i, window, same_tags, dynamic, c.features_cache)) +
+        score = (nodes_prev + 1 == nodes_now && analyses[i].size() == 1 ?
+                0 :
+                 features.score(i, window, same_tags, dynamic, c.features_cache)) +
             (prev >= 0 ? c.nodes[prev].score : 0);
 
         // Update existing node or create a new one

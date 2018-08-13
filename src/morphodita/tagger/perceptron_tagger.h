@@ -7,6 +7,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#include <algorithm>
+
 #include "tagger.h"
 #include "utils/threadsafe_stack.h"
 #include "viterbi.h"
@@ -23,7 +25,11 @@ class perceptron_tagger : public tagger {
 
   bool load(istream& is);
   virtual const morpho* get_morpho() const override;
-  virtual void tag(const vector<string_piece>& forms, vector<tagged_lemma>& tags, morpho::guesser_mode guesser = morpho::guesser_mode(-1)) const override;
+  virtual void tag(const vector<string_piece>& forms,
+                   vector<tagged_lemma>& tags,
+                   vector<string>& all_analyzes,
+                   bool provide_all_analyzes,
+                   morpho::guesser_mode guesser = morpho::guesser_mode(-1)) const override;
   virtual void tag_analyzed(const vector<string_piece>& forms, const vector<vector<tagged_lemma>>& analyses, vector<int>& tags) const override;
 
  private:
@@ -67,26 +73,56 @@ const morpho* perceptron_tagger<FeatureSequences>::get_morpho() const {
 }
 
 template<class FeatureSequences>
-void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms, vector<tagged_lemma>& tags, morpho::guesser_mode guesser) const {
-  tags.clear();
-  if (!dict) return;
+void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
+                                              vector<tagged_lemma>& tags,
+                                              vector<string>& all_analyzes,
+                                              bool provide_all_analyzes,
+                                              morpho::guesser_mode guesser) const {
+    tags.clear();
+    if (!dict) return;
 
-  cache* c = caches.pop();
-  if (!c) c = new cache(*this);
+    cache *c = caches.pop();
+    if (!c) c = new cache(*this);
 
-  c->forms.resize(forms.size());
-  if (c->analyses.size() < forms.size()) c->analyses.resize(forms.size());
-  for (unsigned i = 0; i < forms.size(); i++) {
-    c->forms[i] = forms[i];
-    c->forms[i].len = dict->raw_form_len(forms[i]);
-    dict->analyze(forms[i], guesser >= 0 ? guesser : use_guesser ? morpho::GUESSER : morpho::NO_GUESSER, c->analyses[i]);
-  }
+    c->forms.resize(forms.size());
+    if (c->analyses.size() < forms.size()) c->analyses.resize(forms.size());
+    for (unsigned i = 0; i < forms.size(); i++) {
+        c->forms[i] = forms[i];
+        c->forms[i].len = dict->raw_form_len(forms[i]);
+        dict->analyze(forms[i], guesser >= 0 ? guesser : use_guesser ? morpho::GUESSER : morpho::NO_GUESSER,
+                      c->analyses[i]);
+    }
 
-  if (c->tags.size() < forms.size()) c->tags.resize(forms.size() * 2);
-  decoder.tag(c->forms, c->analyses, c->decoder_cache, c->tags);
+    if (c->tags.size() < forms.size()) c->tags.resize(forms.size() * 2);
+    decoder.tag(c->forms, c->analyses, c->decoder_cache, c->tags);
 
-  for (unsigned i = 0; i < forms.size(); i++)
-    tags.emplace_back(c->analyses[i][c->tags[i]]);
+    for (unsigned i = 0; i < forms.size(); i++)
+        tags.emplace_back(c->analyses[i][c->tags[i]]);
+
+    if (provide_all_analyzes) {
+        for (unsigned i = 0; i < forms.size(); i++) {
+            string all_analyzes_for_position_i;
+            for (unsigned j = 0; j < c->analyses[i].size(); j++) {
+                // take c->analyses[i][j]
+                // replace | with &
+                // join with ~ and add to the all_analyzes vector
+                //        c->analyses[i][j].lemma;
+                //          c->analyses[i][j].;
+                string analysis_at_i_j;
+                string * target_string;
+                target_string = new string(c->analyses[i][j].tag);
+                replace(target_string->begin(), target_string->end(), '|', '&');
+                replace(target_string->begin(), target_string->end(), '=', '>');
+                analysis_at_i_j = c->analyses[i][j].lemma + "&" + *target_string;
+                if (j == 0) {
+                    all_analyzes_for_position_i = analysis_at_i_j;
+                } else {
+                    all_analyzes_for_position_i += "!" + analysis_at_i_j;
+                }
+            }
+            all_analyzes[i] = all_analyzes_for_position_i;
+        }
+    }
 
   caches.push(c);
 }

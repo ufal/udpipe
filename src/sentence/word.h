@@ -27,6 +27,7 @@ class word : public token {
   int head;       // head, 0 is root, <0 is undefined
   string deprel;  // dependency relation to the head
   string deps;    // secondary dependencies
+  string misc;    // misc. values
 
   vector<int> children;
 
