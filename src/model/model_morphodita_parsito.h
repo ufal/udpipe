@@ -49,7 +49,7 @@ class model_morphodita_parsito : public model {
   struct tagger_cache {
     vector<string> forms_normalized;
     vector<string_piece> forms_string_pieces;
-    vector<string> all_analyzes;
+    vector<string> all_analyses;
     vector<morphodita::tagged_lemma> lemmas;
 
     named_values::map options;
@@ -95,7 +95,7 @@ class model_morphodita_parsito : public model {
   };
 
   void fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const;
-  void fill_word_all_analyzes(word& word, string all_analyzes_of_word) const;
+  void fill_word_all_analyses(word &word, string all_analyses_of_word) const;
   const string& normalize_form(string_piece form, string& output) const;
   const string& normalize_lemma(string_piece lemma, string& output) const;
   friend class trainer_morphodita_parsito;

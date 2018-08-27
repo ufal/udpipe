@@ -78,16 +78,16 @@ bool model_morphodita_parsito::tag(sentence& s, const string& options /*options*
   for (size_t i = 1; i < s.words.size(); i++)
     c->forms_string_pieces[i - 1] = normalize_form(s.words[i].form, c->forms_normalized[i - 1]);
 
-  bool provide_all_analyzes = false;
+  bool provide_all_analyses = false;
   if (!named_values::parse(options, c->options, error))
     return false;
-  if (c->options.count("provide_all_analyzes"))
-    provide_all_analyzes = true;
+  if (c->options.count("provide_all_analyses"))
+    provide_all_analyses = true;
 
-  if (provide_all_analyzes) {
-    c->all_analyzes.resize(s.words.size() - 1);
+  if (provide_all_analyses) {
+    c->all_analyses.resize(s.words.size() - 1);
     for (size_t i = 1; i < s.words.size(); i++)
-      c->all_analyzes[i - 1] = "";
+      c->all_analyses[i - 1] = "";
   }
 
   // Clear first
@@ -103,14 +103,14 @@ bool model_morphodita_parsito::tag(sentence& s, const string& options /*options*
   for (auto&& tagger : taggers) {
     if (!tagger.tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
 
-    tagger.tagger->tag(c->forms_string_pieces, c->lemmas, c->all_analyzes, provide_all_analyzes);
+    tagger.tagger->tag(c->forms_string_pieces, c->lemmas, c->all_analyses, provide_all_analyses);
 
     for (size_t i = 0; i < c->lemmas.size(); i++) {
       fill_word_analysis(c->lemmas[i],
                          tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats,
                          s.words[i + 1]);
-      if (provide_all_analyzes && tagger.feats)
-        fill_word_all_analyzes(s.words[i + 1], c->all_analyzes[i]);
+      if (provide_all_analyses && tagger.feats)
+        fill_word_all_analyses(s.words[i + 1], c->all_analyses[i]);
     }
   }
 
@@ -361,9 +361,9 @@ bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vec
   return true;
 }
 
-void model_morphodita_parsito::fill_word_all_analyzes(word& word, string all_analyzes_of_word) const {
+void model_morphodita_parsito::fill_word_all_analyses(word &word, string all_analyses_of_word) const {
 
-  string misc = word.create_all_analyzes_misc_field(all_analyzes_of_word);
+  string misc = word.create_all_analyses_misc_field(all_analyses_of_word);
 
   word.misc.assign(misc);
 

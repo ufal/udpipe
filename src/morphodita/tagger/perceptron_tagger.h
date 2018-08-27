@@ -27,8 +27,8 @@ class perceptron_tagger : public tagger {
   virtual const morpho* get_morpho() const override;
   virtual void tag(const vector<string_piece>& forms,
                    vector<tagged_lemma>& tags,
-                   vector<string>& all_analyzes,
-                   bool provide_all_analyzes,
+                   vector<string>& all_analyses,
+                   bool provide_all_analyses,
                    morpho::guesser_mode guesser = morpho::guesser_mode(-1)) const override;
   virtual void tag_analyzed(const vector<string_piece>& forms, const vector<vector<tagged_lemma>>& analyses, vector<int>& tags) const override;
 
@@ -75,8 +75,8 @@ const morpho* perceptron_tagger<FeatureSequences>::get_morpho() const {
 template<class FeatureSequences>
 void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
                                               vector<tagged_lemma>& tags,
-                                              vector<string>& all_analyzes,
-                                              bool provide_all_analyzes,
+                                              vector<string>& all_analyses,
+                                              bool provide_all_analyses,
                                               morpho::guesser_mode guesser) const {
     tags.clear();
     if (!dict) return;
@@ -99,13 +99,13 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
     for (unsigned i = 0; i < forms.size(); i++)
         tags.emplace_back(c->analyses[i][c->tags[i]]);
 
-    if (provide_all_analyzes) {
+    if (provide_all_analyses) {
         for (unsigned i = 0; i < forms.size(); i++) {
-            string all_analyzes_for_position_i;
+            string all_analyses_for_position_i;
             for (unsigned j = 0; j < c->analyses[i].size(); j++) {
                 // take c->analyses[i][j]
                 // replace | with &
-                // join with ~ and add to the all_analyzes vector
+                // join with ~ and add to the all_analyses vector
                 //        c->analyses[i][j].lemma;
                 //          c->analyses[i][j].;
                 string analysis_at_i_j;
@@ -115,12 +115,12 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
                 replace(target_string->begin(), target_string->end(), '=', '>');
                 analysis_at_i_j = c->analyses[i][j].lemma + "&" + *target_string;
                 if (j == 0) {
-                    all_analyzes_for_position_i = analysis_at_i_j;
+                    all_analyses_for_position_i = analysis_at_i_j;
                 } else {
-                    all_analyzes_for_position_i += "!" + analysis_at_i_j;
+                    all_analyses_for_position_i += "!" + analysis_at_i_j;
                 }
             }
-            all_analyzes[i] = all_analyzes_for_position_i;
+            all_analyses[i] = all_analyses_for_position_i;
         }
     }
 

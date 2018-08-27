@@ -209,16 +209,16 @@ void token::unescape_spaces(string_piece escaped_spaces, string& spaces) const {
     }
 }
 
-    string token::create_all_analyzes_misc_field(string &encoded_value) {
+    string token::create_all_analyses_misc_field(string &encoded_value) {
 
-      string _misc = start_misc_field("ALL_ANALYZES");
+      string _misc = start_misc_field("ALL_ANALYSES");
       return _misc + encoded_value;
 
     }
 
-    void token::remove_all_analyzes_field() {
+    void token::remove_all_analyses_field() {
 
-      remove_misc_field("ALL_ANALYZES");
+      remove_misc_field("ALL_ANALYSES");
 
     }
 
