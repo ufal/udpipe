@@ -534,6 +534,9 @@ can be evaluated:
 -
 
 
+%!include: manual_model_ud-2.2-conll18.t2t
+
+
 %!include: manual_model_ud-2.0.t2t
 
 

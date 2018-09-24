@@ -1,0 +1,28 @@
+CoNLL18 Shared Task Baseline UD 2.2 Models for UDPipe
+=====================================================
+
+== CoNLL18 Shared Task Baseline UD 2.2 Models ==[conll18_shared_task_baseline_ud_22_models]
+
+As part of CoNLL 2018 Shared Task in UD Parsing, baseline models
+for UDPipe were released. The CoNLL 2018 Shared Task models were trained on
+most of UD 2.2 treebanks (74 of them) and are distributed under the
+[CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/] licence.
+
+The models were released when the test set of UD 2.2 was unknown. Details about
+the concrete data split, hyperparameter values and model performance are
+available in the model archive.
+
+
+=== Download ===[conll18_shared_task_baseline_ud_22_models_download]
+
+The CoNLL18 Shared Task Baseline UD 2.2 Models can be downloaded
+from [LINDAT/CLARIN repository http://hdl.handle.net/11234/1-2859].
+
+
+=== Acknowledgements ===[conll18_shared_task_baseline_ud_22_models_ackowledgements]
+
+This work has been partially supported and has been using language resources
+and tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project //LM2015071//).
+
+The models were trained on a [Universal Dependencies 2.2 http://hdl.handle.net/11234/1-2837] treebanks.
