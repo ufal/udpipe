@@ -168,7 +168,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
 
         // Options
         bool tokenize_url = true; if (!option_bool(tokenizer, "tokenize_url", tokenize_url, error)) return false;
-        int segment_size = 50; // if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
+        int segment_size = 50; if (!option_int(tokenizer, "segment_size", segment_size, error)) return false;
         bool allow_spaces = spaces_in_training; if (!option_bool(tokenizer, "allow_spaces", allow_spaces, error)) return false;
         int dimension = 24; if (!option_int(tokenizer, "dimension", dimension, error)) return false;
         int epochs = 100; if (!option_int(tokenizer, "epochs", epochs, error)) return false;
@@ -176,7 +176,7 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
         if (!option_int(tokenizer, "batch_size", batch_size, error)) return false;
         double learning_rate = run <= 1 ? 0.005 : hyperparameter_logarithmic(run, 2, 0.0005, 0.01);
         if (!option_double(tokenizer, "learning_rate", learning_rate, error)) return false;
-        double learning_rate_final = 0.0; // if (!option_double(tokenizer, "learning_rate_final", learning_rate_final, error)) return false;
+        double learning_rate_final = 0.0; if (!option_double(tokenizer, "learning_rate_final", learning_rate_final, error)) return false;
         double dropout = 0.1; if (!option_double(tokenizer, "dropout", dropout, error)) return false;
         double initialization_range = 0.5; if (!option_double(tokenizer, "initialization_range", initialization_range, error)) return false;
         bool early_stopping = !heldout_sentences.empty(); if (!option_bool(tokenizer, "early_stopping", early_stopping, error)) return false;
@@ -186,8 +186,9 @@ bool trainer_morphodita_parsito::train_tokenizer(const vector<sentence>& trainin
 
         cerr << "Training tokenizer with the following options: " << "tokenize_url=" << (tokenize_url ? 1 : 0)
              << ", allow_spaces=" << (allow_spaces ? 1 : 0) << ", dimension=" << dimension << endl
-             << "  epochs=" << epochs << ", batch_size=" << batch_size << ", learning_rate=" << fixed << setprecision(4) << learning_rate
-             << ", dropout=" << dropout << ", early_stopping=" << (early_stopping ? 1 : 0) << endl;
+             << "  epochs=" << epochs << ", batch_size=" << batch_size << ", segment_size=" << segment_size
+             << ", learning_rate=" << fixed << setprecision(4) << learning_rate << ", learning_rate_final=" << learning_rate_final << endl
+             << "  dropout=" << dropout << ", early_stopping=" << (early_stopping ? 1 : 0) << endl;
 
         // Train and encode gru_tokenizer
         os.put(morphodita::tokenizer_ids::GRU);

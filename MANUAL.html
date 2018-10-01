@@ -1047,14 +1047,20 @@ The tokenizer recognizes the following options:
 </li>
 <li><code>dimension</code> (default 24): dimension of character embeddings and of the per-character bidirectional
     GRU. Note that inference time is quadratic in this parameter. Supported values
-    are only 16, 24 and 64, with 64 needed only for languages with complicated tokenization
-    like Japanese, Chinese or Vietnamese.
+    are only 16, 24 and 64, with 64 needed for languages with complicated tokenization
+    like Japanese, Chinese or Vietnamese or complicated segmentation.
+</li>
+<li><code>segment_size</code> (default 50): length of character segment used to predict token and sentence breaks.
+    Larger values like 200 are needed for languges with complicated segmentation
 </li>
 <li><code>epochs</code> (default 100): the number of epochs to train the tokenizer for
 </li>
-<li><code>batch_size</code> (default 50): batch size used during tokenizer training
+<li><code>batch_size</code> (default 50): batch size (number of segments) used during tokenizer training
 </li>
 <li><code>learning_rate</code> (default 0.005): the learning rate used during tokenizer training
+</li>
+<li><code>learning_rate_final</code> (default 0.0): if not zero, use exponential learning rate decay so that
+    last epoch uses this learning rate
 </li>
 <li><code>dropout</code> (default 0.1): dropout used during tokenizer training
 </li>
