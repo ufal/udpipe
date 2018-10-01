@@ -29,4 +29,4 @@ UDPIPE_OBJECTS += sentence/input_format sentence/output_format sentence/sentence
 UDPIPE_OBJECTS += tokenizer/detokenizer tokenizer/morphodita_tokenizer_wrapper
 UDPIPE_OBJECTS += tokenizer/multiword_splitter tokenizer/multiword_splitter_trainer
 UDPIPE_OBJECTS += trainer/trainer trainer/trainer_morphodita_parsito trainer/training_failure
-UDPIPE_OBJECTS += unilib/version utils/compressor_load utils/compressor_save version/version
+UDPIPE_OBJECTS += unilib/uninorms unilib/version utils/compressor_load utils/compressor_save version/version

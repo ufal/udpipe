@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "unilib/unicode.h"
+#include "unilib/uninorms.h"
 #include "utils/binary_decoder.h"
 
 namespace ufal {
@@ -113,8 +114,20 @@ void gru_tokenizer_network_implementation<D>::classify(const vector<char_info>& 
   if (chars.empty()) return;
 
   // Resolve embeddings, possibly with unknown_chars or empty_embedding
+  u32string decomposition;
   for (size_t i = 0; i < chars.size(); i++) {
     auto embedding = embeddings.find(chars[i].chr);
+
+    // Try finding substitute character if not found, by using NFKD
+    // and by replacing IDEOGRAPHIC FULL STOP/COMMA.
+    if (embedding == embeddings.end()) {
+      decomposition.assign(1, chars[i].chr);
+      unilib::uninorms::nfkd(decomposition);
+      if (decomposition[0] == 0x3001) decomposition[0] = char32_t(',');
+      if (decomposition[0] == 0x3002) decomposition[0] = char32_t('.');
+      if (decomposition[0] != chars[i].chr) embedding = embeddings.find(decomposition[0]);
+    }
+
     if (embedding != embeddings.end()) {
       outcomes[i].embedding = embedding->second.cache.w[0];
     } else {
