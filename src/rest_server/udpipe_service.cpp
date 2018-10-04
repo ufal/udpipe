@@ -226,14 +226,17 @@ bool udpipe_service::handle_weblicht_tokenize(microrestd::rest_request& req) {
 
   class generator : public weblicht_response_generator {
    public:
-    generator(loaded_model* loaded, input_format* tokenizer, output_format* output)
-        : weblicht_response_generator(loaded->model), loaded(loaded), tokenizer(tokenizer), output(output) {}
+    generator(loaded_model* loaded, input_format* tokenizer, const string* tagger, const string* parser, output_format* output)
+        : weblicht_response_generator(loaded->model), loaded(loaded), tokenizer(tokenizer), tagger(tagger), parser(parser), output(output) {}
 
     bool generate() {
       if (!tokenizer->next_sentence(s, error)) {
         output->finish_document(os); append(os.str()); os.str(string());
         return false;
       }
+
+      if (tagger) model->model->tag(s, *tagger, error);
+      if (parser) model->model->parse(s, *parser, error);
 
       output->write_sentence(s, os); append(os.str()); os.str(string());
       return true;
@@ -245,9 +248,14 @@ bool udpipe_service::handle_weblicht_tokenize(microrestd::rest_request& req) {
     ostringstream os;
     unique_ptr<loaded_model> loaded;
     unique_ptr<input_format> tokenizer;
+    const string* tagger;
+    const string* parser;
     unique_ptr<output_format> output;
   };
-  return req.respond(generator::mime, new generator(loaded.release(), tokenizer.release(), output.release()));
+
+  const string* tagger = (req.params.end() != req.params.find("tagger")) ?  &req.params["tagger"] : nullptr;
+  const string* parser = (req.params.end() != req.params.find("parser")) ?  &req.params["parser"] : nullptr;
+  return req.respond(generator::mime, new generator(loaded.release(), tokenizer.release(), tagger, parser, output.release()));
 }
 
 bool udpipe_service::handle_weblicht_tag(microrestd::rest_request& req) {
