@@ -8,6 +8,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <algorithm>
+#include <nlohmann/json.hpp>
+
+// for convenience
+using json = nlohmann::json;
 
 #include "tagger.h"
 #include "utils/threadsafe_stack.h"
@@ -27,6 +31,7 @@ class perceptron_tagger : public tagger {
   virtual const morpho* get_morpho() const override;
   virtual void tag(const vector<string_piece>& forms,
                    vector<tagged_lemma>& tags,
+                   vector<string>& correct_analyses,
                    vector<string>& all_analyses,
                    bool provide_all_analyses,
                    morpho::guesser_mode guesser = morpho::guesser_mode(-1)) const override;
@@ -75,6 +80,7 @@ const morpho* perceptron_tagger<FeatureSequences>::get_morpho() const {
 template<class FeatureSequences>
 void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
                                               vector<tagged_lemma>& tags,
+                                              vector<string>& correct_analyses,
                                               vector<string>& all_analyses,
                                               bool provide_all_analyses,
                                               morpho::guesser_mode guesser) const {
@@ -100,8 +106,11 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
         tags.emplace_back(c->analyses[i][c->tags[i]]);
 
     if (provide_all_analyses) {
+//        json root_json;
+//        json all_analyses_json = json::array();
         for (unsigned i = 0; i < forms.size(); i++) {
-            string all_analyses_for_position_i;
+//            string all_analyses_for_position_i;
+            json all_analyses_for_position_i_json = json::array();
             for (unsigned j = 0; j < c->analyses[i].size(); j++) {
                 // take c->analyses[i][j]
                 // replace | with &
@@ -111,17 +120,26 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
                 string analysis_at_i_j;
                 string * target_string;
                 target_string = new string(c->analyses[i][j].tag);
-                replace(target_string->begin(), target_string->end(), '|', '&');
-                replace(target_string->begin(), target_string->end(), '=', '>');
-                analysis_at_i_j = c->analyses[i][j].lemma + "&" + *target_string;
-                if (j == 0) {
-                    all_analyses_for_position_i = analysis_at_i_j;
-                } else {
-                    all_analyses_for_position_i += "!" + analysis_at_i_j;
-                }
+
+//                replace(target_string->begin(), target_string->end(), '|', '&');
+//                replace(target_string->begin(), target_string->end(), '=', '>');
+                analysis_at_i_j = c->analyses[i][j].lemma + "|" + *target_string;
+//                if (j == 0) {
+//                    all_analyses_for_position_i = analysis_at_i_j;
+//                } else {
+//                    all_analyses_for_position_i += "!" + analysis_at_i_j;
+//                }
+
+                all_analyses_for_position_i_json.push_back(analysis_at_i_j);
             }
-            all_analyses[i] = all_analyses_for_position_i;
+
+//            all_analyses[i] = all_analyses_for_position_i;
+//            all_analyses_json.push_back(all_analyses_for_position_i_json)
+            all_analyses[i] = all_analyses_for_position_i_json.dump();
+
+            correct_analyses[i] = c->analyses[i][c->tags[i]].lemma + "|" + *(new string(c->analyses[i][c->tags[i]].tag));
         }
+//        root_json["ALL_ANALYSES"] = all_analyses_json;
     }
 
   caches.push(c);

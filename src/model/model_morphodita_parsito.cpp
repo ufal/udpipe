@@ -8,6 +8,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 #include <algorithm>
+#include <nlohmann/json.hpp>
+
+// for convenience
+using json = nlohmann::json;
 
 #include "model_morphodita_parsito.h"
 #include "tokenizer/morphodita_tokenizer_wrapper.h"
@@ -85,9 +89,12 @@ bool model_morphodita_parsito::tag(sentence& s, const string& options /*options*
     provide_all_analyses = true;
 
   if (provide_all_analyses) {
-    c->all_analyses.resize(s.words.size() - 1);
-    for (size_t i = 1; i < s.words.size(); i++)
-      c->all_analyses[i - 1] = "";
+      c->correct_analyses.resize(s.words.size() - 1);
+      c->all_analyses.resize(s.words.size() - 1);
+      for (size_t i = 1; i < s.words.size(); i++) {
+          c->correct_analyses[i-1] = "";
+          c->all_analyses[i - 1] = "";
+      }
   }
 
   // Clear first
@@ -103,14 +110,14 @@ bool model_morphodita_parsito::tag(sentence& s, const string& options /*options*
   for (auto&& tagger : taggers) {
     if (!tagger.tagger) return error.assign("No tagger defined for the UDPipe model!"), false;
 
-    tagger.tagger->tag(c->forms_string_pieces, c->lemmas, c->all_analyses, provide_all_analyses);
+    tagger.tagger->tag(c->forms_string_pieces, c->lemmas, c->correct_analyses, c->all_analyses, provide_all_analyses);
 
     for (size_t i = 0; i < c->lemmas.size(); i++) {
       fill_word_analysis(c->lemmas[i],
                          tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats,
                          s.words[i + 1]);
       if (provide_all_analyses && tagger.feats)
-        fill_word_all_analyses(s.words[i + 1], c->all_analyses[i]);
+        fill_word_all_analyses(s.words[i + 1], c->correct_analyses[i], c->all_analyses[i]);
     }
   }
 
@@ -361,13 +368,13 @@ bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vec
   return true;
 }
 
-void model_morphodita_parsito::fill_word_all_analyses(word &word, string all_analyses_of_word) const {
+void model_morphodita_parsito::fill_word_all_analyses(word &word, string correct_analysis_of_word, string all_analyses_of_word) const {
 
-  string misc = word.create_all_analyses_misc_field(all_analyses_of_word);
+    json misc_json;
+    misc_json["ALL_ANALYSES"] = json::parse(all_analyses_of_word);
+    misc_json["CORRECT_ANALYSIS"] = correct_analysis_of_word;
 
-  word.misc.assign(misc);
-
-
+    word.misc.assign(misc_json.dump());
 }
 
 void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis,
