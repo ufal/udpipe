@@ -10,9 +10,6 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 
-// for convenience
-using json = nlohmann::json;
-
 #include "model_morphodita_parsito.h"
 #include "tokenizer/morphodita_tokenizer_wrapper.h"
 #include "unilib/unicode.h"
@@ -369,6 +366,9 @@ bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vec
 }
 
 void model_morphodita_parsito::fill_word_all_analyses(word &word, string correct_analysis_of_word, string all_analyses_of_word) const {
+
+    // for convenience
+    using json = nlohmann::json;
 
     json misc_json;
     misc_json["ALL_ANALYSES"] = json::parse(all_analyses_of_word);

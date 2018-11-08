@@ -10,9 +10,6 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 
-// for convenience
-using json = nlohmann::json;
-
 #include "tagger.h"
 #include "utils/threadsafe_stack.h"
 #include "viterbi.h"
@@ -84,6 +81,10 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
                                               vector<string>& all_analyses,
                                               bool provide_all_analyses,
                                               morpho::guesser_mode guesser) const {
+
+    // for convenience
+    using json = nlohmann::json;
+
     tags.clear();
     if (!dict) return;
 
@@ -106,40 +107,23 @@ void perceptron_tagger<FeatureSequences>::tag(const vector<string_piece>& forms,
         tags.emplace_back(c->analyses[i][c->tags[i]]);
 
     if (provide_all_analyses) {
-//        json root_json;
-//        json all_analyses_json = json::array();
+
         for (unsigned i = 0; i < forms.size(); i++) {
-//            string all_analyses_for_position_i;
             json all_analyses_for_position_i_json = json::array();
             for (unsigned j = 0; j < c->analyses[i].size(); j++) {
-                // take c->analyses[i][j]
-                // replace | with &
-                // join with ~ and add to the all_analyses vector
-                //        c->analyses[i][j].lemma;
-                //          c->analyses[i][j].;
                 string analysis_at_i_j;
                 string * target_string;
                 target_string = new string(c->analyses[i][j].tag);
 
-//                replace(target_string->begin(), target_string->end(), '|', '&');
-//                replace(target_string->begin(), target_string->end(), '=', '>');
                 analysis_at_i_j = c->analyses[i][j].lemma + "|" + *target_string;
-//                if (j == 0) {
-//                    all_analyses_for_position_i = analysis_at_i_j;
-//                } else {
-//                    all_analyses_for_position_i += "!" + analysis_at_i_j;
-//                }
 
                 all_analyses_for_position_i_json.push_back(analysis_at_i_j);
             }
 
-//            all_analyses[i] = all_analyses_for_position_i;
-//            all_analyses_json.push_back(all_analyses_for_position_i_json)
             all_analyses[i] = all_analyses_for_position_i_json.dump();
 
             correct_analyses[i] = c->analyses[i][c->tags[i]].lemma + "|" + *(new string(c->analyses[i][c->tags[i]].tag));
         }
-//        root_json["ALL_ANALYSES"] = all_analyses_json;
     }
 
   caches.push(c);
