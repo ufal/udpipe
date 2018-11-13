@@ -94,11 +94,11 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
     if (tokens.size() != 10)
       return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' does not contain 10 columns!") , false;
 
-    // Check that no column is empty and contains no spaces (except FORM and LEMMA in version >= 2)
+    // Check that no column is empty and contains no spaces (except FORM, LEMMA and MISC in version >= 2)
     for (int i = 0; i < 10; i++) {
       if (!tokens[i].len)
         return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains empty column ").append(columns[i]).append("!"), false;
-      if ((version < 2 || (i != 1 && i != 2)) && memchr(tokens[i].str, ' ', tokens[i].len) != NULL)
+      if ((version < 2 || (i != 1 && i != 2 && i != 9)) && memchr(tokens[i].str, ' ', tokens[i].len) != NULL)
         return error.assign("The CoNLL-U line '").append(line.str, line.len).append("' contains spaces in column ").append(columns[i]).append("!"), false;
     }
 
