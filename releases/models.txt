@@ -1,0 +1,138 @@
+af_afribooms afrikaans-afribooms af afr      #33894
+grc_perseus ancient_greek-perseus grc       #159895 ; default because proiel does not have punctuation
+grc_proiel ancient_greek-proiel             #187049
+ar_padt arabic-padt ar ara                  #223881
+hy_armtdp armenian-armtdp hy hye arm         #10198
+eu_bdt basque-bdt eu eus                     #72974
+be_hse belarusian-hse be bel                  #5217
+bg_btb bulgarian-btb bg bul                 #124336
+ca_ancora catalan-ancora ca cat             #417587
+zh_gsd chinese-gsd zh zho chi                #98608
+cop_scriptorium coptic-scriptorium cop        #9538
+hr_set croatian-set hr hrv                  #154055
+cs_pdt czech-pdt cs ces cze                #1173282
+cs_cac czech-cac                            #472609
+cs_fictree czech-fictree                    #133637
+cs_cltt czech-cltt                           #26742
+da_ddt danish-ddt da dan                     #80378
+nl_alpino dutch-alpino nl nld dut           #186046
+nl_lassysmall dutch-lassysmall               #75134
+en_ewt english-ewt en eng                   #204585
+en_gum english-gum                           #53686
+en_lines english-lines                       #50091
+en_partut english-partut                     #43518
+et_edt estonian-edt et est                  #341122
+fi_tdt finnish-tdt fi fin                   #162621
+fi_ftb finnish-ftb                          #127602
+fr_gsd french-gsd fr fra fre                #354699
+fr_sequoia french-sequoia                    #50536
+fr_partut french-partut                      #24123
+fr_spoken french-spoken                      #14952
+gl_ctg galician-ctg gl glg                   #79327
+gl_treegal galician-treegal                  #13946
+de_gsd german-gsd de deu ger                #263804
+got_proiel gothic-proiel got                 #35024
+el_gdt greek-gdt el ell gre                  #42326
+he_htb hebrew-htb he heb                    #137721
+hi_hdtb hindi-hdtb hi hin                   #281057
+hu_szeged hungarian-szeged hu hun            #20166
+id_gsd indonesian-gsd id ind                 #97531
+ga_idt irish-idt ga gle                      #12400
+it_isdt italian-isdt it ita                 #276019
+it_partut italian-partut                     #48934
+it_postwita italian-postwita                 #99441
+ja_gsd japanese-gsd ja jpn                  #160419
+ko_kaist korean-kaist ko kor                #296446
+ko_gsd korean-gsd                            #56687
+la_ittb latin-ittb la lat                   #293306
+la_proiel latin-proiel                      #171928
+la_perseus latin-perseus                     #16387
+lv_lvtb latvian-lvtb lv lav                 #113405
+lt_hse lithuanian-hse lt lit                  #3210
+mt_mudt maltese-mudt mt mlt                  #22880
+mr_ufal marathi-ufal mr mar                   #2997
+sme_giella north_sami-giella se sme          #14254
+no_bokmaal norwegian-bokmaal nb nob         #243887
+no_nynorsk norwegian-nynorsk nn nno         #245330
+no_nynorsklia norwegian-nynorsklia            #2976
+cu_proiel old_church_slavonic-proiel cu chu  #37432
+fro_srcmf old_french-srcmf fro              #136021
+fa_seraji persian-seraji fa fas per         #121064
+pl_lfg polish-lfg pl pol                    #104750
+pl_sz polish-sz                              #62501
+pt_gsd portuguese-gsd pt por                #255755
+pt_bosque portuguese-bosque                 #206744
+ro_rrt romanian-rrt ro ron rum              #185113
+ro_nonstandard romanian-nonstandard         #155498
+ru_syntagrus russian-syntagrus ru rus       #870474
+ru_gsd russian-gsd                           #75964
+ru_taiga russian-taiga                        #9068
+sr_set serbian-set sr srp                    #65764
+sk_snk slovak-snk sk slk slo                 #80575
+sl_ssj slovenian-ssj sl slv                 #112530
+sl_sst slovenian-sst                         #17287
+es_ancora spanish-ancora es spa             #444617
+es_gsd spanish-gsd                          #382436
+sv_talbanken swedish-talbanken sv swe        #66645
+sv_lines swedish-lines                       #48320
+ta_ttb tamil-ttb ta tam                       #6329
+te_mtg telugu-mtg te tel                      #5082
+tr_imst turkish-imst tr tur                  #37918
+uk_iu ukrainian-iu uk ukr                    #88043
+ur_udtb urdu-udtb ur urd                    #108690
+ug_udt uyghur-udt ug uig                     #19262
+vi_vtb vietnamese-vtb vi vie                 #20285
+
+# Pre UD 2.2 names without treebank names
+grc ancient_greek
+ar arabic
+eu basque
+be belarusian
+bg bulgarian
+ca catalan
+zh chinese
+cop coptic
+hr croatian
+cs czech
+da danish
+nl dutch
+en english
+et estonian
+fi finnish
+fr french
+gl galician
+de german
+got gothic
+el greek
+he hebrew
+hi hindi
+hu hungarian
+id indonesian
+ga irish
+it italian
+ja japanese
+ko korean
+la latin
+lv latvian
+lt lithuanian
+cu old_church_slavonic
+fa persian
+pl polish
+pt portuguese
+ro romanian
+ru russian
+sk slovak
+sl slovenian
+es spanish
+sv swedish
+ta tamil
+tr turkish
+uk ukrainian
+ur urdu
+ug uyghur
+vi vietnamese
+
+# Currently obsolete model names
+kk kazakh kk kaz
+pt_br portuguese-br
+sa sanskrit sa san

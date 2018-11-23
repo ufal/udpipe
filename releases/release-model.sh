@@ -20,7 +20,7 @@ make -C ../doc clean
 
 for model in ../training/models-$family/*/*.model; do
   lang=`basename $model .model`
-  long_name=`awk "/^$lang /{print \\\$2}" lang-names.txt`
+  long_name=`awk "/^$lang /{print \\\$2}" models.txt`
   [ -z "$long_name" ] && { echo Unknown language code $lang >&2; exit 1; }
   ln -s ../$model $dir/$long_name-$family-$version.udpipe
 done
