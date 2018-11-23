@@ -2,7 +2,7 @@ UDPipe API Reference
 ====================
 
 This section describes available API. The command line tools are described
-%web% [on the User's Manual page udpipe/users-manual].
+%web% [on the User's Manual page users-manual].
 %manual% [in the User's Manual section #users-manual].
 
 The UDPipe API is defined in header ``udpipe.h`` and resides in
