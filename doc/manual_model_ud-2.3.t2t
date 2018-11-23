@@ -54,7 +54,7 @@ language in question.
 The tagger, lemmatizer and parser are trained using gold UD data.
 
 Details about model architecture and training process can be found in the
-(Straka et al. 2317) paper.
+(Straka et al. 2017) paper.
 
 ==== Reproducible Training ====[universal_dependencies_23_reprodusible_training]
 
