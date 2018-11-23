@@ -1,9 +1,9 @@
 UDPipe User's Manual
 ====================
 
-Like any supervised machine-learning tool, UDPipe needs a trained linguistic model.
-This section describes the available language models and also the command line
-tools and interfaces.
+This section describes the command line tools. The C++ API is described
+%web% [on the API Reference page udpipe/api-reference].
+%manual% [in the API Reference section #api-reference].
 
 
 == Running UDPipe ==[run_udpipe]
@@ -536,15 +536,3 @@ can be evaluated:
   gold morphology (Lemmas/UPOS/XPOS/Feats) and evaluated.
 
 -
-
-
-%!include: manual_model_ud-2.2-conll18.t2t
-
-
-%!include: manual_model_ud-2.0.t2t
-
-
-%!include: manual_model_ud-2.0-conll17.t2t
-
-
-%!include: manual_model_ud-1.2.t2t

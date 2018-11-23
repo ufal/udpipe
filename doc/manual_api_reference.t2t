@@ -1,6 +1,10 @@
 UDPipe API Reference
 ====================
 
+This section describes available API. The command line tools are described
+%web% [on the User's Manual page udpipe/users-manual].
+%manual% [in the User's Manual section #users-manual].
+
 The UDPipe API is defined in header ``udpipe.h`` and resides in
 ``ufal::udpipe`` namespace. The API allows only using existing models,
 for custom model creation you have to use the ``train_parser`` binary.
