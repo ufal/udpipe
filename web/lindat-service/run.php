@@ -224,7 +224,7 @@ Documentation</a> and the models are described in the
       var new_language = false;
       if (!current_language || !treebank.startsWith(current_language)) {
         new_language = true;
-        current_language = treebank;
+        current_language = treebank.replace(/-.*/, "");
       }
 
       models_list += "<option data-content='<span style=\"display: inline-block; width: " + (new_language ? "2.5" : "3.5") + "em\"><img src=\"flags/" + treebank + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
