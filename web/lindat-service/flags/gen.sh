@@ -13,6 +13,7 @@ rm -rf docs
 cp ancient_greek.svg ancient-greek.svg
 cp ancient_greek-proiel.svg ancient-greek-proiel.svg
 cp old_church_slavonic.svg old-church-slavonic.svg
+cp latin-ittb.svg latin-itt.svg
 
 for svg in *.svg; do
   echo $svg
