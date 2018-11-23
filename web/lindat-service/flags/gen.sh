@@ -20,4 +20,13 @@ for svg in *.svg; do
 done
 rm *.svg
 
+sed 's/#.*$//; /^$/d' ../../../releases/models.txt | while read code name rest; do
+  [ -f "$name".png ] && continue
+
+  generic_name="${name%-*}"
+  echo Flag for $name not found, trying to use $generic_name >&2
+  [ -f "$generic_name".png ] || { echo Missing flag even for $generic_name, aborting >&2; exit 1; }
+  cp "$generic_name".png "$name".png
+done
+
 echo All done
