@@ -9,6 +9,7 @@
 
 #include <fstream>
 
+#include "czech_tokenizer_factory.h"
 #include "generic_tokenizer_factory.h"
 #include "gru_tokenizer_factory.h"
 #include "tokenizer_ids.h"
@@ -34,7 +35,11 @@ tokenizer_factory* tokenizer_factory::load(istream& is) {
         break;
       }
     case tokenizer_ids::CZECH:
-      break;
+      {
+        auto res = new_unique_ptr<czech_tokenizer_factory>();
+        if (res->load(is)) return res.release();
+        break;
+      }
     case tokenizer_ids::ENGLISH:
       break;
   }
