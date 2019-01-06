@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "model_morphodita_parsito.h"
+#include "morphodita/tagger/tagger_ids.h"
 #include "tokenizer/morphodita_tokenizer_wrapper.h"
 #include "unilib/unicode.h"
 #include "unilib/utf8.h"
@@ -94,7 +95,7 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
     tagger.tagger->tag(c->forms_string_pieces, c->lemmas);
 
     for (size_t i = 0; i < c->lemmas.size(); i++)
-      fill_word_analysis(c->lemmas[i], tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats, s.words[i+1]);
+      fill_word_analysis(c->lemmas[i], tagger.raw, tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats, s.words[i+1]);
   }
 
   tagger_caches.push(c);
@@ -171,9 +172,13 @@ model* model_morphodita_parsito::load(istream& is) {
     char lemma; if (!is.get(lemma)) return nullptr;
     char xpostag; if (!is.get(xpostag)) return nullptr;
     char feats; if (!is.get(feats)) return nullptr;
+    int model_type = is.peek();
+    bool raw = !(model_type == morphodita::tagger_ids::CONLLU2 ||
+                 model_type == morphodita::tagger_ids::CONLLU2_3 ||
+                 model_type == morphodita::tagger_ids::CONLLU3);
     morphodita::tagger* tagger = morphodita::tagger::load(is);
     if (!tagger) return nullptr;
-    m->taggers.emplace_back(i == 0, int(lemma), bool(xpostag), bool(feats), tagger);
+    m->taggers.emplace_back(raw, i == 0, int(lemma), bool(xpostag), bool(feats), tagger);
   }
 
   char parser;
@@ -345,7 +350,14 @@ bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vec
 }
 
 
-void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) const {
+void model_morphodita_parsito::fill_word_analysis(const morphodita::tagged_lemma& analysis, bool raw, bool upostag, int lemma, bool xpostag, bool feats, word& word) const {
+  // Handle raw MorphoDiTa models.
+  if (raw) {
+    if (lemma) word.lemma.assign(analysis.lemma);
+    if (xpostag) word.xpostag.assign(analysis.tag);
+    return;
+  }
+
   // Lemma
   if (lemma == 1) {
     word.lemma.assign(analysis.lemma);

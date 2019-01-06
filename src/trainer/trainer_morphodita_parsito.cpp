@@ -485,7 +485,7 @@ const string& trainer_morphodita_parsito::model_normalize_lemma(string_piece lem
 }
 
 void trainer_morphodita_parsito::model_fill_word_analysis(const morphodita::tagged_lemma& analysis, bool upostag, int lemma, bool xpostag, bool feats, word& word) {
-  model_morphodita_parsito(model_morphodita_parsito::VERSION_LATEST).fill_word_analysis(analysis, upostag, lemma, xpostag, feats, word);
+  model_morphodita_parsito(model_morphodita_parsito::VERSION_LATEST).fill_word_analysis(analysis, false, upostag, lemma, xpostag, feats, word);
 }
 
 // Tagger model helper functions
