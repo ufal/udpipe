@@ -14,7 +14,7 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-tokenizer* generic_tokenizer_factory::new_tokenizer() const {
+tokenizer* generic_tokenizer_factory::new_tokenizer(const morpho* /*m*/) const {
   return new generic_tokenizer(version);
 }
 

@@ -10,6 +10,7 @@
 #pragma once
 
 #include "common.h"
+#include "morphodita/morpho/morpho.h"
 #include "tokenizer.h"
 
 namespace ufal {
@@ -24,7 +25,7 @@ class tokenizer_factory {
   static tokenizer_factory* load(const char* fname);
 
   // Construct a new tokenizer instance.
-  virtual tokenizer* new_tokenizer() const = 0;
+  virtual tokenizer* new_tokenizer(const morpho* m) const = 0;
 };
 
 } // namespace morphodita

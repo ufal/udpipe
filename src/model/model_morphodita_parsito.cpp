@@ -37,7 +37,8 @@ input_format* model_morphodita_parsito::new_tokenizer(const string& options) con
   bool normalized_spaces = parsed_options.count("normalized_spaces");
   bool token_ranges = parsed_options.count("ranges");
 
-  unique_ptr<input_format> result(new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(), splitter.get(), normalized_spaces, token_ranges));
+  const auto* morpho = !taggers.empty() ? taggers[0].tagger->get_morpho() : nullptr;
+  unique_ptr<input_format> result(new morphodita_tokenizer_wrapper(tokenizer_factory->new_tokenizer(morpho), splitter.get(), normalized_spaces, token_ranges));
 
   // Presegmented
   if (parsed_options.count("presegmented") && result)

@@ -19,7 +19,7 @@ namespace morphodita {
 class generic_tokenizer_factory : public tokenizer_factory {
  public:
   // Construct a new tokenizer instance.
-  virtual tokenizer* new_tokenizer() const override;
+  virtual tokenizer* new_tokenizer(const morpho* m) const override;
 
   bool load(istream& is);
  private:

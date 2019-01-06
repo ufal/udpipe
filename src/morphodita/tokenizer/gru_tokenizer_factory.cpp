@@ -16,7 +16,7 @@ namespace ufal {
 namespace udpipe {
 namespace morphodita {
 
-tokenizer* gru_tokenizer_factory::new_tokenizer() const {
+tokenizer* gru_tokenizer_factory::new_tokenizer(const morpho* /*m*/) const {
   return new gru_tokenizer(url_email_tokenizer, segment, allow_spaces, *network);
 }
 
