@@ -1,5 +1,8 @@
 Revision history for ufal.udpipe
 
+1.2.0.2 [02 May 19]
+        Improve compilation on OS X.
+
 1.2.0.1 [01 Aug 17]
         Update UDPipe to 1.2.0.
 
