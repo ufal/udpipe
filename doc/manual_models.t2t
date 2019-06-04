@@ -5,6 +5,9 @@ Like any supervised machine-learning tool, UDPipe needs a trained linguistic mod
 This section describes the available models.
 
 
+%!include: manual_model_ud-2.4.t2t
+
+
 %!include: manual_model_ud-2.3.t2t
 
 

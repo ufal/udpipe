@@ -8,6 +8,7 @@ be_hse belarusian-hse be bel                  #5217
 bg_btb bulgarian-btb bg bul                 #124336
 ca_ancora catalan-ancora ca cat             #417587
 zh_gsd chinese-gsd zh zho chi                #98608
+lzh_kyoto classical_chinese-kyoto lzh        #34370
 cop_scriptorium coptic-scriptorium cop        #9538
 hr_set croatian-set hr hrv                  #154055
 cs_pdt czech-pdt cs ces cze                #1173282
@@ -22,6 +23,7 @@ en_gum english-gum                           #53686
 en_lines english-lines                       #50091
 en_partut english-partut                     #43518
 et_edt estonian-edt et est                  #341122
+et_ewt estonian-ewt                          #15447
 fi_tdt finnish-tdt fi fin                   #162621
 fi_ftb finnish-ftb                          #127602
 fr_gsd french-gsd fr fra fre                #354699
@@ -41,6 +43,7 @@ ga_idt irish-idt ga gle                      #12400
 it_isdt italian-isdt it ita                 #276019
 it_partut italian-partut                     #48934
 it_postwita italian-postwita                 #99441
+it_vit italian-vit                          #224900
 ja_gsd japanese-gsd ja jpn                  #160419
 ko_kaist korean-kaist ko kor                #296446
 ko_gsd korean-gsd                            #56687
@@ -48,7 +51,8 @@ la_ittb latin-ittb la lat                   #293306
 la_proiel latin-proiel                      #171928
 la_perseus latin-perseus                     #16387
 lv_lvtb latvian-lvtb lv lav                 #113405
-lt_hse lithuanian-hse lt lit                  #3210
+lt_alksnis lithuanian-alksnis lt lit         #17508
+lt_hse lithuanian-hse                         #3210
 mt_mudt maltese-mudt mt mlt                  #22880
 mr_ufal marathi-ufal mr mar                   #2997
 sme_giella north_sami-giella se sme          #14254
@@ -57,9 +61,10 @@ no_nynorsk norwegian-nynorsk nn nno         #245330
 no_nynorsklia norwegian-nynorsklia            #2976
 cu_proiel old_church_slavonic-proiel cu chu  #37432
 fro_srcmf old_french-srcmf fro              #136021
+orv_torot old_russian-torot orv             #118630
 fa_seraji persian-seraji fa fas per         #121064
-pl_lfg polish-lfg pl pol                    #104750
-pl_sz polish-sz                              #62501
+pl_pdb polish-pdb pl pol                    #284209
+pl_lfg polish-lfg                           #104750
 pt_gsd portuguese-gsd pt por                #255755
 pt_bosque portuguese-bosque                 #206744
 ro_rrt romanian-rrt ro ron rum              #185113
@@ -82,6 +87,7 @@ uk_iu ukrainian-iu uk ukr                    #88043
 ur_udtb urdu-udtb ur urd                    #108690
 ug_udt uyghur-udt ug uig                     #19262
 vi_vtb vietnamese-vtb vi vie                 #20285
+wo_wtb wolof-wtb wo wol wof                  #23561
 
 # Pre UD 2.2 names without treebank names
 grc ancient_greek
@@ -134,5 +140,6 @@ vi vietnamese
 
 # Currently obsolete model names
 kk kazakh kk kaz
+pl_sz polish-sz                              #62501
 pt_br portuguese-br
 sa sanskrit sa san
