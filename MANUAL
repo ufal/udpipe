@@ -1657,6 +1657,8 @@ The full command syntax of udpipe_server is
   udpipe_server [options] port default_model (model_ids model_file acknowledgements)*
   Options: --concurrent_models=maximum concurrently loaded models (default 10)
            --daemon (daemonize after start)
+           --log_file=filename (file to use for traffic logging, empty for no log)
+           --log_request_max_size=size (log at most this many chars in every request)
            --no_check_models_loadable (do not check models are loadable)
            --no_preload_default (do not preload default model)
 
