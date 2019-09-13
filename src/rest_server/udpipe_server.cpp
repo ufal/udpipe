@@ -63,6 +63,8 @@ int main(int argc, char* argv[]) {
   options::map options;
   if (!options::parse({{"concurrent_models",options::value::any},
                        {"daemon",options::value::none},
+                       {"log_file",options::value::any},
+                       {"log_request_max_size",options::value::any},
                        {"no_check_models_loadable",options::value::none},
                        {"no_preload_default",options::value::none},
                        {"version", options::value::none},
@@ -87,6 +89,7 @@ int main(int argc, char* argv[]) {
   int port = parse_int(argv[1], "port number");
   service_options.default_model = argv[2];
   service_options.concurrent_limit = options.count("concurrent_models") ? parse_int(options["concurrent_models"], "concurrent models") : 10;
+  int log_request_max_size = options.count("log_request_max_size") ? parse_int(options["log_request_max_size"], "log request maximum size") : 0;
   service_options.preload_default = !options.count("no_preload_default");
   service_options.check_models_loadable = !options.count("no_check_models_loadable");
 
@@ -101,10 +104,13 @@ int main(int argc, char* argv[]) {
   if (!service.init(service_options))
     runtime_failure("Cannot load specified models!");
 
-  // Open log file
-  string log_file_name = string(argv[0]) + ".log";
-  ofstream log_file(log_file_name.c_str(), ofstream::app);
-  if (!log_file) runtime_failure("Cannot open log file '" << log_file_name << "' for writing!");
+  // Open log file, if requested
+  ofstream log_file;
+  string log_file_name = options.count("log_file") ? options["log_file"] : string(argv[0]) + ".log";
+  if (!log_file_name.empty()) {
+    log_file.open(log_file_name.c_str(), ofstream::app);
+    if (!log_file) runtime_failure("Cannot open log file '" << log_file_name << "' for writing!");
+  }
 
   // Daemonize if requested
 #ifdef __linux__
@@ -120,7 +126,8 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Start the server
-  server.set_log_file(&log_file);
+  if (!log_file_name.empty())
+    server.set_log_file(&log_file, log_request_max_size);
   server.set_max_connections(256);
   server.set_max_request_body_size(1<<20);
   server.set_min_generated(32 * (1<<10));
