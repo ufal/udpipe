@@ -25,6 +25,9 @@ The bindings is a straightforward conversion of the C++ bindings API. In Python
 2, strings can be both unicode and UTF-8 encoded str, and the library always
 produces unicode. In Python 3, strings must be only str.
 
+You might also be interested in a contributed package spacy-udpipe
+(https://github.com/TakeLab/spacy-udpipe) which wraps UDPipe with spaCy API.
+
 
 C++ Bindings API
 ================

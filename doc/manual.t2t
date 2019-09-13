@@ -28,6 +28,10 @@ and [CPAN https://metacpan.org/pod/Ufal::UDPipe].
 - [All releases http://github.com/ufal/udpipe/releases], [Changelog https://github.com/ufal/udpipe/blob/master/CHANGES]
 
 
+You might also be interested in a contributed package
+[spacy-udpipe https://github.com/TakeLab/spacy-udpipe] which wraps UDPipe
+with spaCy API.
+
 === Available Models ===[available_models]
 
 To use UDPipe, a model is needed. The models are available
