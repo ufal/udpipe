@@ -227,6 +227,9 @@ Path to the include headers of the required Python version must be specified in
 the PYTHON_INCLUDE variable using
   make PYTHON_INCLUDE=path_to_Python_includes
 
+You might also be interested in a contributed package spacy-udpipe
+(https://github.com/TakeLab/spacy-udpipe) which wraps UDPipe with spaCy API.
+
 
 UDPipe Models
 =============
