@@ -88,3 +88,4 @@ ur_udtb UD_Urdu-UDTB
 ug_udt UD_Uyghur-UDT
 vi_vtb UD_Vietnamese-VTB
 wo_wtb UD_Wolof-WTB
+de_hdt UD_German-HDT
