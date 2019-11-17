@@ -220,18 +220,28 @@ bool trainer_morphodita_parsito::train_tagger(const vector<sentence>& training, 
 
     if (tagger.count("from_model")) {
       // Use specified tokenizer model(s)
-      int model_index = 1, taggers_total = 0;
+      int model_index = 0, taggers_total = 0;
       string model_name = "from_model";
       vector<string_piece> taggers_data;
       do {
         taggers_data.emplace_back();
         if (!load_model(tagger[model_name], TAGGER_MODEL, taggers_data.back()))
           return error.assign("Cannot load model from which the tagger should be used!"), false;
-        if (taggers_data.back().str[0])
+        if (taggers_data.back().str[0]) {
           taggers_total += taggers_data.back().str[0];
-        else
+
+          vector<string> overrides = {"lemma", "xpostag", "feats"};
+          for (size_t i = 0; i < overrides.size(); i++) {
+            string override_name = "from_model_" + overrides[i];
+            int override_value = -1;
+            if (!option_int(tagger, override_name, override_value, error, model_index)) return false;
+            if (override_value >= 0)
+              const_cast<char&>(taggers_data.back().str[1 + i]) = override_value;
+          }
+        } else {
           taggers_data.pop_back();
-        model_name = "from_model_" + to_string(++model_index);
+        }
+        model_name = "from_model_" + to_string(1 + ++model_index);
       } while (tagger.count(model_name));
       if (taggers_total < 0 || taggers_total > 4) return error.assign("Cannot create more than four tagger models!"), false;
 
