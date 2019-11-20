@@ -98,6 +98,15 @@ bool model_morphodita_parsito::tag(sentence& s, const string& /*options*/, strin
       fill_word_analysis(c->lemmas[i], tagger.raw, tagger.upostag, tagger.lemma, tagger.xpostag, tagger.feats, s.words[i+1]);
   }
 
+  // For raw tagger models, fill MorphoGuesser=Yes where appropriate
+  if (taggers.size() == 1 && taggers[0].raw && taggers[0].tagger->get_morpho()) {
+    const auto* morpho = taggers[0].tagger->get_morpho();
+    for (size_t i = 0; i < c->forms_string_pieces.size(); i++) {
+      if (morpho->analyze(c->forms_string_pieces[i], morphodita::morpho::GUESSER, c->lemmas) == morphodita::morpho::GUESSER)
+        s.words[i + 1].misc.append(s.words[i + 1].misc.empty() ? "" : "|").append("MorphoGuesser=Yes");
+    }
+  }
+
   tagger_caches.push(c);
   return true;
 }
