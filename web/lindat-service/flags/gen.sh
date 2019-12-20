@@ -3,22 +3,15 @@
 set -e
 
 git clone --depth=1 --branch=pages-source https://github.com/UniversalDependencies/docs
+git clone --depth=1 https://github.com/UniversalDependencies/docs-automation
 
-(cat docs/gen_index/flags.json | perl -nle '/^"([^"]*)":"([^"]*)",?$/ and print lc($1) . " $2"'; cat <<EOF
-classical_chinese CN-QING
-old_russian RU-IVAN
-wolof SN
-EOF
-) | while read name code; do
+cat docs-automation/codes_and_flags.yaml | grep -e "^[^ ]" -e "flag:" | sed '
+  s/:$//; s/ /_/g; s/.*/\L&/; N; s/\n\s*flag://; s/["'"'"']//g;
+' | while read name code; do
   cp docs/flags/svg/$code.svg $name.svg
 done
 
-rm -rf docs
-
-cp ancient_greek.svg ancient-greek.svg
-cp ancient_greek-proiel.svg ancient-greek-proiel.svg
-cp old_church_slavonic.svg old-church-slavonic.svg
-cp latin-ittb.svg latin-itt.svg
+rm -rf docs docs-automation
 
 for svg in *.svg; do
   echo $svg
@@ -34,5 +27,10 @@ sed 's/#.*$//; /^$/d' ../../../releases/models.txt | while read code name rest; 
   [ -f "$generic_name".png ] || { echo Missing flag even for $generic_name, aborting >&2; exit 1; }
   cp "$generic_name".png "$name".png
 done
+
+cp ancient_greek.png ancient-greek.png
+cp ancient_greek-proiel.png ancient-greek-proiel.png
+cp old_church_slavonic.png old-church-slavonic.png
+cp latin-ittb.png latin-itt.png
 
 echo All done
