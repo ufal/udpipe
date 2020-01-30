@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
     runtime_failure("Usage: " << argv[0] << " [options] port default_model_id (model_ids model_file acknowledgements)+\n"
                     "Options: --concurrent_models=maximum concurrently loaded models (default 10)\n"
                     "         --daemon (daemonize after start)\n"
+                    "         --log_file=path (change log file path)\n"
+                    "         --log_request_max_size=maximum request log size\n"
                     "         --no_check_models_loadable (do not check models are loadable)\n"
                     "         --no_preload_default (do not preload default model)\n"
                     "         --version\n"
