@@ -1,5 +1,8 @@
 Revision history for ufal.udpipe
 
+1.2.0.3 [11 Nov 20]
+        Support Python 3.8 by using swig-4.0.1.
+
 1.2.0.2 [02 May 19]
         Improve compilation on OS X.
 

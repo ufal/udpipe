@@ -25,6 +25,7 @@ cp -a ../../bindings/python/ufal $dir
 
 # Fill in version
 sed "s/^\\( *version *= *'\\)[^']*'/\\1$1'/" setup.py >$dir/setup.py
+sed "s/^# *__version__ *=.*$/__version__ = \"$1\"/" $dir/ufal/udpipe.py -i
 
 # README file
 ./README.sh >$dir/README

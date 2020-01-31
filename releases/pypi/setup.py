@@ -21,7 +21,7 @@ setup(
     license          = 'MPL 2.0',
     py_modules       = ['ufal.udpipe'],
     ext_modules      = [Extension(
-        'ufal_udpipe',
+        'ufal._udpipe',
         ['udpipe/udpipe.cpp', 'udpipe/udpipe_python.cpp'],
         language = 'c++',
         include_dirs = ['udpipe/include'],

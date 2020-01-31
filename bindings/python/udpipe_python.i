@@ -1,4 +1,4 @@
-%module udpipe
+%module(package="ufal") udpipe
 
 %begin %{
 #ifdef _WIN32
@@ -10,6 +10,10 @@
 // Python 2.7 and 3.4 both require the hack and work well with it.
 #include <cmath>
 #endif
+%}
+
+%pythonbegin %{
+# __version__ =
 %}
 
 %include "../common/udpipe.i"

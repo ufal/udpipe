@@ -12317,12 +12317,13 @@ The full command syntax of <code>udpipe_server</code> is
 </p>
 <pre style="margin-top:0">
 udpipe_server [options] port default_model (model_ids model_file acknowledgements)*
-Options: --concurrent_models=maximum concurrently loaded models (default 10)
-         --daemon (daemonize after start)
-         --log_file=filename (file to use for traffic logging, empty for no log)
-         --log_request_max_size=size (log at most this many chars in every request)
-         --no_check_models_loadable (do not check models are loadable)
-         --no_preload_default (do not preload default model)
+Options: --connection_timeout=maximum connection timeout [s] (default 60)
+         --daemon (daemonize after start, supported on Linux only)
+         --log_file=file path (no logging if empty, default udpipe_server.log)
+         --log_request_max_size=max req log size [kB] (0 unlimited, default 64)
+         --max_connections=maximum network connections (default 256)
+         --max_request_size=maximum request size [kB] (default 1024)
+         --threads=threads to use (default 0 means unlimitted)
 </pre>
 
 <p>

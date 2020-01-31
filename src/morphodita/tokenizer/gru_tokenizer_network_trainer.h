@@ -37,7 +37,7 @@ class gru_tokenizer_network_trainer : public gru_tokenizer_network_implementatio
              binary_encoder& enc, string& error);
 
  private:
-  template <int R, int C> using matrix = gru_tokenizer_network::matrix<R, C>;
+  template <int R, int C> using matrix = typename gru_tokenizer_network_implementation<D>::template matrix<R, C>;
   using typename gru_tokenizer_network_implementation<D>::cached_embedding;
   using typename gru_tokenizer_network_implementation<D>::gru;
 
