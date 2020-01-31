@@ -2,6 +2,7 @@ Version 1.2.1-devel
 -------------------
 - Get rid of UndefinedBehaviourSanitizer and AddressSanitizer findings.
 - Add segment_size and learning_rate_final parameters to tokenizer training.
+- Add several options to udpipe_server.
 
 
 Version 1.2.0 [01 Aug 17]

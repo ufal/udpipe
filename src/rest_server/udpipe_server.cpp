@@ -61,23 +61,31 @@ int main(int argc, char* argv[]) {
   iostreams_init();
 
   options::map options;
-  if (!options::parse({{"concurrent_models",options::value::any},
-                       {"daemon",options::value::none},
-                       {"log_file",options::value::any},
-                       {"log_request_max_size",options::value::any},
+  if (!options::parse({{"concurrent_models", options::value::any},
+                       {"connection_timeout", options::value::any},
+                       {"daemon", options::value::none},
+                       {"log_file", options::value::any},
+                       {"log_request_max_size", options::value::any},
                        {"no_check_models_loadable",options::value::none},
                        {"no_preload_default",options::value::none},
+                       {"max_connections", options::value::any},
+                       {"max_request_size", options::value::any},
+                       {"threads", options::value::any},
                        {"version", options::value::none},
                        {"help", options::value::none}}, argc, argv, options) ||
       options.count("help") ||
       ((argc < 3 || (argc % 3) != 0) && !options.count("version")))
     runtime_failure("Usage: " << argv[0] << " [options] port default_model_id (model_ids model_file acknowledgements)+\n"
                     "Options: --concurrent_models=maximum concurrently loaded models (default 10)\n"
+                    "         --connection_timeout=maximum connection timeout [s] (default 60)\n"
                     "         --daemon (daemonize after start)\n"
-                    "         --log_file=path (change log file path)\n"
-                    "         --log_request_max_size=maximum request log size\n"
+                    "         --log_file=file path (no logging if empty, default udpipe_server.log)\n"
+                    "         --log_request_max_size=max req log size [kB] (0 unlimited, default 64)\n"
+                    "         --max_connections=maximum network connections (default 256)\n"
+                    "         --max_request_size=maximum request size [kB] (default 1024)\n"
                     "         --no_check_models_loadable (do not check models are loadable)\n"
                     "         --no_preload_default (do not preload default model)\n"
+                    "         --threads=threads to use (default 0 means unlimitted)\n"
                     "         --version\n"
                     "         --help");
   if (options.count("version")) {
@@ -91,9 +99,13 @@ int main(int argc, char* argv[]) {
   int port = parse_int(argv[1], "port number");
   service_options.default_model = argv[2];
   service_options.concurrent_limit = options.count("concurrent_models") ? parse_int(options["concurrent_models"], "concurrent models") : 10;
-  int log_request_max_size = options.count("log_request_max_size") ? parse_int(options["log_request_max_size"], "log request maximum size") : 0;
-  service_options.preload_default = !options.count("no_preload_default");
+  int connection_timeout = options.count("connection_timeout") ? parse_int(options["connection_timeout"], "connection timeout") : 60;
+  int log_request_max_size = options.count("log_request_max_size") ? parse_int(options["log_request_max_size"], "log request maximum size") : 64;
+  int max_connections = options.count("max_connections") ? parse_int(options["max_connections"], "maximum connections") : 256;
+  int max_request_size = options.count("max_request_size") ? parse_int(options["max_request_size"], "maximum request size") : 1024;
   service_options.check_models_loadable = !options.count("no_check_models_loadable");
+  service_options.preload_default = !options.count("no_preload_default");
+  int threads = options.count("threads") ? parse_int(options["threads"], "number of threads") : 0;
 
 #ifndef __linux__
   if (options.count("daemon")) runtime_failure("The --daemon option is currently supported on Linux only!");
@@ -129,12 +141,12 @@ int main(int argc, char* argv[]) {
 
   // Start the server
   if (!log_file_name.empty())
-    server.set_log_file(&log_file, log_request_max_size);
-  server.set_max_connections(256);
-  server.set_max_request_body_size(1<<20);
-  server.set_min_generated(32 * (1<<10));
-  server.set_threads(0);
-  server.set_timeout(60);
+    server.set_log_file(&log_file, log_request_max_size << 10);
+  server.set_max_connections(max_connections);
+  server.set_max_request_body_size(max_request_size << 10);
+  server.set_min_generated(32 << 10);
+  server.set_threads(threads);
+  server.set_timeout(connection_timeout);
 
   if (!server.start(&service, port))
     runtime_failure("Cannot start udpipe_server'!");
