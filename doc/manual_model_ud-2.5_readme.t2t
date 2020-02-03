@@ -1,0 +1,6 @@
+Universal Dependencies 2.5 Models for UDPipe
+============================================
+
+%!include: manual_model_about.t2t
+
+%!include: manual_model_ud-2.5.t2t

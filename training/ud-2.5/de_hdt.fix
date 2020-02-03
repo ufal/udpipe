@@ -1,0 +1,36 @@
+#!/bin/bash
+
+for f in de_hdt-ud-{train,dev,test}.conllu; do
+  # Remove sentence with huge number, sent_id = hdt-s191829
+  sed '
+    /# sent_id = hdt-s191829$/,/^$/ d
+  ' de_hdt.ori/$f >de_hdt/$f
+
+  # Regenerate .txt files
+  perl conllu_to_text.pl --language=de <de_hdt/$f >de_hdt/${f%.conllu}.txt
+done
+
+exit
+
+# Compute lemmas with more than 255 forms for the tagger
+python3 -c '
+import fileinput
+lemmas = {}
+for line in fileinput.input():
+  line = line.rstrip("\n")
+  if not line or line.startswith("#"): continue
+  cols = line.split("\t")
+  assert len(cols) == 10
+  if not cols[0].isdigit(): continue
+
+  if cols[2] not in lemmas: lemmas[cols[2]] = set()
+  lemmas[cols[2]].add(cols[1])
+
+excessive = []
+for lemma, forms in lemmas.items():
+  if len(forms) > 255:
+    excessive.append(lemma)
+print("dictionary_flat_lemmas={}".format(",".join(sorted(excessive))))
+'  de_hdt/de_hdt-ud-train.conllu
+
+# UD 2.5: dictionary_flat_lemmas=-,Aktie,Anbieter,Angebot,Bereich,Chef,Chip,Dienst,Firma,Funktion,Gerät,Geschäft,Gruppe,Hersteller,Karte,Konzern,Kunde,Markt,Modell,Netz,Preis,Produkt,Programm,Prozessor,Seite,Server,Software,Sprecher,Stelle,System,Technik,Unternehmen,Verfahren,Version,unknown

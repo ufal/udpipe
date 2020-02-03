@@ -1,0 +1,354 @@
+Universal Dependencies 2.5 Models for UDPipe
+============================================
+
+== Universal Dependencies 2.5 Models ==[universal_dependencies_25_models]
+
+Universal Dependencies 2.5 Models are distributed under the
+[CC BY-NC-SA http://creativecommons.org/licenses/by-nc-sa/4.0/] licence.
+The models are based solely on
+[Universal Dependencies 2.5 http://hdl.handle.net/11234/1-3105] treebanks.
+The models work in UDPipe version 1.2 and later.
+
+Universal Dependencies 2.5 Models are versioned according to the date released
+in the format ``YYMMDD``, where ``YY``, ``MM`` and ``DD`` are two-digit
+representation of year, month and day, respectively. The latest version is 191206.
+
+
+=== Download ===[universal_dependencies_25_models_download]
+
+The latest version 190531 of the Universal Dependencies 2.5 models can be downloaded
+from [LINDAT/CLARIN repository http://hdl.handle.net/11234/1-3131].
+
+=== Acknowledgements ===[universal_dependencies_25_models_acknowledgements]
+
+This work has been partially supported and has been using language resources
+and tools developed, stored and distributed by the LINDAT/CLARIN project of the
+Ministry of Education, Youth and Sports of the Czech Republic (project //LM2015071//).
+
+The models were trained on [Universal Dependencies 2.5 http://hdl.handle.net/11234/1-3105] treebanks.
+
+For the UD treebanks which do not contain original plain text version,
+raw text is used to train the tokenizer instead. The plain texts
+were taken from the [W2C -- Web to Corpus http://hdl.handle.net/11858/00-097C-0000-0022-6133-9].
+
+
+==== Publications ====[universal_dependencies_25_models_publications]
+
+- (Straka et al. 2017) Milan Straka and Jana Straková. //[Tokenizing, POS Tagging, Lemmatizing and Parsing UD 2.0 with UDPipe http://ufal.mff.cuni.cz/~straka/papers/2017-conll_udpipe.pdf]//. In Proceedings of the CoNLL 2017 Shared Task: Multilingual Parsing from Raw Text to Universal Dependencies, Vancouver, Canada, August 2017.
+- (Straka et al. 2016) Straka Milan, Hajič Jan, Straková Jana. //[UDPipe: Trainable Pipeline for Processing CoNLL-U Files Performing Tokenization, Morphological Analysis, POS Tagging and Parsing http://ufal.mff.cuni.cz/~straka/papers/2016-lrec_udpipe.pdf]//. In Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016), Portorož, Slovenia, May 2016.
+-
+
+=== Model Description ===[universal_dependencies_25_models_description]
+
+The Universal Dependencies 2.5 models contain 94 models of 61 languages, each consisting of
+a tokenizer, tagger, lemmatizer and dependency parser, all trained using
+the UD data. We used the original train-dev-test split, but for treebanks with
+only train and no dev data we used last 10% of the train data as dev data.
+We produce models only for treebanks with at least 1000 training words.
+
+The tokenizer is trained using the ``SpaceAfter=No`` features. If the features
+are not present in the data, they can be filled in using raw text in the
+language in question.
+
+The tagger, lemmatizer and parser are trained using gold UD data.
+
+Details about model architecture and training process can be found in the
+(Straka et al. 2017) paper.
+
+==== Reproducible Training ====[universal_dependencies_25_reprodusible_training]
+
+In case you want to train the same models, scripts for downloading and
+resplitting UD 2.5 data, precomputed word embedding, raw texts for tokenizers,
+all hyperparameter values and training scripts are available in the
+second archive on the [model download page http://hdl.handle.net/11234/1-3131].
+
+=== Model Performance ===[universal_dependencies_25_models_performance]
+
+We present the tagger, lemmatizer and parser performance, measured
+on the testing portion of the data, evaluated in three different settings:
+using raw text only, using gold tokenization only, and using gold tokenization
+plus gold morphology (UPOS, XPOS, FEATS and Lemma).
+
+|| Treebank                   | Mode         |  Words |  Sents |  UPOS |  XPOS |  UFeats | AllTags |  Lemma |  UAS  |  LAS  |  MLAS |  BLEX |
+ | Afrikaans-AfriBooms        | Raw text     |  99.6% |  98.2% | 95.0% | 90.6% |  94.6%  |  90.6%  |  96.5% | 81.6% | 77.6% | 64.4% | 66.5% |
+ | Afrikaans-AfriBooms        | Gold tok     |    -   |    -   | 95.3% | 90.8% |  94.9%  |  90.8%  |  96.7% | 82.5% | 78.4% | 65.1% | 67.2% |
+ | Afrikaans-AfriBooms        | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.6% | 85.0% | 77.0% | 79.6% |
+ | Ancient Greek-Perseus      | Raw text     | 100.0% |  98.8% | 82.2% | 72.2% |  85.7%  |  72.2%  |  82.7% | 64.0% | 57.0% | 30.2% | 38.2% |
+ | Ancient Greek-Perseus      | Gold tok     |    -   |    -   | 82.2% | 72.2% |  85.7%  |  72.2%  |  82.7% | 64.1% | 57.2% | 30.3% | 38.4% |
+ | Ancient Greek-Perseus      | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 68.7% | 63.9% | 53.1% | 57.2% |
+ | Ancient Greek-PROIEL       | Raw text     | 100.0% |  48.0% | 96.0% | 96.2% |  88.6%  |  87.2%  |  93.2% | 72.2% | 67.6% | 49.9% | 56.0% |
+ | Ancient Greek-PROIEL       | Gold tok     |    -   |    -   | 96.1% | 96.3% |  88.7%  |  87.4%  |  93.2% | 77.0% | 72.1% | 54.4% | 60.3% |
+ | Ancient Greek-PROIEL       | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.2% | 76.4% | 66.7% | 70.3% |
+ | Arabic-PADT                | Raw text     |  94.6% |  82.1% | 90.4% | 84.0% |  84.2%  |  83.8%  |  88.5% | 72.7% | 68.1% | 56.2% | 59.2% |
+ | Arabic-PADT                | Gold tok     |    -   |    -   | 95.6% | 89.0% |  89.2%  |  88.8%  |  92.9% | 82.0% | 76.8% | 63.6% | 66.3% |
+ | Arabic-PADT                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 83.9% | 80.7% | 75.7% | 76.8% |
+ | Armenian-ArmTDP            | Raw text     |  99.3% |  97.8% | 92.0% |   -   |  84.7%  |  83.4%  |  91.8% | 75.6% | 68.5% | 51.2% | 57.4% |
+ | Armenian-ArmTDP            | Gold tok     |    -   |    -   | 92.5% |   -   |  85.2%  |  83.8%  |  92.4% | 76.9% | 69.7% | 51.5% | 57.9% |
+ | Armenian-ArmTDP            | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.4% | 77.2% | 70.9% | 71.9% |
+ | Basque-BDT                 | Raw text     |  99.9% |  99.8% | 92.3% |   -   |  87.3%  |  84.8%  |  93.5% | 75.0% | 69.9% | 57.4% | 63.2% |
+ | Basque-BDT                 | Gold tok     |    -   |    -   | 92.4% |   -   |  87.4%  |  84.8%  |  93.6% | 75.1% | 70.0% | 57.4% | 63.2% |
+ | Basque-BDT                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.1% | 78.4% | 75.2% | 77.2% |
+ | Belarusian-HSE             | Raw text     |  99.8% |  78.7% | 84.3% | 32.0% |  65.3%  |  23.9%  |  75.0% | 58.6% | 52.9% | 28.8% | 33.1% |
+ | Belarusian-HSE             | Gold tok     |    -   |    -   | 84.4% | 32.1% |  65.4%  |  24.1%  |  75.2% | 59.5% | 53.8% | 29.3% | 33.8% |
+ | Belarusian-HSE             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 72.9% | 69.6% | 62.4% | 63.3% |
+ | Bulgarian-BTB              | Raw text     |  99.9% |  94.2% | 97.6% | 94.3% |  95.4%  |  93.8%  |  94.6% | 89.1% | 85.1% | 75.4% | 74.0% |
+ | Bulgarian-BTB              | Gold tok     |    -   |    -   | 97.8% | 94.5% |  95.5%  |  93.9%  |  94.7% | 90.0% | 85.9% | 76.1% | 74.7% |
+ | Bulgarian-BTB              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 92.5% | 89.1% | 84.4% | 84.7% |
+ | Catalan-AnCora             | Raw text     | 100.0% |  99.4% | 98.1% | 98.0% |  97.7%  |  96.9%  |  98.2% | 89.0% | 85.9% | 77.3% | 77.8% |
+ | Catalan-AnCora             | Gold tok     |    -   |    -   | 98.1% | 98.0% |  97.7%  |  97.0%  |  98.2% | 89.1% | 86.0% | 77.4% | 77.8% |
+ | Catalan-AnCora             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 91.0% | 88.5% | 82.5% | 83.0% |
+ | Chinese-GSD                | Raw text     |  90.3% |  99.1% | 84.1% | 84.0% |  89.0%  |  82.8%  |  90.3% | 61.6% | 57.8% | 50.8% | 54.7% |
+ | Chinese-GSD                | Gold tok     |    -   |    -   | 92.2% | 92.0% |  98.7%  |  90.8%  | 100.0% | 74.4% | 69.5% | 62.2% | 67.8% |
+ | Chinese-GSD                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.6% | 80.5% | 77.5% | 79.6% |
+ | Chinese-GSDSimp            | Raw text     |  90.3% |  99.1% | 84.2% | 84.1% |  89.0%  |  82.8%  |  90.3% | 62.6% | 58.7% | 51.3% | 55.2% |
+ | Chinese-GSDSimp            | Gold tok     |    -   |    -   | 92.0% | 91.8% |  98.6%  |  90.5%  | 100.0% | 74.1% | 69.0% | 61.8% | 67.1% |
+ | Chinese-GSDSimp            | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.7% | 80.4% | 77.5% | 79.6% |
+ | Classical Chinese-Kyoto    | Raw text     |  99.5% |  41.7% | 89.9% | 89.2% |  92.3%  |  86.7%  |  99.5% | 68.9% | 62.9% | 59.1% | 61.3% |
+ | Classical Chinese-Kyoto    | Gold tok     |    -   |    -   | 92.0% | 91.3% |  93.6%  |  89.2%  | 100.0% | 81.0% | 74.7% | 71.0% | 73.5% |
+ | Classical Chinese-Kyoto    | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.0% | 85.9% | 84.6% | 85.0% |
+ | Coptic-Scriptorium         | Raw text     |  70.7% |  27.7% | 67.1% | 64.6% |  50.2%  |  46.3%  |  68.7% | 43.8% | 41.8% | 12.7% | 32.0% |
+ | Coptic-Scriptorium         | Gold tok     |    -   |    -   | 94.0% | 88.5% |  70.6%  |  62.4%  |  96.0% | 85.3% | 80.4% | 29.9% | 69.8% |
+ | Coptic-Scriptorium         | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.9% | 85.7% | 75.8% | 78.1% |
+ | Croatian-SET               | Raw text     | 100.0% |  94.4% | 96.5% | 90.3% |  90.9%  |  89.9%  |  95.3% | 83.7% | 77.7% | 64.8% | 69.3% |
+ | Croatian-SET               | Gold tok     |    -   |    -   | 96.5% | 90.4% |  91.1%  |  90.1%  |  95.3% | 84.2% | 78.1% | 65.3% | 69.7% |
+ | Croatian-SET               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.8% | 82.2% | 77.2% | 78.9% |
+ | Czech-CAC                  | Raw text     | 100.0% |  99.7% | 98.3% | 91.0% |  90.0%  |  89.6%  |  97.0% | 86.3% | 82.8% | 70.5% | 77.0% |
+ | Czech-CAC                  | Gold tok     |    -   |    -   | 98.3% | 91.0% |  90.0%  |  89.6%  |  97.0% | 86.4% | 82.9% | 70.5% | 77.1% |
+ | Czech-CAC                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.7% | 87.3% | 84.2% | 85.0% |
+ | Czech-CLTT                 | Raw text     |  99.7% |  97.4% | 97.3% | 87.3% |  87.4%  |  87.1%  |  96.1% | 78.9% | 75.4% | 60.0% | 68.9% |
+ | Czech-CLTT                 | Gold tok     |    -   |    -   | 97.6% | 87.5% |  87.7%  |  87.4%  |  96.4% | 79.6% | 76.1% | 60.4% | 69.4% |
+ | Czech-CLTT                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.7% | 79.6% | 74.7% | 75.3% |
+ | Czech-FicTree              | Raw text     | 100.0% |  99.0% | 97.1% | 89.9% |  90.8%  |  89.4%  |  97.1% | 86.3% | 82.0% | 68.7% | 74.3% |
+ | Czech-FicTree              | Gold tok     |    -   |    -   | 97.1% | 90.0% |  90.8%  |  89.5%  |  97.1% | 86.4% | 82.1% | 68.8% | 74.4% |
+ | Czech-FicTree              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.5% | 87.7% | 83.3% | 84.1% |
+ | Czech-PDT                  | Raw text     |  99.9% |  93.3% | 98.2% | 92.7% |  92.4%  |  91.9%  |  97.8% | 87.0% | 84.0% | 74.4% | 79.4% |
+ | Czech-PDT                  | Gold tok     |    -   |    -   | 98.3% | 92.9% |  92.5%  |  92.0%  |  97.9% | 87.8% | 84.7% | 75.0% | 80.0% |
+ | Czech-PDT                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.3% | 88.2% | 85.6% | 86.1% |
+ | Danish-DDT                 | Raw text     |  99.8% |  89.8% | 95.4% |   -   |  94.8%  |  93.4%  |  94.7% | 79.3% | 76.0% | 66.4% | 66.8% |
+ | Danish-DDT                 | Gold tok     |    -   |    -   | 95.6% |   -   |  95.0%  |  93.6%  |  94.9% | 80.2% | 76.8% | 67.2% | 67.5% |
+ | Danish-DDT                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 84.8% | 82.4% | 77.4% | 79.1% |
+ | Dutch-Alpino               | Raw text     |  99.8% |  88.6% | 94.1% | 91.5% |  93.3%  |  90.7%  |  95.1% | 82.4% | 78.2% | 62.3% | 65.1% |
+ | Dutch-Alpino               | Gold tok     |    -   |    -   | 94.3% | 91.7% |  93.5%  |  90.9%  |  95.3% | 83.3% | 79.0% | 63.3% | 66.1% |
+ | Dutch-Alpino               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.9% | 83.2% | 74.8% | 76.1% |
+ | Dutch-LassySmall           | Raw text     |  99.8% |  75.4% | 94.1% | 91.8% |  93.7%  |  91.0%  |  95.5% | 79.0% | 75.0% | 62.6% | 63.2% |
+ | Dutch-LassySmall           | Gold tok     |    -   |    -   | 94.2% | 92.1% |  94.2%  |  91.3%  |  95.7% | 82.4% | 78.0% | 66.3% | 67.0% |
+ | Dutch-LassySmall           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.6% | 84.5% | 78.6% | 79.3% |
+ | English-EWT                | Raw text     |  98.9% |  77.4% | 93.3% | 92.8% |  94.2%  |  91.3%  |  95.5% | 80.2% | 77.0% | 67.7% | 69.5% |
+ | English-EWT                | Gold tok     |    -   |    -   | 94.4% | 93.9% |  95.4%  |  92.5%  |  96.4% | 84.4% | 81.1% | 71.6% | 73.6% |
+ | English-EWT                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.1% | 86.2% | 82.4% | 83.1% |
+ | English-GUM                | Raw text     |  99.7% |  82.3% | 93.8% | 93.3% |  94.3%  |  92.2%  |  94.9% | 80.2% | 76.2% | 64.8% | 65.1% |
+ | English-GUM                | Gold tok     |    -   |    -   | 94.1% | 93.7% |  94.6%  |  92.5%  |  95.2% | 82.0% | 77.9% | 66.2% | 66.6% |
+ | English-GUM                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.5% | 84.4% | 78.0% | 79.0% |
+ | English-LinES              | Raw text     |  99.9% |  87.5% | 94.9% | 92.7% |  94.9%  |  90.3%  |  97.1% | 80.4% | 75.9% | 67.0% | 69.5% |
+ | English-LinES              | Gold tok     |    -   |    -   | 95.0% | 92.8% |  95.0%  |  90.4%  |  97.1% | 81.2% | 76.6% | 67.7% | 70.2% |
+ | English-LinES              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 85.5% | 82.3% | 78.1% | 79.8% |
+ | English-ParTUT             | Raw text     |  99.7% | 100.0% | 93.6% | 93.2% |  93.4%  |  91.7%  |  96.7% | 83.9% | 80.4% | 69.0% | 71.4% |
+ | English-ParTUT             | Gold tok     |    -   |    -   | 93.8% | 93.5% |  93.6%  |  91.9%  |  97.0% | 84.2% | 80.6% | 69.1% | 71.5% |
+ | English-ParTUT             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.8% | 85.4% | 79.0% | 80.1% |
+ | Estonian-EDT               | Raw text     | 100.0% |  91.6% | 95.6% | 96.8% |  93.4%  |  91.8%  |  90.6% | 79.5% | 75.8% | 68.3% | 64.7% |
+ | Estonian-EDT               | Gold tok     |    -   |    -   | 95.7% | 96.8% |  93.5%  |  91.8%  |  90.6% | 80.3% | 76.5% | 69.0% | 65.3% |
+ | Estonian-EDT               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 85.5% | 83.3% | 80.4% | 81.5% |
+ | Estonian-EWT               | Raw text     |  99.1% |  67.0% | 83.2% | 85.6% |  79.5%  |  76.2%  |  79.8% | 60.1% | 51.2% | 38.8% | 36.7% |
+ | Estonian-EWT               | Gold tok     |    -   |    -   | 84.0% | 86.3% |  80.2%  |  77.0%  |  80.4% | 62.6% | 53.2% | 39.8% | 37.6% |
+ | Estonian-EWT               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 74.1% | 69.9% | 64.6% | 65.7% |
+ | Finnish-FTB                | Raw text     |  99.9% |  86.8% | 91.5% | 90.8% |  92.5%  |  88.9%  |  88.5% | 79.4% | 74.9% | 64.1% | 60.9% |
+ | Finnish-FTB                | Gold tok     |    -   |    -   | 91.8% | 91.0% |  92.7%  |  89.2%  |  88.6% | 81.1% | 76.6% | 65.9% | 62.6% |
+ | Finnish-FTB                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.9% | 87.6% | 82.9% | 84.2% |
+ | Finnish-TDT                | Raw text     |  99.7% |  88.6% | 94.3% | 95.4% |  92.0%  |  90.8%  |  86.9% | 80.5% | 76.8% | 68.6% | 62.8% |
+ | Finnish-TDT                | Gold tok     |    -   |    -   | 94.7% | 95.8% |  92.4%  |  91.2%  |  87.2% | 81.8% | 78.1% | 69.5% | 63.6% |
+ | Finnish-TDT                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.8% | 84.7% | 81.6% | 82.5% |
+ | French-GSD                 | Raw text     |  98.8% |  93.6% | 95.8% |   -   |  95.5%  |  94.5%  |  96.6% | 87.1% | 84.3% | 74.4% | 76.3% |
+ | French-GSD                 | Gold tok     |    -   |    -   | 97.1% |   -   |  96.6%  |  95.6%  |  97.8% | 89.0% | 86.3% | 76.0% | 77.7% |
+ | French-GSD                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 91.1% | 89.2% | 83.9% | 84.2% |
+ | French-ParTUT              | Raw text     |  99.4% | 100.0% | 94.6% | 94.2% |  91.9%  |  90.6%  |  95.0% | 87.4% | 83.5% | 66.4% | 71.5% |
+ | French-ParTUT              | Gold tok     |    -   |    -   | 95.3% | 94.8% |  92.6%  |  91.3%  |  95.6% | 88.0% | 84.3% | 67.4% | 72.0% |
+ | French-ParTUT              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 91.0% | 89.0% | 82.1% | 83.4% |
+ | French-Sequoia             | Raw text     |  99.1% |  87.5% | 96.1% |   -   |  95.0%  |  94.1%  |  96.9% | 84.8% | 82.1% | 72.5% | 75.1% |
+ | French-Sequoia             | Gold tok     |    -   |    -   | 97.1% |   -   |  95.9%  |  95.0%  |  97.8% | 86.8% | 84.1% | 74.5% | 76.8% |
+ | French-Sequoia             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.7% | 88.1% | 83.8% | 84.0% |
+ | French-Spoken              | Raw text     |  99.1% |  21.1% | 91.9% | 96.3% |    -    |  89.6%  |  94.5% | 69.2% | 63.3% | 51.6% | 51.8% |
+ | French-Spoken              | Gold tok     |    -   |    -   | 93.1% | 97.2% |    -    |  90.6%  |  95.5% | 76.1% | 69.9% | 59.4% | 59.4% |
+ | French-Spoken              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.7% | 76.5% | 67.5% | 68.6% |
+ | Galician-CTG               | Raw text     |  99.2% |  97.2% | 96.3% | 95.8% |  99.0%  |  95.4%  |  96.2% | 79.3% | 76.2% | 62.5% | 65.4% |
+ | Galician-CTG               | Gold tok     |    -   |    -   | 97.0% | 96.5% |  99.8%  |  96.2%  |  96.9% | 80.8% | 77.7% | 64.3% | 67.2% |
+ | Galician-CTG               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 83.0% | 80.7% | 69.4% | 74.1% |
+ | Galician-TreeGal           | Raw text     |  98.7% |  88.0% | 91.1% | 87.3% |  89.5%  |  86.6%  |  92.5% | 72.1% | 66.6% | 49.8% | 52.2% |
+ | Galician-TreeGal           | Gold tok     |    -   |    -   | 92.2% | 88.1% |  90.4%  |  87.4%  |  93.6% | 75.1% | 69.1% | 52.4% | 55.2% |
+ | Galician-TreeGal           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 81.7% | 77.5% | 69.4% | 70.7% |
+ | German-GSD                 | Raw text     |  99.6% |  80.9% | 91.7% | 79.5% |  69.8%  |  62.9%  |  95.4% | 78.1% | 72.7% | 34.5% | 61.4% |
+ | German-GSD                 | Gold tok     |    -   |    -   | 92.1% | 79.8% |  70.2%  |  63.4%  |  95.8% | 80.6% | 75.0% | 35.9% | 63.6% |
+ | German-GSD                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 85.5% | 81.2% | 72.5% | 75.3% |
+ | German-HDT                 | Raw text     |  99.9% |  92.6% | 97.8% | 97.4% |  91.4%  |  91.0%  |  94.5% | 94.0% | 92.3% | 77.0% | 81.4% |
+ | German-HDT                 | Gold tok     |    -   |    -   | 97.9% | 97.5% |  91.5%  |  91.1%  |  94.6% | 94.6% | 92.9% | 77.5% | 82.0% |
+ | German-HDT                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 95.5% | 94.4% | 91.5% | 91.7% |
+ | Gothic-PROIEL              | Raw text     | 100.0% |  31.1% | 94.3% | 94.8% |  87.4%  |  85.5%  |  92.6% | 68.6% | 62.0% | 48.8% | 54.6% |
+ | Gothic-PROIEL              | Gold tok     |    -   |    -   | 94.8% | 95.2% |  87.6%  |  85.9%  |  92.7% | 76.8% | 70.0% | 56.2% | 61.7% |
+ | Gothic-PROIEL              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.0% | 76.0% | 69.1% | 72.5% |
+ | Greek-GDT                  | Raw text     |  99.9% |  90.2% | 95.7% | 95.7% |  90.3%  |  89.0%  |  94.6% | 86.5% | 83.0% | 66.2% | 69.6% |
+ | Greek-GDT                  | Gold tok     |    -   |    -   | 95.9% | 95.9% |  90.5%  |  89.2%  |  94.7% | 87.2% | 83.7% | 66.8% | 70.2% |
+ | Greek-GDT                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.7% | 87.9% | 81.6% | 82.7% |
+ | Hebrew-HTB                 | Raw text     |  85.0% |  99.4% | 80.5% | 80.5% |  78.7%  |  77.7%  |  81.6% | 61.7% | 58.3% | 44.6% | 47.5% |
+ | Hebrew-HTB                 | Gold tok     |    -   |    -   | 94.9% | 94.9% |  92.7%  |  91.5%  |  95.4% | 83.6% | 79.6% | 64.3% | 67.1% |
+ | Hebrew-HTB                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.0% | 84.9% | 78.4% | 78.8% |
+ | Hindi-HDTB                 | Raw text     | 100.0% |  98.9% | 95.9% | 94.9% |  90.4%  |  87.8%  |  98.1% | 91.3% | 87.2% | 69.2% | 80.1% |
+ | Hindi-HDTB                 | Gold tok     |    -   |    -   | 95.9% | 95.0% |  90.4%  |  87.8%  |  98.1% | 91.3% | 87.2% | 69.3% | 80.2% |
+ | Hindi-HDTB                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 93.8% | 90.8% | 85.4% | 86.6% |
+ | Hungarian-Szeged           | Raw text     |  99.8% |  95.9% | 90.6% |   -   |  88.1%  |  86.4%  |  88.5% | 72.8% | 67.2% | 53.7% | 57.9% |
+ | Hungarian-Szeged           | Gold tok     |    -   |    -   | 90.7% |   -   |  88.2%  |  86.5%  |  88.7% | 73.3% | 67.6% | 53.9% | 58.1% |
+ | Hungarian-Szeged           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.5% | 77.6% | 72.7% | 76.6% |
+ | Indonesian-GSD             | Raw text     | 100.0% |  94.1% | 93.0% | 92.2% |  93.9%  |  87.1%  |  92.2% | 81.0% | 74.6% | 63.6% | 62.9% |
+ | Indonesian-GSD             | Gold tok     |    -   |    -   | 93.0% | 92.2% |  93.9%  |  87.1%  |  92.2% | 81.2% | 74.8% | 63.9% | 63.2% |
+ | Indonesian-GSD             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 84.0% | 79.8% | 76.4% | 78.3% |
+ | Irish-IDT                  | Raw text     |  99.7% |  97.5% | 90.0% | 88.9% |  77.7%  |  74.5%  |  87.9% | 76.8% | 66.4% | 39.4% | 47.9% |
+ | Irish-IDT                  | Gold tok     |    -   |    -   | 90.2% | 89.2% |  78.0%  |  74.7%  |  88.2% | 77.1% | 66.8% | 39.5% | 48.1% |
+ | Irish-IDT                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.9% | 73.9% | 62.7% | 64.9% |
+ | Italian-ISDT               | Raw text     |  99.8% |  98.8% | 97.2% | 97.0% |  97.1%  |  96.2%  |  97.4% | 88.8% | 86.2% | 76.8% | 76.7% |
+ | Italian-ISDT               | Gold tok     |    -   |    -   | 97.3% | 97.2% |  97.2%  |  96.3%  |  97.5% | 89.1% | 86.6% | 77.3% | 77.2% |
+ | Italian-ISDT               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 91.3% | 89.7% | 84.2% | 84.5% |
+ | Italian-ParTUT             | Raw text     |  99.7% | 100.0% | 97.0% | 96.4% |  96.3%  |  95.2%  |  96.5% | 87.5% | 84.3% | 73.2% | 72.4% |
+ | Italian-ParTUT             | Gold tok     |    -   |    -   | 97.1% | 96.6% |  96.5%  |  95.3%  |  96.7% | 87.4% | 84.3% | 73.1% | 72.3% |
+ | Italian-ParTUT             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.7% | 87.6% | 79.8% | 80.7% |
+ | Italian-PoSTWITA           | Raw text     |  99.5% |  30.5% | 94.0% | 93.7% |  94.4%  |  92.4%  |  95.1% | 74.4% | 69.4% | 56.8% | 57.4% |
+ | Italian-PoSTWITA           | Gold tok     |    -   |    -   | 94.6% | 94.2% |  94.9%  |  92.9%  |  95.6% | 80.1% | 74.8% | 63.8% | 64.6% |
+ | Italian-PoSTWITA           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 84.4% | 80.0% | 73.7% | 74.3% |
+ | Italian-TWITTIRO           | Raw text     |  99.1% |  36.8% | 90.4% | 89.7% |  89.8%  |  86.9%  |  90.2% | 71.9% | 65.3% | 47.8% | 48.1% |
+ | Italian-TWITTIRO           | Gold tok     |    -   |    -   | 91.5% | 90.7% |  91.0%  |  87.9%  |  91.5% | 76.3% | 69.4% | 52.1% | 52.8% |
+ | Italian-TWITTIRO           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 84.1% | 78.7% | 69.9% | 70.8% |
+ | Italian-VIT                | Raw text     |  99.7% |  94.7% | 96.1% | 95.0% |  95.9%  |  93.5%  |  96.8% | 83.5% | 79.4% | 67.2% | 68.5% |
+ | Italian-VIT                | Gold tok     |    -   |    -   | 96.4% | 95.3% |  96.1%  |  93.8%  |  97.0% | 84.2% | 80.1% | 67.9% | 69.2% |
+ | Italian-VIT                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.3% | 84.4% | 77.4% | 78.3% |
+ | Japanese-GSD               | Raw text     |  90.6% |  94.7% | 88.0% | 87.7% |  90.6%  |  87.7%  |  89.8% | 75.2% | 73.7% | 60.6% | 62.6% |
+ | Japanese-GSD               | Gold tok     |    -   |    -   | 96.9% | 96.4% | 100.0%  |  96.4%  |  99.1% | 92.7% | 90.7% | 80.6% | 82.8% |
+ | Japanese-GSD               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 94.8% | 93.8% | 87.0% | 87.1% |
+ | Korean-GSD                 | Raw text     |  99.9% |  93.9% | 93.6% | 81.7% |  99.6%  |  79.5%  |  87.1% | 69.6% | 61.5% | 54.1% | 50.8% |
+ | Korean-GSD                 | Gold tok     |    -   |    -   | 93.7% | 81.9% |  99.7%  |  79.7%  |  87.2% | 70.3% | 62.1% | 54.8% | 51.4% |
+ | Korean-GSD                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 72.5% | 65.5% | 60.4% | 61.6% |
+ | Korean-Kaist               | Raw text     | 100.0% | 100.0% | 93.3% | 80.1% |    -    |  80.1%  |  88.5% | 77.9% | 70.6% | 61.9% | 58.1% |
+ | Korean-Kaist               | Gold tok     |    -   |    -   | 93.4% | 80.1% |    -    |  80.1%  |  88.5% | 78.0% | 70.7% | 62.0% | 58.1% |
+ | Korean-Kaist               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.3% | 73.7% | 67.8% | 68.4% |
+ | Latin-ITTB                 | Raw text     | 100.0% |  92.4% | 97.1% | 93.0% |  93.4%  |  91.4%  |  98.0% | 83.4% | 80.1% | 70.6% | 75.5% |
+ | Latin-ITTB                 | Gold tok     |    -   |    -   | 97.1% | 93.0% |  93.3%  |  91.4%  |  98.0% | 83.9% | 80.5% | 70.7% | 75.5% |
+ | Latin-ITTB                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.8% | 85.8% | 81.9% | 83.0% |
+ | Latin-PROIEL               | Raw text     |  99.9% |  36.8% | 94.5% | 94.7% |  86.7%  |  85.6%  |  94.5% | 65.9% | 60.1% | 47.7% | 54.4% |
+ | Latin-PROIEL               | Gold tok     |    -   |    -   | 94.7% | 94.8% |  87.2%  |  86.2%  |  94.7% | 73.4% | 67.3% | 54.9% | 61.3% |
+ | Latin-PROIEL               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 77.2% | 73.4% | 67.1% | 70.3% |
+ | Latin-Perseus              | Raw text     | 100.0% |  98.5% | 83.3% | 67.2% |  72.1%  |  67.2%  |  78.0% | 57.7% | 47.1% | 29.4% | 31.9% |
+ | Latin-Perseus              | Gold tok     |    -   |    -   | 83.3% | 67.2% |  72.1%  |  67.2%  |  77.9% | 57.9% | 47.2% | 29.4% | 31.9% |
+ | Latin-Perseus              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 67.6% | 61.8% | 55.9% | 59.1% |
+ | Latvian-LVTB               | Raw text     |  99.3% |  98.7% | 93.5% | 84.3% |  89.5%  |  83.9%  |  92.7% | 78.8% | 74.2% | 62.1% | 65.7% |
+ | Latvian-LVTB               | Gold tok     |    -   |    -   | 94.0% | 84.8% |  90.1%  |  84.5%  |  93.3% | 79.7% | 75.1% | 62.9% | 66.5% |
+ | Latvian-LVTB               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.4% | 83.5% | 79.8% | 81.0% |
+ | Lithuanian-ALKSNIS         | Raw text     |  99.9% |  87.9% | 90.4% | 80.7% |  82.3%  |  80.4%  |  88.8% | 69.0% | 62.5% | 48.8% | 52.0% |
+ | Lithuanian-ALKSNIS         | Gold tok     |    -   |    -   | 90.5% | 80.9% |  82.5%  |  80.6%  |  88.9% | 69.8% | 63.4% | 49.4% | 52.5% |
+ | Lithuanian-ALKSNIS         | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 77.2% | 73.9% | 70.6% | 71.6% |
+ | Lithuanian-HSE             | Raw text     |  97.3% |  97.3% | 73.2% | 72.1% |  68.2%  |  62.7%  |  71.1% | 46.9% | 33.5% | 21.6% | 22.1% |
+ | Lithuanian-HSE             | Gold tok     |    -   |    -   | 74.1% | 73.1% |  69.2%  |  63.6%  |  72.0% | 48.3% | 34.7% | 21.9% | 22.3% |
+ | Lithuanian-HSE             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 56.9% | 48.1% | 42.6% | 44.4% |
+ | Maltese-MUDT               | Raw text     |  99.8% |  86.3% | 93.8% | 93.5% |    -    |  93.2%  |    -   | 77.7% | 71.8% | 58.4% | 61.9% |
+ | Maltese-MUDT               | Gold tok     |    -   |    -   | 93.9% | 93.7% |    -    |  93.4%  |    -   | 78.0% | 72.2% | 58.6% | 62.1% |
+ | Maltese-MUDT               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.2% | 77.9% | 68.4% | 69.7% |
+ | Marathi-UFAL               | Raw text     |  90.2% |  92.6% | 71.5% |   -   |  60.8%  |  58.2%  |  76.2% | 60.5% | 49.5% | 23.9% | 30.7% |
+ | Marathi-UFAL               | Gold tok     |    -   |    -   | 77.7% |   -   |  63.4%  |  60.4%  |  76.5% | 68.5% | 54.9% | 26.0% | 31.0% |
+ | Marathi-UFAL               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 77.9% | 67.7% | 60.7% | 63.1% |
+ | North Sami-Giella          | Raw text     |  99.9% |  98.8% | 87.8% | 89.4% |  82.5%  |  78.4%  |  82.0% | 64.7% | 57.9% | 46.7% | 43.2% |
+ | North Sami-Giella          | Gold tok     |    -   |    -   | 87.9% | 89.6% |  82.6%  |  78.5%  |  82.1% | 64.9% | 58.2% | 46.9% | 43.5% |
+ | North Sami-Giella          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 81.4% | 78.7% | 74.2% | 77.2% |
+ | Norwegian-Bokmaal          | Raw text     | 100.0% |  96.5% | 96.6% |   -   |  95.4%  |  94.1%  |  96.9% | 87.2% | 84.4% | 75.3% | 77.1% |
+ | Norwegian-Bokmaal          | Gold tok     |    -   |    -   | 96.7% |   -   |  95.4%  |  94.2%  |  97.0% | 87.5% | 84.7% | 75.6% | 77.5% |
+ | Norwegian-Bokmaal          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 92.0% | 90.2% | 86.1% | 86.9% |
+ | Norwegian-Nynorsk          | Raw text     |  99.9% |  94.1% | 96.0% |   -   |  94.9%  |  93.6%  |  96.3% | 85.7% | 82.8% | 72.8% | 74.5% |
+ | Norwegian-Nynorsk          | Gold tok     |    -   |    -   | 96.2% |   -   |  95.0%  |  93.7%  |  96.4% | 86.4% | 83.5% | 73.6% | 75.2% |
+ | Norwegian-Nynorsk          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 91.1% | 89.2% | 84.7% | 85.8% |
+ | Norwegian-NynorskLIA       | Raw text     |  99.8% |  99.5% | 93.7% |   -   |  93.2%  |  90.4%  |  96.2% | 74.2% | 68.9% | 55.9% | 60.1% |
+ | Norwegian-NynorskLIA       | Gold tok     |    -   |    -   | 93.8% |   -   |  93.3%  |  90.5%  |  96.4% | 74.4% | 69.1% | 56.0% | 60.3% |
+ | Norwegian-NynorskLIA       | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 81.1% | 76.8% | 69.1% | 71.3% |
+ | Old Church Slavonic-PROIEL | Raw text     | 100.0% |  41.4% | 93.5% | 93.7% |  86.8%  |  85.5%  |  90.9% | 71.2% | 65.3% | 54.8% | 59.5% |
+ | Old Church Slavonic-PROIEL | Gold tok     |    -   |    -   | 93.8% | 94.0% |  87.4%  |  86.2%  |  91.0% | 79.5% | 73.2% | 62.4% | 66.0% |
+ | Old Church Slavonic-PROIEL | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 85.1% | 81.3% | 76.8% | 79.6% |
+ | Old French-SRCMF           | Raw text     |  99.9% | 100.0% | 94.2% | 93.8% |  96.0%  |  93.3%  |    -   | 85.5% | 79.3% | 70.9% | 74.6% |
+ | Old French-SRCMF           | Gold tok     |    -   |    -   | 94.3% | 93.9% |  96.1%  |  93.4%  |    -   | 85.6% | 79.4% | 71.0% | 74.7% |
+ | Old French-SRCMF           | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.8% | 84.4% | 78.4% | 79.7% |
+ | Old Russian-TOROT          | Raw text     | 100.0% |  29.6% | 89.9% | 90.0% |  81.8%  |  79.6%  |  81.2% | 63.9% | 56.9% | 42.9% | 44.2% |
+ | Old Russian-TOROT          | Gold tok     |    -   |    -   | 90.5% | 90.5% |  82.5%  |  80.5%  |  81.3% | 73.4% | 65.9% | 51.5% | 50.8% |
+ | Old Russian-TOROT          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 80.5% | 76.4% | 70.4% | 73.2% |
+ | Persian-Seraji             | Raw text     |  99.7% |  98.8% | 96.0% | 95.9% |  96.1%  |  95.4%  |  93.6% | 83.6% | 79.6% | 72.8% | 70.1% |
+ | Persian-Seraji             | Gold tok     |    -   |    -   | 96.3% | 96.3% |  96.4%  |  95.7%  |  93.9% | 84.3% | 80.2% | 73.3% | 70.5% |
+ | Persian-Seraji             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.2% | 84.3% | 80.0% | 80.8% |
+ | Polish-LFG                 | Raw text     |  99.8% |  99.7% | 96.7% | 87.2% |  89.1%  |  86.5%  |  94.5% | 90.9% | 87.4% | 74.4% | 78.5% |
+ | Polish-LFG                 | Gold tok     |    -   |    -   | 96.9% | 87.3% |  89.2%  |  86.7%  |  94.6% | 91.3% | 87.8% | 74.7% | 78.8% |
+ | Polish-LFG                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 96.2% | 94.8% | 92.9% | 93.1% |
+ | Polish-PDB                 | Raw text     |  99.8% |  97.3% | 97.1% | 88.1% |  88.6%  |  87.5%  |  96.0% | 86.5% | 82.7% | 68.8% | 75.4% |
+ | Polish-PDB                 | Gold tok     |    -   |    -   | 97.2% | 88.2% |  88.8%  |  87.7%  |  96.1% | 87.0% | 83.2% | 69.1% | 75.8% |
+ | Polish-PDB                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.5% | 88.8% | 86.0% | 86.3% |
+ | Portuguese-Bosque          | Raw text     |  99.5% |  87.8% | 95.9% |   -   |  94.5%  |  92.7%  |  96.7% | 85.9% | 81.9% | 68.0% | 71.8% |
+ | Portuguese-Bosque          | Gold tok     |    -   |    -   | 96.4% |   -   |  95.0%  |  93.2%  |  97.2% | 87.2% | 83.1% | 69.0% | 73.0% |
+ | Portuguese-Bosque          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.3% | 86.3% | 79.5% | 80.5% |
+ | Portuguese-GSD             | Raw text     |  99.8% |  97.1% | 97.0% | 97.0% |  99.7%  |  97.0%  |  98.5% | 88.0% | 85.9% | 77.8% | 78.5% |
+ | Portuguese-GSD             | Gold tok     |    -   |    -   | 97.2% | 97.2% |  99.9%  |  97.2%  |  98.7% | 88.4% | 86.3% | 78.2% | 78.8% |
+ | Portuguese-GSD             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.9% | 89.5% | 83.7% | 84.3% |
+ | Romanian-Nonstandard       | Raw text     |  98.2% |  96.7% | 94.2% | 89.4% |  88.4%  |  87.1%  |  92.4% | 82.3% | 77.1% | 59.0% | 65.7% |
+ | Romanian-Nonstandard       | Gold tok     |    -   |    -   | 95.9% | 91.0% |  89.9%  |  88.5%  |  94.0% | 84.9% | 79.4% | 60.9% | 67.3% |
+ | Romanian-Nonstandard       | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.8% | 82.8% | 75.2% | 77.0% |
+ | Romanian-RRT               | Raw text     |  99.7% |  95.3% | 96.7% | 95.9% |  96.1%  |  95.7%  |  96.6% | 85.3% | 80.0% | 71.5% | 71.6% |
+ | Romanian-RRT               | Gold tok     |    -   |    -   | 96.9% | 96.2% |  96.4%  |  96.0%  |  96.8% | 86.0% | 80.6% | 72.0% | 72.1% |
+ | Romanian-RRT               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.9% | 83.1% | 76.9% | 77.9% |
+ | Russian-GSD                | Raw text     |  99.5% |  96.2% | 95.0% | 94.7% |  85.4%  |  84.3%  |  92.3% | 82.3% | 77.4% | 62.1% | 67.4% |
+ | Russian-GSD                | Gold tok     |    -   |    -   | 95.4% | 95.1% |  85.8%  |  84.7%  |  92.7% | 83.5% | 78.6% | 62.9% | 68.3% |
+ | Russian-GSD                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.0% | 83.9% | 81.0% | 81.5% |
+ | Russian-SynTagRus          | Raw text     |  99.6% |  98.8% | 97.8% |   -   |  93.5%  |  93.2%  |  96.5% | 87.6% | 85.0% | 77.0% | 79.4% |
+ | Russian-SynTagRus          | Gold tok     |    -   |    -   | 98.2% |   -   |  93.9%  |  93.5%  |  96.9% | 88.3% | 85.7% | 77.5% | 79.9% |
+ | Russian-SynTagRus          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.3% | 89.0% | 86.9% | 87.3% |
+ | Russian-Taiga              | Raw text     |  97.6% |  76.0% | 88.3% | 91.5% |  77.0%  |  71.0%  |  84.9% | 65.1% | 57.7% | 38.2% | 43.8% |
+ | Russian-Taiga              | Gold tok     |    -   |    -   | 90.4% | 93.8% |  79.2%  |  72.9%  |  87.0% | 69.2% | 61.3% | 40.7% | 46.7% |
+ | Russian-Taiga              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 75.4% | 70.7% | 64.7% | 66.1% |
+ | Scottish Gaelic-ARCOSG     | Raw text     |  99.6% |  54.7% | 90.5% | 80.1% |  84.7%  |  79.5%  |  92.1% | 73.9% | 66.1% | 47.7% | 52.4% |
+ | Scottish Gaelic-ARCOSG     | Gold tok     |    -   |    -   | 91.1% | 80.7% |  85.1%  |  80.0%  |  92.5% | 78.5% | 70.4% | 52.2% | 58.1% |
+ | Scottish Gaelic-ARCOSG     | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 82.6% | 78.0% | 69.4% | 71.3% |
+ | Serbian-SET                | Raw text     | 100.0% |  93.0% | 97.1% | 90.7% |  91.1%  |  90.5%  |  95.1% | 85.7% | 81.8% | 69.7% | 73.8% |
+ | Serbian-SET                | Gold tok     |    -   |    -   | 97.2% | 90.8% |  91.2%  |  90.7%  |  95.1% | 86.3% | 82.4% | 70.3% | 74.4% |
+ | Serbian-SET                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 89.2% | 86.4% | 82.6% | 83.7% |
+ | Slovak-SNK                 | Raw text     | 100.0% |  85.3% | 92.9% | 77.0% |  80.3%  |  76.7%  |  86.6% | 81.0% | 76.3% | 56.1% | 60.7% |
+ | Slovak-SNK                 | Gold tok     |    -   |    -   | 93.0% | 77.2% |  80.5%  |  76.8%  |  86.6% | 82.5% | 77.8% | 57.2% | 61.5% |
+ | Slovak-SNK                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.9% | 86.7% | 83.7% | 84.5% |
+ | Slovenian-SSJ              | Raw text     |  98.0% |  68.0% | 94.2% | 86.2% |  86.5%  |  85.7%  |  93.4% | 79.6% | 76.4% | 62.8% | 68.2% |
+ | Slovenian-SSJ              | Gold tok     |    -   |    -   | 96.2% | 88.3% |  88.7%  |  87.8%  |  95.3% | 85.2% | 81.8% | 67.2% | 72.8% |
+ | Slovenian-SSJ              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 92.1% | 90.6% | 87.5% | 87.9% |
+ | Slovenian-SST              | Raw text     |  99.8% |  23.1% | 87.5% | 79.7% |  79.8%  |  76.8%  |  90.8% | 54.1% | 47.0% | 33.9% | 38.1% |
+ | Slovenian-SST              | Gold tok     |    -   |    -   | 88.7% | 80.3% |  80.5%  |  77.9%  |  91.1% | 64.5% | 56.9% | 43.0% | 48.7% |
+ | Slovenian-SST              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 76.0% | 70.7% | 64.3% | 66.6% |
+ | Spanish-AnCora             | Raw text     | 100.0% |  98.3% | 98.3% | 98.1% |  98.1%  |  97.4%  |  98.5% | 88.2% | 85.1% | 77.0% | 77.5% |
+ | Spanish-AnCora             | Gold tok     |    -   |    -   | 98.4% | 98.2% |  98.2%  |  97.4%  |  98.5% | 88.4% | 85.3% | 77.2% | 77.7% |
+ | Spanish-AnCora             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.2% | 87.6% | 81.4% | 82.3% |
+ | Spanish-GSD                | Raw text     |  99.8% |  94.5% | 95.5% |   -   |  96.2%  |  93.7%  |  95.9% | 85.4% | 82.0% | 68.6% | 69.3% |
+ | Spanish-GSD                | Gold tok     |    -   |    -   | 95.7% |   -   |  96.5%  |  94.0%  |  96.1% | 86.0% | 82.5% | 69.1% | 69.7% |
+ | Spanish-GSD                | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.4% | 85.8% | 78.7% | 79.6% |
+ | Swedish-LinES              | Raw text     | 100.0% |  87.2% | 94.5% | 92.1% |  88.5%  |  85.3%  |  95.1% | 80.4% | 75.8% | 60.7% | 68.1% |
+ | Swedish-LinES              | Gold tok     |    -   |    -   | 94.7% | 92.2% |  88.6%  |  85.4%  |  95.2% | 81.2% | 76.5% | 61.2% | 68.7% |
+ | Swedish-LinES              | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 86.0% | 82.4% | 78.6% | 79.9% |
+ | Swedish-Talbanken          | Raw text     |  99.9% |  96.1% | 95.6% | 93.9% |  94.5%  |  92.9%  |  95.4% | 82.5% | 78.6% | 70.0% | 70.4% |
+ | Swedish-Talbanken          | Gold tok     |    -   |    -   | 95.7% | 94.0% |  94.5%  |  93.0%  |  95.5% | 82.9% | 78.9% | 70.3% | 70.7% |
+ | Swedish-Talbanken          | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 88.4% | 85.6% | 81.8% | 82.8% |
+ | Tamil-TTB                  | Raw text     |  94.5% |  97.5% | 81.3% | 76.3% |  80.5%  |  75.6%  |  84.1% | 58.9% | 52.0% | 42.3% | 43.4% |
+ | Tamil-TTB                  | Gold tok     |    -   |    -   | 85.7% | 80.1% |  84.7%  |  79.3%  |  88.3% | 65.0% | 56.9% | 46.7% | 47.9% |
+ | Tamil-TTB                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 79.0% | 73.1% | 69.0% | 70.0% |
+ | Telugu-MTG                 | Raw text     |  99.6% |  96.6% | 90.3% | 90.3% |  98.5%  |  90.3%  |    -   | 87.1% | 75.8% | 64.8% | 69.6% |
+ | Telugu-MTG                 | Gold tok     |    -   |    -   | 90.6% | 90.6% |  98.9%  |  90.6%  |    -   | 88.2% | 76.8% | 65.9% | 70.7% |
+ | Telugu-MTG                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 90.3% | 81.5% | 75.6% | 75.8% |
+ | Turkish-IMST               | Raw text     |  98.3% |  97.0% | 91.6% | 90.7% |  88.5%  |  86.1%  |  90.0% | 62.2% | 55.1% | 45.2% | 46.7% |
+ | Turkish-IMST               | Gold tok     |    -   |    -   | 93.0% | 92.1% |  89.9%  |  87.4%  |  91.4% | 64.5% | 57.1% | 46.3% | 47.9% |
+ | Turkish-IMST               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 66.9% | 61.4% | 56.2% | 57.8% |
+ | Ukrainian-IU               | Raw text     |  99.8% |  96.6% | 94.9% | 84.0% |  84.3%  |  83.3%  |  93.6% | 79.4% | 74.8% | 57.6% | 64.2% |
+ | Ukrainian-IU               | Gold tok     |    -   |    -   | 95.1% | 84.2% |  84.4%  |  83.5%  |  93.7% | 79.8% | 75.1% | 57.8% | 64.5% |
+ | Ukrainian-IU               | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 85.2% | 83.1% | 78.9% | 79.5% |
+ | Urdu-UDTB                  | Raw text     | 100.0% |  98.3% | 92.4% | 90.1% |  80.8%  |  76.1%  |  93.1% | 83.6% | 76.9% | 49.5% | 63.5% |
+ | Urdu-UDTB                  | Gold tok     |    -   |    -   | 92.4% | 90.1% |  80.8%  |  76.1%  |  93.1% | 83.7% | 77.0% | 49.6% | 63.6% |
+ | Urdu-UDTB                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.5% | 82.6% | 74.8% | 76.3% |
+ | Uyghur-UDT                 | Raw text     |  99.5% |  81.9% | 87.7% | 89.8% |  84.0%  |  76.1%  |  91.7% | 70.6% | 56.7% | 37.4% | 44.2% |
+ | Uyghur-UDT                 | Gold tok     |    -   |    -   | 88.2% | 90.3% |  84.4%  |  76.6%  |  92.2% | 72.0% | 57.9% | 38.0% | 44.9% |
+ | Uyghur-UDT                 | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 74.4% | 61.1% | 50.3% | 52.6% |
+ | Vietnamese-VTB             | Raw text     |  85.4% |  93.5% | 76.4% | 74.3% |  85.0%  |  74.3%  |  84.5% | 45.8% | 40.6% | 34.6% | 36.7% |
+ | Vietnamese-VTB             | Gold tok     |    -   |    -   | 87.6% | 85.0% |  99.5%  |  84.9%  |  98.9% | 62.6% | 54.5% | 48.2% | 50.8% |
+ | Vietnamese-VTB             | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 69.4% | 66.3% | 62.9% | 65.2% |
+ | Wolof-WTB                  | Raw text     |  99.2% |  92.0% | 91.7% | 91.4% |  91.0%  |  88.7%  |  93.2% | 77.0% | 70.9% | 58.8% | 60.3% |
+ | Wolof-WTB                  | Gold tok     |    -   |    -   | 92.6% | 92.2% |  91.7%  |  89.5%  |  93.9% | 78.7% | 72.5% | 60.2% | 61.3% |
+ | Wolof-WTB                  | Gold tok+mor |    -   |    -   |   -   |   -   |    -    |    -    |    -   | 87.1% | 83.7% | 76.6% | 78.1% |
