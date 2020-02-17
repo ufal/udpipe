@@ -67,6 +67,9 @@ To use UDPipe, a model is needed. The models are available from LINDAT/CLARIN
 (http://www.lindat.cz) infrastructure and described further in the UDPipe User's
 Manual. Currently, the following models are available:
 
+- Universal Dependencies 2.5 Models: udpipe-ud2.5-191206
+  (http://hdl.handle.net/11234/1-3131) (documentation
+  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models))
 - Universal Dependencies 2.4 Models: udpipe-ud2.4-190531
   (http://hdl.handle.net/11234/1-2998) (documentation
   (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models))

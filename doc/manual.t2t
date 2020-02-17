@@ -41,6 +41,7 @@ in the
 %manual% [UDPipe User's Manual #models].
 Currently, the following models are available:
 
+- Universal Dependencies 2.5 Models: [udpipe-ud2.5-191206 http://hdl.handle.net/11234/1-3131] ([documentation http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models])
 - Universal Dependencies 2.4 Models: [udpipe-ud2.4-190531 http://hdl.handle.net/11234/1-2998] ([documentation http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models])
 - Universal Dependencies 2.3 Models: [udpipe-ud2.3-181115 http://hdl.handle.net/11234/1-2898] ([documentation http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_23_models])
 - CoNLL18 Shared Task Baseline UD 2.2 Models: [udpipe-ud2.2-conll18-180430 http://hdl.handle.net/11234/1-2859] ([documentation http://ufal.mff.cuni.cz/udpipe/models#conll18_shared_task_baseline_ud_22_models])
