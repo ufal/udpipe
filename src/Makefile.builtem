@@ -170,7 +170,14 @@ ifneq ($(filter linux-gcc linux-clang win-gcc,$(PLATFORM)),)
   ifneq ($(filter undefined default,$(origin CXX)),)
     CXX = $(if $(filter %-gcc,$(PLATFORM)),g++,clang++)
   endif
+  UNAME_A := $(shell uname -a)
+  ifneq ($(filter arm%,$(UNAME_A)),)
+  C_FLAGS += -std=c++11 -W -Wall -fvisibility=hidden -U_FORTIFY_SOURCE
+  LD_FLAGS += -latomic
+  DYN_LD_FLAGS += -latomic
+  else
   C_FLAGS += -std=c++11 -W -Wall -mtune=generic -msse -msse2 -mfpmath=sse -fvisibility=hidden -U_FORTIFY_SOURCE
+  endif
   DYN_C_FLAGS += $(if $(filter linux-%,$(PLATFORM)),-fPIC)
   DYN_LD_FLAGS += -shared
 
