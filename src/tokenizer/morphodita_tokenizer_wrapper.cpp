@@ -119,7 +119,7 @@ bool morphodita_tokenizer_wrapper::next_sentence(sentence& s, string& error) {
         following_newlines += count(saved_spaces.begin(), saved_spaces.end(), '\n');
       }
       if (normalized_spaces) {
-        tok.set_space_after(!(i+1 < forms.size() && forms[i+1].str == forms[i].str + forms[i].len));
+        tok.set_space_after(i+1 == forms.size() ? !saved_spaces.empty() : forms[i+1].str > forms[i].str + forms[i].len);
       } else {
         tok.set_spaces_in_token(tok.form.size() != forms[i].len ? forms[i] : "");
         tok.set_spaces_after(i+1 == forms.size() ? saved_spaces : string_piece(forms[i].str + forms[i].len, forms[i+1].str - forms[i].str - forms[i].len));
