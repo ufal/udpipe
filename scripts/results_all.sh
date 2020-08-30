@@ -9,6 +9,6 @@ for lang in ${@:-$data/*_all/}; do
   for treebank in $data/${lang}_*/; do
     treebank=$(basename $treebank)
     [ "${treebank##*_}" = all ] && continue
-    echo $treebank $(sh $(dirname $0)/results.sh $treebank test 1 | sed 's/_all/-all/' | sort -r | $(dirname $0)/results_diff.py | tail -n 1)
+    echo $treebank $(sh $(dirname $0)/results.sh $treebank $dataset 1 | sed 's/_all/-all/' | sort -r | $(dirname $0)/results_diff.py | tail -n 1)
   done
 done
