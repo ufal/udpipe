@@ -1,0 +1,3 @@
+[submodule "wembedding_service"]
+	path = wembedding_service
+	url = github:ufal/wembedding_service
