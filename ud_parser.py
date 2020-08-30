@@ -9,6 +9,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import argparse
 import sys
 import time
 
@@ -19,7 +20,7 @@ import dependency_decoding
 import conll18_ud_eval
 import ud_dataset
 
-class Network:
+class UDParser:
     METRICS = ["UPOS", "XPOS", "UFeats", "AllTags", "Lemmas", "UAS", "LAS", "CLAS", "MLAS", "BLEX"]
 
     def __init__(self, threads, seed=42):
@@ -363,49 +364,57 @@ class Network:
         else:
             return metrics["AllTags"].f1, metrics
 
+    @staticmethod
+    def argument_parser():
+        parser = argparse.ArgumentParser()
+        parser.add_argument("model", type=str, help="Model path")
+        parser.add_argument("--batch_size", default=32, type=int, help="Batch size.")
+        parser.add_argument("--beta_2", default=0.99, type=float, help="Adam beta 2")
+        parser.add_argument("--char_dropout", default=0, type=float, help="Character dropout")
+        parser.add_argument("--cle_dim", default=256, type=int, help="Character-level embedding dimension.")
+        parser.add_argument("--clip_gradient", default=2.0, type=float, help="Gradient clipping.")
+        parser.add_argument("--dev", default=[], nargs="+", type=str, help="Dev files.")
+        parser.add_argument("--dropout", default=0.5, type=float, help="Dropout")
+        parser.add_argument("--epochs", default="40:1e-3,20:1e-4", type=str, help="Epochs and learning rates.")
+        parser.add_argument("--exp", default=None, type=str, help="Experiment name.")
+        parser.add_argument("--label_smoothing", default=0.03, type=float, help="Label smoothing.")
+        parser.add_argument("--max_sentence_len", default=120, type=int, help="Max sentence length.")
+        parser.add_argument("--min_epoch_batches", default=300, type=int, help="Minimum number of batches per epoch.")
+        parser.add_argument("--parse", default=1, type=int, help="Parse.")
+        parser.add_argument("--parser_layers", default=1, type=int, help="Parser layers.")
+        parser.add_argument("--parser_deprel_dim", default=128, type=int, help="Parser deprel dim.")
+        parser.add_argument("--predict", default=False, action="store_true", help="Only predict.")
+        parser.add_argument("--predict_input", default=None, type=str, help="Input to prediction.")
+        parser.add_argument("--predict_output", default=None, type=str, help="Output to prediction.")
+        parser.add_argument("--rnn_cell", default="LSTM", type=str, help="RNN cell type.")
+        parser.add_argument("--rnn_cell_dim", default=512, type=int, help="RNN cell dimension.")
+        parser.add_argument("--rnn_layers", default=2, type=int, help="RNN layers.")
+        parser.add_argument("--rnn_layers_parser", default=1, type=int, help="Parser RNN layers.")
+        parser.add_argument("--rnn_layers_tagger", default=1, type=int, help="Tagger RNN layers.")
+        parser.add_argument("--seed", default=42, type=int, help="Initial random seed.")
+        parser.add_argument("--tags", default="UPOS,XPOS,FEATS,LEMMAS", type=str, help="Tags.")
+        parser.add_argument("--tag_layers", default=1, type=int, help="Additional tag layers.")
+        parser.add_argument("--test", default=[], nargs="+", type=str, help="Test files.")
+        parser.add_argument("--train", default=None, type=str, help="Trainig file.")
+        parser.add_argument("--threads", default=4, type=int, help="Maximum number of threads to use.")
+        parser.add_argument("--variant_dim", default=128, type=int, help="Variant embedding dimension.")
+        parser.add_argument("--we_dim", default=512, type=int, help="Word embedding dimension.")
+        parser.add_argument("--word_dropout", default=0.2, type=float, help="Word dropout")
+        return parser
+
+    @staticmethod
+    def postprocess_arguments(args):
+        args.tags = args.tags.split(",")
+        args.epochs = [(int(epochs), float(lr)) for epochs, lr in (epochs_lr.split(":") for epochs_lr in args.epochs.split(","))]
 
 if __name__ == "__main__":
-    import argparse
     import collections
     import glob
     import json
     import os
 
     # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("model", type=str, help="Model path")
-    parser.add_argument("--batch_size", default=32, type=int, help="Batch size.")
-    parser.add_argument("--beta_2", default=0.99, type=float, help="Adam beta 2")
-    parser.add_argument("--char_dropout", default=0, type=float, help="Character dropout")
-    parser.add_argument("--cle_dim", default=256, type=int, help="Character-level embedding dimension.")
-    parser.add_argument("--clip_gradient", default=2.0, type=float, help="Gradient clipping.")
-    parser.add_argument("--dev", default=[], nargs="+", type=str, help="Dev files.")
-    parser.add_argument("--dropout", default=0.5, type=float, help="Dropout")
-    parser.add_argument("--epochs", default="40:1e-3,20:1e-4", type=str, help="Epochs and learning rates.")
-    parser.add_argument("--exp", default=None, type=str, help="Experiment name.")
-    parser.add_argument("--label_smoothing", default=0.03, type=float, help="Label smoothing.")
-    parser.add_argument("--max_sentence_len", default=120, type=int, help="Max sentence length.")
-    parser.add_argument("--min_epoch_batches", default=300, type=int, help="Minimum number of batches per epoch.")
-    parser.add_argument("--parse", default=1, type=int, help="Parse.")
-    parser.add_argument("--parser_layers", default=1, type=int, help="Parser layers.")
-    parser.add_argument("--parser_deprel_dim", default=128, type=int, help="Parser deprel dim.")
-    parser.add_argument("--predict", default=False, action="store_true", help="Only predict.")
-    parser.add_argument("--predict_input", default=None, type=str, help="Input to prediction.")
-    parser.add_argument("--predict_output", default=None, type=str, help="Output to prediction.")
-    parser.add_argument("--rnn_cell", default="LSTM", type=str, help="RNN cell type.")
-    parser.add_argument("--rnn_cell_dim", default=512, type=int, help="RNN cell dimension.")
-    parser.add_argument("--rnn_layers", default=2, type=int, help="RNN layers.")
-    parser.add_argument("--rnn_layers_parser", default=1, type=int, help="Parser RNN layers.")
-    parser.add_argument("--rnn_layers_tagger", default=1, type=int, help="Tagger RNN layers.")
-    parser.add_argument("--seed", default=42, type=int, help="Initial random seed.")
-    parser.add_argument("--tags", default="UPOS,XPOS,FEATS,LEMMAS", type=str, help="Tags.")
-    parser.add_argument("--tag_layers", default=1, type=int, help="Additional tag layers.")
-    parser.add_argument("--test", default=[], nargs="+", type=str, help="Test files.")
-    parser.add_argument("--train", default=None, type=str, help="Trainig file.")
-    parser.add_argument("--threads", default=4, type=int, help="Maximum number of threads to use.")
-    parser.add_argument("--variant_dim", default=128, type=int, help="Variant embedding dimension.")
-    parser.add_argument("--we_dim", default=512, type=int, help="Word embedding dimension.")
-    parser.add_argument("--word_dropout", default=0.2, type=float, help="Word dropout")
+    parser = UDParser.argument_parser()
     args = parser.parse_args()
 
     # Fix random seed
@@ -423,8 +432,7 @@ if __name__ == "__main__":
         parser.parse_args(namespace=args)
 
     # Postprocess args
-    args.tags = args.tags.split(",")
-    args.epochs = [(int(epochs), float(lr)) for epochs, lr in (epochs_lr.split(":") for epochs_lr in args.epochs.split(","))]
+    UDParser.postprocess_arguments(args)
 
     # Load the data
     root_factors = [ud_dataset.UDDataset.FORMS]
@@ -449,7 +457,7 @@ if __name__ == "__main__":
                                     embeddings=glob.glob("{}*.npz".format(args.predict_input)))
 
     # Construct the network
-    network = Network(threads=args.threads, seed=args.seed)
+    network = UDParser(threads=args.threads, seed=args.seed)
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
@@ -472,13 +480,13 @@ if __name__ == "__main__":
 
                 for dev in devs:
                     dev_accuracy, metrics = network.evaluate("dev", dev, args)
-                    metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in Network.METRICS))
+                    metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDParser.METRICS))
                     for log_file in log_files:
                         print("Dev {} epoch {}, lr {}, {}".format(dev.label, epoch + 1, learning_rate, metrics_log), file=log_file, flush=True)
 
         for test in tests:
             test_accuracy, metrics = network.evaluate("test", test, args)
-            metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in Network.METRICS))
+            metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDParser.METRICS))
             for log_file in log_files:
                 print("Test {} epoch {}, lr {}, {}".format(test.label, epoch + 1, learning_rate, metrics_log), file=log_file, flush=True)
         network.close_writers()
