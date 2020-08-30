@@ -446,7 +446,7 @@ if __name__ == "__main__":
     else:
         train = ud_dataset.UDDataset.load_mappings(os.path.join(args.model, "mappings.pickle"))
         test = ud_dataset.UDDataset(args.predict_input, root_factors, train=train, shuffle_batches=False,
-                                    embeddings=glob.glob("{}*.npz".format(args.test)))
+                                    embeddings=glob.glob("{}*.npz".format(args.predict_input)))
 
     # Construct the network
     network = Network(threads=args.threads, seed=args.seed)
