@@ -399,6 +399,7 @@ class UDParser:
         parser.add_argument("--threads", default=4, type=int, help="Maximum number of threads to use.")
         parser.add_argument("--variant_dim", default=128, type=int, help="Variant embedding dimension.")
         parser.add_argument("--we_dim", default=512, type=int, help="Word embedding dimension.")
+        parser.add_argument("--wembedding_model", default="bert-base-multilingual-uncased-last4", type="str", help="WEmbedding model.")
         parser.add_argument("--word_dropout", default=0.2, type=float, help="Word dropout")
         return parser
 
