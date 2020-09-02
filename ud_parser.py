@@ -20,6 +20,9 @@ import dependency_decoding
 import conll18_ud_eval
 import ud_dataset
 
+# Disable TF warnings
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 class UDParser:
     METRICS = ["UPOS", "XPOS", "UFeats", "AllTags", "Lemmas", "UAS", "LAS", "CLAS", "MLAS", "BLEX"]
 
