@@ -400,7 +400,8 @@ class UDDataset:
                         except:
                             print("Applying lemma rule failed for form '{}' and rule '{}', using the form as lemma".format(fields[-1], field), file=sys.stderr)
                             field = fields[-1]
-
+                        # Do not generate empty lemmas
+                        field = field or fields[-1]
 
                 fields.append(field)
 
