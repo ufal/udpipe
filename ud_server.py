@@ -332,7 +332,7 @@ if __name__ == "__main__":
 
     # Log stderr to logfile if given
     if args.logfile is not None:
-        sys.stderr = open(args.logfile, "w", encoding="utf-8")
+        sys.stderr = open(args.logfile, "a", encoding="utf-8")
 
     # Load the models
     models = Models(args)
