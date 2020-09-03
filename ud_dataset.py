@@ -7,6 +7,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import io
 import pickle
 import re
 import sys
@@ -143,11 +144,11 @@ class UDDataset:
                 self.charseqs = [[0], [1], [2]]
                 self.charseq_ids = []
 
-    def __init__(self, filename, root_factors=[], embeddings=[], train=None, shuffle_batches=True, max_sentence_len=None, max_sentences=None):
+    def __init__(self, path=None, text=None, embeddings=[], override_variant=None, train=None, shuffle_batches=True, max_sentence_len=None, max_sentences=None):
         # Create factors and other variables
         self._factors = []
         for f in range(self.FACTORS):
-            self._factors.append(self._Factor(f in root_factors, f == self.FORMS, train._factors[f] if train else None))
+            self._factors.append(self._Factor(f == self.FORMS, f == self.FORMS, train._factors[f] if train else None))
         self._extras = []
 
         self._lr_allow_copy = train._lr_allow_copy if train else None
@@ -171,7 +172,7 @@ class UDDataset:
         self._embeddings_size = self._embeddings[0].shape[1] if self._embeddings else 0
 
         # Load the sentences
-        with open(filename, "r", encoding="utf-8") as file:
+        with open(path, "r", encoding="utf-8") if path is not None else io.StringIO(text) as file:
             in_sentence = False
             variant = ""
             for line in file:
@@ -246,6 +247,7 @@ class UDDataset:
                                     factor.words.append(word)
                             factor.word_ids[-1].append(factor.words_map[word])
                     if not in_sentence:
+                        if override_variant is not None: variant = override_variant
                         if (variant not in self._variant_map) and (not train):
                             self._variant_map[variant] = len(self._variant_map)
                         self._variants.append(self._variant_map.get(variant, 0))

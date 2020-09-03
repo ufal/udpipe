@@ -439,11 +439,10 @@ if __name__ == "__main__":
     UDParser.postprocess_arguments(args)
 
     # Load the data
-    root_factors = [ud_dataset.UDDataset.FORMS]
     devs, tests = [], []
     EvaluationDataset = collections.namedtuple("EvaluationDataset", ["label", "data", "gold"])
     if not args.predict:
-        train = ud_dataset.UDDataset(args.train, root_factors, max_sentence_len=args.max_sentence_len, shuffle_batches=True,
+        train = ud_dataset.UDDataset(path=args.train, max_sentence_len=args.max_sentence_len, shuffle_batches=True,
                                      embeddings=glob.glob("{}*.npz".format(args.train)))
         train.save_mappings(os.path.join(args.model, "mappings.pickle"))
         for sources, target in [(args.dev, devs), (args.test, tests)]:
@@ -451,13 +450,13 @@ if __name__ == "__main__":
                 label, path = ("", source) if ":" not in source else source.split(":", maxsplit=1)
                 target.append(EvaluationDataset(
                     label,
-                    ud_dataset.UDDataset(path, root_factors, train=train, shuffle_batches=False,
+                    ud_dataset.UDDataset(path=path, train=train, shuffle_batches=False,
                                          embeddings=glob.glob("{}*.npz".format(path))),
                     conll18_ud_eval.load_conllu_file(path)
                 ))
     else:
         train = ud_dataset.UDDataset.load_mappings(os.path.join(args.model, "mappings.pickle"))
-        test = ud_dataset.UDDataset(args.predict_input, root_factors, train=train, shuffle_batches=False,
+        test = ud_dataset.UDDataset(path=args.predict_input, train=train, shuffle_batches=False,
                                     embeddings=glob.glob("{}*.npz".format(args.predict_input)))
 
     # Construct the network
