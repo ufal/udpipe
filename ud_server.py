@@ -17,6 +17,7 @@ import json
 import os
 import socketserver
 import sys
+import time
 import urllib.parse
 
 import ud_dataset
@@ -92,8 +93,6 @@ class Models:
             return writer
 
         def predict(self, sentences, tag, parse, writer):
-            import time
-
             # Run the model
             if tag or parse:
                 time_we = time.time()
@@ -123,8 +122,11 @@ class Models:
                 # Load the predicted CoNLL-U to ufal.udpipe sentences
                 sentences = self._read(predicted, self._conllu_input)
 
-                print("Request, WE {:.2f}ms, DS {:.2f}ms, NW {:.2f}ms, RD {:.2f}ms".format(
-                    1000 * (time_ds - time_we), 1000 * (time_nw - time_ds), 1000 * (time_rd - time_nw), 1000 * (time.time() - time_rd)))
+                print("Request, WE {:.2f}ms,".format(1000 * (time_ds - time_we)),
+                      "DS {:.2f}ms,".format(1000 * (time_nw - time_ds)),
+                      "NW {:.2f}ms,".format(1000 * (time_rd - time_nw)),
+                      "RD {:.2f}ms.".format(1000 * (time.time() - time_rd)),
+                      file=sys.stderr, flush=True)
 
             # Generate output
             output = []
