@@ -323,9 +323,14 @@ if __name__ == "__main__":
     parser.add_argument("default_model", type=str, help="Default model")
     parser.add_argument("models", type=str, nargs="+", help="Models to serve")
     parser.add_argument("--batch_size", default=64, type=int, help="Batch size")
+    parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     parser.add_argument("--threads", default=4, type=int, help="Threads to use")
     args = parser.parse_args()
+
+    # Log stderr to logfile if given
+    if args.logfile is not None:
+        sys.stderr = open(args.logfile, "w", encoding="utf-8")
 
     # Load the models
     models = Models(args)
