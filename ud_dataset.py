@@ -157,14 +157,17 @@ class UDDataset:
         self._variants = []
 
         # Load contextualized embeddings
-        self._embeddings = []
-        for embeddings_path in embeddings:
-            with np.load(embeddings_path, allow_pickle=True) as embeddings_file:
-                for i, (_, value) in enumerate(embeddings_file.items()):
-                    if max_sentence_len: value = value[:max_sentence_len]
-                    if i >= len(self._embeddings): self._embeddings.append(value)
-                    else: self._embeddings[i] = np.concatenate([self._embeddings[i], value], axis=1)
-                assert i + 1 == len(self._embeddings)
+        if isinstance(embeddings, list) and all(isinstance(embedding, np.ndarray) for embedding in embeddings):
+            self._embeddings = embeddings
+        else:
+            self._embeddings = []
+            for embeddings_path in embeddings:
+                with np.load(embeddings_path, allow_pickle=True) as embeddings_file:
+                    for i, (_, value) in enumerate(embeddings_file.items()):
+                        if max_sentence_len: value = value[:max_sentence_len]
+                        if i >= len(self._embeddings): self._embeddings.append(value)
+                        else: self._embeddings[i] = np.concatenate([self._embeddings[i], value], axis=1)
+                    assert i + 1 == len(self._embeddings)
         self._embeddings_size = self._embeddings[0].shape[1] if self._embeddings else 0
 
         # Load the sentences
