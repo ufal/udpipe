@@ -12,8 +12,8 @@ basque-bdt-ud-2.6-190830:eu_bdt-ud-2.6-190830:eu:eus                     models-
 belarusian-hse-ud-2.6-190830:be_hse-ud-2.6-190830:be:bel                 models-2.6/ud-2.6-be_hse-200830.model           be_hse           $ack
 bulgarian-btb-ud-2.6-190830:bg_btb-ud-2.6-190830:bg:bul                  models-2.6/ud-2.6-bg_btb-200830.model           bg_btb           $ack
 catalan-ancora-ud-2.6-190830:ca_ancora-ud-2.6-190830:ca:cat              models-2.6/ud-2.6-ca_ancora-200830.model        ca_ancora        $ack
-chinese-gsd-ud-2.6-190830:zh_gsd-ud-2.6-190830:zh:zho:chi                models-2.6/ud-2.6-zh_gsd-200830.model           zh_gsd           $ack
-chinese-gsdsimp-ud-2.6-190830:zh_gsdsimp-ud-2.6-190830                   models-2.6/ud-2.6-zh_gsdsimp-200830.model       zh_gsdsimp       $ack
+chinese-gsdsimp-ud-2.6-190830:zh_gsdsimp-ud-2.6-190830:zh:zho:chi        models-2.6/ud-2.6-zh_gsdsimp-200830.model       zh_gsdsimp       $ack
+chinese-gsd-ud-2.6-190830:zh_gsd-ud-2.6-190830                           models-2.6/ud-2.6-zh_gsd-200830.model           zh_gsd           $ack
 classical_chinese-kyoto-ud-2.6-190830:lzh_kyoto-ud-2.6-190830:lzh        models-2.6/ud-2.6-lzh_kyoto-200830.model        lzh_kyoto        $ack
 coptic-scriptorium-ud-2.6-190830:cop_scriptorium-ud-2.6-190830:cop       models-2.6/ud-2.6-cop_scriptorium-200830.model  cop_scriptorium  $ack
 croatian-set-ud-2.6-190830:hr_set-ud-2.6-190830:hr:hrv                   models-2.6/ud-2.6-hr_set-200830.model           hr_set           $ack
