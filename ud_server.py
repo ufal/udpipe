@@ -152,6 +152,8 @@ class Models:
             for name in names:
                 self.models_by_names.setdefault(name, self.models_list[-1])
 
+            print("Loaded model {}".format(names[0]), file=sys.stderr, flush=True)
+
         # Check the default model exists
         assert self.default_model in self.models_by_names
 
