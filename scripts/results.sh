@@ -7,12 +7,12 @@ column="$3"
 
 {
 
-for log in models/*$treebank/log; do
+for log in models/*$treebank${EXP:+-$EXP}/log; do
   [ -f "$log" ] || continue
   echo $(basename $(dirname $log)) $(grep -i "^$dataset  " $log | tail -n 1 | cut -d, -f3-)
 done
 
-for log in models/*${treebank%%_*}_all/log; do
+for log in models/*${treebank%%_*}_all${EXP:+-$EXP}/log; do
   [ -f "$log" ] || continue
   echo $(basename $(dirname $log)) $(grep -i "^$dataset $treebank " $log | tail -n 1 | cut -d, -f3-)
 done
