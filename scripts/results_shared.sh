@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ $# -ge 1 ] || { echo Usage $0 datadir dev_or_test >&2; exit 1; }
+[ $# -ge 2 ] || { echo Usage $0 datadir dev_or_test >&2; exit 1; }
 data="$1"; shift
 dataset="$1"; shift
 
