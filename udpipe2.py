@@ -275,10 +275,14 @@ class UDPipe2:
                 with summary_writer.as_default():
                     tf.contrib.summary.initialize(session=self.session)
 
+    def load(self, path):
+        # We use the following version instead of calling `self.saver.restore`,
+        # because it works even TF 2 is in Eager mode.
+        self.session.run(self.saver.saver_def.restore_op_name,
+                         {self.saver.saver_def.filename_tensor_name: os.path.join(path, "weights")})
 
     def close_writers(self):
         self.session.run(self.summary_writers_close)
-
 
     def train_epoch(self, train, learning_rate, args):
         batches, at_least_one_epoch = 0, False
@@ -470,8 +474,7 @@ if __name__ == "__main__":
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
-        network.session.run(network.saver.saver_def.restore_op_name,
-                            {network.saver.saver_def.filename_tensor_name: os.path.join(args.model, "weights")})
+        network.load(args.model)
         conllu = network.predict(test, False, args)
         with open(args.predict_output, "w", encoding="utf-8") as output_file:
             print(conllu, end="", file=output_file)
