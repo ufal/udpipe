@@ -20,8 +20,8 @@ import sys
 import time
 import urllib.parse
 
-import ud_dataset
-import ud_parser
+import udpipe2
+import udpipe2_dataset
 import ufal.udpipe
 import wembedding_service.wembeddings.wembeddings as wembeddings
 
@@ -39,11 +39,11 @@ class Models:
             else:
                 with open(os.path.join(path, "options.json"), mode="r") as options_file:
                     self._network_args = argparse.Namespace(**json.load(options_file))
-                ud_parser.UDParser.postprocess_arguments(self._network_args)
+                udpipe2.UDPipe2.postprocess_arguments(self._network_args)
                 self._network_args.batch_size = server_args.batch_size
 
-                self._train = ud_dataset.UDDataset.load_mappings(os.path.join(path, "mappings.pickle"))
-                self._network = ud_parser.UDParser(threads=server_args.threads)
+                self._train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(path, "mappings.pickle"))
+                self._network = udpipe2.UDPipe2(threads=server_args.threads)
                 self._network.construct(self._network_args, self._train, [], [], predict_only=True)
                 self._network.saver.restore(self._network.session, os.path.join(path, "weights"))
 
@@ -105,9 +105,9 @@ class Models:
                 wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network_args.wembedding_model, wembedding_input)
 
                 time_ds = time.time()
-                # Create UDDataset
-                dataset = ud_dataset.UDDataset(text="".join(conllu_input), embeddings=wembeddings, override_variant=self._variant,
-                                               train=self._train, shuffle_batches=False)
+                # Create UDPipe2Dataset
+                dataset = udpipe2_dataset.UDPipe2Dataset(text="".join(conllu_input), embeddings=wembeddings, override_variant=self._variant,
+                                                         train=self._train, shuffle_batches=False)
 
                 # Prepare network arguments
                 network_args = argparse.Namespace(**vars(self._network_args))
