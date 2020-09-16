@@ -14,100 +14,6 @@ import sys
 
 import numpy as np
 
-def _min_edit_script(source, target, allow_copy):
-    a = [[(len(source) + len(target) + 1, None)] * (len(target) + 1) for _ in range(len(source) + 1)]
-    for i in range(0, len(source) + 1):
-        for j in range(0, len(target) + 1):
-            if i == 0 and j == 0:
-                a[i][j] = (0, "")
-            else:
-                if allow_copy and i and j and source[i - 1] == target[j - 1] and a[i-1][j-1][0] < a[i][j][0]:
-                    a[i][j] = (a[i-1][j-1][0], a[i-1][j-1][1] + "→")
-                if i and a[i-1][j][0] < a[i][j][0]:
-                    a[i][j] = (a[i-1][j][0] + 1, a[i-1][j][1] + "-")
-                if j and a[i][j-1][0] < a[i][j][0]:
-                    a[i][j] = (a[i][j-1][0] + 1, a[i][j-1][1] + "+" + target[j - 1])
-    return a[-1][-1][1]
-
-def _gen_lemma_rule(form, lemma, allow_copy):
-    form = form.lower()
-
-    previous_case = -1
-    lemma_casing = ""
-    for i, c in enumerate(lemma):
-        case = "↑" if c.lower() != c else "↓"
-        if case != previous_case:
-            lemma_casing += "{}{}{}".format("¦" if lemma_casing else "", case, i if i <= len(lemma) // 2 else i - len(lemma))
-        previous_case = case
-    lemma = lemma.lower()
-
-    best, best_form, best_lemma = 0, 0, 0
-    for l in range(len(lemma)):
-        for f in range(len(form)):
-            cpl = 0
-            while f + cpl < len(form) and l + cpl < len(lemma) and form[f + cpl] == lemma[l + cpl]: cpl += 1
-            if cpl > best:
-                best = cpl
-                best_form = f
-                best_lemma = l
-
-    rule = lemma_casing + ";"
-    if not best:
-        rule += "a" + lemma
-    else:
-        rule += "d{}¦{}".format(
-            _min_edit_script(form[:best_form], lemma[:best_lemma], allow_copy),
-            _min_edit_script(form[best_form + best:], lemma[best_lemma + best:], allow_copy),
-        )
-    return rule
-
-def _apply_lemma_rule(form, lemma_rule):
-    casing, rule = lemma_rule.split(";", 1)
-    if rule.startswith("a"):
-        lemma = rule[1:]
-    else:
-        form = form.lower()
-        rules, rule_sources = rule[1:].split("¦"), []
-        assert len(rules) == 2
-        for rule in rules:
-            source, i = 0, 0
-            while i < len(rule):
-                if rule[i] == "→" or rule[i] == "-":
-                    source += 1
-                else:
-                    assert rule[i] == "+"
-                    i += 1
-                i += 1
-            rule_sources.append(source)
-
-        try:
-            lemma, form_offset = "", 0
-            for i in range(2):
-                j, offset = 0, (0 if i == 0 else len(form) - rule_sources[1])
-                while j < len(rules[i]):
-                    if rules[i][j] == "→":
-                        lemma += form[offset]
-                        offset += 1
-                    elif rules[i][j] == "-":
-                        offset += 1
-                    else:
-                        assert(rules[i][j] == "+")
-                        lemma += rules[i][j + 1]
-                        j += 1
-                    j += 1
-                if i == 0:
-                    lemma += form[rule_sources[0] : len(form) - rule_sources[1]]
-        except:
-            lemma = form
-
-    for rule in casing.split("¦"):
-        if rule == "↓0": continue # The lemma is lowercased initially
-        if not rule: continue # Empty lemma might generate empty casing rule
-        case, offset = rule[0], int(rule[1:])
-        lemma = lemma[:offset] + (lemma[offset:].upper() if case == "↑" else lemma[offset:].lower())
-
-    return lemma
-
 class UDPipe2Dataset:
     FORMS = 0
     LEMMAS = 1
@@ -217,7 +123,7 @@ class UDPipe2Dataset:
 
                         # Preprocess word
                         if f == self.LEMMAS and self._lr_allow_copy is not None:
-                            word = _gen_lemma_rule(columns[self.FORMS], columns[self.LEMMAS], self._lr_allow_copy)
+                            word = self._gen_lemma_rule(columns[self.FORMS], columns[self.LEMMAS], self._lr_allow_copy)
 
                         # Character-level information
                         if factor.characters:
@@ -242,8 +148,8 @@ class UDPipe2Dataset:
                             form_dict[word] = form_dict.get(word, 0) + 1
                         elif f == self.LEMMAS and self._lr_allow_copy is None:
                             factor.word_ids[-1].append(0)
-                            lemma_dict_with_copy[_gen_lemma_rule(columns[self.FORMS], word, True)] = 1
-                            lemma_dict_no_copy[_gen_lemma_rule(columns[self.FORMS], word, False)] = 1
+                            lemma_dict_with_copy[self._gen_lemma_rule(columns[self.FORMS], word, True)] = 1
+                            lemma_dict_no_copy[self._gen_lemma_rule(columns[self.FORMS], word, False)] = 1
                         else:
                             if word not in factor.words_map:
                                 if train:
@@ -281,8 +187,8 @@ class UDPipe2Dataset:
             lemmas = self._factors[self.LEMMAS]
             for i in range(len(lemmas.word_ids)):
                 for j in range(lemmas.with_root, len(lemmas.word_ids[i])):
-                    word = _gen_lemma_rule(self._factors[self.FORMS].strings[i][j - lemmas.with_root + self._factors[self.FORMS].with_root],
-                                           lemmas.strings[i][j], self._lr_allow_copy)
+                    word = self._gen_lemma_rule(self._factors[self.FORMS].strings[i][j - lemmas.with_root + self._factors[self.FORMS].with_root],
+                                                lemmas.strings[i][j], self._lr_allow_copy)
                     if word not in lemmas.words_map:
                         lemmas.words_map[word] = len(lemmas.words)
                         lemmas.words.append(word)
@@ -419,7 +325,7 @@ class UDPipe2Dataset:
                         field = factor.words[overrides[f][offset]]
                     if f == self.LEMMAS:
                         try:
-                            field = _apply_lemma_rule(fields[-1], field)
+                            field = self._apply_lemma_rule(fields[-1], field)
                         except:
                             print("Applying lemma rule failed for form '{}' and rule '{}', using the form as lemma".format(fields[-1], field), file=sys.stderr)
                             field = fields[-1]
@@ -430,3 +336,100 @@ class UDPipe2Dataset:
 
             print("\t".join(fields), file=output)
         print(file=output)
+
+    @staticmethod
+    def _min_edit_script(source, target, allow_copy):
+        a = [[(len(source) + len(target) + 1, None)] * (len(target) + 1) for _ in range(len(source) + 1)]
+        for i in range(0, len(source) + 1):
+            for j in range(0, len(target) + 1):
+                if i == 0 and j == 0:
+                    a[i][j] = (0, "")
+                else:
+                    if allow_copy and i and j and source[i - 1] == target[j - 1] and a[i-1][j-1][0] < a[i][j][0]:
+                        a[i][j] = (a[i-1][j-1][0], a[i-1][j-1][1] + "→")
+                    if i and a[i-1][j][0] < a[i][j][0]:
+                        a[i][j] = (a[i-1][j][0] + 1, a[i-1][j][1] + "-")
+                    if j and a[i][j-1][0] < a[i][j][0]:
+                        a[i][j] = (a[i][j-1][0] + 1, a[i][j-1][1] + "+" + target[j - 1])
+        return a[-1][-1][1]
+
+    @staticmethod
+    def _gen_lemma_rule(form, lemma, allow_copy):
+        form = form.lower()
+
+        previous_case = -1
+        lemma_casing = ""
+        for i, c in enumerate(lemma):
+            case = "↑" if c.lower() != c else "↓"
+            if case != previous_case:
+                lemma_casing += "{}{}{}".format("¦" if lemma_casing else "", case, i if i <= len(lemma) // 2 else i - len(lemma))
+            previous_case = case
+        lemma = lemma.lower()
+
+        best, best_form, best_lemma = 0, 0, 0
+        for l in range(len(lemma)):
+            for f in range(len(form)):
+                cpl = 0
+                while f + cpl < len(form) and l + cpl < len(lemma) and form[f + cpl] == lemma[l + cpl]: cpl += 1
+                if cpl > best:
+                    best = cpl
+                    best_form = f
+                    best_lemma = l
+
+        rule = lemma_casing + ";"
+        if not best:
+            rule += "a" + lemma
+        else:
+            rule += "d{}¦{}".format(
+                UDPipe2Dataset._min_edit_script(form[:best_form], lemma[:best_lemma], allow_copy),
+                UDPipe2Dataset._min_edit_script(form[best_form + best:], lemma[best_lemma + best:], allow_copy),
+            )
+        return rule
+
+    @staticmethod
+    def _apply_lemma_rule(form, lemma_rule):
+        casing, rule = lemma_rule.split(";", 1)
+        if rule.startswith("a"):
+            lemma = rule[1:]
+        else:
+            form = form.lower()
+            rules, rule_sources = rule[1:].split("¦"), []
+            assert len(rules) == 2
+            for rule in rules:
+                source, i = 0, 0
+                while i < len(rule):
+                    if rule[i] == "→" or rule[i] == "-":
+                        source += 1
+                    else:
+                        assert rule[i] == "+"
+                        i += 1
+                    i += 1
+                rule_sources.append(source)
+
+            try:
+                lemma, form_offset = "", 0
+                for i in range(2):
+                    j, offset = 0, (0 if i == 0 else len(form) - rule_sources[1])
+                    while j < len(rules[i]):
+                        if rules[i][j] == "→":
+                            lemma += form[offset]
+                            offset += 1
+                        elif rules[i][j] == "-":
+                            offset += 1
+                        else:
+                            assert(rules[i][j] == "+")
+                            lemma += rules[i][j + 1]
+                            j += 1
+                        j += 1
+                    if i == 0:
+                        lemma += form[rule_sources[0] : len(form) - rule_sources[1]]
+            except:
+                lemma = form
+
+        for rule in casing.split("¦"):
+            if rule == "↓0": continue # The lemma is lowercased initially
+            if not rule: continue # Empty lemma might generate empty casing rule
+            case, offset = rule[0], int(rule[1:])
+            lemma = lemma[:offset] + (lemma[offset:].upper() if case == "↑" else lemma[offset:].lower())
+
+        return lemma
