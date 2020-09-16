@@ -106,8 +106,8 @@ class Models:
 
                 time_ds = time.time()
                 # Create UDPipe2Dataset
-                dataset = udpipe2_dataset.UDPipe2Dataset(text="".join(conllu_input), embeddings=wembeddings, override_variant=self._variant,
-                                                         train=self._train, shuffle_batches=False)
+                dataset = udpipe2_dataset.UDPipe2Dataset(text="".join(conllu_input), train=self._train, shuffle_batches=False,
+                                                         embeddings=wembeddings, override_variant=self._variant)
 
                 # Prepare network arguments
                 network_args = argparse.Namespace(**vars(self._network_args))

@@ -144,7 +144,8 @@ class UDPipe2Dataset:
                 self.charseqs = [[0], [1], [2]]
                 self.charseq_ids = []
 
-    def __init__(self, path=None, text=None, embeddings=[], override_variant=None, train=None, shuffle_batches=True, max_sentence_len=None, max_sentences=None):
+    def __init__(self, path=None, text=None, embeddings=[], train=None, shuffle_batches=True,
+                 override_variant=None, max_sentence_len=None, max_sentences=None):
         # Create factors and other variables
         self._factors = []
         for f in range(self.FACTORS):
