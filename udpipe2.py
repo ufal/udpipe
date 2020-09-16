@@ -464,6 +464,8 @@ if __name__ == "__main__":
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
+#         network.session.run(network.saver.saver_def.restore_op_name,
+#                             {network.saver.saver_def.filename_tensor_name: os.path.join(args.model, "weights")})
         network.saver.restore(network.session, os.path.join(args.model, "weights"))
         conllu = network.predict(test, False, args)
         with open(args.predict_output, "w", encoding="utf-8") as output_file:
