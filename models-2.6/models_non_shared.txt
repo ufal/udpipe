@@ -1,9 +1,5 @@
-de_gsd
-de_hdt
-es_ancora
+la_evalatin20
 la_ittb
-la_llct
-ro_rrt
-sl_ssj
+la_proiel
 zh_gsd
 zh_gsdsimp
