@@ -17,6 +17,7 @@ import json
 import os
 import socketserver
 import sys
+import threading
 import time
 import urllib.parse
 
@@ -27,25 +28,40 @@ import wembedding_service.wembeddings.wembeddings as wembeddings
 
 class Models:
     class Model:
-        def __init__(self, names, path, variant, acknowledgements, server_args, loaded_model=None):
+        class Network:
+            _mutex = threading.Lock()
+
+            def __init__(self, path, server_args):
+                self._path = path
+                self._server_args = server_args
+                self.network, self.args, self.train = None, None, none
+
+            def load(self):
+                if self.network is not None:
+                    return
+                with self._mutex:
+                    if self.network is not None:
+                        return
+
+                    with open(os.path.join(self._path, "options.json"), mode="r") as options_file:
+                        self.args = argparse.Namespace(**json.load(options_file))
+                    udpipe2.UDPipe2.postprocess_arguments(self.args)
+                    self.args.batch_size = self._server_args.batch_size
+
+                    self.train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(self._path, "mappings.pickle"))
+                    self.network = udpipe2.UDPipe2(threads=self._server_args.threads)
+                    self.network.construct(self.args, self.train, [], [], predict_only=True)
+                    self.network.load(self._path)
+
+                    print("Loaded model {}".format(names[0]), file=sys.stderr, flush=True)
+
+
+        def __init__(self, names, path, network, variant, acknowledgements, server_args):
             self.names = names
             self.acknowledgements = acknowledgements
-            self._server_args = server_args
+            self._network = network
             self._variant = variant
-
-            # Load the model if required
-            if loaded_model is not None:
-                self._network_args, self._train, self._network = loaded_model._network_args, loaded_model._train, loaded_model._network
-            else:
-                with open(os.path.join(path, "options.json"), mode="r") as options_file:
-                    self._network_args = argparse.Namespace(**json.load(options_file))
-                udpipe2.UDPipe2.postprocess_arguments(self._network_args)
-                self._network_args.batch_size = server_args.batch_size
-
-                self._train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(path, "mappings.pickle"))
-                self._network = udpipe2.UDPipe2(threads=server_args.threads)
-                self._network.construct(self._network_args, self._train, [], [], predict_only=True)
-                self._network.saver.restore(self._network.session, os.path.join(path, "weights"))
+            self._server_args = server_args
 
             # Load the tokenizer
             tokenizer_path = os.path.join(path, "{}.tokenizer".format(variant))
@@ -61,6 +77,9 @@ class Models:
             if self._conllu_output is None:
                 raise RuntimeError("Cannot create CoNLL-U output format")
 
+            # Load the network if requested
+            if server_args.preload_models:
+                self._network.load()
 
         def read(self, text, input_format):
             reader = ufal.udpipe.InputFormat.newInputFormat(input_format)
@@ -95,6 +114,9 @@ class Models:
         def predict(self, sentences, tag, parse, writer):
             # Run the model
             if tag or parse:
+                # Load the network if it has not been loaded already
+                self._network.load()
+
                 time_we = time.time()
                 wembedding_input, conllu_input = [], []
                 for sentence in sentences:
@@ -102,21 +124,21 @@ class Models:
                     conllu_input.append(self._conllu_output.writeSentence(sentence))
 
                 # Compute the WEmbeddings
-                wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network_args.wembedding_model, wembedding_input)
+                wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network.args.wembedding_model, wembedding_input)
 
                 time_ds = time.time()
                 # Create UDPipe2Dataset
-                dataset = udpipe2_dataset.UDPipe2Dataset(text="".join(conllu_input), train=self._train, shuffle_batches=False,
+                dataset = udpipe2_dataset.UDPipe2Dataset(text="".join(conllu_input), train=self._network.train, shuffle_batches=False,
                                                          embeddings=wembeddings, override_variant=self._variant)
 
                 # Prepare network arguments
-                network_args = argparse.Namespace(**vars(self._network_args))
+                network_args = argparse.Namespace(**vars(self._network.args))
                 if not tag: network_args.tags = []
                 if not parse: network_args.parse = 0
 
                 time_nw = time.time()
                 # Perform the prediction
-                predicted = self._network.predict(dataset, evaluating=False, args=network_args)
+                predicted = self._network.network.predict(dataset, evaluating=False, args=network_args)
 
                 time_rd = time.time()
                 # Load the predicted CoNLL-U to ufal.udpipe sentences
@@ -139,7 +161,7 @@ class Models:
         self.default_model = server_args.default_model
         self.models_list = []
         self.models_by_names = {}
-        models_by_path = {}
+        networks_by_path = {}
 
         for i in range(0, len(server_args.models), 4):
             names, path, variant, acknowledgements = server_args.models[i:i+4]
@@ -147,12 +169,11 @@ class Models:
             names = [name.split("-") for name in names]
             names = ["-".join(parts[:None if not i else -i]) for parts in names for i in range(len(parts))]
 
-            self.models_list.append(self.Model(names, path, variant, acknowledgements, server_args, loaded_model=models_by_path.get(path, None)))
-            models_by_path.setdefault(path, self.models_list[-1])
+            if not path in networks_by_path:
+                networks_by_path[path] = self.Model.Network(path, server_args)
+            self.models_list.append(self.Model(names, path, networks_by_path[path], variant, acknowledgements, server_args))
             for name in names:
                 self.models_by_names.setdefault(name, self.models_list[-1])
-
-            print("Loaded model {}".format(names[0]), file=sys.stderr, flush=True)
 
         # Check the default model exists
         assert self.default_model in self.models_by_names
@@ -329,6 +350,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=64, type=int, help="Batch size")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
+    parser.add_argument("--preload_models", default=False, action="store_true", help="Preload all models on startup")
     parser.add_argument("--threads", default=4, type=int, help="Threads to use")
     args = parser.parse_args()
 
