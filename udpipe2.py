@@ -23,7 +23,7 @@ import udpipe2_eval
 # Disable TF warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
 
-class UDParser:
+class UDPipe2:
     METRICS = ["UPOS", "XPOS", "UFeats", "AllTags", "Lemmas", "UAS", "LAS", "CLAS", "MLAS", "BLEX"]
 
     def __init__(self, threads, seed=42):
@@ -418,7 +418,7 @@ if __name__ == "__main__":
     import os
 
     # Parse arguments
-    parser = UDParser.argument_parser()
+    parser = UDPipe2.argument_parser()
     args = parser.parse_args()
 
     # Fix random seed
@@ -436,7 +436,7 @@ if __name__ == "__main__":
         parser.parse_args(namespace=args)
 
     # Postprocess args
-    UDParser.postprocess_arguments(args)
+    UDPipe2.postprocess_arguments(args)
 
     # Load the data
     devs, tests = [], []
@@ -460,7 +460,7 @@ if __name__ == "__main__":
                                               embeddings=glob.glob("{}*.npz".format(args.predict_input)))
 
     # Construct the network
-    network = UDParser(threads=args.threads, seed=args.seed)
+    network = UDPipe2(threads=args.threads, seed=args.seed)
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
@@ -485,13 +485,13 @@ if __name__ == "__main__":
 
                 for dev in devs:
                     dev_accuracy, metrics = network.evaluate("dev", dev, args)
-                    metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDParser.METRICS))
+                    metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDPipe2.METRICS))
                     for log_file in log_files:
                         print("Dev {} epoch {}, lr {}, {}".format(dev.label, epoch + 1, learning_rate, metrics_log), file=log_file, flush=True)
 
         for test in tests:
             test_accuracy, metrics = network.evaluate("test", test, args)
-            metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDParser.METRICS))
+            metrics_log = ", ".join(("{}: {:.2f}".format(metric, 100 * metrics[metric].f1) for metric in UDPipe2.METRICS))
             for log_file in log_files:
                 print("Test {} epoch {}, lr {}, {}".format(test.label, epoch + 1, learning_rate, metrics_log), file=log_file, flush=True)
         network.close_writers()
