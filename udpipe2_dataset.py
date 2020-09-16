@@ -108,7 +108,7 @@ def _apply_lemma_rule(form, lemma_rule):
 
     return lemma
 
-class UDDataset:
+class UDPipe2Dataset:
     FORMS = 0
     LEMMAS = 1
     UPOS = 2
@@ -150,6 +150,8 @@ class UDDataset:
         for f in range(self.FACTORS):
             self._factors.append(self._Factor(f == self.FORMS, f == self.FORMS, train._factors[f] if train else None))
         self._extras = []
+
+        form_dict = {}
 
         self._lr_allow_copy = train._lr_allow_copy if train else None
         lemma_dict_with_copy, lemma_dict_no_copy = {}, {}
@@ -234,6 +236,9 @@ class UDDataset:
                         # Word-level information
                         if f == self.HEAD:
                             factor.word_ids[-1].append(int(word) if word != "_" else -1)
+                        elif f == self.FORMS and not train:
+                            factor.word_ids[-1].append(0)
+                            form_dict[word] = form_dict.get(word, 0) + 1
                         elif f == self.LEMMAS and self._lr_allow_copy is None:
                             factor.word_ids[-1].append(0)
                             lemma_dict_with_copy[_gen_lemma_rule(columns[self.FORMS], word, True)] = 1
@@ -256,6 +261,18 @@ class UDDataset:
                     in_sentence = False
                     if max_sentences is not None and len(self._factors[self.FORMS].word_ids) >= max_sentences:
                         break
+
+        # Finalize forms if needed
+        if not train:
+            forms = self._factors[self.FORMS]
+            for i in range(len(forms.word_ids)):
+                for j in range(forms.with_root, len(forms.word_ids[i])):
+                    word = "<unk>" if form_dict[forms.strings[i][j]] < 2 else forms.strings[i][j]
+                    if word not in forms.words_map:
+                        forms.words_map[word] = len(forms.words)
+                        forms.words.append(word)
+                    forms.word_ids[i][j] = forms.words_map[word]
+
 
         # Finalize lemmas if needed
         if self._lr_allow_copy is None:
@@ -301,7 +318,7 @@ class UDDataset:
         return self._embeddings_size
 
     def save_mappings(self, path):
-        mappings = UDDataset.__new__(UDDataset)
+        mappings = UDPipe2Dataset.__new__(UDPipe2Dataset)
         for field in ["_lr_allow_copy", "_variant_map", "_embeddings_size"]:
             setattr(mappings, field, getattr(self, field))
         mappings._factors = []
@@ -346,7 +363,7 @@ class UDDataset:
         # Contextualized embeddings
         if self._embeddings:
             forms = self._factors[self.FORMS]
-            batch_word_ids.append(np.zeros([batch_size, max_sentence_len + forms.with_root, self.embeddings_size], np.float32))
+            batch_word_ids.append(np.zeros([batch_size, max_sentence_len + forms.with_root, self.embeddings_size], np.float16))
             for i in range(batch_size):
                 batch_word_ids[-1][i, forms.with_root:forms.with_root + len(self._embeddings[batch_perm[i]])] = \
                     self._embeddings[batch_perm[i]]

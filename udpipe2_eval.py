@@ -19,10 +19,12 @@
 # - [02 May 2018] Version 1.1: When removing spaces to match gold and system characters,
 #                              consider all Unicode characters of category Zs instead of
 #                              just ASCII space.
+# - [12 Sep 2020] Version 1.2: Renamed to udpipe2_eval when releasing with UDPipe 2
+#                              Allow evaluation with underscores in HEAD.
 
 # Command line usage
 # ------------------
-# conll18_ud_eval.py [-v] gold_conllu_file system_conllu_file
+# udpipe2_eval.py [-v] gold_conllu_file system_conllu_file
 #
 # - if no -v is given, only the official CoNLL18 UD Shared Task evaluation metrics
 #   are printed
@@ -187,14 +189,17 @@ def load_conllu(file):
                 if word.parent == "remapping":
                     raise UDError("There is a cycle in a sentence")
                 if word.parent is None:
-                    head = int(word.columns[HEAD])
-                    if head < 0 or head > len(ud.words) - sentence_start:
-                        raise UDError("HEAD '{}' points outside of the sentence".format(word.columns[HEAD]))
-                    if head:
-                        parent = ud.words[sentence_start + head - 1]
-                        word.parent = "remapping"
-                        process_word(parent)
-                        word.parent = parent
+                    if word.columns[HEAD] == "_":
+                        word.parent = "missing"
+                    else:
+                        head = int(word.columns[HEAD])
+                        if head < 0 or head > len(ud.words) - sentence_start:
+                            raise UDError("HEAD '{}' points outside of the sentence".format(word.columns[HEAD]))
+                        if head:
+                            parent = ud.words[sentence_start + head - 1]
+                            word.parent = "remapping"
+                            process_word(parent)
+                            word.parent = parent
 
             for word in ud.words[sentence_start:]:
                 process_word(word)
@@ -205,7 +210,7 @@ def load_conllu(file):
                     word.parent.functional_children.append(word)
 
             # Check there is a single root node
-            if len([word for word in ud.words[sentence_start:] if word.parent is None]) != 1:
+            if len([word for word in ud.words[sentence_start:] if word.parent is None]) > 1:
                 raise UDError("There are multiple roots in a sentence")
 
             # End the sentence
@@ -260,12 +265,13 @@ def load_conllu(file):
             if word_id != len(ud.words) - sentence_start + 1:
                 raise UDError("Incorrect word ID '{}' for word '{}', expected '{}'".format(columns[ID], columns[FORM], len(ud.words) - sentence_start + 1))
 
-            try:
-                head_id = int(columns[HEAD])
-            except:
-                raise UDError("Cannot parse HEAD '{}'".format(columns[HEAD]))
-            if head_id < 0:
-                raise UDError("HEAD cannot be negative")
+            if columns[HEAD] != "_":
+                try:
+                    head_id = int(columns[HEAD])
+                except:
+                    raise UDError("Cannot parse HEAD '{}'".format(columns[HEAD]))
+                if head_id < 0:
+                    raise UDError("HEAD cannot be negative")
 
             ud.words.append(UDWord(ud.tokens[-1], columns, is_multiword=False))
 
@@ -530,7 +536,7 @@ def main():
 if __name__ == "__main__":
     main()
 
-# Tests, which can be executed with `python -m unittest conll18_ud_eval`.
+# Tests, which can be executed with `python -m unittest udpipe2_eval`.
 class TestAlignment(unittest.TestCase):
     @staticmethod
     def _load_words(words):

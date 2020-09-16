@@ -17,8 +17,8 @@ import numpy as np
 import tensorflow as tf
 import dependency_decoding
 
-import conll18_ud_eval
-import ud_dataset
+import udpipe2_dataset
+import udpipe2_eval
 
 # Disable TF warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
@@ -357,7 +357,7 @@ class UDParser:
         import io
 
         conllu = self.predict(dataset.data, True, args)
-        metrics = conll18_ud_eval.evaluate(dataset.gold, conll18_ud_eval.load_conllu(io.StringIO(conllu)))
+        metrics = udpipe2_eval.evaluate(dataset.gold, udpipe2_eval.load_conllu(io.StringIO(conllu)))
         event = [tf.Summary.Value(tag="{}/{}".format(dataset_name, metric), simple_value=metrics[metric].f1) for metric in self.METRICS]
         event = tf.Event(summary=tf.Summary(value=event), step=self.session.run(self.global_step), wall_time=time.time()).SerializeToString()
         self.session.run(self.event_summaries[dataset.label], {self.event: event})
@@ -393,7 +393,7 @@ class UDParser:
         parser.add_argument("--rnn_cell_dim", default=512, type=int, help="RNN cell dimension.")
         parser.add_argument("--rnn_layers", default=2, type=int, help="RNN layers.")
         parser.add_argument("--rnn_layers_parser", default=1, type=int, help="Parser RNN layers.")
-        parser.add_argument("--rnn_layers_tagger", default=1, type=int, help="Tagger RNN layers.")
+        parser.add_argument("--rnn_layers_tagger", default=0, type=int, help="Tagger RNN layers.")
         parser.add_argument("--seed", default=42, type=int, help="Initial random seed.")
         parser.add_argument("--tags", default="UPOS,XPOS,FEATS,LEMMAS", type=str, help="Tags.")
         parser.add_argument("--tag_layers", default=1, type=int, help="Additional tag layers.")
@@ -402,7 +402,7 @@ class UDParser:
         parser.add_argument("--threads", default=4, type=int, help="Maximum number of threads to use.")
         parser.add_argument("--variant_dim", default=128, type=int, help="Variant embedding dimension.")
         parser.add_argument("--we_dim", default=512, type=int, help="Word embedding dimension.")
-        parser.add_argument("--wembedding_model", default="bert-base-multilingual-uncased-last4", type="str", help="WEmbedding model.")
+        parser.add_argument("--wembedding_model", default="bert-base-multilingual-uncased-last4", type=str, help="WEmbedding model.")
         parser.add_argument("--word_dropout", default=0.2, type=float, help="Word dropout")
         return parser
 
@@ -442,22 +442,22 @@ if __name__ == "__main__":
     devs, tests = [], []
     EvaluationDataset = collections.namedtuple("EvaluationDataset", ["label", "data", "gold"])
     if not args.predict:
-        train = ud_dataset.UDDataset(path=args.train, max_sentence_len=args.max_sentence_len, shuffle_batches=True,
-                                     embeddings=glob.glob("{}*.npz".format(args.train)))
+        train = udpipe2_dataset.UDPipe2Dataset(path=args.train, max_sentence_len=args.max_sentence_len, shuffle_batches=True,
+                                               embeddings=glob.glob("{}*.npz".format(args.train)))
         train.save_mappings(os.path.join(args.model, "mappings.pickle"))
         for sources, target in [(args.dev, devs), (args.test, tests)]:
             for source in sources:
                 label, path = ("", source) if ":" not in source else source.split(":", maxsplit=1)
                 target.append(EvaluationDataset(
                     label,
-                    ud_dataset.UDDataset(path=path, train=train, shuffle_batches=False,
-                                         embeddings=glob.glob("{}*.npz".format(path))),
-                    conll18_ud_eval.load_conllu_file(path)
+                    udpipe2_dataset.UDPipe2Dataset(path=path, train=train, shuffle_batches=False,
+                                                   embeddings=glob.glob("{}*.npz".format(path))),
+                    udpipe2_eval.load_conllu_file(path)
                 ))
     else:
-        train = ud_dataset.UDDataset.load_mappings(os.path.join(args.model, "mappings.pickle"))
-        test = ud_dataset.UDDataset(path=args.predict_input, train=train, shuffle_batches=False,
-                                    embeddings=glob.glob("{}*.npz".format(args.predict_input)))
+        train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(args.model, "mappings.pickle"))
+        test = udpipe2_dataset.UDPipe2Dataset(path=args.predict_input, train=train, shuffle_batches=False,
+                                              embeddings=glob.glob("{}*.npz".format(args.predict_input)))
 
     # Construct the network
     network = UDParser(threads=args.threads, seed=args.seed)
