@@ -20,6 +20,12 @@ import dependency_decoding
 import udpipe2_dataset
 import udpipe2_eval
 
+# Use tf.compat.v1 if running with TF2. Only prediction is supported
+# in this case, because we use tf.compat.opt.LazyAdamOptimizer, which
+# is not available in TF2.
+if not tf.__version__.startswith("1"):
+    tf = tf.compat.v1
+
 # Disable TF warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
 
@@ -464,9 +470,8 @@ if __name__ == "__main__":
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
-#         network.session.run(network.saver.saver_def.restore_op_name,
-#                             {network.saver.saver_def.filename_tensor_name: os.path.join(args.model, "weights")})
-        network.saver.restore(network.session, os.path.join(args.model, "weights"))
+        network.session.run(network.saver.saver_def.restore_op_name,
+                            {network.saver.saver_def.filename_tensor_name: os.path.join(args.model, "weights")})
         conllu = network.predict(test, False, args)
         with open(args.predict_output, "w", encoding="utf-8") as output_file:
             print(conllu, end="", file=output_file)
