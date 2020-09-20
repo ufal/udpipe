@@ -53,7 +53,7 @@ class Models:
                     self.network.construct(self.args, self.train, [], [], predict_only=True)
                     self.network.load(self._path)
 
-                    print("Loaded model {}".format(names[0]), file=sys.stderr, flush=True)
+                    print("Loaded model {}".format(os.path.basename(self._path)), file=sys.stderr, flush=True)
 
 
         def __init__(self, names, path, network, variant, acknowledgements, server_args):
