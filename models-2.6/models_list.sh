@@ -38,8 +38,8 @@ french-partut-ud-2.6-190830:fr_partut-ud-2.6-190830                      models-
 french-spoken-ud-2.6-190830:fr_spoken-ud-2.6-190830                      models-2.6/fr_all-ud-2.6-200830.model           fr_spoken        $ack
 galician-ctg-ud-2.6-190830:gl_ctg-ud-2.6-190830:gl:glg                   models-2.6/gl_all-ud-2.6-200830.model           gl_ctg           $ack
 galician-treegal-ud-2.6-190830:gl_treegal-ud-2.6-190830                  models-2.6/gl_all-ud-2.6-200830.model           gl_treegal       $ack
-german-hdt-ud-2.6-190830:de_hdt-ud-2.6-190830:de:deu:ger                 models-2.6/de_hdt-ud-2.6-200830.model           de_hdt           $ack
-german-gsd-ud-2.6-190830:de_gsd-ud-2.6-190830                            models-2.6/de_gsd-ud-2.6-200830.model           de_gsd           $ack
+german-hdt-ud-2.6-190830:de_hdt-ud-2.6-190830:de:deu:ger                 models-2.6/de_all-ud-2.6-200830.model           de_hdt           $ack
+german-gsd-ud-2.6-190830:de_gsd-ud-2.6-190830                            models-2.6/de_all-ud-2.6-200830.model           de_gsd           $ack
 gothic-proiel-ud-2.6-190830:got_proiel-ud-2.6-190830:got                 models-2.6/got_proiel-ud-2.6-200830.model       got_proiel       $ack
 greek-gdt-ud-2.6-190830:el_gdt-ud-2.6-190830:el:ell:gre                  models-2.6/el_gdt-ud-2.6-200830.model           el_gdt           $ack
 hebrew-htb-ud-2.6-190830:he_htb-ud-2.6-190830:he:heb                     models-2.6/he_htb-ud-2.6-200830.model           he_htb           $ack
@@ -56,8 +56,8 @@ japanese-gsd-ud-2.6-190830:ja_gsd-ud-2.6-190830:ja:jpn                   models-
 korean-kaist-ud-2.6-190830:ko_kaist-ud-2.6-190830:ko:kor                 models-2.6/ko_all-ud-2.6-200830.model           ko_kaist         $ack
 korean-gsd-ud-2.6-190830:ko_gsd-ud-2.6-190830                            models-2.6/ko_all-ud-2.6-200830.model           ko_gsd           $ack
 latin-ittb-ud-2.6-190830:la_ittb-ud-2.6-190830:la:lat                    models-2.6/la_ittb-ud-2.6-200830.model          la_ittb          $ack
-latin-llct-ud-2.6-190830:la_llct-ud-2.6-190830                           models-2.6/la_llct-ud-2.6-200830.model          la_llct          $ack
-latin-proiel-ud-2.6-190830:la_proiel-ud-2.6-190830                       models-2.6/la_all-ud-2.6-200830.model           la_proiel        $ack
+latin-llct-ud-2.6-190830:la_llct-ud-2.6-190830                           models-2.6/la_all-ud-2.6-200830.model           la_llct          $ack
+latin-proiel-ud-2.6-190830:la_proiel-ud-2.6-190830                       models-2.6/la_proiel-ud-2.6-200830.model        la_proiel        $ack
 latin-perseus-ud-2.6-190830:la_perseus-ud-2.6-190830                     models-2.6/la_all-ud-2.6-200830.model           la_perseus       $ack
 latin-evalatin20-190830:la_evalatin20-190830                             models-2.6/la_evalatin20-200830.model           la_evalatin20    $ack
 latvian-lvtb-ud-2.6-190830:lv_lvtb-ud-2.6-190830:lv:lav                  models-2.6/lv_lvtb-ud-2.6-200830.model          lv_lvtb          $ack
@@ -79,7 +79,7 @@ polish-pdb-ud-2.6-190830:pl_pdb-ud-2.6-190830:pl:pol                     models-
 polish-lfg-ud-2.6-190830:pl_lfg-ud-2.6-190830                            models-2.6/pl_all-ud-2.6-200830.model           pl_lfg           $ack
 portuguese-gsd-ud-2.6-190830:pt_gsd-ud-2.6-190830:pt:por                 models-2.6/pt_all-ud-2.6-200830.model           pt_gsd           $ack
 portuguese-bosque-ud-2.6-190830:pt_bosque-ud-2.6-190830                  models-2.6/pt_all-ud-2.6-200830.model           pt_bosque        $ack
-romanian-rrt-ud-2.6-190830:ro_rrt-ud-2.6-190830:ro:ron:rum               models-2.6/ro_rrt-ud-2.6-200830.model           ro_rrt           $ack
+romanian-rrt-ud-2.6-190830:ro_rrt-ud-2.6-190830:ro:ron:rum               models-2.6/ro_all-ud-2.6-200830.model           ro_rrt           $ack
 romanian-nonstandard-ud-2.6-190830:ro_nonstandard-ud-2.6-190830          models-2.6/ro_all-ud-2.6-200830.model           ro_nonstandard   $ack
 russian-syntagrus-ud-2.6-190830:ru_syntagrus-ud-2.6-190830:ru:rus        models-2.6/ru_all-ud-2.6-200830.model           ru_syntagrus     $ack
 russian-gsd-ud-2.6-190830:ru_gsd-ud-2.6-190830                           models-2.6/ru_all-ud-2.6-200830.model           ru_gsd           $ack
@@ -88,9 +88,9 @@ sanskrit-vedic-ud-2.6-190830:sa_vedic-ud-2.6-190830:sa:vsn               models-
 scottish_gaelic-arcosg-ud-2.6-190830:gd_arcosg-ud-2.6-190830:gd:gla      models-2.6/gd_arcosg-ud-2.6-200830.model        gd_arcosg        $ack
 serbian-set-ud-2.6-190830:sr_set-ud-2.6-190830:sr:srp                    models-2.6/sr_set-ud-2.6-200830.model           sr_set           $ack
 slovak-snk-ud-2.6-190830:sk_snk-ud-2.6-190830:sk:slk:slo                 models-2.6/sk_snk-ud-2.6-200830.model           sk_snk           $ack
-slovenian-ssj-ud-2.6-190830:sl_ssj-ud-2.6-190830:sl:slv                  models-2.6/sl_ssj-ud-2.6-200830.model           sl_ssj           $ack
+slovenian-ssj-ud-2.6-190830:sl_ssj-ud-2.6-190830:sl:slv                  models-2.6/sl_all-ud-2.6-200830.model           sl_ssj           $ack
 slovenian-sst-ud-2.6-190830:sl_sst-ud-2.6-190830                         models-2.6/sl_all-ud-2.6-200830.model           sl_sst           $ack
-spanish-ancora-ud-2.6-190830:es_ancora-ud-2.6-190830:es:spa              models-2.6/es_ancora-ud-2.6-200830.model        es_ancora        $ack
+spanish-ancora-ud-2.6-190830:es_ancora-ud-2.6-190830:es:spa              models-2.6/es_all-ud-2.6-200830.model           es_ancora        $ack
 spanish-gsd-ud-2.6-190830:es_gsd-ud-2.6-190830                           models-2.6/es_all-ud-2.6-200830.model           es_gsd           $ack
 swedish-talbanken-ud-2.6-190830:sv_talbanken-ud-2.6-190830:sv:swe        models-2.6/sv_all-ud-2.6-200830.model           sv_talbanken     $ack
 swedish-lines-ud-2.6-190830:sv_lines-ud-2.6-190830                       models-2.6/sv_all-ud-2.6-200830.model           sv_lines         $ack
