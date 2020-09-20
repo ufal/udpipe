@@ -344,7 +344,6 @@ if __name__ == "__main__":
     # Parse server arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("port", type=int, help="Port to use")
-    parser.add_argument("wembedding_server", type=str, help="Address of an WEmbedding server")
     parser.add_argument("default_model", type=str, help="Default model")
     parser.add_argument("models", type=str, nargs="+", help="Models to serve")
     parser.add_argument("--batch_size", default=64, type=int, help="Batch size")
@@ -352,6 +351,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     parser.add_argument("--preload_models", default=False, action="store_true", help="Preload all models on startup")
     parser.add_argument("--threads", default=4, type=int, help="Threads to use")
+    parser.add_argument("--wembedding_server", type=str, help="Address of an WEmbedding server")
     args = parser.parse_args()
 
     # Log stderr to logfile if given
@@ -362,7 +362,10 @@ if __name__ == "__main__":
     models = Models(args)
 
     # Create the WEmbeddings client
-    args.wembedding_server = wembeddings.WEmbeddings.ClientNetwork(args.wembedding_server)
+    if args.wembedding_server is not None:
+        args.wembedding_server = wembeddings.WEmbeddings.ClientNetwork(args.wembedding_server)
+    else:
+        args.wembedding_server = wembeddings.WEmbeddings(threads=args.threads)
 
     # Create the server
     server = UDServer(args, models)
