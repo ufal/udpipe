@@ -10,6 +10,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import os
 import sys
 import time
 
@@ -425,7 +426,6 @@ if __name__ == "__main__":
     import collections
     import glob
     import json
-    import os
 
     # Parse arguments
     parser = UDPipe2.argument_parser()
