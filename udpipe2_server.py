@@ -34,7 +34,7 @@ class Models:
             def __init__(self, path, server_args):
                 self._path = path
                 self._server_args = server_args
-                self.network, self.args, self.train = None, None, none
+                self.network, self.args, self.train = None, None, None
 
             def load(self):
                 if self.network is not None:
