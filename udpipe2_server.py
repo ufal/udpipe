@@ -78,7 +78,7 @@ class Models:
                 raise RuntimeError("Cannot create CoNLL-U output format")
 
             # Load the network if requested
-            if server_args.preload_models:
+            if names[0] in server_args.preload_models or "all" in server_args.preload_models:
                 self._network.load()
 
         def read(self, text, input_format):
@@ -349,7 +349,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", default=64, type=int, help="Batch size")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
-    parser.add_argument("--preload_models", default=False, action="store_true", help="Preload all models on startup")
+    parser.add_argument("--preload_models", default=[], nargs="*", type=str, help="Models to preload, or `all`")
     parser.add_argument("--threads", default=4, type=int, help="Threads to use")
     parser.add_argument("--wembedding_server", type=str, help="Address of an WEmbedding server")
     args = parser.parse_args()
