@@ -1,4 +1,3 @@
-cython
-git+https://github.com/andersjo/dependency_decoding
 tensorflow_gpu==1.15.3
+ufal.chu_liu_edmonds
 ufal.udpipe

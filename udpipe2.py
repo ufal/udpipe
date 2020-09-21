@@ -16,7 +16,7 @@ import time
 
 import numpy as np
 import tensorflow as tf
-import dependency_decoding
+import ufal.chu_liu_edmonds
 
 import udpipe2_dataset
 import udpipe2_eval
@@ -348,7 +348,7 @@ class UDPipe2:
                                           ((1, 0), (0, 0)), mode="constant")
                     padded_heads[:, 0] = np.nan
                     padded_heads[1 + np.argmax(prior_heads[i][:sentence_lens[i], 0]), 0] = 0
-                    chosen_heads, _ = dependency_decoding.chu_liu_edmonds(padded_heads)
+                    chosen_heads, _ = ufal.chu_liu_edmonds.chu_liu_edmonds(padded_heads)
                     heads[i, :sentence_lens[i]] = chosen_heads[1:]
                 deprels = self.session.run(self.predictions_deprel,
                                            {self.is_training: False, self.deprel_hidden_layer: deprel_hidden_layer, self.deprel_heads: heads})
