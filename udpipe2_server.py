@@ -337,6 +337,12 @@ class UDServer(socketserver.ThreadingTCPServer):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
         super().server_bind()
 
+    def service_actions(self):
+        if isinstance(getattr(self, "_threads", None), list):
+            if len(self._threads) >= 1024:
+                self._threads = [thread for thread in self._threads if thread.is_alive()]
+
+
 if __name__ == "__main__":
     import signal
     import threading
