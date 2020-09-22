@@ -291,6 +291,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                             output = model.predict(batch, tag, parse, writer)
                             if not started_responding:
                                 # The first batch is ready, we commit to generate output.
+                                started_responding=True
                                 request.respond_ok("application/json")
                                 request.wfile.write(json.dumps({
                                     "model": model.names[0],
@@ -302,7 +303,6 @@ class UDServer(socketserver.ThreadingTCPServer):
                                         "# generator = UDPipe 2, https://lindat.mff.cuni.cz/services/udpipe\n"
                                         "# udpipe_model = {}\n"
                                         "# udpipe_model_licence = CC BY-NC-SA\n".format(model.names[0]))[1:-1].encode("utf-8"))
-                                started_responding=True
                             request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
                             batch = []
                         batch.append(sentence)
