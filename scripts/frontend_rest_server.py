@@ -151,7 +151,7 @@ class FrontendRESTServer(socketserver.TCPServer):
                                 if not started_responding:
                                     started_responding = True
                                     request.respond_ok(response.getheader("Content-Type", "application/json"), code=response.code)
-                                    request.wfile.write(data)
+                                request.wfile.write(data)
                     except urllib.error.HTTPError as error:
                         if not started_responding:
                             started_responding = True
