@@ -47,6 +47,12 @@ class FrontendRESTServer(socketserver.TCPServer):
     class FrontendRESTServer(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
+        format_for_log_table = str.maketrans("\n", "\r", "\r")
+        def format_for_log(request, data):
+            if len(data) > request.server._args.log_data:
+                data = data[:request.server._args.log_data // 2] + " ... " + data[min(-1, -request.server._args.log_data // 2):]
+            return data.translate(request.format_for_log_table)
+
         def respond_error(request, message):
             request.close_connection = True
             request.send_response(400)
@@ -64,13 +70,12 @@ class FrontendRESTServer(socketserver.TCPServer):
 
         def do_GET(request):
             # Parse the model from URL/body
-            model, body, body_content_type = None, None, None
+            params, body, body_content_type = {}, None, None
             try:
                 encoded_path = request.path.encode("iso-8859-1").decode("utf-8")
                 url = urllib.parse.urlparse(encoded_path)
                 for name, value in urllib.parse.parse_qsl(url.query, encoding="utf-8", errors="strict"):
-                    if name == "model":
-                        model = value
+                    params[name] = value
             except:
                 return request.respond_error("Cannot parse request URL.")
 
@@ -98,19 +103,25 @@ class FrontendRESTServer(socketserver.TCPServer):
                         parser.feed(body)
                         for part in parser.close().get_payload():
                             name = part.get_param("name", header="Content-Disposition")
-                            if name == "model":
-                                model = part.get_payload(decode=True).decode("utf-8")
+                            if name:
+                                params[name] = part.get_payload(decode=True).decode("utf-8")
                     except:
                         return request.respond_error("Cannot parse the multipart/form-data payload.")
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
                         for name, value in urllib.parse.parse_qsl(body.decode("utf-8"), encoding="utf-8", errors="strict"):
-                            if name == "model":
-                                model = value
+                            params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
                 else:
                     return request.respond_error("Unsupported payload Content-Type '{}'.".format(request.headers.get("Content-Type", "<none>")))
+
+            # Log if required
+            if request.server._args.log_data:
+                print(url.path, " ".join(request.headers.get_all("X-Forwarded-For", [])),
+                      *["{}:{}".format(key, request.format_for_log(value)) for key, value in params.items() if key != "data"],
+                      "data:" + request.format_for_log(params.get("data", "")),
+                      sep="\t", file=sys.stderr, flush=True)
 
             # Handle /models
             if url.path == "/models":
@@ -125,7 +136,7 @@ class FrontendRESTServer(socketserver.TCPServer):
                 # Start by finding appropriate backend
                 backend = request.server.backends[-1]
                 for candidate in request.server.backends[:-1]:
-                    if model is not None and model in candidate.models:
+                    if "model" in params and params["model"] in candidate.models:
                         backend = candidate
                         break
 
@@ -214,6 +225,7 @@ if __name__ == "__main__":
     parser.add_argument("port", type=int, help="Port to use")
     parser.add_argument("backends", type=str, nargs="+", help="Backends to use")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
+    parser.add_argument("--log_data", default=None, type=int, help="Log that much bytes of every request data")
     parser.add_argument("--max_concurrency", default=256, type=int, help="Maximum concurrency")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     args = parser.parse_args()
