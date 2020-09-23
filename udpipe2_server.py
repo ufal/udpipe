@@ -284,7 +284,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                 batch, started_responding = [], False
                 try:
                     for sentence in itertools.chain(sentences, ["EOF"]):
-                        if sentence is "EOF" or len(batch) == request.server._server_args.batch_size:
+                        if sentence == "EOF" or len(batch) == request.server._server_args.batch_size:
                             output = model.predict(batch, tag, parse, writer)
                             if not started_responding:
                                 # The first batch is ready, we commit to generate output.
