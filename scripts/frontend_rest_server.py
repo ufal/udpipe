@@ -32,6 +32,8 @@ class FrontendRESTServer(socketserver.TCPServer):
 
             assert "models" in data and isinstance(data["models"], dict)
             self.models = data["models"]
+            self.aliases = [model.split("-") for model in self.models]
+            self.aliases = set(["-".join(parts[:None if not i else -i]) for parts in self.aliases for i in range(len(parts))])
 
             assert "default_model" in data and isinstance(data["default_model"], str)
             self.default_model = data["default_model"]
@@ -123,17 +125,17 @@ class FrontendRESTServer(socketserver.TCPServer):
             # Handle /models
             if url.path == "/models":
                 response = {
-                    "models": {name: value for backend in reversed(request.server.backends) for name, value in backend.models.items()},
-                    "default_model": request.server.backends[-1].default_model,
+                    "models": {name: value for backend in request.server.backends for name, value in backend.models.items()},
+                    "default_model": request.server.backends[0].default_model,
                 }
                 request.respond("application/json")
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle everything else
             else:
                 # Start by finding appropriate backend
-                backend = request.server.backends[-1]
-                for candidate in request.server.backends[:-1]:
-                    if "model" in params and params["model"] in candidate.models:
+                backend = request.server.backends[0]
+                for candidate in request.server.backends:
+                    if "model" in params and params["model"] in candidate.aliases:
                         backend = candidate
                         break
 
