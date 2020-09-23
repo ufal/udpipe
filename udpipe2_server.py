@@ -191,7 +191,7 @@ class UDServer(socketserver.ThreadingTCPServer):
             request.end_headers()
 
         def respond_error(request, message, code=400):
-            self.respond("text/plain", code)
+            request.respond("text/plain", code)
             request.wfile.write(message.encode("utf-8"))
 
         def do_GET(request):
