@@ -182,20 +182,17 @@ class UDServer(socketserver.ThreadingTCPServer):
     class UDServerRequestHandler(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def respond_error(request, message):
+        def respond(request, content_type, code=200):
             request.close_connection = True
-            request.send_response(400)
-            request.send_header("Connection", "close")
-            request.send_header("Content-Type", "text/plain")
-            request.end_headers()
-            request.wfile.write(message.encode("utf-8"))
-
-        def respond_ok(request, content_type):
-            request.close_connection = True
-            request.send_response(200)
+            request.send_response(code)
             request.send_header("Connection", "close")
             request.send_header("Content-Type", content_type)
+            request.send_header("Access-Control-Allow-Origin", "*")
             request.end_headers()
+
+        def respond_error(request, message, code=400):
+            self.respond("text/plain", code)
+            request.wfile.write(message.encode("utf-8"))
 
         def do_GET(request):
             # Parse the URL
@@ -251,7 +248,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                     "models": {model.names[0]: ["tokenizer", "tagger", "parser"] for model in request.server._models.models_list},
                     "default_model": request.server._models.default_model,
                 }
-                request.respond_ok("application/json")
+                request.respond("application/json")
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle /process
             elif url.path == "/process":
@@ -292,7 +289,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                             if not started_responding:
                                 # The first batch is ready, we commit to generate output.
                                 started_responding=True
-                                request.respond_ok("application/json")
+                                request.respond("application/json")
                                 request.wfile.write(json.dumps({
                                     "model": model.names[0],
                                     "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe#udpipe_acknowledgements", model.acknowledgements],
@@ -318,7 +315,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                         request.wfile.write(b'",\n"An internal error occurred during processing, producing incorrect JSON!"')
 
             else:
-                request.respond_error("No handler for the given URL '{}'".format(url.path))
+                request.respond_error("No handler for the given URL '{}'".format(url.path), code=404)
 
         def do_POST(request):
             return request.do_GET()

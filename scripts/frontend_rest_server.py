@@ -53,20 +53,17 @@ class FrontendRESTServer(socketserver.TCPServer):
                 data = data[:request.server._args.log_data // 2] + " ... " + data[min(-1, -request.server._args.log_data // 2):]
             return data.translate(request.format_for_log_table)
 
-        def respond_error(request, message):
-            request.close_connection = True
-            request.send_response(400)
-            request.send_header("Connection", "close")
-            request.send_header("Content-Type", "text/plain")
-            request.end_headers()
-            request.wfile.write(message.encode("utf-8"))
-
-        def respond_ok(request, content_type, code=200):
+        def respond(request, content_type, code=200):
             request.close_connection = True
             request.send_response(code)
             request.send_header("Connection", "close")
             request.send_header("Content-Type", content_type)
+            request.send_header("Access-Control-Allow-Origin", "*")
             request.end_headers()
+
+        def respond_error(request, message, code=400):
+            request.respond("text/plain", code)
+            request.wfile.write(message.encode("utf-8"))
 
         def do_GET(request):
             # Parse the model from URL/body
@@ -129,7 +126,7 @@ class FrontendRESTServer(socketserver.TCPServer):
                     "models": {name: value for backend in reversed(request.server.backends) for name, value in backend.models.items()},
                     "default_model": request.server.backends[-1].default_model,
                 }
-                request.respond_ok("application/json")
+                request.respond("application/json")
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle everything else
             else:
@@ -150,12 +147,12 @@ class FrontendRESTServer(socketserver.TCPServer):
                                 if len(data) == 0: break
                                 if not started_responding:
                                     started_responding = True
-                                    request.respond_ok(response.getheader("Content-Type", "application/json"), code=response.code)
+                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code)
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
                         if not started_responding:
                             started_responding = True
-                            request.respond_ok(error.headers.get("Content-Type", "text/plain"), code=error.code)
+                            request.respond(error.headers.get("Content-Type", "text/plain"), code=error.code)
                             request.wfile.write(error.file.read())
                 except:
                     import traceback
