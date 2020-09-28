@@ -1,0 +1,47 @@
+#!/usr/bin/env nodejs
+'use strict';
+
+var fs = require('fs');
+
+var args = process.argv.slice(2);
+
+// Initialize markdown-it and plugins
+var md = require('./markdown-it.min.js')({
+  html: true,
+  xhtmlOut: false,
+  breaks: false,
+  linkify: true,
+  typographer: false
+});
+md.renderer.rules.table_open = function () { return '<table class="table table-condensed table-bordered table-striped">\n'; };
+
+// Main callback
+function process_data(err, data) {
+  if (err) {
+    console.error(err.stack);
+    process.exit(1);
+  }
+
+  var output;
+  try {
+    output = md.render(data);
+  } catch (err) {
+    console.error(err.stack);
+    process.exit(1);
+  }
+
+  if (args.length >= 2) {
+    fs.writeFileSync(args[1], output);
+  } else {
+    process.stdout.write(output);
+  }
+}
+
+// Load and process data
+if (args.length >= 1) {
+  fs.readFile(args[0], 'utf-8', process_data);
+} else {
+  var chunks = [];
+  process.stdin.on('data', function (chunk) { chunks.push(chunk); });
+  process.stdin.on('end', function () { process_data(null, Buffer.concat(chunks).toString('utf-8')); });
+}
