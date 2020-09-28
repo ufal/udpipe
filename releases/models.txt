@@ -7,10 +7,10 @@ eu_bdt basque-bdt eu eus                     #72974
 be_hse belarusian-hse be bel                  #5217
 bg_btb bulgarian-btb bg bul                 #124336
 ca_ancora catalan-ancora ca cat             #417587
-zh_gsd chinese-gsd zh zho chi                #98616
-zh_gsdsimp chinese-gsdsimp                   #98616
-lzh_kyoto classical_chinese-kyoto lzh        #54114
-cop_scriptorium coptic-scriptorium cop       #18701
+zh_gsdsimp chinese-gsdsimp zh zho chi        #98616
+zh_gsd chinese-gsd                           #98616
+lzh_kyoto classical_chinese-kyoto lzh       #110058
+cop_scriptorium coptic-scriptorium cop       #21484
 hr_set croatian-set hr hrv                  #154055
 cs_pdt czech-pdt cs ces cze                #1173282
 cs_cac czech-cac                            #472609
@@ -20,14 +20,14 @@ da_ddt danish-ddt da dan                     #80378
 nl_alpino dutch-alpino nl nld dut           #186046
 nl_lassysmall dutch-lassysmall               #75134
 en_ewt english-ewt en eng                   #204585
-en_gum english-gum                           #69760
+en_gum english-gum                           #81857
 en_lines english-lines                       #57372
 en_partut english-partut                     #43518
 et_edt estonian-edt et est                  #341122
-et_ewt estonian-ewt                          #15447
+et_ewt estonian-ewt                          #21795
 fi_tdt finnish-tdt fi fin                   #162621
 fi_ftb finnish-ftb                          #127602
-fr_gsd french-gsd fr fra fre                #354699
+fr_gsd french-gsd fr fra fre                #354659
 fr_sequoia french-sequoia                    #50536
 fr_partut french-partut                      #24123
 fr_spoken french-spoken                      #15264
@@ -41,16 +41,17 @@ he_htb hebrew-htb he heb                    #137721
 hi_hdtb hindi-hdtb hi hin                   #281057
 hu_szeged hungarian-szeged hu hun            #20166
 id_gsd indonesian-gsd id ind                 #97531
-ga_idt irish-idt ga gle                      #20434
+ga_idt irish-idt ga gle                      #44636
 it_isdt italian-isdt it ita                 #276019
 it_partut italian-partut                     #48934
 it_postwita italian-postwita                 #99441
 it_twittiro italian-twittiro                 #23634
 it_vit italian-vit                          #224900
-ja_gsd japanese-gsd ja jpn                  #160419
+ja_gsd japanese-gsd ja jpn                  #167482
 ko_kaist korean-kaist ko kor                #296446
 ko_gsd korean-gsd                            #56687
 la_ittb latin-ittb la lat                   #293306
+la_llct latin-llct                          #194143
 la_proiel latin-proiel                      #171928
 la_perseus latin-perseus                     #16387
 lv_lvtb latvian-lvtb lv lav                 #167594
@@ -58,23 +59,26 @@ lt_alksnis lithuanian-alksnis lt lit         #47641
 lt_hse lithuanian-hse                         #3210
 mt_mudt maltese-mudt mt mlt                  #22880
 mr_ufal marathi-ufal mr mar                   #2997
+pcm_nsc naija-nsc pcm                       #101351
 sme_giella north_sami-giella se sme          #14254
 no_bokmaal norwegian-bokmaal nb nob         #243887
 no_nynorsk norwegian-nynorsk nn nno         #245330
 no_nynorsklia norwegian-nynorsklia            #2976
 cu_proiel old_church_slavonic-proiel cu chu  #37432
-fro_srcmf old_french-srcmf fro              #136021
+fro_srcmf old_french-srcmf fro              #136020
 orv_torot old_russian-torot orv             #118630
+orv_rnc old_russian-rnc                       #9551
 fa_seraji persian-seraji fa fas per         #121064
 pl_pdb polish-pdb pl pol                    #284209
 pl_lfg polish-lfg                           #104750
-pt_gsd portuguese-gsd pt por                #255755
-pt_bosque portuguese-bosque                 #206744
+pt_gsd portuguese-gsd pt por                #256135
+pt_bosque portuguese-bosque                 #206772
 ro_rrt romanian-rrt ro ron rum              #185113
-ro_nonstandard romanian-nonstandard         #279314
+ro_nonstandard romanian-nonstandard         #410404
 ru_syntagrus russian-syntagrus ru rus       #870474
 ru_gsd russian-gsd                           #75964
-ru_taiga russian-taiga                        #9068
+ru_taiga russian-taiga                       #43557
+sa_vedic sanskrit-vedic sa vsn               #15671
 gd_arcosg scottish_gaelic-arcosg gd gla      #22954
 sr_set serbian-set sr srp                    #65764
 sk_snk slovak-snk sk slk slo                 #80575
@@ -91,6 +95,7 @@ uk_iu ukrainian-iu uk ukr                    #88043
 ur_udtb urdu-udtb ur urd                    #108690
 ug_udt uyghur-udt ug uig                     #19262
 vi_vtb vietnamese-vtb vi vie                 #20285
+cy_ccg welsh-ccg cy wel cym                  #12919
 wo_wtb wolof-wtb wo wol wof                  #23561
 
 # Pre UD 2.2 names without treebank names
