@@ -69,27 +69,27 @@ Manual. Currently, the following models are available:
 
 - Universal Dependencies 2.5 Models: udpipe-ud2.5-191206
   (http://hdl.handle.net/11234/1-3131) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_25_models))
 - Universal Dependencies 2.4 Models: udpipe-ud2.4-190531
   (http://hdl.handle.net/11234/1-2998) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_24_models))
 - Universal Dependencies 2.3 Models: udpipe-ud2.3-181115
   (http://hdl.handle.net/11234/1-2898) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_23_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_23_models))
 - CoNLL18 Shared Task Baseline UD 2.2 Models: udpipe-ud2.2-conll18-180430
   (http://hdl.handle.net/11234/1-2859) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#conll18_shared_task_baseline_ud_22_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#conll18_shared_task_baseline_ud_22_models))
 
 - Universal Dependencies 2.0 Models: udpipe-ud2.0-170801
   (http://hdl.handle.net/11234/1-2364) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_20_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_20_models))
 - CoNLL17 Shared Task Baseline UD 2.0 Models: udpipe-ud2.0-conll17-170315
   (http://hdl.handle.net/11234/1-1990) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#conll17_shared_task_baseline_ud_20_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#conll17_shared_task_baseline_ud_20_models))
 
 - Universal Dependencies 1.2 Models: udpipe-ud1.2-160523
   (http://hdl.handle.net/11234/1-1659) (documentation
-  (http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_12_models))
+  (http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_12_models))
 
 
 License
@@ -117,8 +117,8 @@ binary, and source code of UDPipe and all language bindings. While the binary
 packages do not contain compiled Python or Perl bindings, packages for those
 languages are available in standard package repositories, i.e. on PyPI and CPAN.
 
-To use UDPipe, a language model is needed. Here is a list of available language
-models (http://ufal.mff.cuni.cz/udpipe#language_models).
+To use UDPipe, a model is needed. Here is a list of available models
+(http://ufal.mff.cuni.cz/udpipe/1#available_models).
 
 If you want to compile UDPipe manually, sources are available on on GitHub
 (http://github.com/ufal/udpipe), both in the pre-compiled binary package
@@ -3751,8 +3751,7 @@ This work has been using language resources developed and/or stored and/or
 distributed by the LINDAT/CLARIN project of the Ministry of Education of the
 Czech Republic (project LM2010013).
 
-Acknowledgements for individual language models are listed in UDPipe User's
-Manual.
+Acknowledgements for individual models are listed in UDPipe User's Manual.
 
 
 Publications
