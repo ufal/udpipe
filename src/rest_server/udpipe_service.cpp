@@ -119,7 +119,7 @@ udpipe_service::rest_response_generator::rest_response_generator(const model_inf
   json.object();
   json.indent().key("model").indent().value(model->id);
   json.indent().key("acknowledgements").indent().array();
-  json.indent().value("http://ufal.mff.cuni.cz/udpipe#udpipe_acknowledgements");
+  json.indent().value("http://ufal.mff.cuni.cz/udpipe/1#udpipe_acknowledgements");
   if (!model->acknowledgements.empty()) json.indent().value(model->acknowledgements);
   json.indent().close().indent().key("result").indent().value("");
 }
