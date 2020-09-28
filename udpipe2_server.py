@@ -292,7 +292,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                                 request.respond("application/json")
                                 request.wfile.write(json.dumps({
                                     "model": model.names[0],
-                                    "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe#udpipe_acknowledgements", model.acknowledgements],
+                                    "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
                                     "result": "",
                                 }, indent=1)[:-3].encode("utf-8"))
                                 if output_format == "conllu":
