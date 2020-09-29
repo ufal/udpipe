@@ -5,7 +5,8 @@
 <p>
 Description of the available methods is available in the <a href="api-reference.php">API
 Documentation</a> and the models are described in the
-<a href="http://ufal.mff.cuni.cz/udpipe/users-manual">UDPipe User's Manual</a>.
+<a href="http://ufal.mff.cuni.cz/udpipe/2/models">UDPipe 2 models list</a>
+and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
 </p>
 
 <script type="text/javascript"><!--
@@ -202,6 +203,24 @@ Documentation</a> and the models are described in the
       jQuery('#tokenizer_options').hide();
   }
 
+  function versionChanged() {
+    var version = jQuery('input[name=option_version]:checked').val();
+    var checked_any = false;
+    jQuery('[data-udpipe]').each(function() {
+      var element = jQuery(this);
+      if (element.attr('data-udpipe') == version) {
+        if (!checked_any) {
+          element.children('input').prop('checked', true);
+          checked_any = true;
+        }
+        element.show();
+      } else {
+        element.hide();
+      }
+    });
+    updateModels();
+  }
+
   function updateModels() {
     var family = jQuery('input[name=family]:checked').val();
     var suffix_match = new RegExp(family + ".*$");
@@ -283,10 +302,12 @@ Documentation</a> and the models are described in the
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.5-" onchange="updateModels()" checked />UD 2.5 (<a href="http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_25_models">description</a>)</label>
-          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.4-" onchange="updateModels()" />UD 2.4 (<a href="http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_24_models">description</a>)</label>
-          <label class="radio-inline"><input name="family" type="radio" value="-ud-2.0-1" onchange="updateModels()" />UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_20_models">description</a>)</label>
-          <label class="radio-inline"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/models#universal_dependencies_12_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.6-" onchange="updateModels()" checked />UD 2.6 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-evalatin20-" onchange="updateModels()" />EvaLatin20 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#evalatin20_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.5-" onchange="updateModels()" />UD 2.5 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_25_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.4-" onchange="updateModels()" />UD 2.4 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_24_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.0-1" onchange="updateModels()" />UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_20_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_12_models">description</a>)</label>
         </div>
       </div>
       <div class="form-group row">
@@ -309,7 +330,15 @@ Documentation</a> and the models are described in the
         </div>
         <div id="advancedContent" class="panel-collapse collapse" role="tabpanel" aria-labelledby="advancedHeading">
           <div class="form-group row">
-            <label class="col-sm-2 control-label">Input <a href="//ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">[?]</a>:</label>
+            <label class="col-sm-2 control-label">UDPipe version:</label>
+            <div class="col-sm-10">
+              <label title="Use UDPipe 2" class="radio-inline" id="option_version_2"><input name="option_version" type="radio" value="2" onchange="versionChanged()" checked/>UDPipe 2</label>
+              <label title="Use UDPipe 1" class="radio-inline" id="option_version_1"><input name="option_version" type="radio" value="1" onchange="versionChanged()" />UDPipe 1</label>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label class="col-sm-2 control-label">Input <a href="//ufal.mff.cuni.cz/udpipe/1/users-manual#run_udpipe_input">[?]</a>:</label>
             <div class="col-sm-10">
               <label title="Tokenize input using a tokenizer" class="radio-inline" id="option_input_tokenizer"><input name="option_input" type="radio" value="tokenizer" onchange="inputChanged()" checked/>Tokenize plain text</label>
               <label title="The CoNLL-U format" class="radio-inline" id="option_input_conllu"><input name="option_input" type="radio" value="conllu" onchange="inputChanged()" />CoNLL-U</label>
@@ -319,11 +348,11 @@ Documentation</a> and the models are described in the
           </div>
 
           <div class="form-group row" id="tokenizer_options">
-            <label class="col-sm-2 control-label">Tokenizer <a href="//ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_tokenizer">[?]</a>:</label>
+            <label class="col-sm-2 control-label">Tokenizer <a href="//ufal.mff.cuni.cz/udpipe/1/users-manual#run_udpipe_tokenizer">[?]</a>:</label>
             <div class="col-sm-10">
               <label class="checkbox-inline" title="Normalize spaces in input file"><input type="checkbox" id="tokenizer_normalized_spaces">Normalize spaces</label>
               <label class="checkbox-inline" title="The input is already segmented"><input type="checkbox" id="tokenizer_presegmented">Presegmented input</label>
-              <label class="checkbox-inline" title="Save token ranges"><input type="checkbox" id="tokenizer_ranges">Save token ranges</label>
+              <label class="checkbox-inline" title="Save token ranges"><input type="checkbox" id="tokenizer_ranges" checked>Save token ranges</label>
             </div>
           </div>
         </div>
