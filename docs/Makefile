@@ -4,7 +4,7 @@ HTMLS:=$(patsubst %.md,%.html,$(wildcard *.md))
 all: $(HTMLS)
 
 %.fragment.html: %.md
-	scripts/md $< $@
+	scripts/preprocess <$< | scripts/md >$@
 
 %.html: %.fragment.html
 	scripts/html <$< >$@
