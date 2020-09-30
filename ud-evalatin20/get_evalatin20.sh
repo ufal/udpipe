@@ -11,13 +11,13 @@ python3 get_evalatin20_split.py la_evalatin20/LT4HALA/data_and_doc/training_data
   --train=la_evalatin20/la_evalatin20-train.conllu --dev=la_evalatin20/la_evalatin20-dev.conllu
 
 echo "# variant = la_ittb" >>la_evalatin20/la_evalatin20-train.conllu
-python3 get_evalatin20_split.py la_ittb/la_ittb-ud-train.conllu --ratio 0.6 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
+python3 get_evalatin20_split.py ../ud-2.6/la_ittb/la_ittb-ud-train.conllu --ratio 0.6 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
 
 echo "# variant = la_perseus" >>la_evalatin20/la_evalatin20-train.conllu
-python3 get_evalatin20_split.py la_perseus/la_perseus-ud-train.conllu --ratio 1 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
+python3 get_evalatin20_split.py ../ud-2.6/la_perseus/la_perseus-ud-train.conllu --ratio 1 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
 
 echo "# variant = la_proiel" >>la_evalatin20/la_evalatin20-train.conllu
-python3 get_evalatin20_split.py la_proiel/la_proiel-ud-train.conllu --ratio 1 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
+python3 get_evalatin20_split.py ../ud-2.6/la_proiel/la_proiel-ud-train.conllu --ratio 1 --train=la_evalatin20/la_evalatin20-train.conllu --dev=/dev/null
 
 sed '
   s#^14\tnescio\tnescio\tnescio\tVERB#14\tnescio\tnescio\tVERB#
@@ -38,7 +38,7 @@ for f in la_evalatin20/LT4HALA/data_and_doc/gold_EvaLatin/*.conllu; do
 done
 
 for conllu in la_evalatin20/la_evalatin20-dev.conllu la_evalatin20/la_evalatin20-test*.conllu; do
-  perl conllu_to_text.pl --language=la <$conllu >${conllu%.conllu}.txt
+  perl ../ud-2.6/conllu_to_text.pl --language=la <$conllu >${conllu%.conllu}.txt
 done
 
 rm -rf la_evalatin20/LT4HALA
