@@ -73,7 +73,7 @@ class FrontendRESTServer(socketserver.TCPServer):
             try:
                 encoded_path = request.path.encode("iso-8859-1").decode("utf-8")
                 url = urllib.parse.urlparse(encoded_path)
-                for name, value in urllib.parse.parse_qsl(url.query, encoding="utf-8", errors="strict"):
+                for name, value in urllib.parse.parse_qsl(url.query, encoding="utf-8", keep_blank_values=True, errors="strict"):
                     params[name] = value
             except:
                 return request.respond_error("Cannot parse request URL.")
