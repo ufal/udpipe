@@ -235,7 +235,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
                         for name, value in urllib.parse.parse_qsl(
-                                request.rfile.read(content_length).decode("utf-8"), encoding="utf-8", errors="strict"):
+                                request.rfile.read(content_length).decode("utf-8"), encoding="utf-8", keep_blank_values=True, errors="strict"):
                             params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
