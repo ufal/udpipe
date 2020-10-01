@@ -73,7 +73,7 @@ class FrontendRESTServer(socketserver.TCPServer):
             try:
                 encoded_path = request.path.encode("iso-8859-1").decode("utf-8")
                 url = urllib.parse.urlparse(encoded_path)
-                for name, value in urllib.parse.parse_qsl(url.query, encoding="utf-8", errors="strict"):
+                for name, value in urllib.parse.parse_qsl(url.query, encoding="utf-8", keep_blank_values=True, errors="strict"):
                     params[name] = value
             except:
                 return request.respond_error("Cannot parse request URL.")
@@ -106,14 +106,13 @@ class FrontendRESTServer(socketserver.TCPServer):
                                 params[name] = part.get_payload(decode=True).decode("utf-8")
                     except:
                         return request.respond_error("Cannot parse the multipart/form-data payload.")
+                # x-www-form-urlencoded
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
                         for name, value in urllib.parse.parse_qsl(body.decode("utf-8"), encoding="utf-8", errors="strict"):
                             params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
-                else:
-                    return request.respond_error("Unsupported payload Content-Type '{}'.".format(request.headers.get("Content-Type", "<none>")))
 
             # Log if required
             if request.server._args.log_data:
@@ -138,6 +137,9 @@ class FrontendRESTServer(socketserver.TCPServer):
                     if "model" in params and params["model"] in candidate.aliases:
                         backend = candidate
                         break
+                # Temporary hack for the weblicht calls.
+                if url.path.startswith("/weblicht"):
+                    backend = request.server.backends[-1]
 
                 # Forward the request to the backend
                 started_responding = False
@@ -146,10 +148,10 @@ class FrontendRESTServer(socketserver.TCPServer):
                         with backend.request(request.path, body, body_content_type) as response:
                             while True:
                                 data = response.read(32768)
-                                if len(data) == 0: break
                                 if not started_responding:
                                     started_responding = True
                                     request.respond(response.getheader("Content-Type", "application/json"), code=response.code)
+                                if len(data) == 0: break
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
                         if not started_responding:
