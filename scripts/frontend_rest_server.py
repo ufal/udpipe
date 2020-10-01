@@ -145,10 +145,10 @@ class FrontendRESTServer(socketserver.TCPServer):
                         with backend.request(request.path, body, body_content_type) as response:
                             while True:
                                 data = response.read(32768)
-                                if len(data) == 0: break
                                 if not started_responding:
                                     started_responding = True
                                     request.respond(response.getheader("Content-Type", "application/json"), code=response.code)
+                                if len(data) == 0: break
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
                         if not started_responding:
