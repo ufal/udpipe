@@ -109,7 +109,8 @@ class FrontendRESTServer(socketserver.TCPServer):
                 # x-www-form-urlencoded
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
-                        for name, value in urllib.parse.parse_qsl(body.decode("utf-8"), encoding="utf-8", errors="strict"):
+                        for name, value in urllib.parse.parse_qsl(
+                                body.decode("utf-8"), encoding="utf-8", keep_blank_values=True, errors="strict"):
                             params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
