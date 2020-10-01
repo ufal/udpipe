@@ -1,7 +1,10 @@
-HTMLS:=$(patsubst %.md,%.html,$(wildcard *.md))
+HTMLS:=models.html udpipe_2.html
 
 .PHONY: all
 all: $(HTMLS)
+
+%.md: %.md.sh
+	sh $< >$@
 
 %.fragment.html: %.md
 	scripts/preprocess <$< | scripts/md >$@
@@ -18,4 +21,4 @@ web_install: udpipe_2.fragment.noheading.html models.fragment.html
 
 .PHONY: clean
 clean:
-	rm -rf *.html
+	rm -rf *.html $(patsubst %.md.sh,%.md,$(wildcard *.md.sh))
