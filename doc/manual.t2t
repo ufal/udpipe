@@ -66,25 +66,25 @@ referencing [Straka et al. 2016 #bibtex_for_referencing] and the
 
 = UDPipe Installation =[installation]
 
-%web% [UDPipe Installation is available on a separate page. udpipe/install]
+%web% [UDPipe Installation is available on a separate page. /udpipe/1/install]
 %manual% %!include: manual_install.t2t
 
 
 = UDPipe Models =[models]
 
-%web% [UDPipe Models are available on a separate page. udpipe/models]
+%web% [UDPipe Models are available on a separate page. /udpipe/1/models]
 %manual% %!include: manual_models.t2t
 
 
 = UDPipe User's Manual =[users_manual]
 
-%web% [UDPipe User's Manual is available on a separate page. udpipe/users-manual]
+%web% [UDPipe User's Manual is available on a separate page. /udpipe/1/users-manual]
 %manual% %!include: manual_user.t2t
 
 
 = UDPipe API Reference =[api_reference]
 
-%web% [UDPipe API Reference is available on a separate page. udpipe/api-reference]
+%web% [UDPipe API Reference is available on a separate page. /udpipe/1/api-reference]
 %manual% %!include: manual_api_reference.t2t
 
 
@@ -103,7 +103,7 @@ Authors:
 
 This work has been using language resources developed and/or stored and/or distributed by the LINDAT/CLARIN project of the Ministry of Education of the Czech Republic (project //LM2010013//).
 
-%web% Acknowledgements for individual models are listed in the [UDPipe User's Manual page udpipe/users-manual].
+%web% Acknowledgements for individual models are listed in the [UDPipe User's Manual page /udpipe/1/users-manual].
 %manual% Acknowledgements for individual models are listed in [UDPipe User's Manual #users_manual].
 
 
