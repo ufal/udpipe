@@ -20,7 +20,7 @@ Mathematics and Physics, Charles University, Czech Republic.
 
 UDPipe website http://ufal.mff.cuni.cz/udpipe contains download links
 of both the released packages and trained models, hosts documentation and
-offers online demo.
+offers online web service.
 
 UDPipe development repository http://github.com/ufal/udpipe is hosted
 on GitHub.
