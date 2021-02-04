@@ -67,6 +67,17 @@ class FrontendRESTServer(socketserver.TCPServer):
             request.respond("text/plain", code)
             request.wfile.write(message.encode("utf-8"))
 
+        def handle_expect_100(request):
+            try:
+                request_too_long = int(request.headers["Content-Length"]) > request.server._args.max_request_size
+            except:
+                request_too_long = False
+
+            if request_too_long:
+                request.respond_error("The payload size is too large.")
+                return False
+            return super().handle_expect_100()
+
         def do_GET(request):
             # Parse the model from URL/body
             params, body, body_content_type = {}, None, None
