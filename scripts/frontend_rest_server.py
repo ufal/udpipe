@@ -100,6 +100,9 @@ class FrontendRESTServer(socketserver.TCPServer):
                     return request.respond_error("The Content-Length of payload is required.")
 
                 if content_length > request.server._args.max_request_size:
+                    while content_length:
+                        read = request.rfile.read(min(content_length, 65536))
+                        content_length -= len(read) if read else content_length
                     return request.respond_error("The payload size is too large.")
 
                 body = request.rfile.read(content_length)
