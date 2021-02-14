@@ -309,7 +309,6 @@ bool model_morphodita_parsito::joint_with_parsing_tokenizer::parse_paragraph(vec
       }
 
       double cost;
-      if (!model.tag(s, DEFAULT, error)) return false;
       if (!model.parse(s, DEFAULT, error, &cost)) return false;
       cost += sentence_logprob + change_boundary_logprob * (2 - int(sentence_boundary[start - 1]) - int(sentence_boundary[end - 1]));
       if (best_logprob[start - 1] + cost > best_logprob[end - 1]) {
