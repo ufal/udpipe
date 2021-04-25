@@ -26,6 +26,9 @@ import udpipe2_dataset
 import ufal.udpipe
 import wembedding_service.wembeddings.wembeddings as wembeddings
 
+class TooLongError(Exception):
+    pass
+
 class Models:
     class Model:
         class Network:
@@ -85,21 +88,23 @@ class Models:
             reader = ufal.udpipe.InputFormat.newInputFormat(input_format)
             if reader is None:
                 raise RuntimeError("Unknown input format '{}'".format(input_format))
-            # Check the format is fine
-            for _ in self._read(text, reader): pass
-            return self._read(text, reader)
+            # Do not return a generator, but a list to raise exceptions early
+            return list(self._read(text, reader))
 
         def tokenize(self, text, tokenizer_options):
             tokenizer = self._tokenizer.newTokenizer(tokenizer_options)
             if tokenizer is None:
                 raise RuntimeError("Cannot create tokenizer.")
-            return self._read(text, tokenizer)
+            # Do not return a generator, but a list to raise exceptions early
+            return list(self._read(text, tokenizer))
 
         def _read(self, text, reader):
             sentence, sentences = ufal.udpipe.Sentence(), []
             processing_error = ufal.udpipe.ProcessingError()
             reader.setText(text)
             while reader.nextSentence(sentence, processing_error):
+                if len(sentence.words) > 1001:
+                    raise TooLongError()
                 yield sentence
                 sentence = ufal.udpipe.Sentence()
             if processing_error.occurred():
@@ -264,11 +269,15 @@ class UDServer(socketserver.ThreadingTCPServer):
                 if "tokenizer" in params:
                     try:
                         sentences = model.tokenize(params["data"], params["tokenizer"])
+                    except TooLongError:
+                        return request.respond_error("During tokenization, sentence longer than 1000 words was found, aborting.\nThat should only happen with presegmented input.\nPlease make sure you do not generate such long sentences.\n")
                     except:
                         return request.respond_error("An error occured during tokenization of the input.")
                 else:
                     try:
                         sentences = model.read(params["data"], params.get("input", "conllu"))
+                    except TooLongError:
+                        return request.respond_error("Sentence longer than 1000 words was found on input, aborting.\nPlease make sure the input sentences have at most 1000 words.\n")
                     except:
                         return request.respond_error("Cannot parse the input in '{}' format.".format(params.get("input", "conllu")))
 
