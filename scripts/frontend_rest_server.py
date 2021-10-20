@@ -152,9 +152,6 @@ class FrontendRESTServer(socketserver.TCPServer):
                     if "model" in params and params["model"] in candidate.aliases:
                         backend = candidate
                         break
-                # Temporary hack for the weblicht calls.
-                if url.path.startswith("/weblicht"):
-                    backend = request.server.backends[-1]
 
                 # Forward the request to the backend
                 started_responding = False
