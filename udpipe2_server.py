@@ -225,7 +225,8 @@ class UDServer(socketserver.ThreadingTCPServer):
 
                 # Raw text on input for weblicht
                 if url.path.startswith("/weblicht/"):
-                    params = {"model": params["model"]} # Ignore all but `model` GET param
+                    # Ignore all but `model` GET param
+                    params = {"model": params["model"]} if "model" in params else {}
 
                     try:
                         params["data"] = request.rfile.read(content_length).decode("utf-8")
