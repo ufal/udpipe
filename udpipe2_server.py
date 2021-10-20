@@ -223,8 +223,22 @@ class UDServer(socketserver.ThreadingTCPServer):
                 if content_length > request.server._server_args.max_request_size:
                     return request.respond_error("The payload size is too large.")
 
+                # Raw text on input for weblicht
+                if url.path.startswith("/weblicht/"):
+                    params = {"model": params["model"]} # Ignore all but `model` GET param
+
+                    try:
+                        params["data"] = request.rfile.read(content_length).decode("utf-8")
+                    except:
+                        return request.respond_error("The payload is not in UTF-8 encoding.")
+
+                    if url.path == "/weblicht/tokenize": params["tokenizer"] = ""
+                    else: params["input"] = "conllu"
+                    params["output"] = "conllu"
+                    if url.path == "/weblicht/tag": params["tagger"] = ""
+                    if url.path == "/weblicht/parse": params["parser"] = ""
                 # multipart/form-data
-                if request.headers.get("Content-Type", "").startswith("multipart/form-data"):
+                elif request.headers.get("Content-Type", "").startswith("multipart/form-data"):
                     try:
                         parser = email.parser.BytesFeedParser()
                         parser.feed(b"Content-Type: " + request.headers["Content-Type"].encode("ascii") + b"\r\n\r\n")
@@ -237,6 +251,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                                 params[name] = part.get_payload(decode=True).decode("utf-8")
                     except:
                         return request.respond_error("Cannot parse the multipart/form-data payload.")
+                # application/x-www-form-urlencoded
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
                         for name, value in urllib.parse.parse_qsl(
@@ -256,7 +271,9 @@ class UDServer(socketserver.ThreadingTCPServer):
                 request.respond("application/json")
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle /process
-            elif url.path == "/process":
+            elif url.path in ["/process", "/weblicht/tokenize", "/weblicht/tag", "/weblicht/parse"]:
+                weblicht = url.path.startswith("/weblicht")
+
                 if "data" not in params:
                     return request.respond_error("The parameter 'data' is required.")
 
@@ -298,18 +315,24 @@ class UDServer(socketserver.ThreadingTCPServer):
                             if not started_responding:
                                 # The first batch is ready, we commit to generate output.
                                 started_responding=True
-                                request.respond("application/json")
-                                request.wfile.write(json.dumps({
-                                    "model": model.names[0],
-                                    "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
-                                    "result": "",
-                                }, indent=1)[:-3].encode("utf-8"))
-                                if output_format == "conllu":
-                                    request.wfile.write(json.dumps(
-                                        "# generator = UDPipe 2, https://lindat.mff.cuni.cz/services/udpipe\n"
-                                        "# udpipe_model = {}\n"
-                                        "# udpipe_model_licence = CC BY-NC-SA\n".format(model.names[0]))[1:-1].encode("utf-8"))
-                            request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
+                                if weblicht:
+                                    request.respond("application/conllu")
+                                else:
+                                    request.respond("application/json")
+                                    request.wfile.write(json.dumps({
+                                        "model": model.names[0],
+                                        "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
+                                        "result": "",
+                                    }, indent=1)[:-3].encode("utf-8"))
+                                    if output_format == "conllu":
+                                        request.wfile.write(json.dumps(
+                                            "# generator = UDPipe 2, https://lindat.mff.cuni.cz/services/udpipe\n"
+                                            "# udpipe_model = {}\n"
+                                            "# udpipe_model_licence = CC BY-NC-SA\n".format(model.names[0]))[1:-1].encode("utf-8"))
+                            if weblicht:
+                                request.wfile.write(output.encode("utf-8"))
+                            else:
+                                request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
                             batch = []
                         batch.append(sentence)
                     request.wfile.write(b'"\n}\n')
@@ -321,8 +344,11 @@ class UDServer(socketserver.ThreadingTCPServer):
                     if not started_responding:
                         request.respond_error("An internal error occurred during processing.")
                     else:
-                        request.wfile.write(b'",\n"An internal error occurred during processing, producing incorrect JSON!"')
-
+                        if weblicht:
+                            request.wfile.write(b'\n\nAn internal error occurred during processing, producing incorrect CoNLL-U!')
+                        else:
+                            request.wfile.write(b'",\n"An internal error occurred during processing, producing incorrect JSON!"')
+            # Unknown URL
             else:
                 request.respond_error("No handler for the given URL '{}'".format(url.path), code=404)
 
