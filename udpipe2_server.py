@@ -336,7 +336,8 @@ class UDServer(socketserver.ThreadingTCPServer):
                                 request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
                             batch = []
                         batch.append(sentence)
-                    request.wfile.write(b'"\n}\n')
+                    if not weblicht:
+                        request.wfile.write(b'"\n}\n')
                 except:
                     import traceback
                     traceback.print_exc(file=sys.stderr)
