@@ -59,7 +59,6 @@ latin-ittb-ud-2.6-200830:la_ittb-ud-2.6-200830:la:lat                    models-
 latin-llct-ud-2.6-200830:la_llct-ud-2.6-200830                           models-2.6/la_all-ud-2.6-200830.model           la_llct          $ack
 latin-proiel-ud-2.6-200830:la_proiel-ud-2.6-200830                       models-2.6/la_proiel-ud-2.6-200830.model        la_proiel        $ack
 latin-perseus-ud-2.6-200830:la_perseus-ud-2.6-200830                     models-2.6/la_all-ud-2.6-200830.model           la_perseus       $ack
-latin-evalatin20-200830:la_evalatin20-200830                             models-2.6/la_evalatin20-200830.model           la_evalatin20    $ack
 latvian-lvtb-ud-2.6-200830:lv_lvtb-ud-2.6-200830:lv:lav                  models-2.6/lv_lvtb-ud-2.6-200830.model          lv_lvtb          $ack
 lithuanian-alksnis-ud-2.6-200830:lt_alksnis-ud-2.6-200830:lt:lit         models-2.6/lt_all-ud-2.6-200830.model           lt_alksnis       $ack
 lithuanian-hse-ud-2.6-200830:lt_hse-ud-2.6-200830                        models-2.6/lt_all-ud-2.6-200830.model           lt_hse           $ack
