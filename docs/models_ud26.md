@@ -1,5 +1,3 @@
-<link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.2/css/bootstrap.css" media="all">
-
 ## Universal Dependencies 2.6 Models #universal_dependencies_26_models
 
 Universal Dependencies 2.6 Models are distributed under the
@@ -19,11 +17,11 @@ but the models will be available for download eventually.
 This work has been supported by the Ministry of Education, Youth and Sports of
 the Czech Republic, Project No. LM2018101 LINDAT/CLARIAH-CZ.
 
-The models were trained on [Universal Dependencies 2.6 http://hdl.handle.net/11234/1-3226] treebanks.
+The models were trained on [Universal Dependencies 2.6](http://hdl.handle.net/11234/1-3226) treebanks.
 
 For the UD treebanks which do not contain original plain text version,
 raw text is used to train the tokenizer instead. The plain texts
-were taken from the [W2C -- Web to Corpus http://hdl.handle.net/11858/00-097C-0000-0022-6133-9].
+were taken from the [W2C -- Web to Corpus](http://hdl.handle.net/11858/00-097C-0000-0022-6133-9).
 
 Finally, [multilingual BERT](https://github.com/google-research/bert/blob/master/multilingual.md)
 is used to provide contextualized word embeddings.
