@@ -26,6 +26,9 @@ import udpipe2_dataset
 import ufal.udpipe
 import wembedding_service.wembeddings.wembeddings as wembeddings
 
+class TooLongError(Exception):
+    pass
+
 class Models:
     class Model:
         class Network:
@@ -85,21 +88,23 @@ class Models:
             reader = ufal.udpipe.InputFormat.newInputFormat(input_format)
             if reader is None:
                 raise RuntimeError("Unknown input format '{}'".format(input_format))
-            # Check the format is fine
-            for _ in self._read(text, reader): pass
-            return self._read(text, reader)
+            # Do not return a generator, but a list to raise exceptions early
+            return list(self._read(text, reader))
 
         def tokenize(self, text, tokenizer_options):
             tokenizer = self._tokenizer.newTokenizer(tokenizer_options)
             if tokenizer is None:
                 raise RuntimeError("Cannot create tokenizer.")
-            return self._read(text, tokenizer)
+            # Do not return a generator, but a list to raise exceptions early
+            return list(self._read(text, tokenizer))
 
         def _read(self, text, reader):
             sentence, sentences = ufal.udpipe.Sentence(), []
             processing_error = ufal.udpipe.ProcessingError()
             reader.setText(text)
             while reader.nextSentence(sentence, processing_error):
+                if len(sentence.words) > 1001:
+                    raise TooLongError()
                 yield sentence
                 sentence = ufal.udpipe.Sentence()
             if processing_error.occurred():
@@ -218,8 +223,23 @@ class UDServer(socketserver.ThreadingTCPServer):
                 if content_length > request.server._server_args.max_request_size:
                     return request.respond_error("The payload size is too large.")
 
+                # Raw text on input for weblicht
+                if url.path.startswith("/weblicht/"):
+                    # Ignore all but `model` GET param
+                    params = {"model": params["model"]} if "model" in params else {}
+
+                    try:
+                        params["data"] = request.rfile.read(content_length).decode("utf-8")
+                    except:
+                        return request.respond_error("The payload is not in UTF-8 encoding.")
+
+                    if url.path == "/weblicht/tokenize": params["tokenizer"] = ""
+                    else: params["input"] = "conllu"
+                    params["output"] = "conllu"
+                    if url.path == "/weblicht/tag": params["tagger"] = ""
+                    if url.path == "/weblicht/parse": params["parser"] = ""
                 # multipart/form-data
-                if request.headers.get("Content-Type", "").startswith("multipart/form-data"):
+                elif request.headers.get("Content-Type", "").startswith("multipart/form-data"):
                     try:
                         parser = email.parser.BytesFeedParser()
                         parser.feed(b"Content-Type: " + request.headers["Content-Type"].encode("ascii") + b"\r\n\r\n")
@@ -232,10 +252,11 @@ class UDServer(socketserver.ThreadingTCPServer):
                                 params[name] = part.get_payload(decode=True).decode("utf-8")
                     except:
                         return request.respond_error("Cannot parse the multipart/form-data payload.")
+                # application/x-www-form-urlencoded
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
                         for name, value in urllib.parse.parse_qsl(
-                                request.rfile.read(content_length).decode("utf-8"), encoding="utf-8", errors="strict"):
+                                request.rfile.read(content_length).decode("utf-8"), encoding="utf-8", keep_blank_values=True, errors="strict"):
                             params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
@@ -251,7 +272,9 @@ class UDServer(socketserver.ThreadingTCPServer):
                 request.respond("application/json")
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle /process
-            elif url.path == "/process":
+            elif url.path in ["/process", "/weblicht/tokenize", "/weblicht/tag", "/weblicht/parse"]:
+                weblicht = url.path.startswith("/weblicht")
+
                 if "data" not in params:
                     return request.respond_error("The parameter 'data' is required.")
 
@@ -264,11 +287,15 @@ class UDServer(socketserver.ThreadingTCPServer):
                 if "tokenizer" in params:
                     try:
                         sentences = model.tokenize(params["data"], params["tokenizer"])
+                    except TooLongError:
+                        return request.respond_error("During tokenization, sentence longer than 1000 words was found, aborting.\nThat should only happen with presegmented input.\nPlease make sure you do not generate such long sentences.\n")
                     except:
                         return request.respond_error("An error occured during tokenization of the input.")
                 else:
                     try:
                         sentences = model.read(params["data"], params.get("input", "conllu"))
+                    except TooLongError:
+                        return request.respond_error("Sentence longer than 1000 words was found on input, aborting.\nPlease make sure the input sentences have at most 1000 words.\n")
                     except:
                         return request.respond_error("Cannot parse the input in '{}' format.".format(params.get("input", "conllu")))
 
@@ -289,21 +316,28 @@ class UDServer(socketserver.ThreadingTCPServer):
                             if not started_responding:
                                 # The first batch is ready, we commit to generate output.
                                 started_responding=True
-                                request.respond("application/json")
-                                request.wfile.write(json.dumps({
-                                    "model": model.names[0],
-                                    "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
-                                    "result": "",
-                                }, indent=1)[:-3].encode("utf-8"))
-                                if output_format == "conllu":
-                                    request.wfile.write(json.dumps(
-                                        "# generator = UDPipe 2, https://lindat.mff.cuni.cz/services/udpipe\n"
-                                        "# udpipe_model = {}\n"
-                                        "# udpipe_model_licence = CC BY-NC-SA\n".format(model.names[0]))[1:-1].encode("utf-8"))
-                            request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
+                                if weblicht:
+                                    request.respond("application/conllu")
+                                else:
+                                    request.respond("application/json")
+                                    request.wfile.write(json.dumps({
+                                        "model": model.names[0],
+                                        "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
+                                        "result": "",
+                                    }, indent=1)[:-3].encode("utf-8"))
+                                    if output_format == "conllu":
+                                        request.wfile.write(json.dumps(
+                                            "# generator = UDPipe 2, https://lindat.mff.cuni.cz/services/udpipe\n"
+                                            "# udpipe_model = {}\n"
+                                            "# udpipe_model_licence = CC BY-NC-SA\n".format(model.names[0]))[1:-1].encode("utf-8"))
+                            if weblicht:
+                                request.wfile.write(output.encode("utf-8"))
+                            else:
+                                request.wfile.write(json.dumps(output, ensure_ascii=False)[1:-1].encode("utf-8"))
                             batch = []
                         batch.append(sentence)
-                    request.wfile.write(b'"\n}\n')
+                    if not weblicht:
+                        request.wfile.write(b'"\n}\n')
                 except:
                     import traceback
                     traceback.print_exc(file=sys.stderr)
@@ -312,8 +346,11 @@ class UDServer(socketserver.ThreadingTCPServer):
                     if not started_responding:
                         request.respond_error("An internal error occurred during processing.")
                     else:
-                        request.wfile.write(b'",\n"An internal error occurred during processing, producing incorrect JSON!"')
-
+                        if weblicht:
+                            request.wfile.write(b'\n\nAn internal error occurred during processing, producing incorrect CoNLL-U!')
+                        else:
+                            request.wfile.write(b'",\n"An internal error occurred during processing, producing incorrect JSON!"')
+            # Unknown URL
             else:
                 request.respond_error("No handler for the given URL '{}'".format(url.path), code=404)
 
@@ -349,7 +386,7 @@ if __name__ == "__main__":
     parser.add_argument("port", type=int, help="Port to use")
     parser.add_argument("default_model", type=str, help="Default model")
     parser.add_argument("models", type=str, nargs="+", help="Models to serve")
-    parser.add_argument("--batch_size", default=64, type=int, help="Batch size")
+    parser.add_argument("--batch_size", default=32, type=int, help="Batch size")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     parser.add_argument("--preload_models", default=[], nargs="*", type=str, help="Models to preload, or `all`")

@@ -67,6 +67,17 @@ class FrontendRESTServer(socketserver.TCPServer):
             request.respond("text/plain", code)
             request.wfile.write(message.encode("utf-8"))
 
+        def handle_expect_100(request):
+            try:
+                request_too_long = int(request.headers["Content-Length"]) > request.server._args.max_request_size
+            except:
+                request_too_long = False
+
+            if request_too_long:
+                request.respond_error("The payload size is too large.")
+                return False
+            return super().handle_expect_100()
+
         def do_GET(request):
             # Parse the model from URL/body
             params, body, body_content_type = {}, None, None
@@ -89,6 +100,9 @@ class FrontendRESTServer(socketserver.TCPServer):
                     return request.respond_error("The Content-Length of payload is required.")
 
                 if content_length > request.server._args.max_request_size:
+                    while content_length:
+                        read = request.rfile.read(min(content_length, 65536))
+                        content_length -= len(read) if read else content_length
                     return request.respond_error("The payload size is too large.")
 
                 body = request.rfile.read(content_length)
@@ -106,14 +120,14 @@ class FrontendRESTServer(socketserver.TCPServer):
                                 params[name] = part.get_payload(decode=True).decode("utf-8")
                     except:
                         return request.respond_error("Cannot parse the multipart/form-data payload.")
+                # x-www-form-urlencoded
                 elif request.headers.get("Content-Type", "").startswith("application/x-www-form-urlencoded"):
                     try:
-                        for name, value in urllib.parse.parse_qsl(body.decode("utf-8"), encoding="utf-8", errors="strict"):
+                        for name, value in urllib.parse.parse_qsl(
+                                body.decode("utf-8"), encoding="utf-8", keep_blank_values=True, errors="strict"):
                             params[name] = value
                     except:
                         return request.respond_error("Cannot parse the application/x-www-form-urlencoded payload.")
-                else:
-                    return request.respond_error("Unsupported payload Content-Type '{}'.".format(request.headers.get("Content-Type", "<none>")))
 
             # Log if required
             if request.server._args.log_data:
@@ -146,10 +160,10 @@ class FrontendRESTServer(socketserver.TCPServer):
                         with backend.request(request.path, body, body_content_type) as response:
                             while True:
                                 data = response.read(32768)
-                                if len(data) == 0: break
                                 if not started_responding:
                                     started_responding = True
                                     request.respond(response.getheader("Content-Type", "application/json"), code=response.code)
+                                if len(data) == 0: break
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
                         if not started_responding:
