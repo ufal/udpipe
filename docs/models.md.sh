@@ -13,6 +13,14 @@ done
 echo
 
 for model in $models; do
-  cat $model
+  awk '
+   /^\| [-a-z0-9_.]*-[0-9][0-9][0-9][0-9][0-9][0-9] *\|/ {
+     if (!($2 in models)) {
+       models[$2] = 1;
+       $2 = "<span id=\"" $2 "\">" $2 "</span>";
+     }
+   }
+   {print}
+  ' $model
   echo
 done
