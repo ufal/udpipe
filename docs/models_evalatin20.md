@@ -1,15 +1,18 @@
 ## EvaLatin 2020 Models #evalatin20_models
 
 EvaLatin 2020 Models are distributed under the
-[CC BY-NC-SA](http://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
+[CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
 The models are based solely on [EvaLatin 202](https://github.com/CIRCSE/LT4HALA)
 treebanks, and additionally use [multilingual BERT](https://github.com/google-research/bert/blob/master/multilingual.md).
 
+The models require [UDPipe 2](https://ufal.mff.cuni.cz/udpipe/2).
+
 ### Download
 
-The latest version 200831 of the EvaLatin 2020 models is currently
-available only in the [REST service](http://lindat.mff.cuni.cz/services/udpipe/),
-but the models will be available for download eventually.
+The latest version 200831 of the EvaLatin 2020 models
+can be downloaded from [LINDAT/CLARIN repository](https://hdl.handle.net/11234/1-4803).
+
+The models are also available in the [REST service](https://lindat.mff.cuni.cz/services/udpipe/).
 
 ### Acknowledgements #evalatin20_models_acknowledgements
 
