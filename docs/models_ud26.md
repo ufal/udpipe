@@ -1,27 +1,30 @@
 ## Universal Dependencies 2.6 Models #universal_dependencies_26_models
 
 Universal Dependencies 2.6 Models are distributed under the
-[CC BY-NC-SA](http://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
+[CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
 The models are based solely on [Universal Dependencies
-2.6](http://hdl.handle.net/11234/1-3226) treebanks, and additionally
+2.6](https://hdl.handle.net/11234/1-3226) treebanks, and additionally
 use [multilingual BERT](https://github.com/google-research/bert/blob/master/multilingual.md).
+
+The models require [UDPipe 2](https://ufal.mff.cuni.cz/udpipe/2).
 
 ### Download
 
-The latest version 200831 of the Universal Dependencies 2.6 models is currently
-available only in the [REST service](http://lindat.mff.cuni.cz/services/udpipe/),
-but the models will be available for download eventually.
+The latest version 200831 of the Universal Dependencies 2.6 models
+can be downloaded from [LINDAT/CLARIN repository](https://hdl.handle.net/11234/1-4798).
+
+The models are also available in the [REST service](https://lindat.mff.cuni.cz/services/udpipe/).
 
 ### Acknowledgements #universal_dependencies_26_models_acknowledgements
 
 This work has been supported by the Ministry of Education, Youth and Sports of
 the Czech Republic, Project No. LM2018101 LINDAT/CLARIAH-CZ.
 
-The models were trained on [Universal Dependencies 2.6](http://hdl.handle.net/11234/1-3226) treebanks.
+The models were trained on [Universal Dependencies 2.6](https://hdl.handle.net/11234/1-3226) treebanks.
 
 For the UD treebanks which do not contain original plain text version,
 raw text is used to train the tokenizer instead. The plain texts
-were taken from the [W2C -- Web to Corpus](http://hdl.handle.net/11858/00-097C-0000-0022-6133-9).
+were taken from the [W2C -- Web to Corpus](https://hdl.handle.net/11858/00-097C-0000-0022-6133-9).
 
 Finally, [multilingual BERT](https://github.com/google-research/bert/blob/master/multilingual.md)
 is used to provide contextualized word embeddings.
