@@ -1,6 +1,6 @@
 #!/bin/sh
 
-models="models_ud26.md models_evalatin20.md"
+models="models_ud210.md models_ud26.md models_evalatin20.md"
 
 cat <<EOF
 # UDPipe 2 Models
