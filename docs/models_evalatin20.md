@@ -2,7 +2,7 @@
 
 EvaLatin 2020 Models are distributed under the
 [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/) licence.
-The models are based solely on [EvaLatin 202](https://github.com/CIRCSE/LT4HALA)
+The models are based solely on [EvaLatin 2020](https://github.com/CIRCSE/LT4HALA)
 treebanks, and additionally use [multilingual BERT](https://github.com/google-research/bert/blob/master/multilingual.md).
 
 The models require [UDPipe 2](https://ufal.mff.cuni.cz/udpipe/2).
