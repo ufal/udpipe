@@ -346,8 +346,9 @@ class UDPipe2:
                 for i in range(len(sentence_lens)):
                     padded_heads = np.pad(prior_heads[i][:sentence_lens[i], :sentence_lens[i] + 1].astype(np.float),
                                           ((1, 0), (0, 0)), mode="constant")
-                    padded_heads[:, 0] = np.nan
-                    padded_heads[1 + np.argmax(prior_heads[i][:sentence_lens[i], 0]), 0] = 0
+                    if args.single_root:
+                        padded_heads[:, 0] = np.nan
+                        padded_heads[1 + np.argmax(prior_heads[i][:sentence_lens[i], 0]), 0] = 0
                     chosen_heads, _ = ufal.chu_liu_edmonds.chu_liu_edmonds(padded_heads)
                     heads[i, :sentence_lens[i]] = chosen_heads[1:]
                 deprels = self.session.run(self.predictions_deprel,
@@ -368,7 +369,7 @@ class UDPipe2:
         import io
 
         conllu = self.predict(dataset.data, True, args)
-        metrics = udpipe2_eval.evaluate(dataset.gold, udpipe2_eval.load_conllu(io.StringIO(conllu)))
+        metrics = udpipe2_eval.evaluate(dataset.gold, udpipe2_eval.load_conllu(io.StringIO(conllu), args.single_root))
         event = [tf.Summary.Value(tag="{}/{}".format(dataset_name, metric), simple_value=metrics[metric].f1) for metric in self.METRICS]
         event = tf.Event(summary=tf.Summary(value=event), step=self.session.run(self.global_step), wall_time=time.time()).SerializeToString()
         self.session.run(self.event_summaries[dataset.label], {self.event: event})
@@ -406,6 +407,7 @@ class UDPipe2:
         parser.add_argument("--rnn_layers_parser", default=1, type=int, help="Parser RNN layers.")
         parser.add_argument("--rnn_layers_tagger", default=0, type=int, help="Tagger RNN layers.")
         parser.add_argument("--seed", default=42, type=int, help="Initial random seed.")
+        parser.add_argument("--single_root", default=1, type=int, help="Single root allowed only.")
         parser.add_argument("--tags", default="UPOS,XPOS,FEATS,LEMMAS", type=str, help="Tags.")
         parser.add_argument("--tag_layers", default=1, type=int, help="Additional tag layers.")
         parser.add_argument("--test", default=[], nargs="+", type=str, help="Test files.")
@@ -462,7 +464,7 @@ if __name__ == "__main__":
                     label,
                     udpipe2_dataset.UDPipe2Dataset(path=path, train=train, shuffle_batches=False,
                                                    embeddings=glob.glob("{}*.npz".format(path))),
-                    udpipe2_eval.load_conllu_file(path)
+                    udpipe2_eval.load_conllu_file(path, args.single_root)
                 ))
     else:
         train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(args.model, "mappings.pickle"))
