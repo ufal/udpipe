@@ -243,10 +243,13 @@ and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
       var new_language = false;
       if (!current_language || !treebank.startsWith(current_language)) {
         new_language = true;
-        current_language = treebank.replace(/-.*/, "");
+        current_language = treebank
+          .replace(/^ancient-greek/, "ancient_greek")
+          .replace(/^old-church-slavonic/, "old_church_slavonic")
+          .replace(/-.*/, "");
       }
 
-      models_list += "<option data-content='<span style=\"display: inline-block; width: " + (new_language ? "2.5" : "3.5") + "em\"><img src=\"flags/" + treebank + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
+      models_list += "<option data-content='<span style=\"display: inline-block; width: " + (new_language ? "2.5" : "3.5") + "em\"><img src=\"flags/" + current_language + ".png\" style=\"height: 1em\"></span>" + model + "'" + ((czech_model ? model == czech_model : !models_list) ? "selected" : "") + ">" + model + "</option>";
     }
     jQuery('#model').html(models_list);
     jQuery('#model').selectpicker('refresh');

@@ -15,22 +15,10 @@ rm -rf docs docs-automation
 
 for svg in *.svg; do
   echo $svg
-  inkscape $svg -e ${svg%.svg}.png -h 32
+  inkscape $svg -o ${svg%.svg}.png -h 32
 done
 rm *.svg
 
-sed 's/#.*$//; /^$/d' ../../../releases/models.txt | while read code name rest; do
-  [ -f "$name".png ] && continue
-
-  generic_name="${name%-*}"
-  echo Flag for $name not found, trying to use $generic_name >&2
-  [ -f "$generic_name".png ] || { echo Missing flag even for $generic_name, aborting >&2; exit 1; }
-  cp "$generic_name".png "$name".png
-done
-
-cp ancient_greek.png ancient-greek.png
-cp ancient_greek-proiel.png ancient-greek-proiel.png
-cp old_church_slavonic.png old-church-slavonic.png
-cp latin-ittb.png latin-itt.png
+cp old_east_slavic.png old_russian.png
 
 echo All done
