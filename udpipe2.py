@@ -122,7 +122,7 @@ class UDPipe2:
             loss = 0
             weights = tf.sequence_mask(self.sentence_lens, dtype=tf.float32)
             weights_sum = tf.reduce_sum(weights)
-            self.predictions = {}
+            self.predictions, self.predictions_logits = {}, {}
             tag_hidden_layer = hidden_layer[:, 1:]
             for i in range(args.rnn_layers_tagger):
                 (hidden_layer_fwd, hidden_layer_bwd), _ = tf.nn.bidirectional_dynamic_rnn(
@@ -139,6 +139,7 @@ class UDPipe2:
                 if tag == "LEMMAS": tag_layer = tf.concat([tag_layer, cle_inputs[:, 1:]], axis=2)
                 output_layer = tf.layers.dense(tag_layer, num_tags[tag])
                 self.predictions[tag] = tf.argmax(output_layer, axis=2, output_type=tf.int32)
+                self.predictions_logits[tag] = output_layer
 
                 if args.label_smoothing:
                     gold_labels = tf.one_hot(self.tags[tag], num_tags[tag]) * (1 - args.label_smoothing) + args.label_smoothing / num_tags[tag]
@@ -281,6 +282,19 @@ class UDPipe2:
         # because it works even TF 2 is in Eager mode.
         self.session.run(self.saver.saver_def.restore_op_name,
                          {self.saver.saver_def.filename_tensor_name: os.path.join(path, "weights")})
+
+        # Try loading also consistent feats table.
+        consistent_feats_table = os.path.join(path, "consistent_feats.table")
+        if os.path.exists(consistent_feats_table):
+            import gzip
+            with gzip.open(consistent_feats_table, "rb") as consistent_feats_table_file:
+                consistent_feats_table = np.load(consistent_feats_table_file)
+
+            with self.session.graph.as_default():
+                consistent_feats_table = tf.convert_to_tensor(consistent_feats_table, dtype=tf.float32)
+                self.predictions["FEATS"] = tf.argmax(
+                    tf.nn.softmax(self.predictions_logits["FEATS"], axis=2) * tf.gather(consistent_feats_table, self.predictions["UPOS"]),
+                    axis=2, output_type=tf.int32)
 
     def close_writers(self):
         self.session.run(self.summary_writers_close)
