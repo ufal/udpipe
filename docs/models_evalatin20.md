@@ -33,8 +33,8 @@ and Treebank Embeddings](https://arxiv.org/abs/2006.03687). In: ArXiv.org Comput
 
 ### Model Performance
 
-| Test Treebank           |  UPOS |  Lemma |
-|:------------------------|------:|-------:|
-| Test Classical          | 96.73 |  96.39 |
-| Test Cross-Genre        | 90.47 |  86.89 |
-| Test Cross-Time         | 87.58 |  90.59 |
+| Model | Dataset           |  UPOS |  Lemma |
+|:------|:------------------|------:|-------:|
+| latin-evalatin20-200830 | test classical    | 96.73 |  96.39 |
+| latin-evalatin20-200830 | test cross-genre  | 90.47 |  86.89 |
+| latin-evalatin20-200830 | test cross-time   | 87.58 |  90.59 |
