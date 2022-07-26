@@ -9,10 +9,10 @@ about.html: refresh
 	sed -n '/^<div class="body"/,/^<\/div/p' ../../doc/web_$@ | sed 's/<div class="body"[^>]*>/<div>/' >$@
 
 install: $(TARGETS)
-	scp $(TARGETS) udpipe:udpipe/www
+	rsync -avc $(TARGETS) udpipe:udpipe/www
 
 install-flags:
-	scp flags/*.png udpipe:udpipe/www/flags/
+	rsync -av flags/*.png udpipe:udpipe/www/flags/
 
 .PHONY: clean
 clean:
