@@ -37,4 +37,4 @@ case $treebank in
   *) evaluation_data="--dev=$data/$treebank/$treebank-ud-dev.conllu --test=$data/$treebank/$treebank-ud-test.conllu"
 esac
 
-qsub $SGE_ARGS -q gpu* -l gpu=1,gpu_ram=11G,mem_free=16G,h_data=24G -N udpipe2 -j y -o models/$data-$treebank${EXP:+-$EXP}/training.log withcuda100 venv/bin/python ud_parser16.py models/$data-$treebank${EXP:+-$EXP} --train $data/$treebank/$treebank-*train.conllu $evaluation_data $args "$@"
+qsub $SGE_ARGS -p -110 -q 'gpu*@!(dll6|dll9|dll10)' -l gpu=1,gpu_ram=11G,mem_free=16G,h_data=24G -N udpipe2 -j y -o models/$data-$treebank${EXP:+-$EXP}/training.log withcuda100 venv/bin/python udpipe2.py models/$data-$treebank${EXP:+-$EXP} --train $data/$treebank/$treebank-*train.conllu $evaluation_data $args "$@"
