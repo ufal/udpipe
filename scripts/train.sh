@@ -19,11 +19,11 @@ fi
 case $treebank in
   *_all)
     evaluation_data="--dev"
-    for dev in $data/${treebank%_all}*/*-dev.conllu; do
+    for dev in $data/${treebank%_all}_*/*-dev.conllu; do
       evaluation_data="$evaluation_data $(basename $(dirname $dev)):$dev"
     done
     evaluation_data="$evaluation_data --test"
-    for test in $data/${treebank%_all}*/*-test.conllu; do
+    for test in $data/${treebank%_all}_*/*-test.conllu; do
       evaluation_data="$evaluation_data $(basename $(dirname $test)):$test"
     done
     ;;
