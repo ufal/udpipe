@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ack='http://ufal.mff.cuni.cz/udpipe'
+ack='https://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models'
 
 cat <<EOF
 afrikaans-afribooms-ud-2.6-200830:af_afribooms-ud-2.6-200830:af:afr      models-2.6/af_afribooms-ud-2.6-200830.model     af_afribooms     $ack
