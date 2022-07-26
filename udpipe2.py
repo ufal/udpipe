@@ -435,6 +435,10 @@ class UDPipe2:
 
     @staticmethod
     def postprocess_arguments(args):
+        # Add option defaults if missing in `args`
+        args = UDPipe2.argument_parser().parse_args([args.model], namespace=args)
+
+        # Manual args post-processing
         args.tags = args.tags.split(",")
         args.epochs = [(int(epochs), float(lr)) for epochs, lr in (epochs_lr.split(":") for epochs_lr in args.epochs.split(","))]
 
