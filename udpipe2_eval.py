@@ -124,7 +124,7 @@ class UDError(Exception):
     pass
 
 # Load given CoNLL-U file into internal representation
-def load_conllu(file):
+def load_conllu(file, single_root=1):
     # Internal representation classes
     class UDRepresentation:
         def __init__(self):
@@ -210,8 +210,9 @@ def load_conllu(file):
                     word.parent.functional_children.append(word)
 
             # Check there is a single root node
-            if len([word for word in ud.words[sentence_start:] if word.parent is None]) > 1:
-                raise UDError("There are multiple roots in a sentence")
+            if single_root:
+                if len([word for word in ud.words[sentence_start:] if word.parent is None]) > 1:
+                    raise UDError("There are multiple roots in a sentence")
 
             # End the sentence
             ud.sentences[-1].end = index
@@ -478,9 +479,9 @@ def evaluate(gold_ud, system_ud):
     }
 
 
-def load_conllu_file(path):
+def load_conllu_file(path, single_root=1):
     _file = open(path, mode="r", **({"encoding": "utf-8"} if sys.version_info >= (3, 0) else {}))
-    return load_conllu(_file)
+    return load_conllu(_file, single_root)
 
 def evaluate_wrapper(args):
     # Load CoNLL-U files
