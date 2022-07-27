@@ -86,8 +86,9 @@ def process(args, data):
 
 if __name__ == "__main__":
     # Parse the client arguments.
-    # For documentation, see https://lindat.mff.cuni.cz/services/udpipe/api-reference.php
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description=(
+        "Most of the options are passed directly to the service. For documentation, "
+        "see https://lindat.mff.cuni.cz/services/udpipe/api-reference.php ."))
     parser.add_argument("inputs", nargs="*", type=str, help="Optional input files; stdin if not specified.")
     parser.add_argument("--list_models", default=False, action="store_true", help="List available models")
     parser.add_argument("--input", default="conllu", type=str, help="Input format")
