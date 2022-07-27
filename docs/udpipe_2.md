@@ -10,12 +10,20 @@ reaching excellent results in all of them:
 Compared to UDPipe 1, it is Python-only, it does not perform tokenization, and
 the models require more computation power.
 
-## Webservice
+## REST Service
 
 The UDPipe 2 models are currently available from the
 [LINDAT UDPipe REST Service](https://lindat.mff.cuni.cz/services/udpipe/).
-Apart from the web interface, you can use the following Python
-client script to process your files. TODO
+Apart from the web interface, you can use the
+[udpipe2_client.py Python script](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_client.py)
+to process your files through the service.
+
+## Getting UDPipe 2
+
+You can get UDPipe 2 sources from the
+[udpipe-2 branch of the UDPipe repository](https://github.com/ufal/udpipe/tree/udpipe-2).
+The sources can be used to both train a new model and to run a local REST server
+for inference.
 
 ## Models
 
