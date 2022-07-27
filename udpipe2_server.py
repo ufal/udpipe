@@ -394,7 +394,7 @@ if __name__ == "__main__":
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     parser.add_argument("--preload_models", default=[], nargs="*", type=str, help="Models to preload, or `all`")
-    parser.add_argument("--threads", default=4, type=int, help="Threads to use")
+    parser.add_argument("--threads", default=0, type=int, help="Threads to use")
     parser.add_argument("--wembedding_server", default=None, type=str, help="Address of an WEmbedding server")
     args = parser.parse_args()
 
