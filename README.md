@@ -9,11 +9,11 @@ Compared to UDPipe 1:
   performance,
 - UDPipe 2 does not perform tokenization by itself – it uses UDPipe 1 for that.
 
-UDPipe 2 is available as a REST service running at https://lindat.mff.cuni.cz/services/udpipe .
+UDPipe 2 is available as a REST service running at https://lindat.mff.cuni.cz/services/udpipe.
 If you like, you can use the [udpipe2_client.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_client.py)
 script to interact with it.
 
-However, if you prefer to run UDPipe 2 locally, you have come to the right place 😀
+However, if you prefer to run UDPipe 2 locally, you have come to the right place.
 
 ## Running Inference with Existing Models
 
@@ -26,13 +26,13 @@ script to interact with it (in the same way as with the official service).
 To run the server, use the [udpipe2_server.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_server.py)
 script.
 - Install the [requirements.txt](https://github.com/ufal/udpipe/blob/udpipe-2/requirements.txt). While only
-  TF 1 is supported for model training, you can use also TF 2 for inference.
+  TF 1 is supported for model training (ancient, I know), you can use also TF 2 for inference.
 - The script has the following required options:
   - `port`: the port to listen on. We use `SO_REUSEPORT` to allow multiple processes
     to run concurrently, supporting seamless upgrades;
   - `default_model`: model name to use when no model is specified in the
     request;
-  - `models`: each model is then a quadruple of the following parameters(each
+  - `models`: each model is then a quadruple of the following parameters (each
     published model contains a file `MODEL.txt` with these parameters):
     - `model names`: any number of model names separated by `:`; furthermore, any
       hyphen-separated prefix of any model name can be also used as a name
@@ -46,13 +46,14 @@ script.
   - `--batch_size`: batch size to use (default 32);
   - `--logfile`: if specified, log to this file instead of standard error;
   - `--max_request_size`: maximum request size, in bytes (default 4MB);
-  - `--preload_models`: list of models to preload (or `all`) immediately after start;
-  - `--threads`: number of threads to use (default is to use all cores);
+  - `--preload_models`: list of models to preload (or `all`) immediately after
+    start (default none);
+  - `--threads`: number of threads to use (default is to use all physical cores);
   - `--wembedding_server`: for deployment purposes, it might be useful to
     compute the contextualized embeddings (mBERT, RobeCzech) not in the UDPipe 2
     service, but in a specialized service – see https://github.com/ufal/wembedding_service
-    for documentation about it (default is to compute the embeddings directly in the
-    UDPipe 2 service).
+    for documentation of the wembeddings service (default is to compute the
+    embeddings directly in the UDPipe 2 service).
 
 The service can be stopped by a `SIGINT` (Ctrl+C) signal or by a `SIGUSR1` signal.
 Once such a signal is received, the service stops accepting new requests, but
@@ -60,8 +61,8 @@ waits until all existing connections are handled and closed.
 
 The models are loaded on-demand, but they are never freed. If a GPU is
 available, then all computation is performed on it (and an OOM might occur if
-too many models are loaded). If you would like to run BERT on GPU and the
-remaining computation on CPU, you could use GPU-enabled wembeddings service
+too many models are loaded). If you would like to run BERT on a GPU and the
+remaining computation on a CPU, you could use GPU-enabled wembeddings service
 plus a CPU-only UDPipe 2 service.
 
 
