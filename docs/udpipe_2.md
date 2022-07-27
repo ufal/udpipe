@@ -15,8 +15,8 @@ the models require more computation power.
 The UDPipe 2 models are currently available from the
 [LINDAT UDPipe REST Service](https://lindat.mff.cuni.cz/services/udpipe/).
 Apart from the web interface, you can use the
-[udpipe2_client.py Python script](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_client.py)
-to process your files through the service.
+[udpipe2_client.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_client.py)
+script to process your files through the service.
 
 ## Getting UDPipe 2
 
