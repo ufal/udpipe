@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is part of UDPipe 2.0 <http://github.com/ufal/udpipe>.
+# This file is part of UDPipe 2 <http://github.com/ufal/udpipe>.
 #
 # Copyright 2022 Institute of Formal and Applied Linguistics, Faculty of
 # Mathematics and Physics, Charles University in Prague, Czech Republic.
@@ -18,6 +18,8 @@ import os
 import sys
 import urllib.error
 import urllib.request
+
+__version__ = "2.0.0-dev"
 
 
 def perform_request(server, method, params={}):

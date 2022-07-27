@@ -21,6 +21,7 @@
 #                              just ASCII space.
 # - [12 Sep 2020] Version 1.2: Renamed to udpipe2_eval when releasing with UDPipe 2
 #                              Allow evaluation with underscores in HEAD.
+# - [26 Jul 2022] Version 1.3: Allow evaluation with multiple roots, if requested.
 
 # Command line usage
 # ------------------

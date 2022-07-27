@@ -1,4 +1,4 @@
-# This file is part of UDPipe 2.0 <http://github.com/ufal/udpipe>.
+# This file is part of UDPipe 2 <http://github.com/ufal/udpipe>.
 #
 # Copyright 2020 Institute of Formal and Applied Linguistics, Faculty of
 # Mathematics and Physics, Charles University in Prague, Czech Republic.
@@ -13,6 +13,9 @@ import re
 import sys
 
 import numpy as np
+
+__version__ = "2.0.0-dev"
+
 
 class UDPipe2Dataset:
     FORMS = 0

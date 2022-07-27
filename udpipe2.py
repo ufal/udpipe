@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This file is part of UDPipe 2.0 <http://github.com/ufal/udpipe>.
+# This file is part of UDPipe 2 <http://github.com/ufal/udpipe>.
 #
 # Copyright 2020 Institute of Formal and Applied Linguistics, Faculty of
 # Mathematics and Physics, Charles University in Prague, Czech Republic.
@@ -21,6 +21,8 @@ import ufal.chu_liu_edmonds
 import udpipe2_dataset
 import udpipe2_eval
 
+__version__ = "2.0.0-dev"
+
 # Use tf.compat.v1 if running with TF2. Only prediction is supported
 # in this case, because we use tf.compat.opt.LazyAdamOptimizer, which
 # is not available in TF2.
@@ -29,6 +31,7 @@ if not tf.__version__.startswith("1"):
 
 # Disable TF warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
+
 
 class UDPipe2:
     METRICS = ["UPOS", "XPOS", "UFeats", "AllTags", "Lemmas", "UAS", "LAS", "CLAS", "MLAS", "BLEX"]
@@ -441,6 +444,7 @@ class UDPipe2:
         # Manual args post-processing
         args.tags = args.tags.split(",")
         args.epochs = [(int(epochs), float(lr)) for epochs, lr in (epochs_lr.split(":") for epochs_lr in args.epochs.split(","))]
+
 
 if __name__ == "__main__":
     import collections
