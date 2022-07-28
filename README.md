@@ -65,7 +65,35 @@ too many models are loaded). If you would like to run BERT on a GPU and the
 remaining computation on a CPU, you could use GPU-enabled wembeddings service
 plus a CPU-only UDPipe 2 service.
 
-
 ## Training New Models
 
-TODO: To be finished soon.
+You can train UDPipe 2 models, but we provide no support for the model training,
+and you will probably need to read the source code to find out what various
+training options do.
+
+To train a new UDPipe model, you need to perform three steps, assuming
+you have the data in CoNLL-U format:
+1. First, you need to compute the contextualized embeddings for your data,
+   using the `wembedding_service/compute_wembeddings.py` script.
+
+   The official UDPipe models use the
+   [scripts/compute_wembeddings.sh](https://github.com/ufal/udpipe/blob/udpipe-2/scripts/compute_embeddings.sh)
+   script, where you can see how to name the outputs and which BERT-like models
+   are used for which treebanks.
+
+2. Then, you need to train the UDPipe 2 models themselves, using the
+   [udpipe2.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2.py) script.
+   You can generally use the default hyperparameters, you only need to specify
+   the path of the trained model (as the first argument) and then paths to your
+   data using `--train`, `--dev`, and `--test` options.
+
+   The official UDPipe 2 models are trained using the
+   [scripts/train.sh](https://github.com/ufal/udpipe/blob/udpipe-2/scripts/train.sh)
+   script; you can see they tweak `--batch_size` and `--rnn_cell_dim` a bit
+   depending on the trained treebank size.
+
+3. Because UDPipe 2 does not include tokenization functionality, you need to
+   [train a UDPipe 1 tokenizer](https://ufal.mff.cuni.cz/udpipe/1/users-manual#model_training_tokenizer).
+   The tokenizer should then be put in the trained UDPipe 2 model directory,
+   named as the variant you specify on the command line of the
+   [udpipe2_server.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_server.py).
