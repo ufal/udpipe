@@ -94,6 +94,7 @@ you have the data in CoNLL-U format:
 
 3. Because UDPipe 2 does not include tokenization functionality, you need to
    [train a UDPipe 1 tokenizer](https://ufal.mff.cuni.cz/udpipe/1/users-manual#model_training_tokenizer).
-   The tokenizer should then be put in the trained UDPipe 2 model directory,
-   named as the variant you specify on the command line of the
+   The tokenizer should then be put in the trained UDPipe 2 model directory
+   under the name `VARIANT.tokenizer`, where `VARIANT` is the variant you specify
+   on the command line of the
    [udpipe2_server.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2_server.py).
