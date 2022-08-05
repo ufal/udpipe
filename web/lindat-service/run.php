@@ -305,7 +305,8 @@ and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.6-" onchange="updateModels()" checked />UD 2.6 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.10-" onchange="updateModels()" checked />UD 2.10 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_210_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.6-" onchange="updateModels()" />UD 2.6 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models">description</a>)</label>
           <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-evalatin20-" onchange="updateModels()" />EvaLatin20 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#evalatin20_models">description</a>)</label>
           <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.5-" onchange="updateModels()" />UD 2.5 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_25_models">description</a>)</label>
           <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.4-" onchange="updateModels()" />UD 2.4 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_24_models">description</a>)</label>
