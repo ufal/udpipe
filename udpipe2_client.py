@@ -19,7 +19,7 @@ import sys
 import urllib.error
 import urllib.request
 
-__version__ = "2.0.0"
+__version__ = "2.0.1-dev"
 
 
 def perform_request(server, method, params={}):
