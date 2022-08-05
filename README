@@ -1,5 +1,5 @@
-UDPipe
-=======
+UDPipe 1
+========
 
 UDPipe is a trainable pipeline for tokenization, tagging, lemmatization and
 dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be

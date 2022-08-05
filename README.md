@@ -1,4 +1,4 @@
-# UDPipe
+# UDPipe 1
 [![Build Status](https://travis-ci.org/ufal/udpipe.svg?branch=master)](https://travis-ci.org/ufal/udpipe)
 
 UDPipe is a trainable pipeline for tokenization, tagging, lemmatization and
