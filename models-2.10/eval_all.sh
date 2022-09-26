@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sh models_list.sh | grep czech | while read names path treebank ack; do
+sh models_list.sh | while read names path treebank ack; do
   model=${names%%:*}
   for mode in "raw_text" "gold_tok"; do
     conllu=../ud-2.10/$treebank/$treebank-ud-test.conllu
