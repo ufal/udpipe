@@ -137,18 +137,24 @@ bool udpipe_service::handle_process(microrestd::rest_request& req) {
   unique_ptr<loaded_model> loaded(load_model(id, error));
   if (!loaded) return req.respond_error(error);
 
-  string data; int infclen; if (!get_data(req, data, infclen, error)) return req.respond_error(error);
+  string data; if (!get_data(req, data, error)) return req.respond_error(error);
   bool tokenizer = false;
   unique_ptr<input_format> input(get_input_format(req, loaded->model, tokenizer, error)); if (!input) return req.respond_error(error);
   auto& tagger = get_tagger(req, loaded->model, error); if (!error.empty()) return req.respond_error(error);
   auto& parser = get_parser(req, loaded->model, error); if (!error.empty()) return req.respond_error(error);
   unique_ptr<output_format> output(get_output_format(req, error)); if (!output) return req.respond_error(error);
 
-  // Try loading the input if tokenizer is not used
-  if (!tokenizer) {
+  // Try loading the input and count the infclen header
+  int infclen = 0;
+  {
     input->set_text(data);
     sentence s;
-    while (input->next_sentence(s, error)) {}
+    while (input->next_sentence(s, error))
+      for (size_t i = 1; i < s.words.size(); i++) {
+        const char* str = s.words[i].form.c_str();
+        for (size_t len = s.words[i].form.size(); len; unilib::utf8::decode(str, len))
+          infclen++;
+      }
     if (!error.empty())
       return req.respond_error(error.insert(0, "Cannot read input data: ").append("\n"));
 
@@ -326,16 +332,13 @@ const string& udpipe_service::get_model_id(microrestd::rest_request& req) {
   return model_it == req.params.end() ? empty : model_it->second;
 }
 
-bool udpipe_service::get_data(microrestd::rest_request& req, string& data, int& infclen, string& error) {
+bool udpipe_service::get_data(microrestd::rest_request& req, string& data, string& error) {
   auto data_it = req.params.find("data");
   if (data_it == req.params.end()) return error.assign("Required argument 'data' is missing.\n"), false;
 
   u32string codepoints;
   unilib::utf8::decode(data_it->second, codepoints);
   unilib::uninorms::nfc(codepoints);
-  infclen = 0;
-  for (auto&& codepoint : codepoints)
-    infclen += !(unilib::unicode::category(codepoint) & (unilib::unicode::C | unilib::unicode::Z));
   unilib::utf8::encode(codepoints, data);
   return true;
 }

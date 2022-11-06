@@ -134,7 +134,7 @@ class udpipe_service : public microrestd::rest_service {
 
   // Helper functions
   const string& get_model_id(microrestd::rest_request& req);
-  bool get_data(microrestd::rest_request& req, string& data, int& infclen, string& error);
+  bool get_data(microrestd::rest_request& req, string& data, string& error);
   input_format* get_input_format(microrestd::rest_request& req, const model_info* model, bool& is_tokenizer, string& error);
   const string& get_tagger(microrestd::rest_request& req, const model_info* model, string& error);
   const string& get_parser(microrestd::rest_request& req, const model_info* model, string& error);
