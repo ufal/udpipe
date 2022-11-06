@@ -19,6 +19,7 @@ import socketserver
 import sys
 import threading
 import time
+import unicodedata
 import urllib.parse
 
 import udpipe2
@@ -191,12 +192,14 @@ class UDServer(socketserver.ThreadingTCPServer):
     class UDServerRequestHandler(http.server.BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
 
-        def respond(request, content_type, code=200):
+        def respond(request, content_type, code=200, additional_headers={}):
             request.close_connection = True
             request.send_response(code)
             request.send_header("Connection", "close")
             request.send_header("Content-Type", content_type)
             request.send_header("Access-Control-Allow-Origin", "*")
+            for key, value in additional_headers.items():
+                request.send_header(key, value)
             request.end_headers()
 
         def respond_error(request, message, code=400):
@@ -281,6 +284,7 @@ class UDServer(socketserver.ThreadingTCPServer):
 
                 if "data" not in params:
                     return request.respond_error("The parameter 'data' is required.")
+                params["data"] = unicodedata.normalize("NFC", params["data"])
 
                 model = params.get("model", request.server._models.default_model)
                 if model not in request.server._models.models_by_names:
@@ -302,6 +306,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                         return request.respond_error("Sentence longer than 1000 words was found on input, aborting.\nPlease make sure the input sentences have at most 1000 words.\n")
                     except:
                         return request.respond_error("Cannot parse the input in '{}' format.".format(params.get("input", "conllu")))
+                infclen = sum(sum(len(word.form) for word in sentence.words[1:]) for sentence in sentences)
 
                 # Create the writer
                 output_format = params.get("output", "conllu")
@@ -323,7 +328,7 @@ class UDServer(socketserver.ThreadingTCPServer):
                                 if weblicht:
                                     request.respond("application/conllu")
                                 else:
-                                    request.respond("application/json")
+                                    request.respond("application/json", additional_headers={"X-Billing-Input-NFC-Len": str(infclen)})
                                     request.wfile.write(json.dumps({
                                         "model": model.names[0],
                                         "acknowledgements": ["http://ufal.mff.cuni.cz/udpipe/2#udpipe2_acknowledgements", model.acknowledgements],
