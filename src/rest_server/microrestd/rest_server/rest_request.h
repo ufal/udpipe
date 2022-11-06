@@ -11,6 +11,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "response_generator.h"
 #include "string_piece.h"
@@ -22,11 +24,13 @@ class rest_request {
  public:
   virtual ~rest_request() {}
 
-  virtual bool respond(const char* content_type, string_piece body, bool make_copy = true) = 0;
-  virtual bool respond(const char* content_type, response_generator* generator) = 0;
+  virtual bool respond(const char* content_type, string_piece body,
+                       const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
+  virtual bool respond(const char* content_type, response_generator* generator,
+                       const std::vector<std::pair<const char*, const char*>>& headers = {}) = 0;
   virtual bool respond_not_found() = 0;
   virtual bool respond_method_not_allowed(const char* comma_separated_allowed_methods) = 0;
-  virtual bool respond_error(string_piece error, int code = 400, bool make_copy = true) = 0;
+  virtual bool respond_error(string_piece error, int code = 400) = 0;
 
   std::string url;
   std::string method;

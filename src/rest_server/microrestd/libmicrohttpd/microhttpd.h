@@ -585,7 +585,7 @@ enum MHD_FLAG
  * @param ap arguments to @a fm
  * @ingroup logging
  */
-typedef void (*MHD_LogCallback)(void *cls, const char *fm, va_list ap);
+typedef int (*MHD_LogCallback)(void *cls, const char *fm, va_list ap);
 
 
 /**

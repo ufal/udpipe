@@ -7,7 +7,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MICRORESTD_VERSION := 1.1.2
+MICRORESTD_VERSION := 1.2.0
 
 MICRORESTD_OBJECTS := libmicrohttpd/connection libmicrohttpd/daemon libmicrohttpd/internal libmicrohttpd/memorypool libmicrohttpd/postprocessor libmicrohttpd/reason_phrase libmicrohttpd/response libmicrohttpd/w32functions rest_server/json_builder rest_server/json_response_generator rest_server/rest_server rest_server/version rest_server/xml_builder rest_server/xml_response_generator
 MICRORESTD_PUGIXML_OBJECTS := pugixml/pugixml

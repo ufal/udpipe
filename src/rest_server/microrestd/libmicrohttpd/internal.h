@@ -1036,7 +1036,7 @@ struct MHD_Daemon
    * Function for logging error messages (if we
    * support error reporting).
    */
-  void (*custom_error_log) (void *cls, const char *fmt, va_list va);
+  int (*custom_error_log) (void *cls, const char *fmt, va_list va);
 
   /**
    * Closure argument to custom_error_log.
