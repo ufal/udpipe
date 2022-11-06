@@ -1,3 +1,16 @@
+Version 3.3.0 [13 Sep 2022]
+---------------------------
+- Update Unicode data to 15.0.0.
+
+
+Version 3.2.0 [03 Mar 2020]
+---------------------------
+- Update Unicode to 13.0.0.
+- Update tests to work also under Windows.
+  We now use C++ Builtem http://github.com/ufal/cpp_builtem
+  as build system and require Python3 to run the tests.
+
+
 Version 3.1.1 [15 Jun 2016]
 ---------------------------
 - Fix warnings of G++ 6.
