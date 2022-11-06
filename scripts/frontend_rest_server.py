@@ -55,12 +55,14 @@ class FrontendRESTServer(socketserver.TCPServer):
                 data = data[:request.server._args.log_data // 2] + " ... " + data[min(-1, -request.server._args.log_data // 2):]
             return data.translate(request.format_for_log_table)
 
-        def respond(request, content_type, code=200):
+        def respond(request, content_type, code=200, additional_headers={}):
             request.close_connection = True
             request.send_response(code)
             request.send_header("Connection", "close")
             request.send_header("Content-Type", content_type)
             request.send_header("Access-Control-Allow-Origin", "*")
+            for key, value in additional_headers.items():
+                request.send_header(key, value)
             request.end_headers()
 
         def respond_error(request, message, code=400):
@@ -162,7 +164,9 @@ class FrontendRESTServer(socketserver.TCPServer):
                                 data = response.read(32768)
                                 if not started_responding:
                                     started_responding = True
-                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code)
+                                    billing_infclen = response.getheader("X-Billing-Input-NFC-Len", None)
+                                    headers = {"X-Billing-Input-NFC-Len": billing_infclen} if billing_infclen is not None else {}
+                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code, headers=headers)
                                 if len(data) == 0: break
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
