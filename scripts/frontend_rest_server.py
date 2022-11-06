@@ -166,7 +166,8 @@ class FrontendRESTServer(socketserver.TCPServer):
                                     started_responding = True
                                     billing_infclen = response.getheader("X-Billing-Input-NFC-Len", None)
                                     headers = {"X-Billing-Input-NFC-Len": billing_infclen} if billing_infclen is not None else {}
-                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code, headers=headers)
+                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code,
+                                                    additional_headers=headers)
                                 if len(data) == 0: break
                                 request.wfile.write(data)
                     except urllib.error.HTTPError as error:
