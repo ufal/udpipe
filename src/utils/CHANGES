@@ -1,3 +1,24 @@
+Version 3.5.2 [07 Sep 2022]
+---------------------------
+- Fix warning on clang in compressor_save.cpp.
+
+
+Version 3.5.1 [25 Aut 2022]
+---------------------------
+- Correctly use path_from_utf8.h in named_values.h and process_args.h.
+
+
+Version 3.5.0 [24 Aug 2022]
+---------------------------
+- Add path_from_utf8.h header.
+- Add win_wmain_utf8.cpp source.
+
+
+Version 3.4.3 [24 Jun 2020]
+---------------------------
+- Fix the error message in add_2B and add_4B.
+
+
 Version 3.4.2 [24 Nov 2018]
 ---------------------------
 - Remove obsolete dynamic extension specification.

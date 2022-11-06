@@ -18,6 +18,7 @@
 #endif
 
 #include "common.h"
+#include "path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
@@ -42,12 +43,12 @@ void process_args(int argi, int argc, char* argv[], T processor, U&&... processo
                             , ':');
     if (file_out) *file_out++ = '\0';
 
-    ifstream in(file_in);
+    ifstream in(path_from_utf8(file_in).c_str());
     if (!in) runtime_failure("Cannot open file '" << file_in << "' for reading!");
 
     ofstream out;
     if (file_out) {
-      out.open(file_out);
+      out.open(path_from_utf8(file_out).c_str());
       if (!out) runtime_failure("Cannot open file '" << file_out << "' for writing!");
     }
 
@@ -86,7 +87,7 @@ void process_args_with_output_template(bool binary_input, bool binary_output, in
     // Open input file
     ifstream input_file;
     if (i < argc) {
-      input_file.open(argv[i], binary_input ? ifstream::binary : ifstream::in);
+      input_file.open(path_from_utf8(argv[i]).c_str(), binary_input ? ifstream::binary : ifstream::in);
       if (!input_file.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
 
       input_file_root.assign(argv[i]);
@@ -102,7 +103,7 @@ void process_args_with_output_template(bool binary_input, bool binary_output, in
       output_file_name.assign(output_template);
       for (auto index = string::npos; (index = output_file_name.find("{}")) != string::npos; )
         output_file_name.replace(index, 2, input_file_root);
-      output_file.open(output_file_name.c_str(), binary_output ? ofstream::binary : ofstream::out);
+      output_file.open(path_from_utf8(output_file_name).c_str(), binary_output ? ofstream::binary : ofstream::out);
       if (!output_file.is_open()) runtime_failure("Cannot open output file '" << output_file_name << "'!");
     }
     ostream& output = !output_template.empty() ? output_file : cout;

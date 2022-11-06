@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "parse_int.h"
+#include "path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
@@ -61,7 +62,7 @@ bool named_values::parse(const string& values, map& parsed_values, string& error
         size_t semicolon = min(values.find(';', file_name), values.size());
 
         file.assign(values, file_name, semicolon - file_name);
-        ifstream is(file.c_str());
+        ifstream is(path_from_utf8(file).c_str());
         if (!is.is_open()) return error.assign("Cannot open file '").append(file).append("'!"), false;
 
         char buffer[1024];

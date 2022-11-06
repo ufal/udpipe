@@ -2409,6 +2409,7 @@ static uint32_t GetOptimum(CLzmaEnc *p, uint32_t position, uint32_t *backRes)
         startLen = lenTest + 1;
         
       /* if (_maxMode) */
+      if (1)
         {
           uint32_t lenTest2 = lenTest + 1;
           uint32_t limit = lenTest2 + p->numFastBytes;

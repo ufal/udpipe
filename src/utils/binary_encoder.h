@@ -52,12 +52,12 @@ void binary_encoder::add_1B(unsigned val) {
 }
 
 void binary_encoder::add_2B(unsigned val) {
-  if (uint16_t(val) != val) training_failure("Should encode value " << val << " in one byte!");
+  if (uint16_t(val) != val) training_failure("Should encode value " << val << " in two bytes!");
   data.insert(data.end(), (unsigned char*) &val, ((unsigned char*) &val) + sizeof(uint16_t));
 }
 
 void binary_encoder::add_4B(unsigned val) {
-  if (uint32_t(val) != val) training_failure("Should encode value " << val << " in one byte!");
+  if (uint32_t(val) != val) training_failure("Should encode value " << val << " in four bytes!");
   data.insert(data.end(), (unsigned char*) &val, ((unsigned char*) &val) + sizeof(uint32_t));
 }
 
