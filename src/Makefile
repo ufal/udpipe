@@ -31,7 +31,7 @@ $(call lib,libudpipe): $(call obj,$(UDPIPE_OBJECTS))
 C_FLAGS += $(call include_dir,.)
 # executables
 $(call exe,rest_server/udpipe_server): LD_FLAGS+=$(call use_library,$(if $(filter win-%,$(PLATFORM)),$(MICRORESTD_LIBRARIES_WIN),$(MICRORESTD_LIBRARIES_POSIX)))
-$(call exe,rest_server/udpipe_server): $(call obj,rest_server/udpipe_service $(addprefix rest_server/microrestd/,$(MICRORESTD_OBJECTS) $(MICRORESTD_PUGIXML_OBJECTS)))
+$(call exe,rest_server/udpipe_server): $(call obj,rest_server/udpipe_service unilib/unicode unilib/uninorms unilib/utf8 $(addprefix rest_server/microrestd/,$(MICRORESTD_OBJECTS) $(MICRORESTD_PUGIXML_OBJECTS)))
 $(EXECUTABLES) $(SERVER) $(TOOLS):$(call exe,%): $$(call obj,% utils/options $(UDPIPE_OBJECTS))
 	$(call link_exe,$@,$^,$(call win_subsystem,console))
 

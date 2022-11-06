@@ -11,6 +11,9 @@
 #include <sstream>
 
 #include "udpipe_service.h"
+#include "unilib/unicode.h"
+#include "unilib/uninorms.h"
+#include "unilib/utf8.h"
 #include "utils/split.h"
 
 namespace ufal {
@@ -134,7 +137,7 @@ bool udpipe_service::handle_process(microrestd::rest_request& req) {
   unique_ptr<loaded_model> loaded(load_model(id, error));
   if (!loaded) return req.respond_error(error);
 
-  auto& data = get_data(req, error); if (!error.empty()) return req.respond_error(error);
+  string data; int infclen; if (!get_data(req, data, infclen, error)) return req.respond_error(error);
   bool tokenizer = false;
   unique_ptr<input_format> input(get_input_format(req, loaded->model, tokenizer, error)); if (!input) return req.respond_error(error);
   auto& tagger = get_tagger(req, loaded->model, error); if (!error.empty()) return req.respond_error(error);
@@ -152,7 +155,7 @@ bool udpipe_service::handle_process(microrestd::rest_request& req) {
     input->reset_document();
   }
 
-  input->set_text(data);
+  input->set_text(data, true);
   class generator : public rest_response_generator {
    public:
     generator(loaded_model* loaded, input_format* input, const string& tagger, const string& parser, output_format* output)
@@ -191,7 +194,7 @@ bool udpipe_service::handle_process(microrestd::rest_request& req) {
     const string& parser;
     unique_ptr<output_format> output;
   };
-  return req.respond(generator::mime, new generator(loaded.release(), input.release(), tagger, parser, output.release()));
+  return req.respond(generator::mime, new generator(loaded.release(), input.release(), tagger, parser, output.release()), {{infclen_header, to_string(infclen).c_str()}});
 }
 
 // Weblicht service
@@ -319,17 +322,22 @@ bool udpipe_service::handle_weblicht_tag_parse(microrestd::rest_request& req, co
 
 // Helper functions
 const string& udpipe_service::get_model_id(microrestd::rest_request& req) {
-  static string empty;
-
   auto model_it = req.params.find("model");
   return model_it == req.params.end() ? empty : model_it->second;
 }
 
-const string& udpipe_service::get_data(microrestd::rest_request& req, string& error) {
+bool udpipe_service::get_data(microrestd::rest_request& req, string& data, int& infclen, string& error) {
   auto data_it = req.params.find("data");
-  if (data_it == req.params.end()) return error.assign("Required argument 'data' is missing.\n"), empty;
+  if (data_it == req.params.end()) return error.assign("Required argument 'data' is missing.\n"), false;
 
-  return data_it->second;
+  u32string codepoints;
+  unilib::utf8::decode(data_it->second, codepoints);
+  unilib::uninorms::nfc(codepoints);
+  infclen = 0;
+  for (auto&& codepoint : codepoints)
+    infclen += !(unilib::unicode::category(codepoint) & (unilib::unicode::C | unilib::unicode::Z));
+  unilib::utf8::encode(codepoints, data);
+  return true;
 }
 
 input_format* udpipe_service::get_input_format(microrestd::rest_request& req, const model_info* model, bool& is_tokenizer, string& error) {
@@ -367,6 +375,7 @@ output_format* udpipe_service::get_output_format(microrestd::rest_request& req, 
 }
 
 const string udpipe_service::empty;
+const char* udpipe_service::infclen_header = "X-Billing-Input-NFC-Len";
 
 } // namespace udpipe
 } // namespace ufal
