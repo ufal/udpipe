@@ -1,4 +1,4 @@
 UDPipe 1
-[![Build Status](https://travis-ci.org/ufal/udpipe.svg?branch=master)](https://travis-ci.org/ufal/udpipe)
+[![Compile Status](https://github.com/ufal/udpipe/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/udpipe/actions/workflows/compile.yml)
 
 %!include: readme.t2t

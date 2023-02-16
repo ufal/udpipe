@@ -1,5 +1,5 @@
 # UDPipe 1
-[![Build Status](https://travis-ci.org/ufal/udpipe.svg?branch=master)](https://travis-ci.org/ufal/udpipe)
+[![Compile Status](https://github.com/ufal/udpipe/actions/workflows/compile.yml/badge.svg)](https://github.com/ufal/udpipe/actions/workflows/compile.yml)
 
 UDPipe is a trainable pipeline for tokenization, tagging, lemmatization and
 dependency parsing of CoNLL-U files. UDPipe is language-agnostic and can be trained given
