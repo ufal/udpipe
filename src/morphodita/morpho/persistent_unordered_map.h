@@ -98,7 +98,7 @@ struct persistent_unordered_map::fnv_hash {
 
     uint32_t hash = 2166136261U;
     while (len--)
-      hash = (hash ^ unsigned(*data++)) * 16777619U;
+      hash = (hash ^ unsigned((signed char)*data++)) * 16777619U;
     return hash & mask;
   }
 
