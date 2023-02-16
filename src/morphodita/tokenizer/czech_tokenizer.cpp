@@ -149,8 +149,8 @@ static const int czech_tokenizer_start = 7;
 // Note: because of VS, we cannot list the abbreviations directly in UTF-8,
 // because the compilation of utf-8 encoded sources fail on some locales
 // (e.g., Japanese).
-// perl -CSD -ple 'use Encode;s/([^[:ascii:]])/join("", map {sprintf "\\%o", ord($_)} split(m@@, encode("utf-8", $1)))/ge'
-// perl -CSD -ple 'use Encode;s/\\([0-7]{3})\\([0-7]{3})/decode("utf-8", chr(oct($1)).chr(oct($2)))/ge'
+// perl -CS -ple 'use Encode;s/([^[:ascii:]])/join("", map {sprintf "\\%o", ord($_)} split(m@@, encode("utf-8", $1)))/ge'
+// perl -CS -ple 'use Encode;s/\\([0-7]{3})\\([0-7]{3})/decode("utf-8", chr(oct($1)).chr(oct($2)))/ge'
 const unordered_set<string> czech_tokenizer::abbreviations_czech = {
   // Titles
   "prof", "csc", "drsc", "doc", "phd", "ph", "d",
