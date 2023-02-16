@@ -3456,6 +3456,8 @@ Helper Structures
 
   typedef vector<int> Children;
 
+  typedef vector<uint8_t> Bytes;
+
   typedef vector<string> Comments;
 
   class ProcessingError {
@@ -3644,7 +3646,7 @@ Main Classes
   class Trainer {
    public:
 
-    static string train(const string& method, const Sentences& train, const Sentences& heldout,
+    static Bytes* train(const string& method, const Sentences& train, const Sentences& heldout,
                         const string& tokenizer, const string& tagger, const string& parser,
                         ProcessingError* error = nullptr);
 
@@ -3725,9 +3727,8 @@ Python Bindings
 UDPipe library bindings is available in the ufal.udpipe
 (http://pypi.python.org/pypi/ufal.udpipe) module.
 
-The bindings is a straightforward conversion of the C++ bindings API. In Python
-2, strings can be both unicode and UTF-8 encoded str, and the library always
-produces unicode. In Python 3, strings must be only str.
+The bindings is a straightforward conversion of the C++ bindings API, just
+native bytes type is used instead of the C++ Bytes type.
 
 You might also be interested in a contributed package spacy-udpipe
 (https://github.com/TakeLab/spacy-udpipe) which wraps UDPipe with spaCy API.

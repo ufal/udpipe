@@ -8,6 +8,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 %include "udpipe_stl.i"
+%include "stdint.i"
 
 %{
 #include <sstream>
@@ -17,6 +18,11 @@ using namespace ufal::udpipe;
 
 %template(Children) std::vector<int>;
 typedef std::vector<int> Children;
+
+#ifndef HAVE_CUSTOM_BYTES
+%template(Bytes) std::vector<uint8_t>;
+typedef std::vector<uint8_t> Bytes;
+#endif
 
 %template(Comments) std::vector<std::string>;
 typedef std::vector<std::string> Comments;
@@ -406,13 +412,16 @@ class trainer {
  public:
 
   %extend {
-    static std::string train(const std::string& method, const std::vector<sentence>& train, const std::vector<sentence>& heldout,
-                             const std::string& tokenizer, const std::string& tagger, const std::string& parser,
-                             ProcessingError* error = nullptr) {
+    %newobject train;
+    static std::vector<uint8_t>* train(const std::string& method, const std::vector<sentence>& train, const std::vector<sentence>& heldout,
+        const std::string& tokenizer, const std::string& tagger, const std::string& parser, ProcessingError* error = nullptr) {
       std::ostringstream os;
       std::string err;
-
-      return trainer::train(method, train, heldout, tokenizer, tagger, parser, os, error ? error->message : err) ? os.str() : std::string();
+      if (trainer::train(method, train, heldout, tokenizer, tagger, parser, os, error ? error->message : err)) {
+        const std::string& buffer = os.str();
+        return new std::vector<uint8_t>(buffer.data(), buffer.data() + buffer.size());
+      }
+      return new std::vector<uint8_t>();
     }
   }
 

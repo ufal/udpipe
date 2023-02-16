@@ -18550,6 +18550,8 @@ declaration:
 <pre>
 typedef vector&lt;int&gt; Children;
 
+typedef vector&lt;uint8_t&gt; Bytes;
+
 typedef vector&lt;string&gt; Comments;
 
 class ProcessingError {
@@ -18739,7 +18741,7 @@ class Pipeline {
 class Trainer {
  public:
 
-  static string train(const string&amp; method, const Sentences&amp; train, const Sentences&amp; heldout,
+  static Bytes* train(const string&amp; method, const Sentences&amp; train, const Sentences&amp; heldout,
                       const string&amp; tokenizer, const string&amp; tagger, const string&amp; parser,
                       ProcessingError* error = nullptr);
 
@@ -18833,9 +18835,8 @@ UDPipe library bindings is available in the
 <a href="http://pypi.python.org/pypi/ufal.udpipe"><code>ufal.udpipe</code></a> module.
 </p>
 <p>
-The bindings is a straightforward conversion of the <code>C++</code> bindings API.
-In Python 2, strings can be both <code>unicode</code> and UTF-8 encoded <code>str</code>, and the
-library always produces <code>unicode</code>. In Python 3, strings must be only <code>str</code>.
+The bindings is a straightforward conversion of the <code>C++</code> bindings API,
+just native <code>bytes</code> type is used instead of the <code>C++</code> <code>Bytes</code> type.
 </p>
 <p>
 You might also be interested in a contributed package

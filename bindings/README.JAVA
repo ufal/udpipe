@@ -41,6 +41,8 @@ Helper Structures
 
   typedef vector<int> Children;
 
+  typedef vector<uint8_t> Bytes;
+
   typedef vector<string> Comments;
 
   class ProcessingError {
@@ -229,7 +231,7 @@ Main Classes
   class Trainer {
    public:
 
-    static string train(const string& method, const Sentences& train, const Sentences& heldout,
+    static Bytes* train(const string& method, const Sentences& train, const Sentences& heldout,
                         const string& tokenizer, const string& tagger, const string& parser,
                         ProcessingError* error = nullptr);
 
