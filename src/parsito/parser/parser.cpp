@@ -12,13 +12,14 @@
 #include "parser.h"
 #include "parser_nn.h"
 #include "utils/compressor.h"
+#include "utils/path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
 namespace parsito {
 
 parser* parser::load(const char* file, unsigned cache) {
-  ifstream in(file, ifstream::in | ifstream::binary);
+  ifstream in(path_from_utf8(file).c_str(), ifstream::in | ifstream::binary);
   if (!in.is_open()) return nullptr;
   return load(in, cache);
 }

@@ -19,6 +19,7 @@
 #include "parser_nn_trainer.h"
 #include "utils/parse_double.h"
 #include "utils/parse_int.h"
+#include "utils/path_from_utf8.h"
 #include "utils/split.h"
 #include "trainer/training_failure.h"
 
@@ -126,7 +127,7 @@ void parser_nn_trainer::train(const string& transition_system_name, const string
     if (tokens.size() >= 4) {
       int update_weights = tokens.size() >= 5 ? parse_int(tokens[4], "update weights") : 1;
       int max_embeddings = tokens.size() >= 6 ? parse_int(tokens[5], "maximum embeddings count") : numeric_limits<int>::max();
-      ifstream in(string(tokens[3].str, tokens[3].len));
+      ifstream in(path_from_utf8(string(tokens[3].str, tokens[3].len)).c_str());
       if (!in.is_open()) training_failure("Cannot load '" << tokens[0] << "' embedding from file '" << tokens[3] << "'!");
 
       // Load first line containing dictionary size and dimensions

@@ -32,7 +32,7 @@ void tree::clear() {
 }
 
 node& tree::add_node(const string& form) {
-  nodes.emplace_back(nodes.size(), form);
+  nodes.emplace_back((int)nodes.size(), form);
   return nodes.back();
 }
 

@@ -46,7 +46,7 @@ void embedding::create(unsigned dimension, int updatable_index, const vector<pai
   weights.clear();
   for (auto&& word : words) {
     assert(word.second.size() == dimension);
-    dictionary.emplace(word.first, dictionary.size());
+    dictionary.emplace(word.first, (int)dictionary.size());
     weights.insert(weights.end(), word.second.begin(), word.second.end());
   }
 

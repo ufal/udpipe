@@ -93,7 +93,7 @@ void embedding::load(binary_decoder& data) {
   string word;
   for (unsigned size = data.next_4B(); size; size--) {
     data.next_str(word);
-    dictionary.emplace(word, dictionary.size());
+    dictionary.emplace(word, (int)dictionary.size());
   }
 
   unknown_index = data.next_1B() ? dictionary.size() : -1;
