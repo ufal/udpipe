@@ -24,7 +24,6 @@ setuptools.setup(
         'ufal.udpipe._udpipe',
         ['ufal/udpipe/udpipe.cpp', 'ufal/udpipe/udpipe_python.cpp'],
         language = 'c++',
-        include_dirs = ['udpipe/include'],
         extra_compile_args = extra_compile_args,
         extra_link_args = extra_link_args)],
     classifiers      = [
