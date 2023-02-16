@@ -26,12 +26,16 @@ bool gru_tokenizer::next_sentence(vector<token_range>& tokens) {
   // Tokenize until EOS
   for (bool eos = false; !eos && !emergency_sentence_split(tokens); ) {
     while (current < chars.size() - 1 && is_space(current))
-      next_outcome();
+      if (next_outcome() == gru_tokenizer_network::END_OF_SENTENCE && !tokens.empty())
+        break;
+
     if (current >= chars.size() - 1) break;
 
     // We have a beginning of a token. Try if it is an URL.
     if (tokenize_url_email(tokens)) {
-      while (network_index < network_length && network_offsets[network_index] < current) network_index++;
+      while (network_index < network_length && network_offsets[network_index] < current)
+        if (network_outcomes[network_index++].outcome == gru_tokenizer_network::END_OF_SENTENCE && !tokens.empty())
+          eos = true;
       continue;
     }
 

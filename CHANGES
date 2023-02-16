@@ -4,6 +4,7 @@ Version 1.2.1-devel
 - Add segment_size and learning_rate_final parameters to tokenizer training.
 - Add several options to udpipe_server.
 - Fix bug in returning the trained model as a string; use bytes instead.
+- Fix a bug that newlines after URL/emails were considered just spaces.
 
 
 Version 1.2.0 [01 Aug 17]
