@@ -13,7 +13,7 @@ include ../../src/Makefile.include
 SWIG_FLAGS+=-O -c++ -outcurrentdir
 BINDING_C_FLAGS+=$(call include_dir,../../src_lib_only)
 BINDING_UDPIPE_OBJECTS=$(addprefix ../../src/,$(call dynobj,$(UDPIPE_OBJECTS)))
-ifneq ($(filter osx-%,$(PLATFORM)),)
+ifneq ($(filter macos-%,$(PLATFORM)),)
   BINDING_LD_FLAGS+=-Wl,-undefined -Wl,dynamic_lookup
 endif
 

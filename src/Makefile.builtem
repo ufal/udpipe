@@ -1,24 +1,24 @@
 # This file is part of C++-Builtem <http://github.com/ufal/cpp_builtem/>.
 #
-# Copyright 2014 Institute of Formal and Applied Linguistics, Faculty of
+# Copyright 2022 Institute of Formal and Applied Linguistics, Faculty of
 # Mathematics and Physics, Charles University in Prague, Czech Republic.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-BUILTEM_VERSION := 1.1.2
+BUILTEM_VERSION := 2.0.0
 
-###########
-# PATFORM #
-###########
+############
+# PLATFORM #
+############
 
 # detection if needed
 ifndef PLATFORM
   ifeq ($(OS),Windows_NT)
     PLATFORM=win
   else ifeq ($(shell uname),Darwin)
-    PLATFORM=osx
+    PLATFORM=macos
   else
     PLATFORM=linux
   endif
@@ -28,14 +28,77 @@ endif
 ifeq ($(PLATFORM),linux)
   override PLATFORM=linux-gcc
 else ifeq ($(PLATFORM),win)
-  override PLATFORM=win-gcc
-else ifeq ($(PLATFORM),osx)
-  override PLATFORM=osx-clang
+  override PLATFORM=win-vs
+else ifeq ($(PLATFORM),macos)
+  override PLATFORM=macos-clang
+endif
+
+# expand architecture if not specified
+ifneq ($(filter linux-gcc linux-clang,$(PLATFORM)),)
+  PLATFORM_ARCH:=$(shell uname -m)
+  ifneq ($(filter x86_64,$(PLATFORM_ARCH)),)
+    override PLATFORM:=$(PLATFORM)-64
+  else ifneq ($(filter i386 i686,$(PLATFORM_ARCH)),)
+    override PLATFORM:=$(PLATFORM)-32
+  else
+    $(error Architecture $(PLATFORM_ARCH) is currently not supported on platform $(PLATFORM))
+  endif
+else ifneq ($(filter win-vs win-gcc,$(PLATFORM)),)
+  ifneq ($(filter AMD64,$(PROCESSOR_ARCHITECTURE))$(filter AMD64,$(PROCESSOR_ARCHITEW6432)),)
+    override PLATFORM:=$(PLATFORM)-64
+  else ifeq ($(filter x86,$(PROCESSOR_ARCHITECTURE))$(PROCESSOR_ARCHITEW6432),x86)
+    override PLATFORM:=$(PLATFORM)-32
+  else
+    $(error Architecture $(PROCESSOR_ARCHITECTURE) is currently not supported on platform $(PLATFORM))
+  endif
+else ifneq ($(filter macos-clang,$(PLATFORM)),)
+  PLATFORM_ARCH:=$(shell uname -m)
+  ifneq ($(filter x86_64,$(PLATFORM_ARCH)),)
+    override PLATFORM:=$(PLATFORM)-64
+  else ifneq ($(filter arm64,$(PLATFORM_ARCH)),)
+    override PLATFORM:=$(PLATFORM)-arm64
+  else
+    $(error Architecture $(PLATFORM_ARCH) is currently not supported on platform $(PLATFORM))
+  endif
 endif
 
 # fail for unknown platforms
-ifeq ($(filter linux-gcc linux-clang win-gcc win-vs osx-clang,$(PLATFORM)),)
-  $(error Unsupported platform $(PLATFORM), only linux[-gcc], linux-clang, win[-gcc], win-vs and osx[-clang] are supported)
+PLATFORMS = linux-gcc-64 linux-gcc-32 linux-clang-64 linux-clang-32
+PLATFORMS += win-vs-64 win-vs-32 win-gcc-64 win-gcc-32
+PLATFORMS += macos-clang-64 macos-clang-arm64
+ifeq ($(filter $(PLATFORMS),$(PLATFORM)),)
+  $(error Unsupported platform $(PLATFORM), only $(PLATFORMS) are supported)
+endif
+
+################
+# CPP STANDARD #
+################
+ifndef CPP_STANDARD
+  CPP_STANDARD=c++11
+endif
+
+# fail for unknown standards
+ifeq ($(filter c++11 c++14 c++17,$(CPP_STANDARD)),)
+  $(error Unsupported C++ standard $(CPP_STANDARD), only [c++11], c++17, c++17 are supported)
+endif
+
+####################
+# COMPILATION MODE #
+####################
+
+# set default mode if unspecified
+ifndef MODE
+  MODE=normal
+endif
+
+# fail for unknown modes
+ifeq ($(filter normal release debug profile,$(MODE)),)
+  $(error Unsupported compilation mode $(MODE), only [normal], release, debug, profile supported)
+endif
+ifeq ($(MODE),profile)
+  ifneq ($(filter win-vs-%,$(PLATFORM)),)
+    $(error Profile mode is currently not supported on win-vs platform)
+  endif
 endif
 
 ##################
@@ -65,6 +128,7 @@ ifeq ($(PLATFORM_SHELL),sh)
   mv = mv $(1) $(2)
   rm = rm -rf $(1)
 else ifeq ($(PLATFORM_SHELL),cmd)
+  SHELL = cmd
   mkdir = if not exist $(subst /,\,$(1)) md $(subst /,\,$(1))
   echo = $(if $(2),echo $(subst <,^<,$(subst >,^>,$(subst &,^&,$(subst |,^|,$(subst %,%%,$(subst ^,^^,$(2))))))),type nul)$(subst /,\,$(1))
   cp = copy /y $(subst /,\,$(1)) $(subst /,\,$(2))
@@ -72,53 +136,9 @@ else ifeq ($(PLATFORM_SHELL),cmd)
   rm = $(foreach f,$(subst /,\,$(wildcard $(1))),if exist $(f) del /q $(f)& if exist $(f) rd /s /q $(f)& )
 endif
 
-####################
-# COMPILATION MODE #
-####################
-
-# set default mode if unspecified
-ifndef MODE
-  MODE=normal
-endif
-
-# fail for unknown modes
-ifeq ($(filter normal release debug profile,$(MODE)),)
-  $(error Unsupported compilation mode $(MODE), only [normal], release, debug and profile supported)
-endif
-ifeq ($(MODE),profile)
-  ifeq ($(PLATFORM),win-vs)
-    $(error Profile mode is currently not supported on win-vs platform)
-  endif
-endif
-
-###########
-# BITNESS #
-###########
-
-# fail for unknown bitness or unsupported platform
-ifndef BITS
-  ifeq ($(PLATFORM),win-vs)
-    $(error Bitness not specified, but one of 32 and 64 is required on $(PLATFORM))
-  endif
-endif
-
-ifdef BITS
-  ifneq ($(filter linux-% win-%,$(PLATFORM)),)
-    ifeq ($(filter 32 64,$(BITS)),)
-      $(error Unsupported bitness $(BITS), only 32 and 64 supported on $(PLATFORM))
-    endif
-  else ifneq ($(filter osx-%,$(PLATFORM)),)
-    ifeq ($(filter 32 64 32+64,$(BITS)),)
-      $(error Unsupported bitness $(BITS), only 32, 64 and 32+64 supported on $(PLATFORM))
-    endif
-  else
-    $(error Unsupported bitness $(BITS), no bitness is supported on $(PLATFORM))
-  endif
-endif
-
 # Report PLATFORM, PLATFORM_SHELL, MODE and BITNESS if requested
 ifdef VERBOSE
-  $(info Build $(MODE)$(if $(BITS),-$(BITS),) on platform $(PLATFORM) with shell $(PLATFORM_SHELL))
+  $(info Build $(MODE) with $(CPP_STANDARD) on platform $(PLATFORM) with shell $(PLATFORM_SHELL))
 endif
 
 #####################
@@ -128,26 +148,26 @@ endif
 # executable and library namings
 builtem_mangle = $(subst /,-,$(subst /_,-__,$(subst /-,-_-,$(subst //,-_-_,$(subst -,--,$(1))))))
 builtem_demangle = $(subst /_,/,$(subst //,-,$(subst -,/,$(1))))
-builtem_obj = .build/$(call builtem_mangle,$(1)).$(PLATFORM)-$(MODE)$(BITS)
+builtem_obj = .build/$(call builtem_mangle,$(1)).$(PLATFORM)-$(MODE)
 ifneq ($(filter linux-%,$(PLATFORM)),)
   exe = $(1)
   lib = $(1:=.a)
   dynlib = $(1:=.so)
   obj = $(foreach obj,$(1),$(call builtem_obj,$(obj)).o)
   dynobj = $(call obj,$(1:%=%.dyn))
-else ifeq ($(PLATFORM),win-vs)
+else ifneq ($(filter win-vs-%,$(PLATFORM)),)
   exe = $(1:=.exe)
   lib = $(1:=.lib)
   dynlib = $(1:=.dll)
   obj = $(foreach obj,$(1),$(call builtem_obj,$(obj)).obj)
   dynobj = $(call obj,$(1:%=%.dyn))
-else ifeq ($(PLATFORM),win-gcc)
+else ifneq ($(filter win-gcc-%,$(PLATFORM)),)
   exe = $(1:=.exe)
   lib = $(1:=.a)
   dynlib = $(1:=.dll)
   obj = $(foreach obj,$(1),$(call builtem_obj,$(obj)).o)
   dynobj = $(call obj,$(1:%=%.dyn))
-else ifneq ($(filter osx-%,$(PLATFORM)),)
+else ifneq ($(filter macos-%,$(PLATFORM)),)
   exe = $(1)
   lib = $(1:=.a)
   dynlib = $(1:=.dylib)
@@ -166,37 +186,38 @@ else
 endif
 
 # switches
-ifneq ($(filter linux-gcc linux-clang win-gcc,$(PLATFORM)),)
+ifneq ($(filter linux-gcc-% linux-clang-% win-gcc-%,$(PLATFORM)),)
   ifneq ($(filter undefined default,$(origin CXX)),)
-    CXX = $(if $(filter %-gcc,$(PLATFORM)),g++,clang++)
+    CXX = $(if $(findstring -gcc-,$(PLATFORM)),g++,clang++)
   endif
-  C_FLAGS += -std=c++11 -W -Wall -mtune=generic -msse -msse2 -mfpmath=sse -fvisibility=hidden -U_FORTIFY_SOURCE
+  C_FLAGS += -std=$(CPP_STANDARD) -W -Wall -mtune=generic -msse -msse2 -mfpmath=sse -fvisibility=hidden
+  C_FLAGS += $(if $(filter win-%,$(PLATFORM)),-DWIN32 -DUNICODE -D_UNICODE -D_WIN32_WINNT=0x0601)
   DYN_C_FLAGS += $(if $(filter linux-%,$(PLATFORM)),-fPIC)
   DYN_LD_FLAGS += -shared
 
-  ifeq ($(BITS),32)
-    C_FLAGS += -m32
-  else ifeq ($(BITS),64)
+  ifneq ($(filter %-64,$(PLATFORM)),)
     C_FLAGS += -m64
+  else ifneq ($(filter %-32,$(PLATFORM)),)
+    C_FLAGS += -m32
   endif
 
   ifeq ($(MODE),normal)
     C_FLAGS += -O3
   else ifeq ($(MODE),debug)
-    C_FLAGS += -g -DDEBUG -D_GLIBCXX_DEBUG
+    C_FLAGS += -g -DDEBUG
   else ifeq ($(MODE),profile)
-    C_FLAGS += -O3 $(if $(filter %-gcc,$(PLATFORM)),-g1 -pg,-gline-tables-only)
-    LD_FLAGS += $(if $(filter %-gcc,$(PLATFORM)),-pg)
+    C_FLAGS += -O3 $(if $(findstring -gcc-,$(PLATFORM)),-g1 -pg,-gline-tables-only)
+    LD_FLAGS += $(if $(findstring -gcc-,$(PLATFORM)),-pg)
   else ifeq ($(MODE),release)
     C_FLAGS += -O3 -flto
     LD_FLAGS += -s -static-libgcc -static-libstdc++
   endif
-else ifeq ($(PLATFORM),win-vs)
+else ifneq ($(filter win-vs-%,$(PLATFORM)),)
   ifneq ($(filter undefined default,$(origin CXX)),)
     CXX = cl
   endif
-  C_FLAGS += /nologo /W 2 /wd4503 /D WIN32 /D UNICODE /D _UNICODE /D _USING_V110_SDK71_ /EHsc /analyze-
-  LD_FLAGS += /MANIFEST:EMBED /MACHINE:$(if $(filter 32,$(BITS)),X86,X64)
+  C_FLAGS += /nologo $(if $(filter c++11,$(CPP_STANDARD)),,/std:$(CPP_STANDARD)) /W 2 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8
+  LD_FLAGS += /MANIFEST:EMBED /MACHINE:$(if $(filter %-64,$(PLATFORM)),X64,X86)
 
   ifeq ($(MODE),normal)
     C_FLAGS += /O2 /MT
@@ -210,19 +231,17 @@ else ifeq ($(PLATFORM),win-vs)
     DYN_C_FLAGS += /LDd
     LD_FLAGS += /DEBUG
   endif
-else ifeq ($(PLATFORM),osx-clang)
+else ifneq ($(filter macos-clang-%,$(PLATFORM)),)
   ifneq ($(filter undefined default,$(origin CXX)),)
     CXX = clang++
   endif
-  C_FLAGS += -std=c++11 -W -Wall -mtune=generic -fvisibility=hidden -mmacosx-version-min=10.7 -stdlib=libc++
+  C_FLAGS += -std=$(CPP_STANDARD) -W -Wall -mtune=generic -fvisibility=hidden -stdlib=libc++
   DYN_LD_FLAGS += -dynamiclib
 
-  ifeq ($(BITS),32)
-    C_FLAGS += -arch i386
-  else ifeq ($(BITS),64)
-    C_FLAGS += -arch x86_64
-  else ifeq ($(BITS),32+64)
-    C_FLAGS += -arch i386 -arch x86_64
+  ifneq ($(filter %-64,$(PLATFORM)),)
+    C_FLAGS += -target x86_64-apple-macos$(if $(filter c++11 c++14,$(CPP_STANDARD)),10.9,10.14)
+  else ifneq ($(filter %-arm64,$(PLATFORM)),)
+    C_FLAGS += -target arm64-apple-macos11
   endif
 
   ifeq ($(MODE),normal)
@@ -238,13 +257,13 @@ else ifeq ($(PLATFORM),osx-clang)
 endif
 
 # build commands
-builtem_link_deps = @$(call echo,>.build/$(call builtem_mangle,$(1)).link.d,.PHONY: $$(if $$(filter $(PLATFORM)-$(MODE)$(BITS),$$(PLATFORM)-$$(MODE)$$(BITS)),,$(1)))
-ifeq ($(PLATFORM),win-vs)
+builtem_link_deps = @$(call echo,>.build/$(call builtem_mangle,$(1)).link.d,.PHONY: $$(if $$(filter $(PLATFORM)-$(MODE),$$(PLATFORM)-$$(MODE)),,$(1)))
+ifneq ($(filter win-vs-%,$(PLATFORM)),)
   compile = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) /c $(2)
   compile_dyn = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) $(DYN_C_FLAGS) /c $(2)
   define link_exe
     @$(call builtem_link_deps,$(1))
-    $(CXX) /Fe$(1) $(C_FLAGS) $(2) /link /ENTRY:mainCRTStartup $(LD_FLAGS) $(3)
+    $(CXX) /Fe$(1) $(C_FLAGS) $(2) /link $(LD_FLAGS) $(3)
   endef
   define link_dynlib
     @$(call builtem_link_deps,$(1))
@@ -273,16 +292,18 @@ else
 endif
 
 # flag methods
-ifeq ($(PLATFORM),win-vs)
+ifneq ($(filter win-vs-%,$(PLATFORM)),)
   include_dir = $(1:%=/I %)
   use_library = $(1:%=%.lib)
   define_macro = /D $(1)$(if $(2),=$(2))
   disable_assert = /D NDEBUG
+  treat_warnings_as_errors = /WX
 else
   include_dir = $(1:%=-I%)
   use_library = $(1:%=-l%)
   define_macro = -D$(1)$(if $(2),=$(2))
   disable_assert = -DNDEBUG
+  treat_warnings_as_errors = -Werror
 endif
 
 ifneq ($(filter linux-%,$(PLATFORM)),)
@@ -290,14 +311,14 @@ ifneq ($(filter linux-%,$(PLATFORM)),)
   use_threads = -pthread
 endif
 
-ifneq ($(filter %-gcc,$(PLATFORM)),)
+ifneq ($(findstring -gcc-,$(PLATFORM)),)
   use_linker = -fuse-ld=$(1)
 endif
 
-ifeq ($(PLATFORM),win-vs)
-  win_subsystem = /SUBSYSTEM:$(1),$(if $(filter 32,$(BITS)),5.01,5.02)
-else ifeq ($(PLATFORM),win-gcc)
-  win_subsystem = -Wl,--subsystem=$(1)
+ifneq ($(filter win-vs-%,$(PLATFORM)),)
+  win_subsystem = /SUBSYSTEM:$(1),6 /ENTRY:$(if $(2),$(2),main)CRTStartup
+else ifneq ($(filter win-gcc-%,$(PLATFORM)),)
+  win_subsystem = -Wl,--subsystem=$(1) $(if $(filter wmain,$(2)),-municode,)
 endif
 
 ################
@@ -316,11 +337,11 @@ COMPILE_DEPS += $(BUILTEM_MAKEFILE_PATH)
 	@$(call mkdir,.build)
 
 # compile and use cl_deps on win-vs
-ifeq ($(PLATFORM),win-vs)
+ifneq ($(filter win-vs-%,$(PLATFORM)),)
 COMPILE_DEPS += .build/cl_deps.exe
 .build/cl_deps.exe: .build/cl_deps.cpp
 	@$(info Compiling cl_deps.exe)
-	@$(CXX) /Fe$@ /Fo$@.obj /nologo /W 2 /wd4503 /O1 /D WIN32 /D UNICODE /D _UNICODE /D _USING_V110_SDK71_ /EHsc /analyze- /MT $< /link /MANIFEST:EMBED /MACHINE:$(if $(filter 32,$(BITS)),X86,X64) /SUBSYSTEM:console,$(if $(filter 32,$(BITS)),5.01,5.02)
+	@$(CXX) /Fe$@ /Fo$@.obj /nologo /W 2 /O1 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8 /MT $< /link /MANIFEST:EMBED /SUBSYSTEM:console,6
 .build/cl_deps.cpp: | .build
 	@$(info Generating cl_deps.cpp)
 	@$(call echo,>$@,#include <ctype.h>)
@@ -335,7 +356,7 @@ COMPILE_DEPS += .build/cl_deps.exe
 	@$(call echo,>>$@,bool n_name(const char* f,const char* c,string& nd))
 	@${call echo,>>$@,{char f_abs[MAX_PATH+1];if(!_fullpath(f_abs,f,sizeof(f_abs)))e("Cannot make absolute path from",f);f=f_abs;for(;*c && *f;c++,f++){char c_char=*c==char(92)?'/':tolower(*c);char f_char=*f==char(92)?'/':tolower(*f);if(c_char!=f_char)return false;}nd.clear();while(*f=='/'||*f==char(92))f++;for(;*f;f++)nd.push_back(*f==char(92)?'/':*f);return true;}}
 	@$(call echo,>>$@,int main(int argc,char* argv[]))
-	@${call echo,>>$@,{if(argc<=2)e("Usage: cl_deps output_obj cmd [args]");char c[MAX_PATH+1];GetCurrentDirectoryA(MAX_PATH,c);SECURITY_ATTRIBUTES sa;sa.nLength=sizeof(SECURITY_ATTRIBUTES);sa.lpSecurityDescriptor=NULL;sa.bInheritHandle=TRUE;HANDLE sr,sw;if(!CreatePipe(&sr,&sw,&sa,0))e("Cannot create pipe");string dn=argv[1];if(dn.size()>=4 && dn.compare(dn.size()-4,4,".obj")==0)dn.resize(dn.size()-4);dn.append(".d");FILE* deps=fopen(dn.c_str(),"wb");if(!deps)e("Cannot open file",dn.c_str());string cm=argv[2];cm.append(" /showIncludes");for(int i=3;i<argc;i++)cm.append(" ").append(argv[i]);STARTUPINFOA si;ZeroMemory(&si,sizeof(STARTUPINFOA));si.cb=sizeof(STARTUPINFOA);si.dwFlags=STARTF_USESTDHANDLES;si.hStdInput=GetStdHandle(STD_INPUT_HANDLE);si.hStdError=GetStdHandle(STD_ERROR_HANDLE);si.hStdOutput=sw;PROCESS_INFORMATION pi;if(!CreateProcessA(NULL,(LPSTR)cm.c_str(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))e("Cannot start",cm.c_str());CloseHandle(sw);int p_c_descriptor=_open_osfhandle((intptr_t)sr,_O_RDONLY);if(p_c_descriptor==-1)e("Cannot convert pipe to fd");FILE* p=_fdopen(p_c_descriptor,"r");if(!p)e("Cannot convert pipe to FILE");set<string>d;char in_prefix[]="Note: including file:";char l[1<<16];while(fgets(l,sizeof(l),p)){if(strncmp(l,in_prefix,strlen(in_prefix))==0){char* h=l + strlen(in_prefix);while(*h && isspace(*h))h++;size_t h_len=strlen(h);if(h_len && h[h_len-1]==char(10))h[--h_len]=char(0);if(h_len && h[h_len-1]==char(13))h[--h_len]=char(0);string nd;if(n_name(h,c,nd))d.insert(nd);}else{fputs(l,stdout);}}fclose(p);fprintf(deps,"%s:",argv[1]);for(set<string>::iterator it=d.begin();it!=d.end();it++)fprintf(deps," %s",it->c_str());fputc(char(10),deps);for(set<string>::iterator it=d.begin();it!=d.end();it++)fprintf(deps,"%s:%c",it->c_str(),char(10));fputc(char(10),deps);fclose(deps);if(WaitForSingleObject(pi.hProcess,INFINITE)==WAIT_FAILED)e("Cannot wait for finished cmd");DWORD ec=0;if(!GetExitCodeProcess(pi.hProcess,&ec))e("Cannot obtain exit code of finished cmd");CloseHandle(pi.hProcess);CloseHandle(pi.hThread);return ec;}}
+	@${call echo,>>$@,{if(argc<=2)e("Usage: cl_deps output_obj cmd [args]");SetEnvironmentVariableA("VSLANG","1033");char c[MAX_PATH+1];GetCurrentDirectoryA(MAX_PATH,c);SECURITY_ATTRIBUTES sa;sa.nLength=sizeof(SECURITY_ATTRIBUTES);sa.lpSecurityDescriptor=NULL;sa.bInheritHandle=TRUE;HANDLE sr,sw;if(!CreatePipe(&sr,&sw,&sa,0))e("Cannot create pipe");string dn=argv[1];if(dn.size()>=4 && dn.compare(dn.size()-4,4,".obj")==0)dn.resize(dn.size()-4);dn.append(".d");FILE* deps=fopen(dn.c_str(),"wb");if(!deps)e("Cannot open file",dn.c_str());string cm=argv[2];cm.append(" /showIncludes");for(int i=3;i<argc;i++)cm.append(" ").append(argv[i]);STARTUPINFOA si;ZeroMemory(&si,sizeof(STARTUPINFOA));si.cb=sizeof(STARTUPINFOA);si.dwFlags=STARTF_USESTDHANDLES;si.hStdInput=GetStdHandle(STD_INPUT_HANDLE);si.hStdError=GetStdHandle(STD_ERROR_HANDLE);si.hStdOutput=sw;PROCESS_INFORMATION pi;if(!CreateProcessA(NULL,(LPSTR)cm.c_str(),NULL,NULL,TRUE,0,NULL,NULL,&si,&pi))e("Cannot start",cm.c_str());CloseHandle(sw);int p_c_descriptor=_open_osfhandle((intptr_t)sr,_O_RDONLY);if(p_c_descriptor==-1)e("Cannot convert pipe to fd");FILE* p=_fdopen(p_c_descriptor,"r");if(!p)e("Cannot convert pipe to FILE");set<string>d;char in_prefix[]="Note: including file:";char l[1<<16];while(fgets(l,sizeof(l),p)){if(strncmp(l,in_prefix,strlen(in_prefix))==0){char* h=l + strlen(in_prefix);while(*h && isspace(*h))h++;size_t h_len=strlen(h);if(h_len && h[h_len-1]==char(10))h[--h_len]=char(0);if(h_len && h[h_len-1]==char(13))h[--h_len]=char(0);string nd;if(n_name(h,c,nd))d.insert(nd);}else{fputs(l,stdout);}}fclose(p);fprintf(deps,"%s:",argv[1]);for(set<string>::iterator it=d.begin();it!=d.end();it++)fprintf(deps," %s",it->c_str());fputc(char(10),deps);for(set<string>::iterator it=d.begin();it!=d.end();it++)fprintf(deps,"%s:%c",it->c_str(),char(10));fputc(char(10),deps);fclose(deps);if(WaitForSingleObject(pi.hProcess,INFINITE)==WAIT_FAILED)e("Cannot wait for finished cmd");DWORD ec=0;if(!GetExitCodeProcess(pi.hProcess,&ec))e("Cannot obtain exit code of finished cmd");CloseHandle(pi.hProcess);CloseHandle(pi.hThread);return ec;}}
 endif
 
 ################################

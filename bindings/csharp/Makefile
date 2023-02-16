@@ -10,7 +10,7 @@
 include ../common/Makefile.common
 
 BINDING_MODULE=$(call dynlib,$(if $(filter win-%,$(PLATFORM)),udpipe_csharp,libudpipe_csharp))
-ifeq ($(PLATFORM),win-gcc)
+ifneq ($(filter win-gcc-%,$(PLATFORM)),)
   BINDING_LD_FLAGS+=-Wl,--kill-at
 endif
 

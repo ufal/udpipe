@@ -12,8 +12,8 @@ include ../common/Makefile.common
 BINDING_MODULE=$(call dynlib,auto/Ufal/UDPipe/UDPipe)
 BINDING_C_FLAGS+=$(if $(PERL_INCLUDE),,$(error PERL_INCLUDE must be set to the directory containing perl.h))
 BINDING_C_FLAGS+=$(call include_dir,$(PERL_INCLUDE))
-BINDING_C_FLAGS+=$(if $(filter %-gcc %-clang,$(PLATFORM)),-w)
-BINDING_C_FLAGS+=$(if $(filter osx-%,$(PLATFORM)),-Wno-reserved-user-defined-literal,)
+BINDING_C_FLAGS+=$(if $(findstring -gcc-,$(PLATFORM))$(findstring -clang-,$(PLATFORM)),-w)
+BINDING_C_FLAGS+=$(if $(filter macos-%,$(PLATFORM)),-Wno-reserved-user-defined-literal,)
 
 all: $(BINDING_MODULE)
 

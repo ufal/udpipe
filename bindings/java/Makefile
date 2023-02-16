@@ -11,15 +11,15 @@ include ../common/Makefile.common
 
 BINDING_MODULE=$(call dynlib,$(if $(filter win-%,$(PLATFORM)),udpipe_java,libudpipe_java))
 BINDING_C_FLAGS+=$(if $(JAVA_HOME),,$(error JAVA_HOME must be set))
-BINDING_C_FLAGS+=$(if $(filter %-gcc %-clang,$(PLATFORM)),-fno-strict-aliasing)
+BINDING_C_FLAGS+=$(if $(findstring -gcc-,$(PLATFORM))$(findstring -clang-,$(PLATFORM)),-fno-strict-aliasing)
 ifneq ($(filter linux-%,$(PLATFORM)),)
   BINDING_C_FLAGS+=$(call include_dir,$(JAVA_HOME)/include $(JAVA_HOME)/include/linux)
 else ifneq ($(filter win-%,$(PLATFORM)),)
   BINDING_C_FLAGS+=$(call include_dir,"$(JAVA_HOME)"/include "$(JAVA_HOME)"/include/win32)
-  ifeq ($(PLATFORM),win-gcc)
+  ifneq ($(filter win-gcc-%,$(PLATFORM)),)
     BINDING_LD_FLAGS+=-Wl,--kill-at
   endif
-else ifneq ($(filter osx-%,$(PLATFORM)),)
+else ifneq ($(filter macos-%,$(PLATFORM)),)
   BINDING_C_FLAGS+=$(call include_dir,$(JAVA_HOME)/include $(JAVA_HOME)/include/darwin $(patsubst %/Home,%/Headers,$(filter %/Home,$(JAVA_HOME))))
 endif
 

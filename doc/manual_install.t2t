@@ -43,7 +43,7 @@ Make targets and options:
 Platform can be selected using one of the following options:
 - ``PLATFORM=linux``, ``PLATFORM=linux-gcc``: gcc compiler on Linux operating system, default on Linux
 - ``PLATFORM=linux-clang``: clang compiler on Linux, must be selected manually
-- ``PLATFORM=osx``, ``PLATFORM=osx-clang``: clang compiler on OS X, default on OS X; ``BITS=32+64`` enables multiarch build
+- ``PLATFORM=macos``, ``PLATFORM=macos-clang``: clang compiler on OS X, default on OS X; ``BITS=32+64`` enables multiarch build
 - ``PLATFORM=win``, ``PLATFORM=win-gcc``: gcc compiler on Windows (TDM-GCC is well tested), default on Windows
 - ``PLATFORM=win-vs``: Visual C++ 2015 compiler on Windows, must be selected manually; note that the
   ``cl.exe`` compiler must be already present in ``PATH`` and corresponding ``BITS=32`` or ``BITS=64``
