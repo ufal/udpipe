@@ -34,7 +34,7 @@ udpipe_java.cpp: udpipe_java.i ../common/udpipe.i
 	swig $(SWIG_FLAGS) -java -package cz.cuni.mff.ufal.udpipe -outdir $(call platform_name,cz/cuni/mff/ufal/udpipe) -o $@ $<
 
 udpipe.jar: udpipe_java.cpp
-	javac -source 1.4 -Xlint:-options $(wildcard cz/cuni/mff/ufal/udpipe/*.java)
+	javac -source 6 -Xlint:-options $(wildcard cz/cuni/mff/ufal/udpipe/*.java)
 	jar cf $@ $(patsubst %.java,%.class,$(wildcard cz/cuni/mff/ufal/udpipe/*.java))
 
 .PHONY: clean
