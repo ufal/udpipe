@@ -12,11 +12,13 @@
 #include <map>
 #include <unordered_map>
 
+#include "derivator_dictionary.h"
 #include "derivator_dictionary_encoder.h"
 #include "morphodita/morpho/morpho.h"
 #include "morphodita/morpho/morpho_ids.h"
 #include "utils/binary_encoder.h"
 #include "utils/compressor.h"
+#include "utils/new_unique_ptr.h"
 #include "utils/split.h"
 #include "trainer/training_failure.h"
 
@@ -28,6 +30,14 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
   // Load the morphology
 //  cerr << "Loading morphology: ";
   auto dictionary_start = dictionary.tellg();
+
+  if (dictionary.peek() == morpho_ids::DERIVATOR_DICTIONARY) {
+//    cerr << "The given model already has a derivator, dropping it." << endl;
+    (void)dictionary.get();
+    auto derinet = new_unique_ptr<derivator_dictionary>();
+    if (!derinet->load(dictionary)) training_failure("Could not load the derivator of the given morpho model!");
+  }
+
   unique_ptr<morpho> morpho(morpho::load(dictionary));
   if (!morpho) training_failure("Cannot load morpho model from given file!");
   if (morpho->get_derivator()) training_failure("The given morpho model already has a derivator!");
@@ -90,6 +100,19 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
       continue;
     }
 
+    // Ignore self-loops, i.e., when any parent is equal to any child.
+    bool self_loop = false;
+    for (auto&& lemma : matched[0])
+      if (matched[1].count(lemma.first)) {
+        self_loop = true;
+        break;
+      }
+    if (self_loop) {
+      if (verbose)
+//        cerr << "Ignoring self-loop from line '" << line << "', skipping." << endl;
+      continue;
+    }
+
     // Store the possible parents
     derinet.insert(matched[0].begin(), matched[0].end());
     derinet.insert(matched[1].begin(), matched[1].end());
@@ -128,7 +151,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
       node = derinet.find(node->second.parent);
       if (node->second.mark) {
         if (node->second.mark == mark)
-          training_failure("The derivator data contains a cycle with lemma '" << lemma.first << "'!");
+          training_failure("The derivator data contains a cycle with lemma '" << node->first << "' starting from '" << lemma.first << "'!");
         break;
       }
       node->second.mark = mark;

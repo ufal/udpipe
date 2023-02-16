@@ -42,7 +42,7 @@ template <template <class> class ElementaryFeatures> using train_feature_sequenc
 // Definitions
 elementary_feature_value training_elementary_feature_map::value(const char* feature, int len) const {
   key.assign(feature, len);
-  return map.emplace(key, elementary_feature_empty + map.size()).first->second;
+  return map.emplace(key, elementary_feature_empty + elementary_feature_value(map.size())).first->second;
 }
 
 feature_sequence_score training_feature_sequence_map::score(const char* feature, int len) const {

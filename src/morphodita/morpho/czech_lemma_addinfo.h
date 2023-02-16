@@ -63,7 +63,7 @@ string czech_lemma_addinfo::format(const unsigned char* addinfo, int addinfo_len
     res.reserve(addinfo_len + 4);
     if (addinfo[0] != 255) {
       char num[5];
-      sprintf(num, "-%u", addinfo[0]);
+      snprintf(num, sizeof(num), "-%u", addinfo[0]);
       res += num;
     }
     for (int i = 1; i < addinfo_len; i++)
@@ -90,9 +90,13 @@ int czech_lemma_addinfo::parse(string_piece lemma, bool die_on_failure) {
     const char* lemma_additional_info = lemma_info;
 
     if (*lemma_info == '-') {
-      lemma_num = strtol(lemma_info + 1, (char**) &lemma_additional_info, 10);
+      lemma_num = 0;
+      for (lemma_additional_info = lemma_info + 1;
+           lemma_additional_info < lemma.str + lemma.len && (*lemma_additional_info >= '0' && *lemma_additional_info <= '9');
+           lemma_additional_info++)
+        lemma_num = 10 * lemma_num + (*lemma_additional_info - '0');
 
-      if (lemma_additional_info == lemma_info + 1 || (*lemma_additional_info != '\0' && *lemma_additional_info != '`' && *lemma_additional_info != '_') || lemma_num < 0 || lemma_num >= 255) {
+      if (lemma_additional_info == lemma_info + 1 || (lemma_additional_info < lemma.str + lemma.len && *lemma_additional_info != '`' && *lemma_additional_info != '_') || lemma_num >= 255) {
         if (die_on_failure)
           training_failure("Lemma number " << lemma_num << " in lemma " << lemma << " out of range!");
         else

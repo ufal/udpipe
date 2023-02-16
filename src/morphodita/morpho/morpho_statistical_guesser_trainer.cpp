@@ -57,7 +57,7 @@ void morpho_statistical_guesser_trainer::train(istream& is, unsigned suffix_len,
   vector<pair<unsigned, string>> prefixes_with_counts;
   for (auto&& prefix : prefixes_with_forms)
     if (prefix.second.size() >= min_prefix_count)
-      prefixes_with_counts.emplace_back(prefix.second.size(), prefix.first);
+      prefixes_with_counts.emplace_back(unsigned(prefix.second.size()), prefix.first);
 
   if (prefixes_with_counts.size() > max_prefixes) {
     sort(prefixes_with_counts.begin(), prefixes_with_counts.end(), greater<pair<unsigned, string>>());
@@ -120,7 +120,7 @@ void morpho_statistical_guesser_trainer::train(istream& is, unsigned suffix_len,
           unsigned rules_counts_original = rules_counts.size();
           for (auto&& entry : rules[rule_key])
             if (!rules_set.count(entry.first)) {
-              rules_counts.emplace_back(entry.second.size(), entry.first);
+              rules_counts.emplace_back(unsigned(entry.second.size()), entry.first);
               rules_set.insert(entry.first);
             }
 

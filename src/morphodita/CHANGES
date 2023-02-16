@@ -1,9 +1,35 @@
-Version 1.9.3-devel
--------------------
+Version 1.11.1-dev
+------------------
+
+
+Version 1.11.0 [01 Sep 22]
+--------------------------
+- When analyzing numerals, if the form ends with a dot, keep the dot
+  in the lemma (previously the dot was discarded).
+- Correctly handle lemma number which is not null-terminated in `generate`.
+- On Windows, the file paths are now UTF-8 encoded, instead of ANSI.
+  This change affects the API, binary arguments, and program outputs.
+- Add ARM64 macOS build.
+- The Windows binaries are now compiled with VS 2019, older systems
+  than Windows 7 are no longer supported.
+- Add billing information to the REST server.
+- Add type information to the Python package.
+- The Python wheels are provided for Pythons 3.6-3.11.
+
+
+Version 1.10.1 [29 Jun 20]
+--------------------------
+- Allow overriding path to Java library in the bindings.
 - Document statistical guesser training using train_guesser binary.
+- Improve the GRU tokenizer.
+- Do not generate empty lemmas in guesser.
 - Add explicit GUESSER_UNSPECIFIED guesser mode already used by tagger.
 - Fix unaligned pointer access and other UndefinedBehaviourSanitizer findings.
 - Fix bug in tag_filter incorrectly matching negates sets of 2+ characters.
+- Add several REST server options.
+- Add methods running tagset_converter during derivation_formatter.
+  This allows correct handling of their interactions.
+- Add binary wheels of the Python package.
 
 
 Version 1.9.2 [22 Sep 16]

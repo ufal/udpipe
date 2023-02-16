@@ -150,7 +150,7 @@ void generic_morpho::analyze_special(string_piece form, vector<tagged_lemma>& le
   }
 
   if (any_digit && !number.len && (!codepoint || codepoint == '.')) {
-    lemmas.emplace_back(string(form.str, form.len - (codepoint == '.')), number_tag);
+    lemmas.emplace_back(string(form.str, form.len), number_tag);
     return;
   }
 

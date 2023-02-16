@@ -129,7 +129,7 @@ struct feature_sequences<ElementaryFeatures, Map>::cache {
     caches.reserve(self.sequences.size());
     int max_sequence_elements = 0, max_window_size = 1;
     for (auto&& sequence : self.sequences) {
-      caches.emplace_back(sequence.elements.size());
+      caches.emplace_back(int(sequence.elements.size()));
       if (int(sequence.elements.size()) > max_sequence_elements) max_sequence_elements = sequence.elements.size();
       for (auto&& element : sequence.elements)
         if (element.type == PER_TAG && 1 - element.sequence_index > max_window_size)

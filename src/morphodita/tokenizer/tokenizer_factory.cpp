@@ -14,6 +14,7 @@
 #include "gru_tokenizer_factory.h"
 #include "tokenizer_ids.h"
 #include "utils/new_unique_ptr.h"
+#include "utils/path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
@@ -48,7 +49,7 @@ tokenizer_factory* tokenizer_factory::load(istream& is) {
 }
 
 tokenizer_factory* tokenizer_factory::load(const char* fname) {
-  ifstream f(fname, ifstream::binary);
+  ifstream f(path_from_utf8(fname).c_str(), ifstream::binary);
   if (!f) return nullptr;
 
   return load(f);

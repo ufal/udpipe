@@ -17,6 +17,7 @@
 #include "morpho.h"
 #include "morpho_ids.h"
 #include "utils/new_unique_ptr.h"
+#include "utils/path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
@@ -76,7 +77,7 @@ morpho* morpho::load(istream& is) {
 }
 
 morpho* morpho::load(const char* fname) {
-  ifstream f(fname, ifstream::binary);
+  ifstream f(path_from_utf8(fname).c_str(), ifstream::binary);
   if (!f) return nullptr;
 
   return load(f);

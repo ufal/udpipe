@@ -155,10 +155,10 @@ void english_morpho::analyze_special(string_piece form, vector<tagged_lemma>& le
     while (unicode::category(codepoint) & unicode::N) any_digit = true, codepoint = utf8::decode(number.str, number.len);
   }
   if (any_digit && !number.len && (!codepoint || codepoint == '.')) {
-    lemmas.emplace_back(string(form.str, form.len - (codepoint == '.')), number_tag);
-    lemmas.emplace_back(string(form.str, form.len - (codepoint == '.')), nnp_tag);
+    lemmas.emplace_back(string(form.str, form.len), number_tag);
+    lemmas.emplace_back(string(form.str, form.len), nnp_tag);
     if (form.len == 1 + (codepoint == '.') && *form.str >= '1' && *form.str <= '9')
-      lemmas.emplace_back(string(form.str, form.len - (codepoint == '.')), ls_tag);
+      lemmas.emplace_back(string(form.str, form.len), ls_tag);
     return;
   }
 

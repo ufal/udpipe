@@ -197,7 +197,7 @@ void czech_morpho::analyze_special(string_piece form, vector<tagged_lemma>& lemm
   }
 
   if (any_digit && !form.len && (!codepoint || codepoint == '.')) {
-    lemmas.emplace_back(string(form_ori.str, form_ori.len - (codepoint == '.')), number_tag);
+    lemmas.emplace_back(string(form_ori.str, form_ori.len), number_tag);
   } else if ((first < sizeof(punctuation_additional) && punctuation_additional[first]) ||
              ((unicode::category(first) & unicode::P) && (first >= sizeof(punctuation_exceptions) || !punctuation_exceptions[first])))
     lemmas.emplace_back(string(form_ori.str, form_ori.len), punctuation_tag);

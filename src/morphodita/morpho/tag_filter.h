@@ -42,9 +42,12 @@ inline bool tag_filter::matches(const char* tag) const {
 
   int tag_pos = 0;
   for (auto&& filter : filters) {
+    // Skip until next filter position. If the tag ends prematurely, accept.
     while (tag_pos < filter.pos)
       if (!tag[tag_pos++])
         return true;
+    if (!tag[tag_pos])
+      return true;
 
     // We assume filter.chars_len >= 1.
     bool matched = (wildcard[filter.chars_offset] == tag[tag_pos]) ^ filter.negate;

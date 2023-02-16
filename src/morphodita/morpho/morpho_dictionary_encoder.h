@@ -187,12 +187,12 @@ void dictionary<LemmaAddinfo>::load(istream& is, int max_suffix_len) {
         clas.append(form->second);
       }
 
-      auto class_it = classes.emplace(clas, classes.size());
+      auto class_it = classes.emplace(clas, int(classes.size()));
       int class_id = class_it.first->second;
       if (class_it.second) {
         // New class, add it, together with its tags.
         for (auto form = start; form != end; form++) {
-          int tag = tags_map.emplace(form->second, tags.size()).first->second;
+          int tag = tags_map.emplace(form->second, int(tags.size())).first->second;
           if (tag >= int(tags.size())) tags.emplace_back(form->second);
           suffixes[form->first.substr(common_prefix)][class_id].emplace_back(tag);
         }

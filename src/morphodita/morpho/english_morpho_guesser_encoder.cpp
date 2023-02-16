@@ -36,7 +36,7 @@ void english_morpho_guesser_encoder::encode(istream& guesser_file, istream& nega
     split(line, '\t', tokens);
     if (tokens.size() != 3) training_failure("The line '" << line << "' in english guesser file does not have three columns!");
     guesser[tokens[2]][tokens[0]].insert(tokens[1]);
-    if (tags_map.emplace(tokens[1], tags_map.size()).second) tags.emplace_back(tokens[1]);
+    if (tags_map.emplace(tokens[1], unsigned(tags_map.size())).second) tags.emplace_back(tokens[1]);
   }
 
   // Negations

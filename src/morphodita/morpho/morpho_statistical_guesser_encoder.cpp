@@ -28,7 +28,7 @@ void morpho_statistical_guesser_encoder::encode(istream& is, binary_encoder& enc
   string line;
   vector<string> tokens;
   if (!getline(is, line)) training_failure("Missing first line with default tag in statistical guesser file");
-  int statistical_guesser_default = tags_map.emplace(line.data(), tags.size()).first->second;
+  int statistical_guesser_default = tags_map.emplace(line.data(), int(tags.size())).first->second;
   if (unsigned(statistical_guesser_default) >= tags.size()) tags.emplace_back(line.data());
 
   while (getline(is, line)) {
@@ -50,7 +50,7 @@ void morpho_statistical_guesser_encoder::encode(istream& is, binary_encoder& enc
       split(tokens[i+1], ' ', rule_tags);
       vector<int> decoded_tags;
       for (auto&& rule_tag : rule_tags) {
-        int tag = tags_map.emplace(rule_tag, tags.size()).first->second;
+        int tag = tags_map.emplace(rule_tag, int(tags.size())).first->second;
         if (unsigned(tag) >= tags.size()) tags.emplace_back(rule_tag);
         decoded_tags.emplace_back(tag);
       }

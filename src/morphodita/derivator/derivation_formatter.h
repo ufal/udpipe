@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "derivator.h"
+#include "morphodita/tagset_converter/tagset_converter.h"
 #include "utils/string_piece.h"
 
 namespace ufal {
@@ -22,7 +23,16 @@ class derivation_formatter {
   virtual ~derivation_formatter() {}
 
   // Perform the required derivation and store it directly in the lemma.
-  virtual void format_derivation(string& lemma) const = 0;
+  virtual void format_derivation(string& lemma) const;
+
+  // Perform the required derivation and store it directly in the tagged_lemma.
+  // If a tagset_converter is given, it is also applied.
+  virtual void format_tagged_lemma(tagged_lemma& lemma, const tagset_converter* converter = nullptr) const = 0;
+
+  // Perform the required derivation on a list of tagged_lemmas.
+  // If a tagset_converter is given, it is also applied.
+  // Either way, only unique entries are returned.
+  virtual void format_tagged_lemmas(vector<tagged_lemma>& lemmas, const tagset_converter* converter = nullptr) const;
 
   // Static factory methods.
   static derivation_formatter* new_none_derivation_formatter();
