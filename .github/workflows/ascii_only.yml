@@ -1,0 +1,14 @@
+name: ASCII test
+
+on: push
+
+jobs:
+  ascii_only:
+    name: ASCII test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Test that sources are ASCII only
+        run: python3 tests/ascii_only.py

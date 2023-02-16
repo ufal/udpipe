@@ -1,0 +1,62 @@
+name: Compile
+
+on: push
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux-gcc CXX=g++-9
+          - os: ubuntu-22.04
+            platform: linux-gcc CXX=g++-10
+          - os: ubuntu-22.04
+            platform: linux-gcc CXX=g++-11
+          - os: ubuntu-22.04
+            platform: linux-gcc
+            container: quay.io/pypa/manylinux2014_x86_64
+          - os: ubuntu-22.04
+            platform: linux-clang CXX=clang++-12
+          - os: ubuntu-22.04
+            platform: linux-clang CXX=clang++-13
+          - os: ubuntu-22.04
+            platform: linux-clang CXX=clang++-14
+          - os: windows-2019
+            platform: win-vs-32
+          - os: windows-2019
+            platform: win-vs-64
+          - os: windows-2022
+            platform: win-vs-32
+          - os: windows-2022
+            platform: win-vs-64
+          - os: macos-11
+            platform: macos-clang-64
+          - os: macos-11
+            platform: macos-clang-arm64
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - if: startsWith(matrix.os, 'windows')
+        name: Windows - Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ endswith(matrix.platform, '-32') && 'x86' || 'x64' }}
+
+      - if: startsWith(matrix.os, 'windows')
+        name: Windows - Install make
+        run: choco install --no-progress -y make
+
+      - name: Compile src
+        run: make PLATFORM=${{ matrix.platform }} -k -C src full
+        env:
+          C_FLAGS: $(treat_warnings_as_errors)
+
+      - name: Compile tests
+        run: make PLATFORM=${{ matrix.platform }} -k -C tests all
+        if: matrix.platform != 'macos-clang-arm64'
