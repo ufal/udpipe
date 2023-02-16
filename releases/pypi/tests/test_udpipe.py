@@ -2,13 +2,14 @@
 # vim:fileencoding=utf8
 from __future__ import unicode_literals
 
+import os
 import unittest
 
 class TestUDPipe(unittest.TestCase):
     def test_model(self):
         import ufal.udpipe
 
-        model = ufal.udpipe.Model.load('test/data/test.model')
+        model = ufal.udpipe.Model.load(os.path.join(os.path.dirname(__file__),  "data", "test.model"))
         self.assertTrue(model)
 
         tokenizer = model.newTokenizer(model.DEFAULT)
