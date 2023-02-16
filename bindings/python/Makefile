@@ -9,7 +9,7 @@
 
 include ../common/Makefile.common
 
-BINDING_MODULE=$(if $(filter macos-%,$(PLATFORM)),ufal/_udpipe.so,$(call dynlib,ufal/_udpipe))
+BINDING_MODULE=$(if $(filter macos-%,$(PLATFORM)),ufal/udpipe/_udpipe.so,$(call dynlib,ufal/udpipe/_udpipe))
 BINDING_C_FLAGS+=$(if $(PYTHON_INCLUDE),,$(error PYTHON_INCLUDE must be set to the directory containing Python.h))
 BINDING_C_FLAGS+=$(call include_dir,$(PYTHON_INCLUDE))
 BINDING_C_FLAGS+=$(if $(findstring -gcc-,$(PLATFORM))$(findstring -clang-,$(PLATFORM)),-w)
@@ -23,8 +23,10 @@ $(BINDING_MODULE): $(call dynobj,udpipe_python) $(BINDING_UDPIPE_OBJECTS)
 udpipe_python.cpp: udpipe_python.i ../common/udpipe.i
 	@$(call mkdir,ufal)
 	@$(call echo,>ufal/__init__.py)
-	swig $(SWIG_FLAGS) -python -outdir ufal -o $@ -builtin $<
+	@$(call mkdir,ufal/udpipe)
+	swig $(SWIG_FLAGS) -python -outdir ufal/udpipe -o $@ -builtin $<
+	@$(call mv,ufal/udpipe/udpipe.py,ufal/udpipe/__init__.py)
 
 .PHONY: clean
 clean:
-	@$(call rm,.build ufal $(call all_dynlib,ufal_udpipe) udpipe_python.cpp)
+	@$(call rm,.build ufal udpipe_python.cpp)
