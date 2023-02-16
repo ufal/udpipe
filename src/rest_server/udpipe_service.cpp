@@ -38,7 +38,7 @@ bool udpipe_service::init(const service_options& options) {
     if (ids.empty()) return false;
 
     // Store the model
-    models.emplace_back(ids.front(), model_description.acknowledgements, models.size(), is.release());
+    models.emplace_back(ids.front(), model_description.acknowledgements, (unsigned)models.size(), is.release());
 
     // Fail if this model id is aready in use.
     if (!models_map.emplace(ids.front(), &models.back()).second) return false;

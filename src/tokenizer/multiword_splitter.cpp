@@ -70,7 +70,7 @@ void multiword_splitter::append_token(string_piece token, string_piece misc, sen
   }
 
   // Fill the multiword token
-  s.multiword_tokens.emplace_back(s.words.back().id, s.words.back().id + it->second.words.size() - 1, token, misc);
+  s.multiword_tokens.emplace_back(s.words.back().id, s.words.back().id + (int)it->second.words.size() - 1, token, misc);
 
   s.words.back().form.clear();
   if (prefix_len) {

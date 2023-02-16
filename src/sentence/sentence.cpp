@@ -35,7 +35,7 @@ void sentence::clear() {
 }
 
 word& sentence::add_word(string_piece form) {
-  words.emplace_back(words.size(), form);
+  words.emplace_back((int)words.size(), form);
   return words.back();
 }
 

@@ -268,12 +268,12 @@ void evaluator::evaluation_data::add_sentence(const sentence& s) {
     if (j < s.multiword_tokens.size() && s.multiword_tokens[j].id_first == int(i)) {
       multiwords.emplace_back(tokens.back().first, form);
       for (size_t k = i; int(k) <= s.multiword_tokens[j].id_last; k++) {
-        words.emplace_back(tokens.back().first, tokens.back().second, words.size() + 1, true, s.words[k]);
+        words.emplace_back(tokens.back().first, tokens.back().second, (int)words.size() + 1, true, s.words[k]);
         multiwords.back().second.append(" ").append(words.back().w.form);
       }
       i = s.multiword_tokens[j++].id_last;
     } else {
-      words.emplace_back(tokens.back().first, tokens.back().second, words.size() + 1, false, s.words[i]);
+      words.emplace_back(tokens.back().first, tokens.back().second, (int)words.size() + 1, false, s.words[i]);
     }
   }
   sentences.back().second = chars.size();
