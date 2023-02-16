@@ -37,6 +37,7 @@
 #include "utils/options.h"
 #include "utils/parse_double.h"
 #include "utils/parse_int.h"
+#include "utils/path_from_utf8.h"
 #include "utils/split.h"
 #include "version/version.h"
 
@@ -632,7 +633,7 @@ bool trainer_morphodita_parsito::train_tagger_model(const vector<sentence>& trai
 
     // Append given dictionary_file if given
     if (!dictionary_file.empty()) {
-      ifstream is(dictionary_file);
+      ifstream is(path_from_utf8(dictionary_file).c_str());
       if (!is.is_open()) return error.assign("Cannot open dictionary_file '").append(dictionary_file).append("'!"), false;
 
       vector<string_piece> dictionary_parts;

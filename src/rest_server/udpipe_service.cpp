@@ -14,6 +14,7 @@
 #include "unilib/unicode.h"
 #include "unilib/uninorms.h"
 #include "unilib/utf8.h"
+#include "utils/path_from_utf8.h"
 #include "utils/split.h"
 
 namespace ufal {
@@ -28,7 +29,7 @@ bool udpipe_service::init(const service_options& options) {
   models_map.clear();
   models.reserve(options.model_descriptions.size());
   for (auto& model_description : options.model_descriptions) {
-    unique_ptr<ifstream> is(new ifstream(model_description.file, ifstream::binary));
+    unique_ptr<ifstream> is(new ifstream(path_from_utf8(model_description.file).c_str(), ifstream::binary));
     if (!is->is_open()) return false;
 
     // Split the ids

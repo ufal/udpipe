@@ -15,6 +15,7 @@
 #include "utils/iostreams.h"
 #include "utils/options.h"
 #include "utils/parse_int.h"
+#include "utils/path_from_utf8.h"
 #include "version/version.h"
 
 using namespace ufal::udpipe;
@@ -122,7 +123,7 @@ int main(int argc, char* argv[]) {
   ofstream log_file;
   string log_file_name = options.count("log_file") ? options["log_file"] : string(argv[0]) + ".log";
   if (!log_file_name.empty()) {
-    log_file.open(log_file_name.c_str(), ofstream::app);
+    log_file.open(path_from_utf8(log_file_name).c_str(), ofstream::app);
     if (!log_file) runtime_failure("Cannot open log file '" << log_file_name << "' for writing!");
   }
 

@@ -21,6 +21,7 @@
 #include "utils/getpara.h"
 #include "utils/iostreams.h"
 #include "utils/options.h"
+#include "utils/path_from_utf8.h"
 #include "utils/process_args.h"
 #include "version/version.h"
 
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]) {
     cerr << "Loading training data: " << flush;
     vector<sentence> training;
     for (int i = 2; i < argc; i++) {
-      ifstream input(argv[i]);
+      ifstream input(path_from_utf8(argv[i]).c_str());
       if (!input.is_open()) runtime_failure("Cannot open input file '" << argv[i] << "'!");
       if (!append_conllu(input, training, error))
         runtime_failure("Cannot load training data from file '" << argv[i] << "': " << error);
@@ -106,14 +107,14 @@ int main(int argc, char* argv[]) {
     // Load heldout data
     vector<sentence> heldout;
     if (options.count("heldout")) {
-      ifstream input(options["heldout"]);
+      ifstream input(path_from_utf8(options["heldout"]).c_str());
       if (!input.is_open()) runtime_failure("Cannot open heldout data file '" << options["heldout"] << "'!");
       if (!append_conllu(input, heldout, error))
         runtime_failure("Cannot load heldout data from file '" << options["heldout"] << "': " << error);
     }
 
     // Open output file
-    ofstream model(argv[1], ofstream::binary);
+    ofstream model(path_from_utf8(argv[1]).c_str(), ofstream::binary);
     if (!model.is_open()) runtime_failure("Cannot open model file '" << argv[1] << "' for writing.");
 
     // Train the model
@@ -126,7 +127,7 @@ int main(int argc, char* argv[]) {
   // DETOKENIZE
   if (options.count("detokenize")) {
     // Detokenize CoNLL-U files
-    ifstream raw_text_file(argv[1]);
+    ifstream raw_text_file(path_from_utf8(argv[1]).c_str());
     if (!raw_text_file.is_open()) runtime_failure("Cannot load raw text from file '" << argv[1] << "'.");
 
     string raw_text;

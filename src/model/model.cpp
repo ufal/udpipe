@@ -11,6 +11,7 @@
 
 #include "model.h"
 #include "model_morphodita_parsito.h"
+#include "utils/path_from_utf8.h"
 
 namespace ufal {
 namespace udpipe {
@@ -21,7 +22,7 @@ const string model::TOKENIZER_PRESEGMENTED = "presegmented";
 const string model::TOKENIZER_RANGES = "ranges";
 
 model* model::load(const char* fname) {
-  ifstream in(fname, ifstream::in | ifstream::binary);
+  ifstream in(path_from_utf8(fname).c_str(), ifstream::in | ifstream::binary);
   if (!in.is_open()) return nullptr;
   return load(in);
 }

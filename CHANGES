@@ -5,6 +5,10 @@ Version 1.2.1-devel
 - Add several options to udpipe_server.
 - Fix bug in returning the trained model as a string; use bytes instead.
 - Fix a bug that newlines after URL/emails were considered just spaces.
+- On Windows, the file paths are now UTF-8 encoded, instead of ANSI.
+  This change affects the API, binary arguments, and program outputs.
+- The Windows binaries are now compiled with VS 2019, older systems
+  than Windows 7 are no longer supported.
 
 
 Version 1.2.0 [01 Aug 17]
