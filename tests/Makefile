@@ -12,6 +12,8 @@ include ../src/Makefile.builtem
 TESTS=$(call exe,udpipe_bundle)
 all: $(TESTS)
 
+C_FLAGS += $(treat_warnings_as_errors)
+
 .PHONY: force
 ../src_lib_only/udpipe.cpp: force
 	$(MAKE) -C ../src_lib_only udpipe.cpp
