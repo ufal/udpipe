@@ -7,6 +7,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+%begin %{
+#define SWIG_TYPE_TABLE ufal_udpipe
+%}
+
 %include "udpipe_stl.i"
 %include "stdint.i"
 
