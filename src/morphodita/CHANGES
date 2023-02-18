@@ -1,6 +1,8 @@
-Version 1.11.1-dev
-------------------
-- Do not assume char is signed; fixes silent errors on aarch64.
+Version 1.11.1 [18 Feb 23]
+--------------------------
+- Do not assume char is signed; fixes silent errors on aarch64
+  when compiled from the source (e.g. in Docker on ARM macOS).
+- No new binaries are provided, because none were affected.
 
 
 Version 1.11.0 [01 Sep 22]
