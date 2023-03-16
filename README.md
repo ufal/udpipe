@@ -65,6 +65,20 @@ too many models are loaded). If you would like to run BERT on a GPU and the
 remaining computation on a CPU, you could use GPU-enabled wembeddings service
 plus a CPU-only UDPipe 2 service.
 
+### Example
+
+To run the local REST server with the English UD 2.10 model, running both the
+mBERT and the UDPipe 2 model on a single GPU, you would:
+- Download the UD 2.10 models from http://hdl.handle.net/11234/1-4804.
+- Create a virtual environment with TensorFlow 2 and PyPI packages
+  `ufal.chu_liu_edmonds` and `ufal.udpipe`.
+- Start the REST server on port 8001 using the command
+  ```sh
+  python3 udpipe2_server.py 8001 --logfile udpipe2_server.log --threads=4 english english-ewt-ud-2.10-220711:en_ewt-ud-2.10-220711:eng:en models-2.10/en_all-ud-2.10-220711.model en_ewt https://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_210_models
+  ```
+  The first `english` indicates the default model, so it does not need to be
+  specified in the request.
+
 ## Training New Models
 
 You can train UDPipe 2 models, but we provide no support for the model training,
