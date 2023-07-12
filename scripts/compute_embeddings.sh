@@ -12,6 +12,6 @@ for d in $data/*/; do
 
   for f in $d*.conllu; do
     [ $f.npz -nt $f ] && continue
-    qsub -p 0 -q 'gpu-ms.q@!dll[691]*' -l gpu=1,mem_free=8G,h_data=16G -j y -o $f.log withcuda101 wembedding_service/venv/bin/python wembedding_service/compute_wembeddings.py --format=conllu $f $f.npz --model=$model "$@"
+    sbatch -p gpu-ms,gpu-troja -G 1 -C "gpu_cc6.1|gpu_cc7.5" --mem=16G -o $f.log run withcuda101 wembedding_service/venv/bin/python wembedding_service/compute_wembeddings.py --format=conllu $f $f.npz --model=$model "$@"
   done
 done
