@@ -10,6 +10,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import argparse
+import contextlib
 import email.parser
 import http.server
 import itertools
@@ -126,14 +127,16 @@ class Models:
                 # Load the network if it has not been loaded already
                 self._network.load()
 
-                time_we = time.time()
                 wembedding_input, conllu_input = [], []
                 for sentence in sentences:
                     wembedding_input.append([word.form for word in sentence.words[1:]])
                     conllu_input.append(self._conllu_output.writeSentence(sentence))
 
+                time_wes = time.time()
                 # Compute the WEmbeddings
-                wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network.args.wembedding_model, wembedding_input)
+                with self._server_args.optional_semaphore:
+                    time_we = time.time()
+                    wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network.args.wembedding_model, wembedding_input)
 
                 time_ds = time.time()
                 # Create UDPipe2Dataset
@@ -145,17 +148,19 @@ class Models:
                 if not tag: network_args.tags = []
                 if not parse: network_args.parse = 0
 
-                time_nw = time.time()
                 # Perform the prediction
-                predicted = self._network.network.predict(dataset, evaluating=False, args=network_args)
+                time_nws = time.time()
+                with self._server_args.optional_semaphore:
+                    time_nw = time.time()
+                    predicted = self._network.network.predict(dataset, evaluating=False, args=network_args)
+                    time_rd = time.time()
 
-                time_rd = time.time()
                 # Load the predicted CoNLL-U to ufal.udpipe sentences
                 sentences = self._read(predicted, self._conllu_input)
 
-                print("Request, WE {:.2f}ms,".format(1000 * (time_ds - time_we)),
-                      "DS {:.2f}ms,".format(1000 * (time_nw - time_ds)),
-                      "NW {:.2f}ms,".format(1000 * (time_rd - time_nw)),
+                print("Request, WE {:.2f}+{:.2f}ms,".format(1000 * (time_ds - time_we), 1000 * (time_we - time_wes)),
+                      "DS {:.2f}ms,".format(1000 * (time_nws - time_ds)),
+                      "NW {:.2f}+{:.2f}ms,".format(1000 * (time_rd - time_nw), 1000 * (time_nw - time_nws)),
                       "RD {:.2f}ms.".format(1000 * (time.time() - time_rd)),
                       file=sys.stderr, flush=True)
 
@@ -288,7 +293,7 @@ class UDServer(socketserver.ThreadingTCPServer):
 
                 model = params.get("model", request.server._models.default_model)
                 if model not in request.server._models.models_by_names:
-                    return request.respond_error("The request model '{}' does not exist.".format(model))
+                    return request.respond_error("The requested model '{}' does not exist.".format(model))
                 model = request.server._models.models_by_names[model]
 
                 # Start by reading and optionally tokenizing the input data.
@@ -396,6 +401,7 @@ if __name__ == "__main__":
     parser.add_argument("default_model", type=str, help="Default model")
     parser.add_argument("models", type=str, nargs="+", help="Models to serve")
     parser.add_argument("--batch_size", default=32, type=int, help="Batch size")
+    parser.add_argument("--concurrent", default=None, type=int, help="Concurrent computations of NN")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--max_request_size", default=4096*1024, type=int, help="Maximum request size")
     parser.add_argument("--preload_models", default=[], nargs="*", type=str, help="Models to preload, or `all`")
@@ -415,6 +421,9 @@ if __name__ == "__main__":
         args.wembedding_server = wembeddings.WEmbeddings.ClientNetwork(args.wembedding_server)
     else:
         args.wembedding_server = wembeddings.WEmbeddings(threads=args.threads)
+
+    # Create a semaphore if needed
+    args.optional_semaphore = threading.Semaphore(args.concurrent) if args.concurrent is not None else contextlib.nullcontext()
 
     # Create the server
     server = UDServer(args, models)
