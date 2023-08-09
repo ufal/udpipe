@@ -361,7 +361,7 @@ class UDPipe2:
             if args.parse:
                 heads = np.zeros(prior_heads.shape[:2], dtype=np.int32)
                 for i in range(len(sentence_lens)):
-                    padded_heads = np.pad(prior_heads[i][:sentence_lens[i], :sentence_lens[i] + 1].astype(np.float32),
+                    padded_heads = np.pad(prior_heads[i][:sentence_lens[i], :sentence_lens[i] + 1].astype(np.float64),
                                           ((1, 0), (0, 0)), mode="constant")
                     if args.single_root:
                         padded_heads[:, 0] = np.nan
