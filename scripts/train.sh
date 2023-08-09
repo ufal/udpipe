@@ -17,6 +17,10 @@ else
   args="$args --rnn_cell_dim=384"
 fi
 case $treebank in
+  cs*) args="$args --wembedding_model=robeczech-base-last4";;
+  *) args="$args --wembedding_model=bert-base-multilingual-uncased-last4";;
+esac
+case $treebank in
   *_all)
     evaluation_data="--dev"
     for dev in $data/${treebank%_all}_*/*-dev.conllu; do
