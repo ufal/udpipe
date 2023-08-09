@@ -8,4 +8,4 @@ for d in $modeldir/*/; do
   for f in $d/*.tokenizer; do
     echo $(basename $f .tokenizer) $(grep -e '^Test  ' -e "^Test $(basename $f .tokenizer) " $d/log | grep -o 'UPOS.*$')
   done
-done | column -nt
+done | column -t
