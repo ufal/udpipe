@@ -1,7 +1,8 @@
 #!/bin/sh
 
-[ $# -ge 1 ] || { echo Usage $0 datadir >&2; exit 1; }
+[ $# -ge 1 ] || { echo "Usage $0 datadir [server]" >&2; exit 1; }
 data="$1"; shift
+server="$1"
 
 sh models_list.sh | while read names path treebank ack; do
   model=${names%%:*}
@@ -11,6 +12,6 @@ sh models_list.sh | while read names path treebank ack; do
       raw_text) txt=${conllu%.conllu}.txt;;
       *) txt=;
     esac
-    echo $model $mode $(bash ../scripts/eval_via_server.sh $model $conllu "$txt" | tail -n+3 | awk 'BEGIN{ORS=" "}{print $1 ":" $7}')
+    echo $model $mode $(bash ../scripts/eval_via_server.sh $model $conllu "$txt" $server | tail -n+3 | awk 'BEGIN{ORS=" "}{print $1 ":" $7}')
   done
 done
