@@ -6,4 +6,4 @@ data_conllu="$2"
 data_txt="$3"
 server="${4:-https://lindat.mff.cuni.cz/services/udpipe/api}"
 
-python3 $(dirname $0)/../udpipe2_eval.py -v $data_conllu <(sed "${data_txt:+p;d;}"'s/\t[^\t]*$/\t_/' ${data_txt:-$data_conllu} | curl -F model=$model -F data=@- ${data_txt:+-F tokenizer=} -F tagger= -F parser= $server/process | jq -j .result)
+python3 $(dirname $0)/../udpipe2_eval.py -v $data_conllu <(sed "${data_txt:+p;d;}"'s/\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*$/\t_\t_\t_\t_\t_\t_\t_\t_/' ${data_txt:-$data_conllu} | curl -F model=$model -F data=@- ${data_txt:+-F tokenizer=} -F tagger= -F parser= $server/process | jq -j .result)
