@@ -13,6 +13,7 @@
 import email.parser
 import http.server
 import json
+import random
 import socketserver
 import sys
 import threading
@@ -32,8 +33,6 @@ class FrontendRESTServer(socketserver.TCPServer):
 
             assert "models" in data and isinstance(data["models"], dict)
             self.models = data["models"]
-            self.aliases = [model.split("-") for model in self.models]
-            self.aliases = set(["-".join(parts[:None if not i else -i]) for parts in self.aliases for i in range(len(parts))])
 
             assert "default_model" in data and isinstance(data["default_model"], str)
             self.default_model = data["default_model"]
@@ -150,10 +149,11 @@ class FrontendRESTServer(socketserver.TCPServer):
             else:
                 # Start by finding appropriate backend
                 backend = request.server.backends[0]
-                for candidate in request.server.backends:
-                    if "model" in params and params["model"] in candidate.aliases:
-                        backend = candidate
-                        break
+                if "model" in params and params["model"] in request.server.aliases:
+                    resolved_model = request.server.aliases[params["model"]]
+                    backends = [backend for backend in request.server.backends if resolved_model in backend.models]
+                    if backends:
+                        backend = random.choice(backends) if len(backends) > 1 else backends[0]
 
                 # Forward the request to the backend
                 started_responding = False
@@ -193,6 +193,22 @@ class FrontendRESTServer(socketserver.TCPServer):
 
         # Initialize all backends
         self.backends = [self.Backend(backend) for backend in args.backends]
+
+        # Initialize the aliases
+        self.aliases = {}
+        if args.aliases is not None:
+            with open(args.aliases, "r", encoding="utf-8") as aliases_file:
+                for line in aliases_file:
+                    line = line.rstrip("\r\n")
+                    if not line or line.startswith("#"):
+                        continue
+                    parts = line.split()
+                    assert len(parts) == 4, "Expected 4 columns in the aliases file: line '{}'".format(line)
+                    names = parts[0].split(":")
+                    for name in names:
+                        parts = name.split("-")
+                        for prefix in ("-".join(parts[:None if not i else -i]) for i in range(len(parts))):
+                            self.aliases.setdefault(prefix, names[0])
 
         # Initialize the server
         self._threads = []
@@ -242,6 +258,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("port", type=int, help="Port to use")
     parser.add_argument("backends", type=str, nargs="+", help="Backends to use")
+    parser.add_argument("--aliases", default=None, type=str, help="Path to model aliases")
     parser.add_argument("--logfile", default=None, type=str, help="Log path")
     parser.add_argument("--log_data", default=None, type=int, help="Log that much bytes of every request data")
     parser.add_argument("--max_concurrency", default=256, type=int, help="Maximum concurrency")
