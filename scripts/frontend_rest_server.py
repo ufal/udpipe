@@ -147,34 +147,47 @@ class FrontendRESTServer(socketserver.TCPServer):
                 request.wfile.write(json.dumps(response, indent=1).encode("utf-8"))
             # Handle everything else
             else:
-                # Start by finding appropriate backend
-                backend = request.server.backends[0]
+                # Start by finding appropriate backends
+                backends = request.server.backends[0:1]
                 if "model" in params and params["model"] in request.server.aliases:
                     resolved_model = request.server.aliases[params["model"]]
                     backends = [backend for backend in request.server.backends if resolved_model in backend.models]
-                    if backends:
-                        backend = random.choice(backends) if len(backends) > 1 else backends[0]
 
                 # Forward the request to the backend
                 started_responding = False
                 try:
-                    try:
-                        with backend.request(request.path, body, body_content_type) as response:
-                            while True:
-                                data = response.read(32768)
-                                if not started_responding:
-                                    started_responding = True
-                                    billing_infclen = response.getheader("X-Billing-Input-NFC-Len", None)
-                                    headers = {"X-Billing-Input-NFC-Len": billing_infclen} if billing_infclen is not None else {}
-                                    request.respond(response.getheader("Content-Type", "application/json"), code=response.code,
-                                                    additional_headers=headers)
-                                if len(data) == 0: break
-                                request.wfile.write(data)
-                    except urllib.error.HTTPError as error:
-                        if not started_responding:
-                            started_responding = True
-                            request.respond(error.headers.get("Content-Type", "text/plain"), code=error.code)
-                            request.wfile.write(error.file.read())
+                    assert backends, "No backends found!"
+                    while backends:
+                        backend = random.choice(backends) if len(backends) > 1 else backends[0]
+                        backends.remove(backend)
+                        try:
+                            with backend.request(request.path, body, body_content_type) as response:
+                                while True:
+                                    data = response.read(32768)
+                                    if not started_responding:
+                                        started_responding = True
+                                        billing_infclen = response.getheader("X-Billing-Input-NFC-Len", None)
+                                        headers = {"X-Billing-Input-NFC-Len": billing_infclen} if billing_infclen is not None else {}
+                                        request.respond(response.getheader("Content-Type", "application/json"), code=response.code,
+                                                        additional_headers=headers)
+                                    if len(data) == 0: break
+                                    request.wfile.write(data)
+                        except urllib.error.HTTPError as error:
+                            if not started_responding:
+                                started_responding = True
+                                request.respond(error.headers.get("Content-Type", "text/plain"), code=error.code)
+                                request.wfile.write(error.file.read())
+                                break
+                            raise
+                        except:
+                            if backends and not started_responding:
+                                import traceback
+                                traceback.print_exc(file=sys.stderr)
+                                print("The above error occurred during request processing on '{}',".format(backend._server),
+                                      "but more backends are available, retrying.", file=sys.stderr, flush=True)
+                                continue
+                            raise
+                        break
                 except:
                     import traceback
                     traceback.print_exc(file=sys.stderr)
