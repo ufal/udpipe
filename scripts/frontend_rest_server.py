@@ -216,7 +216,7 @@ class FrontendRESTServer(socketserver.TCPServer):
                     if not line or line.startswith("#"):
                         continue
                     parts = line.split()
-                    assert len(parts) == 4, "Expected 4 columns in the aliases file: line '{}'".format(line)
+                    assert len(parts) in [3, 4], "Expected 3-4 columns in the aliases file: line '{}'".format(line)
                     names = parts[0].split(":")
                     for name in names:
                         parts = name.split("-")
