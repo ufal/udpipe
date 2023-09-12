@@ -7,7 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// UniLib version: 3.3.0
+// UniLib version: 3.3.1
 // Unicode version: 15.0.0
 
 #include "version.h"
@@ -18,7 +18,7 @@ namespace unilib {
 
 // Returns current version.
 version version::current() {
-  return {3, 3, 0, ""};
+  return {3, 3, 1, ""};
 }
 
 } // namespace unilib

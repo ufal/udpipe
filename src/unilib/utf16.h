@@ -7,7 +7,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
-// UniLib version: 3.3.0
+// UniLib version: 3.3.1
 // Unicode version: 15.0.0
 
 #pragma once
@@ -113,8 +113,13 @@ void utf16::decode(const std::u16string& str, std::u32string& decoded) {
   decode(str.c_str(), decoded);
 }
 
-class utf16::string_decoder::iterator : public std::iterator<std::input_iterator_tag, char32_t> {
+class utf16::string_decoder::iterator {
  public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = char32_t;
+  using difference_type = ptrdiff_t;
+  using pointer = char32_t*;
+  using reference = char32_t&;
   iterator(const char16_t* str) : codepoint(0), next(str) { operator++(); }
   iterator(const iterator& it) : codepoint(it.codepoint), next(it.next) {}
   iterator& operator++() { if (next) { codepoint = decode(next); if (!codepoint) next = nullptr; } return *this; }
@@ -145,8 +150,13 @@ utf16::string_decoder utf16::decoder(const std::u16string& str) {
   return string_decoder(str.c_str());
 }
 
-class utf16::buffer_decoder::iterator : public std::iterator<std::input_iterator_tag, char32_t> {
+class utf16::buffer_decoder::iterator {
  public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = char32_t;
+  using difference_type = ptrdiff_t;
+  using pointer = char32_t*;
+  using reference = char32_t&;
   iterator(const char16_t* str, size_t len) : codepoint(0), next(str), len(len) { operator++(); }
   iterator(const iterator& it) : codepoint(it.codepoint), next(it.next), len(it.len) {}
   iterator& operator++() { if (!len) next = nullptr; if (next) codepoint = decode(next, len); return *this; }
