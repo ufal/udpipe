@@ -13,6 +13,7 @@ import argparse
 import os
 import sys
 import time
+import warnings
 
 import numpy as np
 import tensorflow as tf
@@ -32,17 +33,21 @@ if not tf.__version__.startswith("1"):
 # Disable TF warnings
 tf.logging.set_verbosity(tf.logging.ERROR)
 
+# Ignore warnings containing "is deprecated"
+warnings.filterwarnings("ignore", message=".*is deprecated")
 
 class UDPipe2:
     METRICS = ["UPOS", "XPOS", "UFeats", "AllTags", "Lemmas", "UAS", "LAS", "CLAS", "MLAS", "BLEX"]
 
     def __init__(self, threads, seed=42):
+        self.morphodita = None
+
         # Create an empty graph and a session
         graph = tf.Graph()
         graph.seed = seed
-        self.session = tf.Session(graph = graph, config=tf.ConfigProto(inter_op_parallelism_threads=threads,
-                                                                       intra_op_parallelism_threads=threads,
-                                                                       allow_soft_placement=True))
+        self.session = tf.Session(graph=graph, config=tf.ConfigProto(inter_op_parallelism_threads=threads,
+                                                                     intra_op_parallelism_threads=threads,
+                                                                     allow_soft_placement=True))
 
     def construct(self, args, train, devs, tests, predict_only):
         num_words = len(train.factors[train.FORMS].words)
@@ -280,7 +285,7 @@ class UDPipe2:
                 with summary_writer.as_default():
                     tf.contrib.summary.initialize(session=self.session)
 
-    def load(self, path):
+    def load(self, path, morphodita_dictionary=None):
         # We use the following version instead of calling `self.saver.restore`,
         # because it works even TF 2 is in Eager mode.
         self.session.run(self.saver.saver_def.restore_op_name,
@@ -298,6 +303,11 @@ class UDPipe2:
                 self.predictions["FEATS"] = tf.argmax(
                     tf.nn.softmax(self.predictions_logits["FEATS"], axis=2) * tf.gather(consistent_feats_table, self.predictions["UPOS"]),
                     axis=2, output_type=tf.int32)
+
+        # Load MorphoDiTa if requested
+        if morphodita_dictionary:
+            import ufal.morphodita
+            self.morphodita = ufal.morphodita.Morpho.load(os.path.join(path, morphodita_dictionary))
 
     def close_writers(self):
         self.session.run(self.summary_writers_close)
@@ -411,6 +421,7 @@ class UDPipe2:
         parser.add_argument("--exp", default=None, type=str, help="Experiment name.")
         parser.add_argument("--label_smoothing", default=0.03, type=float, help="Label smoothing.")
         parser.add_argument("--max_sentence_len", default=120, type=int, help="Max sentence length.")
+        parser.add_argument("--morphodita", default=None, type=str, help="MorphoDiTa dictionary used for PDT-C prediction.")
         parser.add_argument("--min_epoch_batches", default=300, type=int, help="Minimum number of batches per epoch.")
         parser.add_argument("--parse", default=1, type=int, help="Parse.")
         parser.add_argument("--parser_layers", default=1, type=int, help="Parser layers.")
@@ -498,7 +509,7 @@ if __name__ == "__main__":
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
-        network.load(args.model)
+        network.load(args.model, args.morphodita)
         conllu = network.predict(test, False, args)
         with open(args.predict_output, "w", encoding="utf-8") as output_file:
             print(conllu, end="", file=output_file)

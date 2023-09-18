@@ -1,3 +1,4 @@
 tensorflow_gpu~=1.15.4 # Note that for just inference, you can use TF 2.* too.
 ufal.chu_liu_edmonds
-ufal.udpipe
+ufal.udpipe>=1.3,<2
+# If MorphoDiTa dictionary is used, you also need the `ufal.morphodita` package.

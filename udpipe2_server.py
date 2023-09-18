@@ -59,7 +59,7 @@ class Models:
                     self.train = udpipe2_dataset.UDPipe2Dataset.load_mappings(os.path.join(self._path, "mappings.pickle"))
                     self.network = udpipe2.UDPipe2(threads=self._server_args.threads)
                     self.network.construct(self.args, self.train, [], [], predict_only=True)
-                    self.network.load(self._path)
+                    self.network.load(self._path, self.args.morphodita)
 
                     print("Loaded model {}".format(os.path.basename(self._path)), file=sys.stderr, flush=True)
 
