@@ -148,10 +148,11 @@ class FrontendRESTServer(socketserver.TCPServer):
             # Handle everything else
             else:
                 # Start by finding appropriate backends
-                backends = request.server.backends[0:1]
-                if "model" in params and params["model"] in request.server.aliases:
-                    resolved_model = request.server.aliases[params["model"]]
-                    backends = [backend for backend in request.server.backends if resolved_model in backend.models]
+                backends = request.server.backends
+                model = params.get("model", request.server.backends[0].default_model)
+                if model in request.server.aliases:
+                    resolved_model = request.server.aliases[model]
+                    backends = [backend for backend in request.server.backends if resolved_model in backend.models] or backends
 
                 # Forward the request to the backend
                 started_responding = False
