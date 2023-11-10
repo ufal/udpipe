@@ -148,7 +148,7 @@ class FrontendRESTServer(socketserver.TCPServer):
             # Handle everything else
             else:
                 # Start by finding appropriate backends
-                backends = request.server.backends
+                backends = request.server.backends.copy()
                 model = params.get("model", request.server.backends[0].default_model)
                 if model in request.server.aliases:
                     resolved_model = request.server.aliases[model]
