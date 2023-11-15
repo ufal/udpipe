@@ -60,9 +60,9 @@ for lang in ../bindings/*/Makefile; do make -C "`dirname $lang`" clean; done
 rsync -a --exclude .gitignore ../bindings/ "$dir/bindings"
 
 make -C ../doc install
-cp ../INSTALL ../MANUAL* ../README ../AUTHORS ../LICENSE ../CHANGES "$dir"
-make -C ../doc manual.pdf
-cp ../doc/manual.pdf "$dir"/MANUAL.pdf
+cp ../INSTALL ../MANUAL* ../README ../AUTHORS ../LICENSE ../CHANGES.md "$dir"
+# make -C ../doc manual.pdf
+# cp ../doc/manual.pdf "$dir"/MANUAL.pdf
 make -C ../doc clean
 
 echo All done
