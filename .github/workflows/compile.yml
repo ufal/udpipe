@@ -18,14 +18,16 @@ jobs:
           - os: ubuntu-22.04
             platform: linux-gcc CXX=g++-11
           - os: ubuntu-22.04
+            platform: linux-gcc CXX=g++-12
+          - os: ubuntu-22.04
             platform: linux-gcc
             container: quay.io/pypa/manylinux2014_x86_64
-          - os: ubuntu-22.04
-            platform: linux-clang CXX=clang++-12
           - os: ubuntu-22.04
             platform: linux-clang CXX=clang++-13
           - os: ubuntu-22.04
             platform: linux-clang CXX=clang++-14
+          - os: ubuntu-22.04
+            platform: linux-clang CXX=clang++-15
           - os: windows-2019
             platform: win-vs-32
           - os: windows-2019
