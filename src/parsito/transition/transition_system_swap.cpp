@@ -78,7 +78,7 @@ unique_ptr<transition_oracle::tree_oracle> transition_system_swap_oracle_static:
         create_projective_component(t, node, projective_components, node);
   }
 
-  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, root_label, gold, std::move(projective_order), move(projective_components)));
+  return unique_ptr<transition_oracle::tree_oracle>(new tree_oracle_static(labels, root_label, gold, std::move(projective_order), std::move(projective_components)));
 }
 
 void transition_system_swap_oracle_static::create_projective_order(const tree& gold, int node, vector<int>& projective_order, int& projective_index) const {
