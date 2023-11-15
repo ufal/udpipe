@@ -1,5 +1,5 @@
-Version 1.3.1-dev
------------------
+Version 1.3.1 [15 Nov 23]
+-------------------------
 - Update MorphoDiTa to 1.11.2.
 
 
