@@ -12,5 +12,5 @@
 rm -rf ../src/rest_server/microrestd/*
 git -C ../src/rest_server/microrestd clone --depth=1 --branch=stable https://github.com/ufal/microrestd
 cp -a ../src/rest_server/microrestd/microrestd/src/* ../src/rest_server/microrestd/
-cp -a ../src/rest_server/microrestd/microrestd/{AUTHORS,CHANGES,LICENSE,README} ../src/rest_server/microrestd/
+cp -a ../src/rest_server/microrestd/microrestd/{AUTHORS,CHANGES.md,LICENSE,README} ../src/rest_server/microrestd/
 rm -rf ../src/rest_server/microrestd/microrestd/

@@ -545,7 +545,7 @@ template <typename... Args> void rest_server::log(Args&&... args) {
     lock_guard<decltype(log_file_mutex)> log_file_lock(log_file_mutex);
 
     if (len) *log_file << timestamp;
-    log_append(forward<Args>(args)...);
+    log_append(std::forward<Args>(args)...);
     *log_file << endl;
   }
 }
@@ -553,7 +553,7 @@ template <typename... Args> void rest_server::log(Args&&... args) {
 void rest_server::log_append() {}
 template <typename Arg, typename... Args> void rest_server::log_append(Arg&& arg, Args&&... args) {
   *log_file << arg;
-  log_append(forward<Args>(args)...);
+  log_append(std::forward<Args>(args)...);
 }
 
 void rest_server::log_append_pair(string& message, const char* key, const string& value) {
