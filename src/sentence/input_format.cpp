@@ -452,21 +452,21 @@ bool input_format_presegmented_tokenizer::next_sentence(sentence& s, string& err
       // Append words
       size_t words = s.words.size() - 1;
       for (size_t i = 1; i < partial.words.size(); i++) {
-        s.words.push_back(move(partial.words[i]));
+        s.words.push_back(std::move(partial.words[i]));
         s.words.back().id += words;
         if (s.words.back().head > 0) s.words.back().head += words;
       }
 
       // Append multiword_tokens
       for (auto&& multiword_token : partial.multiword_tokens) {
-        s.multiword_tokens.push_back(move(multiword_token));
+        s.multiword_tokens.push_back(std::move(multiword_token));
         s.multiword_tokens.back().id_first += words;
         s.multiword_tokens.back().id_last += words;
       }
 
       // Append empty nodes
       for (auto&& empty_node : partial.empty_nodes) {
-        s.empty_nodes.push_back(move(empty_node));
+        s.empty_nodes.push_back(std::move(empty_node));
         s.empty_nodes.back().id += words;
       }
     }

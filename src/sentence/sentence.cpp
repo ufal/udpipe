@@ -181,7 +181,7 @@ void sentence::set_comment(string_piece name, string_piece value) {
     for (size_t i = 0; i < value.len; i++)
       comment.push_back(value.str[i] == '\r' || value.str[i] == '\n' ? ' ' : value.str[i]);
   }
-  comments.push_back(move(comment));
+  comments.push_back(std::move(comment));
 }
 
 
