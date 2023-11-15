@@ -12,7 +12,7 @@
 rm -rf ../src/morphodita/*
 git -C ../src/morphodita clone --depth=1 --branch=stable https://github.com/ufal/morphodita
 cp -a ../src/morphodita/morphodita/src/{derivator,morpho,tagger,tagset_converter,tokenizer,version,Makefile.include} ../src/morphodita/
-cp -a ../src/morphodita/morphodita/{AUTHORS,CHANGES,LICENSE,README} ../src/morphodita/
+cp -a ../src/morphodita/morphodita/{AUTHORS,CHANGES.md,LICENSE,README} ../src/morphodita/
 rm -rf ../src/morphodita/morphodita/
 sed '
   s/^namespace morphodita {/namespace udpipe {\n&/

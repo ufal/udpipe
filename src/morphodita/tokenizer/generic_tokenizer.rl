@@ -76,7 +76,7 @@ bool generic_tokenizer::next_sentence(vector<token_range>& tokens) {
           fhold;
         };
 
-      eol eol
+      (whitespace* eol -- eol eol) eol
         {
           if (!tokens.empty()) fbreak;
           current = te;

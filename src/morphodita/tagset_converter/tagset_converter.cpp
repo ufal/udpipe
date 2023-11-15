@@ -60,7 +60,7 @@ void tagset_converter_unique_generated(vector<tagged_lemma_forms>& forms) {
       if (forms[j].lemma == forms[i].lemma) {
         // Same lemma was found. Merge form-tag pairs
         for (auto&& tagged_form : forms[j].forms)
-          forms[i].forms.emplace_back(move(tagged_form));
+          forms[i].forms.emplace_back(std::move(tagged_form));
 
         // Remove lemma j by moving it to end and deleting
         if (j < forms.size() - 1) {
