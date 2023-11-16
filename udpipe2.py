@@ -308,6 +308,7 @@ class UDPipe2:
         if morphodita_dictionary:
             import ufal.morphodita
             self.morphodita = ufal.morphodita.Morpho.load(os.path.join(path, morphodita_dictionary))
+            assert "XPOS" in self.tags and "LEMMAS" in self.tags, "MorphoDiTa dictionary operates on XPOS and LEMMAS, which are not present."
 
     def close_writers(self):
         self.session.run(self.summary_writers_close)
@@ -364,9 +365,11 @@ class UDPipe2:
                     feeds[self.deprels] = word_ids[dataset.DEPREL]
 
             targets = [self.predictions]
+            if self.morphodita: targets.extend([self.predictions_logits["XPOS"], self.predictions_logits["LEMMAS"]])
             if args.parse: targets.extend([self.heads_logs, self.deprel_hidden_layer])
             predictions, *other_values = self.session.run(targets, feeds)
-            if args.parse: prior_heads, deprel_hidden_layer, *_ = other_values
+            if self.morphodita: xpos_logits, lemma_logits, *other_values = other_values
+            if args.parse: prior_heads, deprel_hidden_layer, *other_values = other_values
 
             if args.parse:
                 heads = np.zeros(prior_heads.shape[:2], dtype=np.int32)
@@ -384,6 +387,9 @@ class UDPipe2:
             for i in range(len(sentence_lens)):
                 overrides = [None] * dataset.FACTORS
                 for tag in args.tags: overrides[dataset.FACTORS_MAP[tag]] = predictions[tag][i]
+                if self.morphodita:
+                    self.disambiguate_with_morphodita(
+                        dataset.factors[dataset.FORMS].strings[sentences][1:], dataset, xpos_logits[i], lemma_logits[i], overrides)
                 if args.parse:
                     overrides[dataset.HEAD] = heads[i]
                     overrides[dataset.DEPREL] = deprels[i]
@@ -391,6 +397,58 @@ class UDPipe2:
                 sentences += 1
 
         return conllu.getvalue()
+
+    def disambiguate_with_morphodita(self, forms, dataset, tag_logits, lemma_logits, overrides):
+        import ufal.morphodita
+        tags_map = dataset.factors[dataset.XPOS].words_map
+        lemma_rules_map = dataset.factors[dataset.LEMMAS].words_map
+        overrides[dataset.XPOS] = overrides[dataset.XPOS].tolist()
+        overrides[dataset.LEMMAS] = overrides[dataset.LEMMAS].tolist()
+
+        analyses = ufal.morphodita.TaggedLemmas()
+        for i in range(len(forms)):
+            if self.morphodita.analyze(forms[i], self.morphodita.NO_GUESSER, analyses) < 0:
+                continue
+
+            if len(analyses) == 1:
+                overrides[dataset.XPOS][i] = analyses[0].tag
+                overrides[dataset.LEMMAS][i] = analyses[0].lemma
+                continue
+
+            lemmas = {}
+            for analysis in analyses:
+                tag_id = tags_map.get(analysis.tag, None)
+                if tag_id is None:
+                    continue
+                stripped_lemma = self.morphodita.lemmaId(analysis.lemma)
+                stripped_lemma_info = lemmas.get(stripped_lemma, None)
+                if stripped_lemma_info is None:
+                    lemmas[stripped_lemma] = analysis.lemma, tag_id
+                else:
+                    full_lemma, best_tag_id = stripped_lemma_info
+                    if tag_logits[i, tag_id] > tag_logits[i, best_tag_id]:
+                        lemmas[stripped_lemma] = full_lemma, tag_id
+
+            if len(lemmas) == 1:
+                lemma, best_tag_id = next(iter(lemmas.values()))
+                overrides[dataset.XPOS][i] = best_tag_id
+                overrides[dataset.LEMMAS][i] = lemma
+            elif len(lemmas) > 1:
+                best_tag_id, best_unknownlemma_tag_id = None, None
+                for stripped_lemma, (full_lemma, tag_id) in lemmas.items():
+                    lemma_rule = dataset._gen_lemma_rule(forms[i], stripped_lemma, dataset._lr_allow_copy)
+                    lemma_rule_id = lemma_rules_map.get(lemma_rule, None)
+                    if lemma_rule_id is None:
+                        if best_unknownlemma_tag_id is None or tag_logits[i, tag_id] > tag_logits[i, best_unknownlemma_tag_id]:
+                            best_unknownlemma_tag_id, best_unknownlemma = tag_id, full_lemma
+                    else:
+                        lemmatag_logits = lemma_logits[i, lemma_rule_id] + tag_logits[i, tag_id]
+                        if best_tag_id is None or lemmatag_logits > best_lemmatag_logits:
+                            best_tag_id, best_lemmatag_logits, best_lemma = tag_id, lemmatag_logits, full_lemma
+                if best_tag_id is None or (best_unknownlemma_tag_id is not None and tag_logits[i, best_unknownlemma_tag_id] > tag_logits[i, best_tag_id] + 0.5):
+                    best_tag_id, best_lemma = best_unknownlemma_tag_id, best_unknownlemma
+                overrides[dataset.XPOS][i] = best_tag_id
+                overrides[dataset.LEMMAS][i] = best_lemma
 
     def evaluate(self, dataset_name, dataset, args):
         import io

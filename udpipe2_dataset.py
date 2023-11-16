@@ -322,18 +322,22 @@ class UDPipe2Dataset:
 
                 # Overrides
                 if overrides is not None and f < len(overrides) and overrides[f] is not None:
+                    override = overrides[f][offset]
                     if f == self.HEAD:
-                        field = str(overrides[f][offset]) if overrides[f][offset] >= 0 else "_"
+                        field = str(override) if override >= 0 else "_"
+                    elif (f == self.LEMMAS or f == self.XPOS) and isinstance(override, str):
+                        field = override
                     else:
-                        field = factor.words[overrides[f][offset]]
-                    if f == self.LEMMAS:
-                        try:
-                            field = self._apply_lemma_rule(fields[-1], field)
-                        except:
-                            print("Applying lemma rule failed for form '{}' and rule '{}', using the form as lemma".format(fields[-1], field), file=sys.stderr)
-                            field = fields[-1]
-                        # Do not generate empty lemmas
-                        field = field or fields[-1]
+                        field = factor.words[override]
+                        if f == self.LEMMAS:
+                            try:
+                                field = self._apply_lemma_rule(fields[-1], field)
+                            except:
+                                print("Applying lemma rule failed for form '{}' and rule '{}', using the form as lemma".format(
+                                    fields[-1], field), file=sys.stderr)
+                                field = fields[-1]
+                            # Do not generate empty lemmas
+                            field = field or fields[-1]
 
                 fields.append(field)
 
