@@ -22,7 +22,7 @@ import ufal.chu_liu_edmonds
 import udpipe2_dataset
 import udpipe2_eval
 
-__version__ = "2.1.0"
+__version__ = "2.1.1-dev"
 
 
 # Use tf.compat.v1 if running with TF2. Only prediction is supported

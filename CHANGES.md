@@ -1,3 +1,7 @@
+Version 2.1.1-dev
+-----------------
+
+
 Version 2.1.0 [16 Nov 23]
 -------------------------
 - Add support for using a morphological dictionary via `ufal.morphodita`

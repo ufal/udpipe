@@ -99,7 +99,7 @@ import sys
 import unicodedata
 import unittest
 
-__version__ = "2.1.0"
+__version__ = "2.1.1-dev"
 
 
 # CoNLL-U column names
