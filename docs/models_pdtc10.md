@@ -58,9 +58,8 @@ an official train/dev/test split. We therefore used the following split:
 
 ### Acknowledgements #czech_pdtc1.0_model_acknowledgements
 
-This work has been has been supported by the LINDAT/CLARIAH-CZ project funded
-by Ministry of Education, Youth and Sports of the Czech Republic (project
-_LM2023062_).
+This work has been supported by the LINDAT/CLARIAH-CZ project funded by Ministry
+of Education, Youth and Sports of the Czech Republic (project LM2023062).
 
 ### Publications
 
