@@ -3,7 +3,7 @@ HTMLS:=models.html udpipe_2.html
 .PHONY: all
 all: $(HTMLS)
 
-%.md: %.md.sh
+%.md: %.md.sh $(wildcard *.md)
 	sh $< >$@
 
 %.fragment.html: %.md
