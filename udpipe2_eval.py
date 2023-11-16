@@ -486,8 +486,8 @@ def load_conllu_file(path, single_root=1):
 
 def evaluate_wrapper(args):
     # Load CoNLL-U files
-    gold_ud = load_conllu_file(args.gold_file)
-    system_ud = load_conllu_file(args.system_file)
+    gold_ud = load_conllu_file(args.gold_file, args.single_root)
+    system_ud = load_conllu_file(args.system_file, args.single_root)
     return evaluate(gold_ud, system_ud)
 
 def main():
@@ -501,6 +501,8 @@ def main():
                         help="Print all metrics.")
     parser.add_argument("--counts", "-c", default=False, action="store_true",
                         help="Print raw counts of correct/gold/system/aligned words instead of prec/rec/F1 for all metrics.")
+    parser.add_argument("--no_single_root", dest="single_root", default=True, action="store_false",
+                        help="Allow multiple roots in a sentence.")
     args = parser.parse_args()
 
     # Evaluate
