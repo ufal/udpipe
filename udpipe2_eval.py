@@ -99,6 +99,9 @@ import sys
 import unicodedata
 import unittest
 
+__version__ = "2.1.0"
+
+
 # CoNLL-U column names
 ID, FORM, LEMMA, UPOS, XPOS, FEATS, HEAD, DEPREL, DEPS, MISC = range(10)
 

@@ -28,7 +28,7 @@ import udpipe2_dataset
 import ufal.udpipe
 import wembedding_service.wembeddings.wembeddings as wembeddings
 
-__version__ = "2.0.1-dev"
+__version__ = "2.1.0"
 
 
 class TooLongError(Exception):

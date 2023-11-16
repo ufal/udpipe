@@ -22,7 +22,8 @@ import ufal.chu_liu_edmonds
 import udpipe2_dataset
 import udpipe2_eval
 
-__version__ = "2.0.1-dev"
+__version__ = "2.1.0"
+
 
 # Use tf.compat.v1 if running with TF2. Only prediction is supported
 # in this case, because we use tf.compat.opt.LazyAdamOptimizer, which
