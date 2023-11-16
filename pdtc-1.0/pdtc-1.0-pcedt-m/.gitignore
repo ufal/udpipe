@@ -1,0 +1,4 @@
+*.conllu
+*.log
+*.npz
+*.predicted-conllu

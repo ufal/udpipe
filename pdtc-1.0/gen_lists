@@ -1,0 +1,28 @@
+#!/bin/bash
+
+for l in a m onlym; do
+  mkdir -p pdtc-1.0-pdt-$l
+  case $l in
+    onlym) src=mw; l1=m;;
+    *) src=*$l*; l1=$l;;
+  esac
+  ls data/PDT/pml/$src/train*/*.$l1.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pdt-$l/files_train
+  ls data/PDT/pml/$src/dtest*/*.$l1.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pdt-$l/files_dev
+  ls data/PDT/pml/$src/etest*/*.$l1.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pdt-$l/files_test
+done
+
+mkdir -p pdtc-1.0-pcedt-m
+ls data/PCEDT/pml/wsj{0[0-9],1[0-8]}*.m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pcedt-m/files_train
+ls data/PCEDT/pml/wsj{19,2[01]}*.m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pcedt-m/files_dev
+ls data/PCEDT/pml/wsj2[234]*.m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-pcedt-m/files_test
+
+for t in Faust PDTSC; do
+  mkdir -p pdtc-1.0-${t,,}-m
+  ls data/$t/pml/*_{[0-9],[0-9][0-9]}[^67].*m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-${t,,}-m/files_train
+  ls data/$t/pml/*_{[0-9],[0-9][0-9]}6.*m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-${t,,}-m/files_dev
+  ls data/$t/pml/*_{[0-9],[0-9][0-9]}7.*m.gz | sed 's/\.[am]\.gz$//' > pdtc-1.0-${t,,}-m/files_test
+done
+
+for d in pdtc-1.0-*/; do
+  cat $d/files_train $d/files_dev $d/files_test >$d/files_all
+done
