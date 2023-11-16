@@ -104,7 +104,7 @@ class Models:
             return list(self._read(text, tokenizer))
 
         def _read(self, text, reader):
-            sentence, sentences = ufal.udpipe.Sentence(), []
+            sentence = ufal.udpipe.Sentence()
             processing_error = ufal.udpipe.ProcessingError()
             reader.setText(text)
             while reader.nextSentence(sentence, processing_error):
