@@ -49,9 +49,12 @@ class FrontendRESTServer(socketserver.TCPServer):
         protocol_version = "HTTP/1.1"
 
         format_for_log_table = str.maketrans("\n", "\r", "\r")
-        def format_for_log(request, data):
-            if len(data) > request.server._args.log_data:
-                data = data[:request.server._args.log_data // 2] + " ... " + data[min(-1, -request.server._args.log_data // 2):]
+        def format_for_log(request, data, limit=None):
+            if limit is not None:
+                if limit <= 0:
+                    data = "[{}B]".format(len(data))
+                elif len(data) > limit:
+                    data = data[:limit // 2] + " ... " + data[min(-1, -limit // 2):]
             return data.translate(request.format_for_log_table)
 
         def respond(request, content_type, code=200, additional_headers={}):
@@ -134,7 +137,7 @@ class FrontendRESTServer(socketserver.TCPServer):
             if request.server._args.log_data:
                 print(url.path, " ".join(request.headers.get_all("X-Forwarded-For", [])),
                       *["{}:{}".format(key, request.format_for_log(value)) for key, value in params.items() if key != "data"],
-                      "data:" + request.format_for_log(params.get("data", "")),
+                      "data:" + request.format_for_log(params.get("data", ""), request.server._args.log_data),
                       sep="\t", file=sys.stderr, flush=True)
 
             # Handle /models
