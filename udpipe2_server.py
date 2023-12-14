@@ -136,7 +136,10 @@ class Models:
                 # Compute the WEmbeddings
                 with self._server_args.optional_semaphore:
                     time_we = time.time()
-                    wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network.args.wembedding_model, wembedding_input)
+                    if self._network.args.wembedding_model:
+                        wembeddings = self._server_args.wembedding_server.compute_embeddings(self._network.args.wembedding_model, wembedding_input)
+                    else:
+                        wembeddings = []
 
                 time_ds = time.time()
                 # Create UDPipe2Dataset
