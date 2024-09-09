@@ -5,8 +5,8 @@
 <p>
 Description of the available methods is available in the <a href="api-reference.php">API
 Documentation</a> and the models are described in the
-<a href="http://ufal.mff.cuni.cz/udpipe/2/models">UDPipe 2 models list</a>
-and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
+<a href="https://ufal.mff.cuni.cz/udpipe/2/models">UDPipe 2 models list</a>
+and <a href="https://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
 </p>
 
 <script type="text/javascript"><!--
@@ -299,7 +299,7 @@ and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
   <div class="panel-body">
 
     <p>The service is freely available for testing. Respect the
-    <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>
     licence of the models &ndash; <b>explicit written permission of the authors is
     required for any commercial exploitation of the system</b>. If you use the
     service, you agree that data obtained by us during such use can be used for further
@@ -310,15 +310,15 @@ and <a href="http://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
       <div class="form-group row">
         <label class="col-sm-2 control-label">Model:</label>
         <div class="col-sm-10">
-          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.12-" onchange="updateModels()" checked />UD 2.12 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_212_models">description</a>)</label>
-          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.10-" onchange="updateModels()" />UD 2.10 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_210_models">description</a>)</label>
-          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.6-" onchange="updateModels()" />UD 2.6 (<a href="http://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.12-" onchange="updateModels()" checked />UD 2.12 (<a href="https://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_212_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.10-" onchange="updateModels()" />UD 2.10 (<a href="https://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_210_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-ud-2.6-" onchange="updateModels()" />UD 2.6 (<a href="https://ufal.mff.cuni.cz/udpipe/2/models#universal_dependencies_26_models">description</a>)</label>
           <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-pdtc1.0-" onchange="updateModels()" />PDT-C 1.0 (<a href="https://ufal.mff.cuni.cz/udpipe/2/models#czech_pdtc1.0_model">description</a>)</label>
-          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-evalatin2" onchange="updateModels()" />EvaLatin (24/<a href="http://ufal.mff.cuni.cz/udpipe/2/models#evalatin20_models">20</a>)</label>
-          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.5-" onchange="updateModels()" />UD 2.5 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_25_models">description</a>)</label>
-          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.4-" onchange="updateModels()" />UD 2.4 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_24_models">description</a>)</label>
-          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.0-1" onchange="updateModels()" />UD 2.0 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_20_models">description</a>)</label>
-          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="http://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_12_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="2"><input name="family" type="radio" value="-evalatin2" onchange="updateModels()" />EvaLatin (24/<a href="https://ufal.mff.cuni.cz/udpipe/2/models#evalatin20_models">20</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.5-" onchange="updateModels()" />UD 2.5 (<a href="https://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_25_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.4-" onchange="updateModels()" />UD 2.4 (<a href="https://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_24_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-2.0-1" onchange="updateModels()" />UD 2.0 (<a href="https://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_20_models">description</a>)</label>
+          <label class="radio-inline" data-udpipe="1" style="display: none"><input name="family" type="radio" value="-ud-1.2-" onchange="updateModels()" />UD 1.2 (<a href="https://ufal.mff.cuni.cz/udpipe/1/models#universal_dependencies_12_models">description</a>)</label>
         </div>
       </div>
       <div class="form-group row">

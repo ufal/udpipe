@@ -17,7 +17,7 @@
 <code>http(s)://lindat.mff.cuni.cz/services/udpipe/api/</code>.</p>
 
 <p>The web service is freely available. Respect the
-<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA</a>
 licence of the models &ndash; <b>explicit written permission of the authors is
 required for any commercial exploitation of the system</b>. If you use the
 service, you agree that data obtained by us during such use can be used for further
@@ -42,7 +42,7 @@ handling.</p>
 </tr>
 <tr>
     <td><a href="#process">process</a></td>
-    <td><a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe">process supplied data</a></td>
+    <td><a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe">process supplied data</a></td>
     <td>GET/POST</td>
 </tr>
 </table>
@@ -58,8 +58,8 @@ also returned &ndash; this is guaranteed to be the latest Czech model.</p>
 <h4>Browser Example</h4>
 
 <table style='width: 100%'>
- <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">http://lindat.mff.cuni.cz/services/udpipe/api/models</pre></td>
-     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('http://lindat.mff.cuni.cz/services/udpipe/api/models')">try&nbsp;this</button></td></tr>
+ <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">https://lindat.mff.cuni.cz/services/udpipe/api/models</pre></td>
+     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('https://lindat.mff.cuni.cz/services/udpipe/api/models')">try&nbsp;this</button></td></tr>
 </table>
 
 <h4>Example JSON Response</h4>
@@ -77,21 +77,21 @@ also returned &ndash; this is guaranteed to be the latest Czech model.</p>
 
 <h3>Method <a id='process'>process</a></h3>
 
-<p>Process given data as described <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe">in the User's Manual</a>.</p>
+<p>Process given data as described <a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe">in the User's Manual</a>.</p>
 
 <table class='table table-striped table-bordered'>
 <tr><th>Parameter</th><th>Mandatory</th><th>Data type</th><th>Description</th></tr>
 <tr><td>data</td><td>yes</td><td>string</td><td>Input text in <b>UTF-8</b>.</td></tr>
 <tr><td>model</td><td>no</td><td>string</td><td>Model to use; see <a href="#model_selection">model selection</a> for model matching rules.</td></tr>
 <tr><td>tokenizer</td><td>no</td><td>string</td><td>If the option is present, the input is assumed to be in plain text and is tokenized. If the parameter has a value, it is passed to the tokenizer as <a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_tokenizer">tokenizer options</a>.</td></tr>
-<tr><td>input</td><td>no</td><td>string (<code>conllu</code> / <code>generic_tokenizer</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>If the tokenizer is not used, the input is assumed to be in the specified <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">input format (eventually with options)</a>; default <code>conllu</code>.</td></tr>
+<tr><td>input</td><td>no</td><td>string (<code>conllu</code> / <code>generic_tokenizer</code> / <code>horizontal</code> / <code>vertical</code>)</td><td>If the tokenizer is not used, the input is assumed to be in the specified <a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_input">input format (eventually with options)</a>; default <code>conllu</code>.</td></tr>
 <tr><td>tagger</td><td>no</td><td>string</td><td>If the option is present, the input is POS tagged and lemmatized. If the parameter has a value, it is passed to the tagger.</td></tr>
 <tr><td>parser</td><td>no</td><td>string</td><td>If the option is present, the input is dependency parsed. If the parameter has a value, it is passed to the parser.</td></tr>
-<tr><td>output</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>matxin</code> / <code>plaintext</code> / <code>vertical</code>)</td><td>The <a href="http://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_output">output format (eventually with options)</a> to use; default <code>conllu</code>.</td></tr>
+<tr><td>output</td><td>no</td><td>string (<code>conllu</code> / <code>horizontal</code> / <code>matxin</code> / <code>plaintext</code> / <code>vertical</code>)</td><td>The <a href="https://ufal.mff.cuni.cz/udpipe/users-manual#run_udpipe_output">output format (eventually with options)</a> to use; default <code>conllu</code>.</td></tr>
 </table>
 
 <p>
-The response is in <a href="http://en.wikipedia.org/wiki/JSON">JSON</a> format of the
+The response is in <a href="https://en.wikipedia.org/wiki/JSON">JSON</a> format of the
 following structure:</p>
 
 <pre class="prettyprint lang-json">
@@ -106,8 +106,8 @@ The <code>processed_output</code> is the output of the UDPipe in the requested o
 
 <h4>Browser Examples</h4>
 <table style='width: 100%'>
- <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">http://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.</pre></td>
-     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('http://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.')">try&nbsp;this</button></td></tr>
+ <tr><td style='vertical-align: middle'><pre style='margin-bottom: 0; white-space: pre-wrap' class="prettyprint lang-html">https://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.</pre></td>
+     <td style='vertical-align: middle; width: 6em'><button style='width: 100%' type="button" class="btn btn-success btn-xs" onclick="window.open('https://lindat.mff.cuni.cz/services/udpipe/api/process?tokenizer&amp;tagger&amp;parser&amp;data=Děti pojedou k babičce. Už se těší.')">try&nbsp;this</button></td></tr>
 </table>
 
 <hr />
@@ -141,15 +141,15 @@ the <code>model</code> option:</p>
 The described API can be comfortably used by <code>curl</code>. Several examples follow:
 
 <h3>Passing Input on Command Line (if UTF-8 locale is being used)</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl --data 'tokenizer=&tagger=&parser=&data=Děti pojedou k babičce. Už se těší.' http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl --data 'tokenizer=&tagger=&parser=&data=Děti pojedou k babičce. Už se těší.' https://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Using Files as Input (files must be in UTF-8 encoding)</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F tokenizer= -F tagger= -F parser= https://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Specifying Model Parameters</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= https://lindat.mff.cuni.cz/services/udpipe/api/process</pre>
 
 <h3>Converting JSON Result to Plain Text</h3>
-<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= http://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
+<pre style="white-space: pre-wrap" class="prettyprint lang-sh">curl -F data=@input_file.txt -F model=english -F tokenizer= -F tagger= -F parser= https://lindat.mff.cuni.cz/services/udpipe/api/process | PYTHONIOENCODING=utf-8 python -c "import sys,json; sys.stdout.write(json.load(sys.stdin)['result'])"</pre>
 
 <?php require('footer.php') ?>
