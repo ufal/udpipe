@@ -20,9 +20,6 @@ jobs:
           - os: ubuntu-22.04
             platform: linux-gcc CXX=g++-12
           - os: ubuntu-22.04
-            platform: linux-gcc
-            container: quay.io/pypa/manylinux2014_x86_64
-          - os: ubuntu-22.04
             platform: linux-clang CXX=clang++-13
           - os: ubuntu-22.04
             platform: linux-clang CXX=clang++-14
@@ -36,9 +33,9 @@ jobs:
             platform: win-vs-32
           - os: windows-2022
             platform: win-vs-64
-          - os: macos-11
+          - os: macos-13
             platform: macos-clang-64
-          - os: macos-11
+          - os: macos-14
             platform: macos-clang-arm64
 
     steps:
@@ -61,4 +58,3 @@ jobs:
 
       - name: Compile tests
         run: make PLATFORM=${{ matrix.platform }} -k -C tests all
-        if: matrix.platform != 'macos-clang-arm64'
