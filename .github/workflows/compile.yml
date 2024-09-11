@@ -35,8 +35,10 @@ jobs:
             platform: win-vs-64
           - os: macos-13
             platform: macos-clang-64
+            c_flags: -Wnodeprecated-declarations
           - os: macos-14
             platform: macos-clang-arm64
+            c_flags: -Wnodeprecated-declarations
 
     steps:
       - uses: actions/checkout@v3
@@ -54,7 +56,7 @@ jobs:
       - name: Compile src
         run: make PLATFORM=${{ matrix.platform }} -k -C src full
         env:
-          C_FLAGS: $(treat_warnings_as_errors)
+          C_FLAGS: $(treat_warnings_as_errors) ${{ matrix.c_flags }}
 
       - name: Compile tests
         run: make PLATFORM=${{ matrix.platform }} -k -C tests all
