@@ -35,10 +35,10 @@ jobs:
             platform: win-vs-64
           - os: macos-13
             platform: macos-clang-64
-            c_flags: -Wnodeprecated-declarations
+            c_flags: -Wno-deprecated-declarations
           - os: macos-14
             platform: macos-clang-arm64
-            c_flags: -Wnodeprecated-declarations
+            c_flags: -Wno-deprecated-declarations
 
     steps:
       - uses: actions/checkout@v3
