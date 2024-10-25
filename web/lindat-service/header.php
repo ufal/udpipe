@@ -17,7 +17,6 @@
     <script src="//cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js" type="text/javascript"></script>
 
     <script src="bootstrap-select.min.js" type="text/javascript"></script>
-    <script src="blob.min.js" type="text/javascript"></script>
     <script src="filesaver.min.js" type="text/javascript"></script>
     <script src="js-treex-view.min.js" type="text/javascript"></script>
 
