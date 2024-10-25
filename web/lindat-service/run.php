@@ -44,6 +44,7 @@ and <a href="https://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
 
     var form_data = null;
     if (window.FormData) {
+      options["data"] = new Blob([text], {type: "text/plain", endings: "transparent"});
       form_data = new FormData();
       for (var key in options)
         form_data.append(key, options[key]);
