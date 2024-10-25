@@ -196,6 +196,7 @@ and <a href="https://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
         reader.readAsText(file);
       }
     }
+    this.value = '';  // Make sure selecting the same file will fire 'change' handler again
   });
 
   jQuery(document).on('show.bs.tab', '#output_table_link', showTable);
