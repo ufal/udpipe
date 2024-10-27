@@ -110,7 +110,7 @@ if __name__ == "__main__":
         for input_path in (args.inputs or [sys.stdin]):
             # Use stdin if no inputs are specified
             if input_path != sys.stdin:
-                with open(input_path, "r", encoding="utf-8-sig") as input_file:
+                with open(input_path, "r", encoding="utf-8-sig", newline="") as input_file:
                     data = input_file.read()
             else:
                 data = sys.stdin.read()
