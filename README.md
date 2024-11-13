@@ -87,7 +87,10 @@ training options do.
 
 To train a new UDPipe model, you need to perform three steps, assuming
 you have the data in CoNLL-U format:
-1. First, you need to compute the contextualized embeddings for your data,
+1. Install the [requirements.txt](https://github.com/ufal/udpipe/blob/udpipe-2/requirements.txt).
+   Model training needs TF 1, which in turn means that you need Python 3.7.* or older.
+
+2. First, you need to compute the contextualized embeddings for your data,
    using the `wembedding_service/compute_wembeddings.py` script.
 
    The official UDPipe models use the
@@ -95,7 +98,7 @@ you have the data in CoNLL-U format:
    script, where you can see how to name the outputs and which BERT-like models
    are used for which treebanks.
 
-2. Then, you need to train the UDPipe 2 models themselves, using the
+3. Then, you need to train the UDPipe 2 models themselves, using the
    [udpipe2.py](https://github.com/ufal/udpipe/blob/udpipe-2/udpipe2.py) script.
    You can generally use the default hyperparameters, you only need to specify
    the path of the trained model (as the first argument) and then paths to your
@@ -106,7 +109,7 @@ you have the data in CoNLL-U format:
    script; you can see they tweak `--batch_size` and `--rnn_cell_dim` a bit
    depending on the trained treebank size.
 
-3. Because UDPipe 2 does not include tokenization functionality, you need to
+4. Because UDPipe 2 does not include tokenization functionality, you need to
    [train a UDPipe 1 tokenizer](https://ufal.mff.cuni.cz/udpipe/1/users-manual#model_training_tokenizer).
    The tokenizer should then be put in the trained UDPipe 2 model directory
    under the name `VARIANT.tokenizer`, where `VARIANT` is the variant you specify
