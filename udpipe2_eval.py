@@ -256,10 +256,13 @@ def load_conllu(file, single_root=1):
                 raise UDError("Cannot parse multi-word token ID '{}'".format(columns[ID]))
 
             for _ in range(start, end + 1):
-                word_line = file.readline().rstrip("\r\n")
-                word_columns = word_line.split("\t")
-                if len(word_columns) != 10:
-                    raise UDError("The CoNLL-U line does not contain 10 tab-separated columns: '{}'".format(word_line))
+                while True:
+                    word_line = file.readline().rstrip("\r\n")
+                    word_columns = word_line.split("\t")
+                    if len(word_columns) != 10:
+                        raise UDError("The CoNLL-U line does not contain 10 tab-separated columns: '{}'".format(word_line))
+                    if "." not in word_columns[ID]:
+                        break
                 ud.words.append(UDWord(ud.tokens[-1], word_columns, is_multiword=True))
         # Basic tokens/words
         else:
