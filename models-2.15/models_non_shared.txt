@@ -1,0 +1,16 @@
+de_hdt -0.010
+de_gsd -1.080
+es_ancora -0.280
+fr_gsd -0.250
+id_gsd -0.690
+it_old -1.690
+ja_gsd -0.500
+la_proiel -0.080
+la_ittb -0.300
+la_llct -0.470
+orv_torot -2.200
+orv_rnc -0.530
+ro_nonstandard -0.210
+pt_gsd -0.180
+zh_gsd -0.290
+zh_gsdsimp -0.640
