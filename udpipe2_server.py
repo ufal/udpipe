@@ -417,14 +417,14 @@ if __name__ == "__main__":
     if args.logfile is not None:
         sys.stderr = open(args.logfile, "a", encoding="utf-8")
 
-    # Load the models
-    models = Models(args)
-
     # Create the WEmbeddings client
     if args.wembedding_server is not None:
         args.wembedding_server = wembeddings.WEmbeddings.ClientNetwork(args.wembedding_server)
     else:
         args.wembedding_server = wembeddings.WEmbeddings(threads=args.threads, preload_models=args.wembedding_preload_models)
+
+    # Load the models
+    models = Models(args)
 
     # Create a semaphore if needed
     args.optional_semaphore = threading.Semaphore(args.concurrent) if args.concurrent is not None else contextlib.nullcontext()
