@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import warnings
+os.environ.setdefault("TF_USE_LEGACY_KERAS", "1")  # Use legacy Keras 2, not Keras 3
 
 import numpy as np
 import tensorflow as tf
