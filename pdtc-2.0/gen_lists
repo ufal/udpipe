@@ -1,0 +1,25 @@
+#!/bin/bash
+
+for l in a m onlym; do
+  mkdir -p pdtc-2.0-pdt-$l
+  case $l in
+    onlym) src=mw; l1=m;;
+    *) src=*$l*; l1=$l;;
+  esac
+  ls data/PDT/pml/$src/train*/*.$l1 | sed 's/\.[am]$//' > pdtc-2.0-pdt-$l/files_train
+  ls data/PDT/pml/$src/dtest*/*.$l1 | sed 's/\.[am]$//' > pdtc-2.0-pdt-$l/files_dev
+  ls data/PDT/pml/$src/etest*/*.$l1 | sed 's/\.[am]$//' > pdtc-2.0-pdt-$l/files_test
+done
+
+for ds in faust:Faust pcedt:PCEDT-cz pdtsc:PDTSC; do
+  tgt=${ds%%:*}
+  src=${ds#*:}
+  mkdir -p pdtc-2.0-$tgt-a
+  ls data/$src/pml/train/*.a | sed 's/\.[am]$//' > pdtc-2.0-$tgt-a/files_train
+  ls data/$src/pml/dtest/*.a | sed 's/\.[am]$//' > pdtc-2.0-$tgt-a/files_dev
+  ls data/$src/pml/etest/*.a | sed 's/\.[am]$//' > pdtc-2.0-$tgt-a/files_test
+done
+
+for d in pdtc-2.0-*/; do
+  cat $d/files_train $d/files_dev $d/files_test >$d/files_all
+done
