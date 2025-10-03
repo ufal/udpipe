@@ -486,7 +486,7 @@ class UDPipe2:
         parser.add_argument("--parse", default=1, type=int, help="Parse.")
         parser.add_argument("--parser_layers", default=1, type=int, help="Parser layers.")
         parser.add_argument("--parser_deprel_dim", default=128, type=int, help="Parser deprel dim.")
-        parser.add_argument("--predict", default=False, action="store_true", help="Only predict.")
+        parser.add_argument("--predict", default=False, const=True, nargs="?", type=str, help="Only predict.")
         parser.add_argument("--predict_input", default=None, type=str, help="Input to prediction.")
         parser.add_argument("--predict_output", default=None, type=str, help="Output to prediction.")
         parser.add_argument("--rnn_cell", default="LSTM", type=str, help="RNN cell type.")
@@ -569,7 +569,11 @@ if __name__ == "__main__":
     network.construct(args, train, devs, tests, predict_only=args.predict)
 
     if args.predict:
-        network.load(args.model, args.morphodita)
+        def predict_mode(*modes):
+            return isinstance(args.predict, str) and any(mode in args.predict.lower() for mode in modes)
+        network.load(args.model, None if predict_mode("no_tagging", "no_morphodita") else args.morphodita)
+        args.tags = [] if predict_mode("no_tagging") else args.tags
+        args.parse = 0 if predict_mode("no_parsing") else args.parse
         conllu = network.predict(test, False, args)
         with open(args.predict_output, "w", encoding="utf-8") as output_file:
             print(conllu, end="", file=output_file)
