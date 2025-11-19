@@ -12,7 +12,7 @@
 rm -rf ../src/utils/*
 git -C ../src/utils clone --depth=1 --branch=stable https://github.com/ufal/cpp_utils
 mv ../src/utils/cpp_utils/src/* ../src/utils/
-mv ../src/utils/cpp_utils/{AUTHORS,CHANGES,LICENSE,README} ../src/utils/
+mv ../src/utils/cpp_utils/{AUTHORS,CHANGES.md,LICENSE,README} ../src/utils/
 rm -rf ../src/utils/cpp_utils/
 sed '
   s/^namespace utils {/namespace udpipe {\n&/

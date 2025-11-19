@@ -1,0 +1,116 @@
+Version 3.5.4 [19 Nov 2025]
+---------------------------
+- Remove unused function in `compressor_save.cpp` causing warnings in g++.
+
+
+Version 3.5.3 [8 Sep 2023]
+--------------------------
+- Add explicit initialization to silence false positive valgrind
+  report in `compressor_save.cpp`
+
+
+Version 3.5.2 [07 Sep 2022]
+---------------------------
+- Fix warning on clang in `compressor_save.cpp`.
+
+
+Version 3.5.1 [25 Aut 2022]
+---------------------------
+- Correctly use `path_from_utf8.h` in `named_values.h` and `process_args.h`.
+
+
+Version 3.5.0 [24 Aug 2022]
+---------------------------
+- Add `path_from_utf8.h` header.
+- Add `win_wmain_utf8.cpp` source.
+
+
+Version 3.4.3 [24 Jun 2020]
+---------------------------
+- Fix the error message in `add_2B` and `add_4B`.
+
+
+Version 3.4.2 [24 Nov 2018]
+---------------------------
+- Remove obsolete dynamic extension specification.
+
+
+Version 3.4.1 [17 Dec 2017]
+---------------------------
+- Fix bug in `binary_decoder` and `pointer_decoder` introduced by 3.4.0.
+- Unify the pointer and value types for `unaligned_{lower,upper}_bound`.
+
+
+Version 3.4.0 [17 Dec 2017]
+---------------------------
+- New `unaligned_access.h` header providing several methods for loading
+  and storing values using unaligned pointers.
+- Fix unaligned loads in `binary_decoder` and `pointer_decoder`.
+- Make UndefinedBehaviourSanitizer happy in `compressor_save.cpp`.
+
+
+Version 3.3.0 [24 Aug 2017]
+---------------------------
+- Add `run_process` method executing given executable with given arguments,
+  optionally capturing standard output.
+
+
+Version 3.2.1 [08 Apr 2017]
+---------------------------
+- Add `threadsafe_resource_loader` destructor freeing currently
+  unused resources.
+
+
+Version 3.2.0 [08 Apr 2017]
+---------------------------
+- Add `threadsafe_resource_loader.h` header
+
+
+Version 3.1.1 [31 Mar 2017]
+---------------------------
+- Support leading + in `parse_int` and `parse_double`
+- Support exponent in `parse_double`
+
+
+Version 3.1.0 [29 Mar 2017]
+---------------------------
+- Allow specifying binary mode in `process_args_with_output_template`.
+
+
+Version 3.0.0 [22 Mar 2017]
+---------------------------
+- Add `getwhole.h` header.
+- Pass input and output filename to `process_args_with_output_template`.
+
+
+Version 2.1.0 [29 Jun 2016]
+---------------------------
+- Allow named values with name only.
+
+
+Version 2.0.1 [22 May 2016]
+---------------------------
+- Make `named_values.h` compile on VS 2015.
+
+
+Version 2.0.0 [04 Mar 2016]
+---------------------------
+- Rename `iostreams_xml.h` to `xml_encoded.h`.
+- Move getpara method from `iostreams.h` to `getpara.h`.
+
+
+Version 1.1.0 [03 Mar 2016]
+---------------------------
+- Add `named_values.h` class which can parse named values from a string.
+- Add `process_args_with_output_template` method to `process_args.h`.
+
+
+Version 1.0.1 [28 Feb 2016]
+---------------------------
+- Allow compiling `compressor_load` and `compressor_save` in
+  the same compilation unit.
+
+
+Version 1.0.0 [25 Nov 2015]
+---------------------------
+- Initial public release.
