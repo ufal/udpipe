@@ -76,9 +76,10 @@ class multiword_token : public token {
  public:
   // form and misc are inherited from token
   int id_first, id_last;
+  std::string feats; // can contain only Typo=Yes
 
   multiword_token(int id_first = -1, int id_last = -1, string_piece form = string_piece(), string_piece misc = string_piece())
-      : token(form, misc), id_first(id_first), id_last(id_last) {}
+      : token(form, misc), id_first(id_first), id_last(id_last), feats() {}
 };
 
 class empty_node {

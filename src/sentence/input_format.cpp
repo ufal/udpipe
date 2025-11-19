@@ -118,9 +118,15 @@ bool input_format_conllu::next_sentence(sentence& s, string& error) {
         return error.assign("Multiword token '").append(line.str, line.len).append("' overlaps with the previous one!"), false;
       last_multiword_token = to;
       for (int i = 2; i < 9; i++)
-        if (tokens[i].len != 1 || tokens[i].str[0] != '_')
-          return error.assign("Column ").append(columns[i]).append(" of an multi-word token '").append(line.str, line.len).append("' is not an empty!"), false;
+        if (version >= 2 && i == 5) { // feats can be Typo=Yes in version >= 2
+          if ((tokens[i].len != 1 || tokens[i].str[0] != '_') && (tokens[i].len != 8 || memcmp(tokens[i].str, "Typo=Yes", 8) != 0))
+            return error.assign("Column ").append(columns[i]).append(" of an multi-word token '").append(line.str, line.len).append("' is not empty or Typo=Yes!"), false;
+        } else {
+          if (tokens[i].len != 1 || tokens[i].str[0] != '_')
+            return error.assign("Column ").append(columns[i]).append(" of an multi-word token '").append(line.str, line.len).append("' is not empty!"), false;
+        }
       s.multiword_tokens.emplace_back(from, to, tokens[1], tokens[9].len == 1 && tokens[9].str[0] == '_' ? string_piece() : tokens[9]);
+      if (tokens[5].len != 1 || tokens[5].str[0] != '_') s.multiword_tokens.back().feats.assign(tokens[5].str, tokens[5].len);
       continue;
     }
 

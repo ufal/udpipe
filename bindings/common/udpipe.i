@@ -139,6 +139,7 @@ class multiword_token : public token {
   %rename(idFirst) id_first;
   %rename(idLast) id_last;
   int id_first, id_last;
+  std::string feats; // can contain only Typo=Yes
 
   multiword_token(int id_first = -1, int id_last = -1, const std::string& form = std::string(), const std::string& misc = std::string())
   : token(form, isc), id_first(id_first), id_last(id_last) {}
