@@ -11,27 +11,28 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            platform: linux-gcc CXX=g++-9
-          - os: ubuntu-22.04
-            platform: linux-gcc CXX=g++-10
-          - os: ubuntu-22.04
-            platform: linux-gcc CXX=g++-11
-          - os: ubuntu-22.04
+          - os: ubuntu-24.04
             platform: linux-gcc CXX=g++-12
-          - os: ubuntu-22.04
-            platform: linux-clang CXX=clang++-13
-          - os: ubuntu-22.04
-            platform: linux-clang CXX=clang++-14
-          - os: ubuntu-22.04
-            platform: linux-clang CXX=clang++-15
-          - os: windows-2019
+          - os: ubuntu-24.04
+            platform: linux-gcc CXX=g++-13
+          - os: ubuntu-24.04
+            platform: linux-gcc CXX=g++-14
+          - os: ubuntu-24.04
+            platform: linux-clang CXX=clang++-16
+          - os: ubuntu-24.04
+            platform: linux-clang CXX=clang++-17
+          - os: ubuntu-24.04
+            platform: linux-clang CXX=clang++-18
+          - os: ubuntu-24.04
+            platform: linux-gcc
+            container: quay.io/pypa/manylinux_2_28_x86_64
+          - os: windows-2022
             platform: win-vs-32
-          - os: windows-2019
+          - os: windows-2022
             platform: win-vs-64
-          - os: windows-2022
+          - os: windows-2025
             platform: win-vs-32
-          - os: windows-2022
+          - os: windows-2025
             platform: win-vs-64
           - os: macos-13
             platform: macos-clang-64
