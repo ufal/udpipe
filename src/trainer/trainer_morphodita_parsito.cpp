@@ -877,11 +877,16 @@ const string& trainer_morphodita_parsito::combine_lemma(const word& w, int use_l
 
 // Generic options handling
 
-const string& trainer_morphodita_parsito::option_str(const named_values::map& options, const string& name, int model) {
+const string& trainer_morphodita_parsito::option_str(const named_values::map& options, const char* name, int model) {
+  // We use const char* for name to avoid a false-positive dangling-reference warning from g++.
   string indexed_name(name);
   if (model >= 0 && model < 9) indexed_name.append("_").push_back('1' + model);
 
-  return options.count(indexed_name) ? options.at(indexed_name) : options.count(name) ? options.at(name) : empty_string;
+  if (options.count(indexed_name))
+    return options.at(indexed_name);
+
+  indexed_name.assign(name);
+  return options.count(name) ? options.at(name) : empty_string;
 }
 
 bool trainer_morphodita_parsito::option_int(const named_values::map& options, const string& name, int& value, string& error, int model) {

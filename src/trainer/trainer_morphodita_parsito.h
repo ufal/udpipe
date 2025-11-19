@@ -49,7 +49,7 @@ class trainer_morphodita_parsito : public trainer {
   static const string& combine_lemma(const word& w, int use_lemma, string& combined_lemma, const unordered_set<string>& flat_lemmas = unordered_set<string>());
 
   // Generic options handling
-  [[gnu::no_dangling]] static const string& option_str(const named_values::map& options, const string& name, int model = -1);
+  static const string& option_str(const named_values::map& options, const char* name, int model = -1);
   static bool option_int(const named_values::map& options, const string& name, int& value, string& error, int model = -1);
   static bool option_bool(const named_values::map& options, const string& name, bool& value, string& error, int model = -1);
   static bool option_double(const named_values::map& options, const string& name, double& value, string& error, int model = -1);
