@@ -23,10 +23,14 @@ if __name__ == "__main__":
                    0xc1, 0x0a, 0x9d, 0x5d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
                    0x6a, 0x7e, 0x56, 0x00, 0x00))
 
-        # Tagger
-        output_file.write(struct.pack("4B", 1, 1, 1, 0))
-        output_file.write(input_file.read())
+        # Tagger, if any
+        input_tagger = input_file.read()
+        if len(input_tagger):
+            output_file.write(struct.pack("4B", 1, 1, 1, 0))
+            output_file.write(input_tagger)
+        else:
+            output_file.write(struct.pack("B", 0))
 
-        # Parser
+        # No parser
         output_file.write(struct.pack("B", 0))
 
