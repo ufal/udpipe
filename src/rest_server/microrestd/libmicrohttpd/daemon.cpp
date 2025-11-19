@@ -70,6 +70,8 @@
 #include <windows.h>
 #endif
 
+#include <vector>
+
 namespace ufal {
 namespace microrestd {
 namespace libmicrohttpd {
@@ -2270,14 +2272,13 @@ MHD_poll_all (struct MHD_Daemon *daemon,
   for (pos = daemon->connections_head; NULL != pos; pos = pos->next)
     num_connections++;
   {
-    struct pollfd p[2 + num_connections];
+    std::vector<struct pollfd> p(2 + num_connections, {0, 0, 0});
     MHD_UNSIGNED_LONG_LONG ltimeout;
     unsigned int i;
     int timeout;
     unsigned int poll_server;
     int poll_listen;
 
-    memset (p, 0, sizeof (p));
     poll_server = 0;
     poll_listen = -1;
     if ( (MHD_INVALID_SOCKET != daemon->socket_fd) &&
@@ -2331,7 +2332,7 @@ MHD_poll_all (struct MHD_Daemon *daemon,
       }
     if (0 == poll_server + num_connections)
       return MHD_YES;
-    if (poll (p, poll_server + num_connections, timeout) < 0)
+    if (poll (p.data(), poll_server + num_connections, timeout) < 0)
       {
 	if (EINTR == MHD_socket_errno_)
 	  return MHD_YES;

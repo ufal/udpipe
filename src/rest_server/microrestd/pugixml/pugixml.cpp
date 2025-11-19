@@ -3897,7 +3897,7 @@ PUGI__NS_BEGIN
 	PUGI__FN bool set_value_convert(char_t*& dest, uintptr_t& header, uintptr_t header_mask, int value)
 	{
 		char buf[128];
-		sprintf(buf, "%d", value);
+		snprintf(buf, sizeof(buf), "%d", value);
 	
 		return set_value_buffer(dest, header, header_mask, buf);
 	}
@@ -3905,7 +3905,7 @@ PUGI__NS_BEGIN
 	PUGI__FN bool set_value_convert(char_t*& dest, uintptr_t& header, uintptr_t header_mask, unsigned int value)
 	{
 		char buf[128];
-		sprintf(buf, "%u", value);
+		snprintf(buf, sizeof(buf), "%u", value);
 
 		return set_value_buffer(dest, header, header_mask, buf);
 	}
@@ -3913,7 +3913,7 @@ PUGI__NS_BEGIN
 	PUGI__FN bool set_value_convert(char_t*& dest, uintptr_t& header, uintptr_t header_mask, double value)
 	{
 		char buf[128];
-		sprintf(buf, "%g", value);
+		snprintf(buf, sizeof(buf), "%g", value);
 
 		return set_value_buffer(dest, header, header_mask, buf);
 	}
@@ -3927,7 +3927,7 @@ PUGI__NS_BEGIN
 	PUGI__FN bool set_value_convert(char_t*& dest, uintptr_t& header, uintptr_t header_mask, long long value)
 	{
 		char buf[128];
-		sprintf(buf, "%lld", value);
+		snprintf(buf, sizeof(buf), "%lld", value);
 	
 		return set_value_buffer(dest, header, header_mask, buf);
 	}
@@ -3935,7 +3935,7 @@ PUGI__NS_BEGIN
 	PUGI__FN bool set_value_convert(char_t*& dest, uintptr_t& header, uintptr_t header_mask, unsigned long long value)
 	{
 		char buf[128];
-		sprintf(buf, "%llu", value);
+		snprintf(buf, sizeof(buf), "%llu", value);
 	
 		return set_value_buffer(dest, header, header_mask, buf);
 	}

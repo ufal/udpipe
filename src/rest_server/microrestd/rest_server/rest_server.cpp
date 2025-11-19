@@ -562,7 +562,7 @@ void rest_server::log_append_pair(string& message, const char* key, const string
   message.append(key);
   {
     char length[39/*128-bit number*/ + 3/*():*/ + 1/*\0*/];
-    sprintf(length, "(%u):", unsigned(value.size()));
+    snprintf(length, sizeof(length), "(%u):", unsigned(value.size()));
     message.append(length);
   }
 

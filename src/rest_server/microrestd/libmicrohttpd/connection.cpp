@@ -557,7 +557,7 @@ keepalive_possible (struct MHD_Connection *connection)
  *        at least 128 bytes available space.
  */
 static void
-get_date_string (char *date)
+get_date_string (char *date, int date_size)
 {
   static const char *const days[] =
     { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -588,7 +588,7 @@ get_date_string (char *date)
     {
       now = *pNow;
 #endif
-      sprintf (date,
+      snprintf (date, date_size,
              "Date: %3s, %02u %3s %04u %02u:%02u:%02u GMT\r\n",
              days[now.tm_wday % 7],
              (unsigned int) now.tm_mday,
@@ -682,7 +682,7 @@ build_header_response (struct MHD_Connection *connection)
     {
       rc = connection->responseCode & (~MHD_ICY_FLAG);
       reason_phrase = MHD_get_reason_phrase_for (rc);
-      sprintf (code,
+      snprintf (code, sizeof(code),
                "%s %u %s\r\n",
 	       (0 != (connection->responseCode & MHD_ICY_FLAG))
 	       ? "ICY"
@@ -699,7 +699,7 @@ build_header_response (struct MHD_Connection *connection)
       if ( (0 == (connection->daemon->options & MHD_SUPPRESS_DATE_NO_CLOCK)) &&
 	   (NULL == MHD_get_response_header (connection->response,
 					     MHD_HTTP_HEADER_DATE)) )
-        get_date_string (date);
+        get_date_string (date, sizeof(date));
       else
         date[0] = '\0';
       size += strlen (date);
@@ -809,7 +809,7 @@ build_header_response (struct MHD_Connection *connection)
             a recent development of the HTTP 1.1 specification.
           */
           content_length_len
-            = sprintf (content_length_buf,
+            = snprintf (content_length_buf, sizeof(content_length_buf),
                        MHD_HTTP_HEADER_CONTENT_LENGTH ": " MHD_UNSIGNED_LONG_LONG_PRINTF "\r\n",
                        (MHD_UNSIGNED_LONG_LONG) connection->response->total_size);
           must_add_content_length = MHD_YES;
@@ -899,7 +899,7 @@ build_header_response (struct MHD_Connection *connection)
               (MHD_YES == must_add_close) &&
               (MHD_str_equal_caseless_(pos->header,
                                 MHD_HTTP_HEADER_CONNECTION) ) ) ) )
-      off += sprintf (&data[off],
+      off += snprintf (&data[off], size + 1 - off,
 		      "%s: %s\r\n",
 		      pos->header,
 		      pos->value);

@@ -1,3 +1,13 @@
+Version 1.2.4 [19 Nov 25]
+-------------------------
+- Stop using VLAs in C++ to avoid warnings on Clang 18.
+
+
+Version 1.2.3 [09 Sep 25]
+-------------------------
+- Fix warnings on mac OS by replacing all `sprintf` calls by `snprintf`.
+
+
 Version 1.2.2 [15 Nov 23]
 -------------------------
 - Update also the forgotten `rest_server/version.cpp`.
