@@ -6,6 +6,8 @@ with open('README') as file:
 
 extra_link_args = []
 extra_compile_args = ['-std=c++11', '-w']
+if sys.platform == "linux":
+    extra_compile_args += ['-g0']
 if sys.platform == "darwin":
     extra_compile_args += ['-stdlib=libc++']
     extra_link_args += ['-stdlib=libc++']
