@@ -38,9 +38,9 @@ for b in linux32:linux-gcc-32.sh linux64:linux-gcc-64.sh win32:visual-cpp-32.sh 
   make -C ../bindings/csharp udpipe_csharp.cpp
   make -C ../bindings/java clean
   make -C ../bindings/java udpipe.jar
-  (cd .. && $make -C src -j2 MODE=release ${targets[@]})
-  (cd .. && $make -C bindings/csharp -j2 MODE=release $csharp)
-  (cd .. && $make -C bindings/java -j2 MODE=release JAVA_HOME=../../releases/java $java)
+  (cd .. && $make -C src -j8 MODE=release ${targets[@]})
+  (cd .. && $make -C bindings/csharp -j8 MODE=release $csharp)
+  (cd .. && $make -C bindings/java -j8 MODE=release JAVA_HOME=../../releases/java $java)
 
   # Copy files
   mkdir "$dir/bin-$name"
