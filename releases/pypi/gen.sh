@@ -29,4 +29,4 @@ sed "s/^# *__version__ *=.*$/__version__ = \"$1\"/" $dir/ufal/udpipe/__init__.py
 ./README.sh >$dir/README
 
 # Generate sdist
-(cd ufal.udpipe && python3 setup.py sdist && cd dist && tar xf ufal.udpipe-$1.tar.gz)
+(cd ufal.udpipe && python3 setup.py sdist && cd dist && tar xf ufal_udpipe-$1.tar.gz)
