@@ -18,7 +18,8 @@ setuptools.setup(
     author           = 'Milan Straka',
     author_email     = 'straka@ufal.mff.cuni.cz',
     url              = 'https://ufal.mff.cuni.cz/udpipe',
-    license          = 'MPL 2.0',
+    license          = 'mpl-2.0',
+    license_files    = ['LICENSE'],
     packages         = ['ufal', 'ufal.udpipe'],
     ext_modules      = [setuptools.Extension(
         'ufal.udpipe._udpipe',
@@ -28,7 +29,6 @@ setuptools.setup(
         extra_link_args = extra_link_args)],
     classifiers      = [
         'Development Status :: 5 - Production/Stable',
-        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
         'Programming Language :: C++',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
