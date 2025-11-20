@@ -1,5 +1,5 @@
-Version 1.3.2-dev
------------------
+Version 1.4.0 [20 Nov 25]
+-------------------------
 - Allow Typo=Yes annotation in FEATS of a multi-word token.
   - The `multiword_token` now has a new `feats` field.
   - The `multiword_token.feats` is utilized both in CoNLL-U input and output format.

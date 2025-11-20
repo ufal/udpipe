@@ -19,7 +19,7 @@ namespace udpipe {
 
 // Returns current version.
 version version::current() {
-  return {1, 3, 2, "dev"};
+  return {1, 4, 0, ""};
 }
 
 // Returns multi-line formated version and copyright string.
