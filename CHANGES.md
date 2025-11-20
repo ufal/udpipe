@@ -1,3 +1,7 @@
+Version 1.4.1-dev
+-----------------
+
+
 Version 1.4.0 [20 Nov 25]
 -------------------------
 - Allow Typo=Yes annotation in FEATS of a multi-word token.
