@@ -35,9 +35,9 @@ string version::version_and_copyright(const string& other_libraries) {
        << (udpipe.prerelease.empty() ? "" : "-") << udpipe.prerelease
        << " (using UniLib " << unilib.major << '.' << unilib.minor << '.' << unilib.patch
        << (unilib.prerelease.empty() ? "" : "-") << unilib.prerelease
-       << ",\nMorphoDiTa " << morphodita.major << '.' << morphodita.minor << '.' << unilib.patch
+       << ",\nMorphoDiTa " << morphodita.major << '.' << morphodita.minor << '.' << morphodita.patch
        << (morphodita.prerelease.empty() ? "" : "-") << morphodita.prerelease
-       << ", Parsito " << parsito.major << '.' << parsito.minor << '.' << unilib.patch
+       << ", Parsito " << parsito.major << '.' << parsito.minor << '.' << parsito.patch
        << (parsito.prerelease.empty() ? "" : "-") << parsito.prerelease
        << (other_libraries.empty() ? "" : " and ") << other_libraries << ")\n"
           "Copyright 2016 by Institute of Formal and Applied Linguistics, Faculty of\n"
