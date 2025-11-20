@@ -4,6 +4,7 @@ Version 1.3.2-dev
   - The `multiword_token` now has a new `feats` field.
   - The `multiword_token.feats` is utilized both in CoNLL-U input and output format.
 - Update UFAL C++ Utils to 3.5.4 to silence g++ warning.
+- Update MicroRestD to 1.2.4 to avoid Clang warning.
 
 
 Version 1.3.1 [15 Nov 23]
