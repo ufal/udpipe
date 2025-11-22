@@ -32,6 +32,7 @@ sed '
 sed 's#^.*\bcerr\b.*$#//&#' -i `ls ../src/morphodita/*/* | grep -v ../src/morphodita/tokenizer/gru_tokenizer_network_trainer.h`
 sed 's#^//\(.*\bcerr\b\(.*[Ii]teration\|.*accuracy\| *<< *endl\).*\)$#\1#' -i ../src/morphodita/tagger/perceptron_tagger_trainer.h
 sed 's#^//\( *\).*cerr\b.*\(load_data([^)]*)\).*$#&\n\1\2;#' -i ../src/morphodita/tagger/tagger_trainer.h
+sed ':s;N;$!bs; s#\n\( *if (verbose)\n[^\n]*\bcerr\b\)#\n//\1#g' -i ../src/morphodita/derivator/derivator_dictionary_encoder.cpp
 
 # Add patch for larger number of sum of suffix tags
 patch -d ../src/morphodita/morpho <<EOF

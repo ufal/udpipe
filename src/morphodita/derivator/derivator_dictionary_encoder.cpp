@@ -95,7 +95,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
       }
     }
     if (matched[0].empty() || matched[1].empty()) {
-      if (verbose)
+//      if (verbose)
 //        cerr << "Could not match a lemma from line '" << line << "', skipping." << endl;
       continue;
     }
@@ -108,7 +108,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
         break;
       }
     if (self_loop) {
-      if (verbose)
+//      if (verbose)
 //        cerr << "Ignoring self-loop from line '" << line << "', skipping." << endl;
       continue;
     }
@@ -139,7 +139,7 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
       // Add this edge also to the parent
       derinet[lemma.second.parent].children++;
 
-      if (verbose)
+//      if (verbose)
 //        cerr << lemma.first << lemma.second.comment << " -> " << lemma.second.parent << derinet[lemma.second.parent].comment << endl;
     }
 
