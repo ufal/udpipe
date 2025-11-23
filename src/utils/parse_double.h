@@ -51,7 +51,6 @@ bool parse_double(string_piece str, const char* value_name, double& value, strin
 
   // Parse value, checking for overflow/underflow
   if (!str.len) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': empty string."), false;
-  if (!(str.str[0] >= '0' || str.str[0] <= '9')) return error.assign("Cannot parse ").append(value_name).append(" double value '").append(original.str, original.len).append("': non-digit character found."), false;
 
   value = 0;
   while (str.len && str.str[0] >= '0' && str.str[0] <= '9') {

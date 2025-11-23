@@ -46,26 +46,26 @@ T* unaligned_upper_bound(T* first, size_t size, T val);
 template<class T, class P>
 inline T unaligned_load(const P* ptr) {
   T value;
-  memcpy(&value, ptr, sizeof(T));
+  memcpy(&value, (const void*)ptr, sizeof(T));
   return value;
 }
 
 template<class T, class P>
 inline T unaligned_load_inc(const P*& ptr) {
   T value;
-  memcpy(&value, ptr, sizeof(T));
+  memcpy(&value, (const void*)ptr, sizeof(T));
   ((const char*&)ptr) += sizeof(T);
   return value;
 }
 
 template<class T, class P>
 inline void unaligned_store(P* ptr, T value) {
-  memcpy(ptr, &value, sizeof(T));
+  memcpy((void*)ptr, &value, sizeof(T));
 }
 
 template<class T, class P>
 inline void unaligned_store_inc(P*& ptr, T value) {
-  memcpy(ptr, &value, sizeof(T));
+  memcpy((void*)ptr, &value, sizeof(T));
   ((char*&)ptr) += sizeof(T);
 }
 
