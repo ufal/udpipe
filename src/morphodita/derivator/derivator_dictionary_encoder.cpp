@@ -145,18 +145,23 @@ void derivator_dictionary_encoder::encode(istream& is, istream& dictionary, bool
 
   // Make sure the derinet contains no cycles
   unsigned mark = 0;
+  bool contains_cycle = false;
   for (auto&& lemma : derinet) {
     lemma.second.mark = ++mark;
     for (auto node = derinet.find(lemma.first); !node->second.parent.empty(); ) {
       node = derinet.find(node->second.parent);
       if (node->second.mark) {
-        if (node->second.mark == mark)
-          training_failure("The derivator data contains a cycle with lemma '" << node->first << "' starting from '" << lemma.first << "'!");
+        if (node->second.mark == mark) {
+//          cerr << "The derivator data contains a cycle with lemma '" << node->first << "' starting from '" << lemma.first << "'!" << endl;
+          contains_cycle = true;
+        }
         break;
       }
       node->second.mark = mark;
     }
   }
+  if (contains_cycle)
+    training_failure("The derivator data contains cycles, aborting!");
 
   // Encode the derivator
 //  cerr << "Encoding derivator: ";

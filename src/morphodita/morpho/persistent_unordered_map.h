@@ -84,7 +84,7 @@ struct persistent_unordered_map::fnv_hash {
     uint32_t size = data.next_4B();
     mask = size - 2;
     hash.resize(size);
-    memcpy(hash.data(), data.next<uint32_t>(size), size * sizeof(uint32_t));
+    memcpy(hash.data(), (const void*)data.next<uint32_t>(size), size * sizeof(uint32_t));
 
     size = data.next_4B();
     this->data.resize(size);

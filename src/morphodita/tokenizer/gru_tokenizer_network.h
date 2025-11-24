@@ -95,8 +95,8 @@ void gru_tokenizer_network::matrix<R, C>::clear() {
 
 template <int R, int C>
 void gru_tokenizer_network::matrix<R, C>::load(binary_decoder& data) {
-  for (int i = 0; i < R; i++) memcpy(w[i], data.next<float>(C), sizeof(float) * C);
-  memcpy(b, data.next<float>(R), sizeof(float) * R);
+  for (int i = 0; i < R; i++) memcpy(w[i], (const void*)data.next<float>(C), sizeof(float) * C);
+  memcpy(b, (const void*)data.next<float>(R), sizeof(float) * R);
 }
 
 template <int D>
@@ -191,7 +191,7 @@ gru_tokenizer_network_implementation<D>* gru_tokenizer_network_implementation<D>
 
   for (unsigned chars = data.next_4B(); chars; chars--) {
     auto& embedding = network->embeddings[data.next_4B()];
-    copy_n(data.next<float>(D), D, embedding.e.w[0]);
+    memcpy(embedding.e.w[0], (const void*)data.next<float>(D), sizeof(float) * D);
   }
   fill_n(network->empty_embedding.e.w[0], D, 0.f);
 

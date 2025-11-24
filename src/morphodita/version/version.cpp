@@ -17,7 +17,7 @@ namespace udpipe {
 namespace morphodita {
 
 version version::current() {
-  return {1, 11, 2, ""};
+  return {1, 11, 3, ""};
 }
 
 // Returns multi-line formated version and copyright string.
