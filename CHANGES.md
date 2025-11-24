@@ -1,5 +1,6 @@
 Version 1.4.1-dev
 -----------------
+- Fix compilation on Solaris 11.
 
 
 Version 1.4.0 [20 Nov 25]
