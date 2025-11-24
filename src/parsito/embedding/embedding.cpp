@@ -100,7 +100,7 @@ void embedding::load(binary_decoder& data) {
 
   // Load weights
   weights.resize(dimension * (dictionary.size() + (unknown_index >= 0)));
-  memcpy(weights.data(), data.next<float>(weights.size()), sizeof(float) * weights.size());
+  memcpy(weights.data(), (const void*)data.next<float>(weights.size()), sizeof(float) * weights.size());
 }
 
 } // namespace parsito

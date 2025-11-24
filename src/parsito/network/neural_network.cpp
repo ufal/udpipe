@@ -23,7 +23,7 @@ void neural_network::load_matrix(binary_decoder& data, vector<vector<float>>& m)
   m.resize(rows);
   for (auto&& row : m) {
     row.resize(columns);
-    memcpy(row.data(), data.next<float>(columns), sizeof(float) * columns);
+    memcpy(row.data(), (const void*)data.next<float>(columns), sizeof(float) * columns);
   }
 }
 
