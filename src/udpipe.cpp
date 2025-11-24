@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
                     "Generic opts: --version\n"
                     "              --help");
   if (options.count("version"))
-    return cout << version::version_and_copyright() << endl, 0;
+    return cout << ufal::udpipe::version::version_and_copyright() << endl, 0;
 
   // TRAINING
   if (options.count("train")) {
