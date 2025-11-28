@@ -25,7 +25,7 @@ if __name__ == "__main__":
         with open(f"{args.datadir}/{iso}/{iso}-ud-train.conllu") as train_file:
             for line in train_file:
                 line = line.rstrip("\r\n")
-                if not line or line.startswith("#"):
+                if not line or line.startswith("#") or not line.split("\t", maxsplit=1)[0].isdecimal():
                     continue
                 columns = line.split("\t")
                 for column, name in [(4, "XPOS"), (5, "UFeats"), (2, "Lemmas")]:
