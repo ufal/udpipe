@@ -38,6 +38,9 @@ case $treebank in
       evaluation_data="$evaluation_data ${kind:+la_evalatin20$kind}:$data/la_evalatin20/la_evalatin20-test$kind.conllu"
     done
     ;;
+  pro_corag)
+    args="$args --epochs=20:1e-3,10:1e-4"  # because of specific dataset structure, train shorter to avoid divergence
+    ;;&
   *) evaluation_data="--dev=$data/$treebank/$treebank-ud-dev.conllu --test=$data/$treebank/$treebank-ud-test.conllu"
 esac
 
