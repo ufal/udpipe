@@ -41,4 +41,4 @@ case $treebank in
   *) evaluation_data="--dev=$data/$treebank/$treebank-ud-dev.conllu --test=$data/$treebank/$treebank-ud-test.conllu"
 esac
 
-sbatch $SLURM_ARGS -p gpu-ms,gpu-troja -G 1 -C "gpu_cc6.1|gpu_cc7.5" --mem=24G -o models/$data-$treebank${EXP:+-$EXP}/training.log run withcuda100 venv/bin/python udpipe2.py models/$data-$treebank${EXP:+-$EXP} --train $data/$treebank/$treebank-*train.conllu $evaluation_data $args "$@"
+sbatch $SLURM_ARGS -p gpu-ms,gpu-troja -G 1 -C "gpu_cc6.1|gpu_cc7.5" -x dll-8gpu5 --mem=24G -o models/$data-$treebank${EXP:+-$EXP}/training.log run withcuda100 venv/bin/python udpipe2.py models/$data-$treebank${EXP:+-$EXP} --train $data/$treebank/$treebank-*train.conllu $evaluation_data $args "$@"
