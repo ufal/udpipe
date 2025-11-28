@@ -1,0 +1,6 @@
+de_hdt 
+de_gsd -1.840
+it_old -3.260
+la_llct -0.900
+orv_torot -1.540
+pt_dantestocks -1.100
