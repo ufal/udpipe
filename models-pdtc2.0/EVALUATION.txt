@@ -1,0 +1,10 @@
+pdt-a raw_text Tokens:99.94 Sentences:88.52 Words:99.94 UPOS:99.94 XPOS:98.38 UFeats:99.94 AllTags:98.38 Lemmas:98.80 LemmasEM:98.62 UAS:94.02 LAS:91.53 CLAS:0.00 MLAS:0.00 BLEX:0.00
+pdt-a gold_tok Tokens:100.00 Sentences:100.00 Words:100.00 UPOS:100.00 XPOS:98.45 UFeats:100.00 AllTags:98.45 Lemmas:98.86 LemmasEM:98.67 UAS:95.25 LAS:92.81 CLAS:0.00 MLAS:0.00 BLEX:0.00
+pcedt-a raw_text Tokens:99.99 Sentences:93.36 Words:99.99 UPOS:99.99 XPOS:99.05 UFeats:99.99 AllTags:99.05 Lemmas:99.53 LemmasEM:98.88 UAS:95.97 LAS:94.39 CLAS:0.00 MLAS:0.00 BLEX:0.00
+pcedt-a gold_tok Tokens:100.00 Sentences:100.00 Words:100.00 UPOS:100.00 XPOS:99.06 UFeats:100.00 AllTags:99.06 Lemmas:99.55 LemmasEM:98.90 UAS:96.52 LAS:94.97 CLAS:0.00 MLAS:0.00 BLEX:0.00
+pdtsc-a raw_text Tokens:100.00 Sentences:98.31 Words:100.00 UPOS:100.00 XPOS:98.96 UFeats:100.00 AllTags:98.96 Lemmas:99.35 LemmasEM:99.29 UAS:94.82 LAS:92.18 CLAS:0.00 MLAS:0.00 BLEX:0.00
+pdtsc-a gold_tok Tokens:100.00 Sentences:100.00 Words:100.00 UPOS:100.00 XPOS:98.96 UFeats:100.00 AllTags:98.96 Lemmas:99.35 LemmasEM:99.29 UAS:94.96 LAS:92.33 CLAS:0.00 MLAS:0.00 BLEX:0.00
+faust-a raw_text Tokens:100.00 Sentences:10.98 Words:100.00 UPOS:100.00 XPOS:97.37 UFeats:100.00 AllTags:97.37 Lemmas:99.10 LemmasEM:98.62 UAS:84.31 LAS:80.98 CLAS:0.00 MLAS:0.00 BLEX:0.00
+faust-a gold_tok Tokens:100.00 Sentences:100.00 Words:100.00 UPOS:100.00 XPOS:97.82 UFeats:100.00 AllTags:97.82 Lemmas:99.15 LemmasEM:98.70 UAS:91.44 LAS:88.40 CLAS:0.00 MLAS:0.00 BLEX:0.00
+
+MacrAvg gold_tok Tokens:100.00 Sentences:100.00 Words:100.00 UPOS:100.00 XPOS:98.57 UFeats:100.00 AllTags:98.57 Lemmas:99.23 LemmasEM:98.89 UAS:94.54 LAS:92.13 CLAS:0.00 MLAS:0.00 BLEX:0.00
