@@ -125,7 +125,7 @@ and <a href="https://ufal.mff.cuni.cz/udpipe/1/models">UDPipe 1 models list</a>.
     var tree_desc = [];
     var tree_nodes = [];
 
-    var is_pdtc = output_file_content.indexOf("\n# udpipe_model = czech-pdtc") >= 0
+    var is_pdtc = output_file_content.indexOf("\n# udpipe_model = czech-pdtc") >= 0 && output_file_content.indexOf("\n# udpipe_model = czech-pdtc-ud") < 0;
     var lines = output_file_content.split(/\r?\n/);
     lines.push('');
     for (var i in lines) {
