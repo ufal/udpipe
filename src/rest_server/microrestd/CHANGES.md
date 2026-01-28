@@ -1,3 +1,8 @@
+Version 1.2.5 [28 Jan 26]
+-------------------------
+- Fix an incorrectl strong enum type to avoid warnings on C++20.
+
+
 Version 1.2.4 [19 Nov 25]
 -------------------------
 - Stop using VLAs in C++ to avoid warnings on Clang 18.

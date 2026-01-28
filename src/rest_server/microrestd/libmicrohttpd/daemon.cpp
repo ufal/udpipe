@@ -3461,7 +3461,7 @@ MHD_start_daemon_va (unsigned int flags,
 #endif
   daemon->socket_fd = MHD_INVALID_SOCKET;
   daemon->listening_address_reuse = 0;
-  daemon->options = (enum MHD_OPTION) flags;
+  daemon->options = (enum MHD_FLAG) flags;
   daemon->port = port;
   daemon->apc = apc;
   daemon->apc_cls = apc_cls;

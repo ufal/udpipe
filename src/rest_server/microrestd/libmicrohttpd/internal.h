@@ -1165,7 +1165,7 @@ struct MHD_Daemon
   /**
    * Daemon's options.
    */
-  enum MHD_OPTION options;
+  enum MHD_FLAG options;
 
   /**
    * Listen port.
