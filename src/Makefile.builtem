@@ -1,13 +1,13 @@
 # This file is part of C++-Builtem <http://github.com/ufal/cpp_builtem/>.
 #
-# Copyright 2022 Institute of Formal and Applied Linguistics, Faculty of
-# Mathematics and Physics, Charles University in Prague, Czech Republic.
+# Copyright 2014-2026 Institute of Formal and Applied Linguistics, Faculty
+# of Mathematics and Physics, Charles University in Prague, Czech Republic.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-BUILTEM_VERSION := 2.0.0
+BUILTEM_VERSION := 2.2.2
 
 ############
 # PLATFORM #
@@ -78,8 +78,8 @@ ifndef CPP_STANDARD
 endif
 
 # fail for unknown standards
-ifeq ($(filter c++11 c++14 c++17,$(CPP_STANDARD)),)
-  $(error Unsupported C++ standard $(CPP_STANDARD), only [c++11], c++17, c++17 are supported)
+ifeq ($(filter c++11 c++14 c++17 c++20,$(CPP_STANDARD)),)
+  $(error Unsupported C++ standard $(CPP_STANDARD), only [c++11], c++14, c++17, c++20 are supported)
 endif
 
 ####################
@@ -134,6 +134,9 @@ else ifeq ($(PLATFORM_SHELL),cmd)
   cp = copy /y $(subst /,\,$(1)) $(subst /,\,$(2))
   mv = move /y $(subst /,\,$(1)) $(subst /,\,$(2))
   rm = $(foreach f,$(subst /,\,$(wildcard $(1))),if exist $(f) del /q $(f)& if exist $(f) rd /s /q $(f)& )
+endif
+ifeq ($(firstword $(sort $(MAKE_VERSION) 4.0)),4.0)
+  echo = $(file $(1),$(2))
 endif
 
 # Report PLATFORM, PLATFORM_SHELL, MODE and BITNESS if requested
@@ -209,14 +212,14 @@ ifneq ($(filter linux-gcc-% linux-clang-% win-gcc-%,$(PLATFORM)),)
     C_FLAGS += -O3 $(if $(findstring -gcc-,$(PLATFORM)),-g1 -pg,-gline-tables-only)
     LD_FLAGS += $(if $(findstring -gcc-,$(PLATFORM)),-pg)
   else ifeq ($(MODE),release)
-    C_FLAGS += -O3 -flto
+    C_FLAGS += -O3 -flto$(if $(findstring -gcc-,$(PLATFORM)),=jobserver)
     LD_FLAGS += -s -static-libgcc -static-libstdc++
   endif
 else ifneq ($(filter win-vs-%,$(PLATFORM)),)
   ifneq ($(filter undefined default,$(origin CXX)),)
     CXX = cl
   endif
-  C_FLAGS += /nologo $(if $(filter c++11,$(CPP_STANDARD)),,/std:$(CPP_STANDARD)) /W 2 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8
+  C_FLAGS += /nologo $(if $(filter c++11,$(CPP_STANDARD)),,/std:$(CPP_STANDARD)) /W2 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8
   LD_FLAGS += /MANIFEST:EMBED /MACHINE:$(if $(filter %-64,$(PLATFORM)),X64,X86)
 
   ifeq ($(MODE),normal)
@@ -239,9 +242,9 @@ else ifneq ($(filter macos-clang-%,$(PLATFORM)),)
   DYN_LD_FLAGS += -dynamiclib
 
   ifneq ($(filter %-64,$(PLATFORM)),)
-    C_FLAGS += -target x86_64-apple-macos$(if $(filter c++11 c++14,$(CPP_STANDARD)),10.9,10.14)
+    C_FLAGS += -target x86_64-apple-macos$(if $(filter c++11 c++14,$(CPP_STANDARD)),10.9,$(if $(filter c++17,$(CPP_STANDARD)),10.15,14))
   else ifneq ($(filter %-arm64,$(PLATFORM)),)
-    C_FLAGS += -target arm64-apple-macos11
+    C_FLAGS += -target arm64-apple-macos$(if $(filter c++11 c++14 c++17,$(CPP_STANDARD)),11,14)
   endif
 
   ifeq ($(MODE),normal)
@@ -258,36 +261,43 @@ endif
 
 # build commands
 builtem_link_deps = @$(call echo,>.build/$(call builtem_mangle,$(1)).link.d,.PHONY: $$(if $$(filter $(PLATFORM)-$(MODE),$$(PLATFORM)-$$(MODE)),,$(1)))
+builtem_link_objs = $(if $(2),$(call echo,>$(call builtem_link_objs,$(1)),$(2)),.build/$(1).$(PLATFORM)-$(MODE).objs)
 ifneq ($(filter win-vs-%,$(PLATFORM)),)
   compile = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) /c $(2)
   compile_dyn = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) $(DYN_C_FLAGS) /c $(2)
   define link_exe
     @$(call builtem_link_deps,$(1))
-    $(CXX) /Fe$(1) $(C_FLAGS) $(2) /link $(LD_FLAGS) $(3)
+    @$(call builtem_link_objs,$(1),$(2))
+    $(CXX) /Fe$(1) $(C_FLAGS) @$(call builtem_link_objs,$(1)) /link $(LD_FLAGS) $(3)
   endef
   define link_dynlib
     @$(call builtem_link_deps,$(1))
-    $(CXX) /Fe$(1) $(C_FLAGS) $(DYN_C_FLAGS) $(2) /link /IMPLIB:$(call lib,$(1)) $(LD_FLAGS) $(DYN_LD_FLAGS) $(3)
+    @$(call builtem_link_objs,$(1),$(2))
+    $(CXX) /Fe$(1) $(C_FLAGS) $(DYN_C_FLAGS) @$(call builtem_link_objs,$(1)) /link /IMPLIB:$(call lib,$(1)) $(LD_FLAGS) $(DYN_LD_FLAGS) $(3)
   endef
   define link_lib
     @$(call builtem_link_deps,$(1))
-    lib /out:$(1) $(2)
+    @$(call builtem_link_objs,$(1),$(2))
+    lib /nologo /out:$(1) @$(call builtem_link_objs,$(1))
   endef
 else
   compile = $(CXX) -o $(1) -MMD -MP $(C_FLAGS) -c $(2)
   compile_dyn = $(CXX) -o $(1) -MMD -MP $(C_FLAGS) $(DYN_C_FLAGS) -c $(2)
   define link_exe
     @$(call builtem_link_deps,$(1))
-    $(CXX) -o $(1) $(C_FLAGS) $(2) $(LD_FLAGS) $(3)
+    @$(call builtem_link_objs,$(1),$(2))
+    $(if $(findstring -flto=jobserver,$(C_FLAGS)),+)$(CXX) -o $(1) $(C_FLAGS) @$(call builtem_link_objs,$(1)) $(LD_FLAGS) $(3)
   endef
   define link_dynlib
     @$(call builtem_link_deps,$(1))
-    $(CXX) -o $(1) $(C_FLAGS) $(DYN_C_FLAGS) $(2) $(LD_FLAGS) $(DYN_LD_FLAGS) $(3)
+    @$(call builtem_link_objs,$(1),$(2))
+    $(if $(findstring -flto=jobserver,$(C_FLAGS)),+)$(CXX) -o $(1) $(C_FLAGS) $(DYN_C_FLAGS) @$(call builtem_link_objs,$(1)) $(LD_FLAGS) $(DYN_LD_FLAGS) $(3)
   endef
   define link_lib
     @$(call builtem_link_deps,$(1))
+    @$(call builtem_link_objs,$(1),$(2))
     @$(call rm,$(1))
-    ar -rcs $(1) $(2)
+    $(if $(filter macos-%,$(PLATFORM)),libtool -static -o,ar -rcs) $(1) @$(call builtem_link_objs,$(1))
   endef
 endif
 
@@ -298,12 +308,18 @@ ifneq ($(filter win-vs-%,$(PLATFORM)),)
   define_macro = /D $(1)$(if $(2),=$(2))
   disable_assert = /D NDEBUG
   treat_warnings_as_errors = /WX
+  treat_warnings_as_no_errors = /WX:NO
+  default_warnings = /W2
+  disable_all_warnings = /w
 else
   include_dir = $(1:%=-I%)
   use_library = $(1:%=-l%)
   define_macro = -D$(1)$(if $(2),=$(2))
   disable_assert = -DNDEBUG
   treat_warnings_as_errors = -Werror
+  treat_warnings_as_no_errors = -Wno-error
+  default_warnings = -W -Wall
+  disable_all_warnings = -w
 endif
 
 ifneq ($(filter linux-%,$(PLATFORM)),)
@@ -341,7 +357,7 @@ ifneq ($(filter win-vs-%,$(PLATFORM)),)
 COMPILE_DEPS += .build/cl_deps.exe
 .build/cl_deps.exe: .build/cl_deps.cpp
 	@$(info Compiling cl_deps.exe)
-	@$(CXX) /Fe$@ /Fo$@.obj /nologo /W 2 /O1 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8 /MT $< /link /MANIFEST:EMBED /SUBSYSTEM:console,6
+	@$(CXX) /Fe$@ /Fo$@.obj /nologo /W2 /O1 /D WIN32 /D UNICODE /D _UNICODE /D _WIN32_WINNT=0x0601 /EHsc /utf-8 /MT $< /link /MANIFEST:EMBED /SUBSYSTEM:console,6
 .build/cl_deps.cpp: | .build
 	@$(info Generating cl_deps.cpp)
 	@$(call echo,>$@,#include <ctype.h>)
