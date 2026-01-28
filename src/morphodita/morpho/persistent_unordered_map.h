@@ -45,7 +45,7 @@ class persistent_unordered_map {
   inline const unsigned char* data_start(int len) const;
 
   // Creation functions
-  persistent_unordered_map() {}
+  inline persistent_unordered_map();
   template <class Entry, class EntryEncode>
   persistent_unordered_map(const unordered_map<string, Entry>& map, double load_factor, EntryEncode entry_encode);
   template <class Entry, class EntryEncode>
@@ -187,6 +187,8 @@ int persistent_unordered_map::max_length() const {
 const unsigned char* persistent_unordered_map::data_start(int len) const {
   return unsigned(len) < hashes.size() ? hashes[len].data.data() : nullptr;
 }
+
+persistent_unordered_map::persistent_unordered_map() {}
 
 void persistent_unordered_map::resize(unsigned elems) {
   if (hashes.size() == 0) hashes.emplace_back(1);

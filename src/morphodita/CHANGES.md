@@ -1,3 +1,8 @@
+Version 1.11.4-dev
+------------------
+- Fix compilation and avoid warnings in C++20.
+
+
 Version 1.11.3 [24 Nov 25]
 --------------------------
 - Update UFAL C++ Utils to 3.5.5 to silence g++ warning and fix UBSan errors.
