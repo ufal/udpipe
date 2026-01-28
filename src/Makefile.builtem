@@ -7,7 +7,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-BUILTEM_VERSION := 2.2.2
+BUILTEM_VERSION := 2.2.3
 
 ############
 # PLATFORM #
@@ -261,7 +261,7 @@ endif
 
 # build commands
 builtem_link_deps = @$(call echo,>.build/$(call builtem_mangle,$(1)).link.d,.PHONY: $$(if $$(filter $(PLATFORM)-$(MODE),$$(PLATFORM)-$$(MODE)),,$(1)))
-builtem_link_objs = $(if $(2),$(call echo,>$(call builtem_link_objs,$(1)),$(2)),.build/$(1).$(PLATFORM)-$(MODE).objs)
+builtem_link_objs = $(if $(2),$(call echo,>$(call builtem_link_objs,$(1)),$(2)),.build/$(call builtem_mangle,$(1)).$(PLATFORM)-$(MODE).objs)
 ifneq ($(filter win-vs-%,$(PLATFORM)),)
   compile = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) /c $(2)
   compile_dyn = .build/cl_deps $(1) $(CXX) /Fo$(1) $(C_FLAGS) $(DYN_C_FLAGS) /c $(2)
