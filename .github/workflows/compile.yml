@@ -34,11 +34,11 @@ jobs:
             platform: win-vs-32
           - os: windows-2025
             platform: win-vs-64
-          - os: macos-13
-            platform: macos-clang-64
-            c_flags: -Wno-deprecated-declarations
-          - os: macos-14
+          - os: macos-15
             platform: macos-clang-arm64
+            c_flags: -Wno-deprecated-declarations
+          - os: macos-15-intel
+            platform: macos-clang-64
             c_flags: -Wno-deprecated-declarations
 
     steps:
