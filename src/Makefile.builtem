@@ -7,7 +7,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-BUILTEM_VERSION := 2.2.3
+BUILTEM_VERSION := 2.2.4
 
 ############
 # PLATFORM #
@@ -136,7 +136,7 @@ else ifeq ($(PLATFORM_SHELL),cmd)
   rm = $(foreach f,$(subst /,\,$(wildcard $(1))),if exist $(f) del /q $(f)& if exist $(f) rd /s /q $(f)& )
 endif
 ifeq ($(firstword $(sort $(MAKE_VERSION) 4.0)),4.0)
-  echo = $(file $(1),$(2))
+  echo = $(if $(2),$(file $(1),$(2)),$(if $(filter sh,$(PLATFORM_SHELL)),$(1),type nul$(subst /,\,$(1))))
 endif
 
 # Report PLATFORM, PLATFORM_SHELL, MODE and BITNESS if requested
